@@ -19,7 +19,7 @@
  * MA 02111-1307, USA.
  */
 
-//$Id: ScrollableBox.java,v 1.17 2004/09/23 14:17:01 jesper Exp $
+//$Id: ScrollableBox.java,v 1.19 2004/11/11 14:11:14 jesper Exp $
 
 package net.infonode.gui;
 
@@ -49,7 +49,8 @@ public class ScrollableBox extends JPanel {
     }
 
     public Dimension minimumLayoutSize(Container parent) {
-      Dimension min = (parent.getComponentCount() == 0) ? new Dimension(0, 0) : parent.getComponent(0).getMinimumSize();
+      Dimension min = (parent.getComponentCount() == 0) ?
+                      new Dimension(0, 0) : parent.getComponent(0).getMinimumSize();
 
       return LayoutUtil.add(vertical ? new Dimension(min.width, 0) : new Dimension(0, min.height), parent.getInsets());
     }
@@ -68,6 +69,8 @@ public class ScrollableBox extends JPanel {
 
   private boolean leftEnd = true;
   private boolean rightEnd = false;
+
+  private ArrayList layoutOrderList;
 
   private MouseWheelListener mouseWheelListener = new MouseWheelListener() {
     public void mouseWheelMoved(MouseWheelEvent e) {
@@ -160,6 +163,10 @@ public class ScrollableBox extends JPanel {
     fireChanged();
   }
 
+  public void setLayoutOrderList(ArrayList layoutOrderList) {
+    this.layoutOrderList = layoutOrderList;
+  }
+
   private int getDimensionSize(Dimension d) {
     return (int) (vertical ? d.getHeight() : d.getWidth());
   }
@@ -173,13 +180,25 @@ public class ScrollableBox extends JPanel {
   }
 
   private int getScrollOffset(int index) {
-    return (index == 0) ? 0 : Math.min(scrollOffset, getDimensionSize(getScrollingComponents()[index - 1].getPreferredSize()) / 2);
+    return (index == 0) ?
+           0 : Math.min(scrollOffset, getDimensionSize(getScrollingComponents()[index - 1].getPreferredSize()) / 2);
   }
 
   private Component[] getScrollingComponents() {
     JComponent c = getScrollingComponent();
 
-    return (c == null) ? new Component[0] : c.getComponents();
+    if (c == null)
+      return new Component[0];
+
+    if (layoutOrderList != null) {
+      Component[] components = new Component[layoutOrderList.size()];
+      for (int i = 0; i < layoutOrderList.size(); i++)
+        components[i] = (Component) layoutOrderList.get(i);
+
+      return components;
+    }
+
+    return c.getComponents();
   }
 
   private int getScrollingComponentCount() {
@@ -224,7 +243,10 @@ public class ScrollableBox extends JPanel {
       leftEnd = leftIndex == 0;
       rightEnd = !(leftIndex < fitIndex);
 
-      scrollingComponent.setLocation(createPos(((count == 0) ? 0 : (-getPos(getScrollingComponents()[leftIndex].getLocation()))) + getScrollOffset(leftIndex)));
+      scrollingComponent.setLocation(
+          createPos(
+              ((count == 0) ? 0 : (-getPos(getScrollingComponents()[leftIndex].getLocation()))) + getScrollOffset(
+                  leftIndex)));
       Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
         if (oldLeftIndex < index)

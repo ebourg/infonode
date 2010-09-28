@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyRefValue.java,v 1.8 2004/09/22 14:32:50 jesper Exp $
+// $Id: PropertyRefValue.java,v 1.9 2004/11/05 13:03:34 jesper Exp $
 package net.infonode.properties.propertymap.value;
 
 import net.infonode.properties.base.Property;
@@ -39,7 +39,7 @@ import java.io.ObjectOutputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public class PropertyRefValue implements PropertyValue, ChangeNotifyMapListener {
   private PropertyMapImpl map;
@@ -60,8 +60,13 @@ public class PropertyRefValue implements PropertyValue, ChangeNotifyMapListener 
     this.propertyObjectRef = propertyObjectRef;
     this.propertyRef = propertyRef;
     this.parentRef = parentRef;
+  }
 
-    propertyObjectRef.getMap(map).getMap().addWeakListener(this);
+  public void updateListener(boolean enable) {
+    if (enable)
+      propertyObjectRef.getMap(map).getMap().addListener(this);
+    else
+      propertyObjectRef.getMap(map).getMap().removeListener(this);
   }
 
   public PropertyValue getParent() {

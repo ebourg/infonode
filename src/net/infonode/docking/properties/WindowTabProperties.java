@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowTabProperties.java,v 1.11 2004/09/28 15:07:29 jesper Exp $
+// $Id: WindowTabProperties.java,v 1.12 2004/10/14 15:28:36 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.base.Property;
@@ -32,7 +32,7 @@ import net.infonode.tabbedpanel.titledtab.TitledTabStateProperties;
  * Properties and property values for window tabs.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.12 $
  */
 public class WindowTabProperties extends PropertyMapContainer {
   /**
@@ -46,7 +46,7 @@ public class WindowTabProperties extends PropertyMapContainer {
   public static final PropertyMapProperty TITLED_TAB_PROPERTIES =
       new PropertyMapProperty(PROPERTIES,
                               "Titled Tab Properties",
-                              "Property values for the titled tab used in the tab.",
+                              "Property values for the TitledTab used in the window tab.",
                               TitledTabProperties.PROPERTIES);
 
   /**
@@ -55,9 +55,9 @@ public class WindowTabProperties extends PropertyMapContainer {
   public static final PropertyMapProperty FOCUSED_PROPERTIES =
       new PropertyMapProperty(PROPERTIES,
                               "Focused Properties",
-                              "Property values for the titled tab when is focused or a component in the tab's content component has focus.\n" +
-                              "The property values are inherited from '" + TITLED_TAB_PROPERTIES + '.' +
-                              TitledTabProperties.HIGHLIGHTED_PROPERTIES + "'.",
+                              "Property values for the TitledTab when the window is focused or a component in the tab's content component has focus.\n" +
+                              "The " + TITLED_TAB_PROPERTIES + '.' +
+                              TitledTabProperties.HIGHLIGHTED_PROPERTIES + " property values are inherited from.",
                               TitledTabStateProperties.PROPERTIES);
 
   /**

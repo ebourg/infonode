@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowTabButtonProperties.java,v 1.9 2004/09/28 15:07:29 jesper Exp $
+// $Id: WindowTabButtonProperties.java,v 1.10 2004/10/14 15:28:36 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.gui.button.ButtonFactory;
@@ -36,7 +36,7 @@ import javax.swing.*;
  * Properties and property values for a button in a window tab.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
 public class WindowTabButtonProperties extends PropertyMapContainer {
   /**
@@ -45,11 +45,11 @@ public class WindowTabButtonProperties extends PropertyMapContainer {
   public static final PropertyMapGroup PROPERTIES = new PropertyMapGroup("Window Tab Button Properties", "");
 
   /**
-   * The button is visible.
+   * True if the button is visible.
    */
   public static final BooleanProperty VISIBLE = new BooleanProperty(PROPERTIES,
                                                                     "Visible",
-                                                                    "The button is visible.",
+                                                                    "True if the button is visible.",
                                                                     PropertyMapValueHandler.INSTANCE);
 
   /**

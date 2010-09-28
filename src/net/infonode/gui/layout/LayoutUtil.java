@@ -20,7 +20,7 @@
  */
 
 
-// $Id: LayoutUtil.java,v 1.6 2004/09/22 14:35:04 jesper Exp $
+// $Id: LayoutUtil.java,v 1.9 2004/11/11 14:11:14 jesper Exp $
 package net.infonode.gui.layout;
 
 import net.infonode.util.Direction;
@@ -32,7 +32,10 @@ public class LayoutUtil {
   }
 
   public static Component[] getVisibleChildren(Container parent) {
-    Component[] components = parent.getComponents();
+    return getVisibleChildren(parent.getComponents());
+  }
+
+  public static Component[] getVisibleChildren(Component[] components) {
     int count = 0;
 
     for (int i = 0; i < components.length; i++)
@@ -51,12 +54,16 @@ public class LayoutUtil {
 
   public static Rectangle getInteriorArea(Container container) {
     Insets insets = container.getInsets();
-    return new Rectangle(insets.left, insets.top, container.getWidth() - insets.left - insets.right, container.getHeight() - insets.top - insets.bottom);
+    return new Rectangle(insets.left,
+                         insets.top,
+                         container.getWidth() - insets.left - insets.right,
+                         container.getHeight() - insets.top - insets.bottom);
   }
 
   public static Dimension getInteriorSize(Container container) {
     Insets insets = container.getInsets();
-    return new Dimension(container.getWidth() - insets.left - insets.right, container.getHeight() - insets.top - insets.bottom);
+    return new Dimension(container.getWidth() - insets.left - insets.right,
+                         container.getHeight() - insets.top - insets.bottom);
   }
 
   public static Dimension rotate(Dimension dim, Direction dir) {
@@ -77,21 +84,15 @@ public class LayoutUtil {
 
     for (int i = 0; i < components.length; i++) {
       if (components[i] != null) {
-        try {
-          Dimension min = components[i].getMinimumSize();
-          int w = min.width;
-          int h = min.height;
+        Dimension min = components[i].getMinimumSize();
+        int w = min.width;
+        int h = min.height;
 
-          if (maxHeight < h)
-            maxHeight = h;
+        if (maxHeight < h)
+          maxHeight = h;
 
-          if (maxWidth < w)
-            maxWidth = w;
-        }
-        catch (NullPointerException e) {
-          e.printStackTrace();
-
-        }
+        if (maxWidth < w)
+          maxWidth = w;
       }
     }
 
@@ -166,7 +167,8 @@ public class LayoutUtil {
   }
 
   public static Component getChildContaining(Component parent, Component component) {
-    return component == null ? null : component.getParent() == parent ? component : getChildContaining(parent, component.getParent());
+    return component == null ?
+           null : component.getParent() == parent ? component : getChildContaining(parent, component.getParent());
   }
 
   public static String getBorderLayoutOrientation(Direction direction) {

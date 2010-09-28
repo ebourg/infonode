@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowBarProperties.java,v 1.23 2004/09/28 15:07:29 jesper Exp $
+// $Id: WindowBarProperties.java,v 1.25 2004/11/10 16:53:01 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.gui.util.ComponentProperties;
@@ -32,7 +32,7 @@ import net.infonode.util.Direction;
  * Properties and property values for window bars.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.23 $
+ * @version $Revision: 1.25 $
  */
 public class WindowBarProperties extends PropertyMapContainer {
   /**
@@ -45,7 +45,7 @@ public class WindowBarProperties extends PropertyMapContainer {
    */
   public static final PropertyMapProperty COMPONENT_PROPERTIES = new PropertyMapProperty(PROPERTIES,
                                                                                          "Component Properties",
-                                                                                         "The window bar component properties.",
+                                                                                         "The WindowBar component properties.",
                                                                                          ComponentProperties.PROPERTIES);
 
   /**

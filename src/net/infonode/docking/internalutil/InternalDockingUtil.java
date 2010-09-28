@@ -20,7 +20,7 @@
  */
 
 
-// $Id: InternalDockingUtil.java,v 1.13 2004/09/28 15:07:29 jesper Exp $
+// $Id: InternalDockingUtil.java,v 1.16 2004/11/11 16:41:58 jesper Exp $
 package net.infonode.docking.internalutil;
 
 import net.infonode.docking.DockingWindow;
@@ -35,14 +35,13 @@ import net.infonode.util.IntList;
 import net.infonode.util.Printer;
 
 import javax.swing.*;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.16 $
  */
 public class InternalDockingUtil {
   private InternalDockingUtil() {
@@ -60,8 +59,10 @@ public class InternalDockingUtil {
    * @return the window located at <tt>windowPath</tt>
    */
   public static DockingWindow getWindow(DockingWindow relativeToWindow, IntList windowPath) {
-    return windowPath.isEmpty() ? relativeToWindow : windowPath.getValue() >= relativeToWindow.getChildWindowCount() ? null :
-                                                     getWindow(relativeToWindow.getChildWindow(windowPath.getValue()), windowPath.getNext());
+    return windowPath.isEmpty() ?
+           relativeToWindow :
+           windowPath.getValue() >= relativeToWindow.getChildWindowCount() ? null :
+           getWindow(relativeToWindow.getChildWindow(windowPath.getValue()), windowPath.getNext());
   }
 
   private static IntList getWindowPath(DockingWindow window, IntList tail) {
@@ -106,10 +107,10 @@ public class InternalDockingUtil {
   public static RootWindow createInnerRootWindow(View[] views) {
     RootWindow rootWindow = DockingUtil.createRootWindow(new ViewMap(views), true);
     rootWindow.getRootWindowProperties().getWindowAreaProperties().setBackgroundColor(null);
-//    rootWindow.getRootWindowProperties().getWindowAreaProperties().setBorder(null);
+    rootWindow.getRootWindowProperties().getWindowAreaShapedPanelProperties().setComponentPainter(null);
     rootWindow.getRootWindowProperties().getComponentProperties().setBackgroundColor(null);
     rootWindow.getRootWindowProperties().getComponentProperties().setBorder(null);
-    rootWindow.getRootWindowProperties().getWindowAreaProperties().setBorder(new LineBorder(Color.GRAY));
+    //rootWindow.getRootWindowProperties().getWindowAreaProperties().setBorder(new LineBorder(Color.GRAY));
     return rootWindow;
   }
 

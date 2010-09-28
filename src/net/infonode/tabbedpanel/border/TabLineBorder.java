@@ -20,10 +20,9 @@
  */
 
 
-// $Id: TabLineBorder.java,v 1.19 2004/09/28 15:23:30 jesper Exp $
+// $Id: TabLineBorder.java,v 1.24 2004/11/11 14:10:33 jesper Exp $
 package net.infonode.tabbedpanel.border;
 
-import net.infonode.gui.ComponentUtil;
 import net.infonode.gui.colorprovider.ColorProvider;
 import net.infonode.gui.colorprovider.ColorProviderUtil;
 import net.infonode.gui.colorprovider.UIManagerColorProvider;
@@ -42,9 +41,11 @@ import java.io.Serializable;
  * tabbed panel is 0 then the border will only draw a single line between two adjacent tabs.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.19 $
+ * @version $Revision: 1.24 $
  * @see Tab
  * @see TabbedPanel
+ * @deprecated As of ITP 1.2.0 use {@link TabAreaLineBorder} instead with
+ *             {@link net.infonode.tabbedpanel.TabbedPanelProperties#TAB_SPACING} set to -1.
  */
 public class TabLineBorder implements Border, Serializable {
   private static final long serialVersionUID = 1;
@@ -336,9 +337,9 @@ public class TabLineBorder implements Border, Serializable {
   }
 
   private void initialize(Tab tab) {
-    index = ComponentUtil.getComponentIndex(tab);
-    last = ComponentUtil.getComponentIndex(tab) == tab.getParent().getComponentCount() - 1;
-    afterHighlighted = index > 0 && tab.getParent().getComponent(index - 1) == tab.getTabbedPanel().getHighlightedTab();
+    index = tab.getTabbedPanel().getTabIndex(tab);
+    last = index == tab.getTabbedPanel().getTabCount() - 1;
+    afterHighlighted = index > 0 && tab.getTabbedPanel().getTabAt(index - 1) == tab.getTabbedPanel().getHighlightedTab();
     highlighted = tab == tab.getTabbedPanel().getHighlightedTab();
   }
 

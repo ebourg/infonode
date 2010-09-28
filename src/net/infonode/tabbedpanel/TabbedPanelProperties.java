@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabbedPanelProperties.java,v 1.39 2004/09/28 15:07:29 jesper Exp $
+// $Id: TabbedPanelProperties.java,v 1.44 2004/11/11 14:10:33 jesper Exp $
 
 package net.infonode.tabbedpanel;
 
@@ -45,7 +45,7 @@ import java.awt.event.KeyEvent;
  * content area and the tab area of the TabbedPanel.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.39 $
+ * @version $Revision: 1.44 $
  * @see TabbedPanel
  * @see #getContentPanelProperties
  * @see #getTabAreaProperties
@@ -54,7 +54,8 @@ public class TabbedPanelProperties extends PropertyMapContainer {
   /**
    * A property group for all properties in TabbedPanelProperties
    */
-  public static final PropertyMapGroup PROPERTIES = new PropertyMapGroup("Tabbed Panel Properties", "Properties for the TabbedPanel class.");
+  public static final PropertyMapGroup PROPERTIES = new PropertyMapGroup("Tabbed Panel Properties",
+                                                                         "Properties for the TabbedPanel class.");
 
   /**
    * Tab reorder property
@@ -62,7 +63,10 @@ public class TabbedPanelProperties extends PropertyMapContainer {
    * @see #setTabReorderEnabled
    * @see #getTabReorderEnabled
    */
-  public static final BooleanProperty TAB_REORDER_ENABLED = new BooleanProperty(PROPERTIES, "Tab Reorder Enabled", "Tab reorder enabled or disabled", PropertyMapValueHandler.INSTANCE);
+  public static final BooleanProperty TAB_REORDER_ENABLED = new BooleanProperty(PROPERTIES,
+                                                                                "Tab Reorder Enabled",
+                                                                                "Tab reorder enabled or disabled",
+                                                                                PropertyMapValueHandler.INSTANCE);
 
   /**
    * Abort drag key code property
@@ -70,7 +74,11 @@ public class TabbedPanelProperties extends PropertyMapContainer {
    * @see #setAbortDragKey
    * @see #getAbortDragKey
    */
-  public static final IntegerProperty ABORT_DRAG_KEY = IntegerProperty.createPositive(PROPERTIES, "Abort Drag Key Code", "Key code for aborting drag", 3, PropertyMapValueHandler.INSTANCE);
+  public static final IntegerProperty ABORT_DRAG_KEY = IntegerProperty.createPositive(PROPERTIES,
+                                                                                      "Abort Drag Key Code",
+                                                                                      "Key code for aborting drag",
+                                                                                      3,
+                                                                                      PropertyMapValueHandler.INSTANCE);
 
   /**
    * Tab layout property
@@ -78,7 +86,10 @@ public class TabbedPanelProperties extends PropertyMapContainer {
    * @see #setTabLayoutPolicy
    * @see #getTabLayoutPolicy
    */
-  public static final TabLayoutPolicyProperty TAB_LAYOUT_POLICY = new TabLayoutPolicyProperty(PROPERTIES, "Layout Policy", "Tab layout in tab area", PropertyMapValueHandler.INSTANCE);
+  public static final TabLayoutPolicyProperty TAB_LAYOUT_POLICY = new TabLayoutPolicyProperty(PROPERTIES,
+                                                                                              "Layout Policy",
+                                                                                              "Tab layout in tab area",
+                                                                                              PropertyMapValueHandler.INSTANCE);
 
   /**
    * Tab drop down list visible property
@@ -87,8 +98,11 @@ public class TabbedPanelProperties extends PropertyMapContainer {
    * @see #getTabDropDownListVisiblePolicy
    * @since ITP 1.1.0
    */
-  public static final TabDropDownListVisiblePolicyProperty TAB_DROP_DOWN_LIST_VISIBLE_POLICY = new TabDropDownListVisiblePolicyProperty(PROPERTIES, "Tab Drop Down List Visible Policy",
-                                                                                                                                        "Determins when a drop down list with tabs should be visible in the tab area", PropertyMapValueHandler.INSTANCE);
+  public static final TabDropDownListVisiblePolicyProperty TAB_DROP_DOWN_LIST_VISIBLE_POLICY = new TabDropDownListVisiblePolicyProperty(
+      PROPERTIES,
+      "Tab Drop Down List Visible Policy",
+      "Determins when a drop down list with tabs should be visible in the tab area",
+      PropertyMapValueHandler.INSTANCE);
 
   /**
    * Tab select trigger
@@ -97,7 +111,9 @@ public class TabbedPanelProperties extends PropertyMapContainer {
    * @see #getTabSelectTrigger
    * @since ITP 1.1.0
    */
-  public static final TabSelectTriggerProperty TAB_SELECT_TRIGGER = new TabSelectTriggerProperty(PROPERTIES, "Tab Select Trigger", "Determins when a tab should be selected",
+  public static final TabSelectTriggerProperty TAB_SELECT_TRIGGER = new TabSelectTriggerProperty(PROPERTIES,
+                                                                                                 "Tab Select Trigger",
+                                                                                                 "Determins when a tab should be selected",
                                                                                                  PropertyMapValueHandler.INSTANCE);
 
   /**
@@ -136,7 +152,25 @@ public class TabbedPanelProperties extends PropertyMapContainer {
    * @see #setTabSpacing
    * @see #getTabSpacing
    */
-  public static final IntegerProperty TAB_SPACING = IntegerProperty.createPositive(PROPERTIES, "Tab Spacing", "Number of pixels between tabs in tab area", 2, PropertyMapValueHandler.INSTANCE);
+  public static final IntegerProperty TAB_SPACING = new IntegerProperty(PROPERTIES,
+                                                                        "Tab Spacing",
+                                                                        "Number of pixels between tabs in tab area. A negative value will result in tab overlapping.",
+                                                                        Integer.MIN_VALUE,
+                                                                        Integer.MAX_VALUE,
+                                                                        3,
+                                                                        PropertyMapValueHandler.INSTANCE);
+
+  /**
+   * Tab depth order.
+   *
+   * @see #setAutoSelectTab
+   * @see #getAutoSelectTab
+   * @since ITP 1.2.0
+   */
+  public static final TabDepthOrderPolicyProperty TAB_DEPTH_ORDER = new TabDepthOrderPolicyProperty(PROPERTIES,
+                                                                                                    "Tab Depth Order",
+                                                                                                    "Tabs will overlap when tab spacing is negative. Depth order tells if first tab should be the top most and the other tabs in descending order or if the first tab should be bottom most and the other tabs in ascending order.",
+                                                                                                    PropertyMapValueHandler.INSTANCE);
 
   /**
    * Auto select tab property
@@ -144,8 +178,11 @@ public class TabbedPanelProperties extends PropertyMapContainer {
    * @see #setAutoSelectTab
    * @see #getAutoSelectTab
    */
-  public static final BooleanProperty AUTO_SELECT_TAB = new BooleanProperty(PROPERTIES, "Auto Select Tab", "When enabled the first tab that i added will be selected automatically. "
-                                                                                                           + "If the selected tab is removed then the tab next to the removed tab will be selected automatically.", PropertyMapValueHandler.INSTANCE);
+  public static final BooleanProperty AUTO_SELECT_TAB = new BooleanProperty(PROPERTIES,
+                                                                            "Auto Select Tab",
+                                                                            "When enabled the first tab that i added will be selected automatically. "
+                                                                            + "If the selected tab is removed then the tab next to the removed tab will be selected automatically.",
+                                                                            PropertyMapValueHandler.INSTANCE);
 
   /**
    * If true the tab pressed with the mouse will be highlighted, otherwise it
@@ -154,8 +191,10 @@ public class TabbedPanelProperties extends PropertyMapContainer {
    * @see #setHighlightPressedTab
    * @see #getHighlightPressedTab
    */
-  public static final BooleanProperty HIGHLIGHT_PRESSED_TAB = new BooleanProperty(PROPERTIES, "Highlight Pressed Tab",
-                                                                                  "If true the tab pressed with the mouse will be highlighted, otherwise it remains unchanged.", PropertyMapValueHandler.INSTANCE);
+  public static final BooleanProperty HIGHLIGHT_PRESSED_TAB = new BooleanProperty(PROPERTIES,
+                                                                                  "Highlight Pressed Tab",
+                                                                                  "If true the tab pressed with the mouse will be highlighted, otherwise it remains unchanged.",
+                                                                                  PropertyMapValueHandler.INSTANCE);
 
   /**
    * Tab deselectable property
@@ -171,7 +210,9 @@ public class TabbedPanelProperties extends PropertyMapContainer {
    *
    * @see #getContentPanelProperties
    */
-  public static final PropertyMapProperty CONTENT_PANEL_PROPERTIES = new PropertyMapProperty(PROPERTIES, "Content Panel Properties", "Content panel properties.",
+  public static final PropertyMapProperty CONTENT_PANEL_PROPERTIES = new PropertyMapProperty(PROPERTIES,
+                                                                                             "Content Panel Properties",
+                                                                                             "Content panel properties.",
                                                                                              TabbedPanelContentPanelProperties.PROPERTIES);
 
   /**
@@ -179,7 +220,10 @@ public class TabbedPanelProperties extends PropertyMapContainer {
    *
    * @see #getTabAreaProperties
    */
-  public static final PropertyMapProperty TAB_AREA_PROPERTIES = new PropertyMapProperty(PROPERTIES, "Tab Area Properties", "Tab area properties.", TabAreaProperties.PROPERTIES);
+  public static final PropertyMapProperty TAB_AREA_PROPERTIES = new PropertyMapProperty(PROPERTIES,
+                                                                                        "Tab Area Properties",
+                                                                                        "Tab area properties.",
+                                                                                        TabAreaProperties.PROPERTIES);
 
   /**
    * Tab area components properties
@@ -187,7 +231,9 @@ public class TabbedPanelProperties extends PropertyMapContainer {
    * @see #getTabAreaComponentsProperties
    * @since ITP 1.1.0
    */
-  public static final PropertyMapProperty TAB_AREA_COMPONENTS_PROPERTIES = new PropertyMapProperty(PROPERTIES, "Tab Area Components Properties", "Tab area components properties.",
+  public static final PropertyMapProperty TAB_AREA_COMPONENTS_PROPERTIES = new PropertyMapProperty(PROPERTIES,
+                                                                                                   "Tab Area Components Properties",
+                                                                                                   "Tab area components properties.",
                                                                                                    TabAreaComponentsProperties.PROPERTIES);
 
   /**
@@ -196,8 +242,11 @@ public class TabbedPanelProperties extends PropertyMapContainer {
    * @see #setShadowEnabled
    * @see #getShadowEnabled
    */
-  public static final BooleanProperty SHADOW_ENABLED = new BooleanProperty(PROPERTIES, "Shadow Enabled", "Indicates that a shadow is painted for the selected tab and the content panel.\n"
-                                                                                                         + "The shadow is partially painted using alpha transparency which can be slow on some systems.", PropertyMapValueHandler.INSTANCE);
+  public static final BooleanProperty SHADOW_ENABLED = new BooleanProperty(PROPERTIES,
+                                                                           "Shadow Enabled",
+                                                                           "Indicates that a shadow is painted for the selected tab and the content panel.\n"
+                                                                           + "The shadow is partially painted using alpha transparency which can be slow on some systems.",
+                                                                           PropertyMapValueHandler.INSTANCE);
 
   /**
    * Paint a shadow for the tab area. If this property is set to false a
@@ -207,8 +256,10 @@ public class TabbedPanelProperties extends PropertyMapContainer {
    * @see #setPaintTabAreaShadow(boolean)
    * @see #getPaintTabAreaShadow()
    */
-  public static final BooleanProperty PAINT_TAB_AREA_SHADOW = new BooleanProperty(PROPERTIES, "Paint Tab Area Shadow",
-                                                                                  "Paint a shadow for the tab area. If this property is set to false a shadow is painted for " + "the highlighted tab and the tab area components panel.", PropertyMapValueHandler.INSTANCE);
+  public static final BooleanProperty PAINT_TAB_AREA_SHADOW = new BooleanProperty(PROPERTIES,
+                                                                                  "Paint Tab Area Shadow",
+                                                                                  "Paint a shadow for the tab area. If this property is set to false a shadow is painted for " + "the highlighted tab and the tab area components panel.",
+                                                                                  PropertyMapValueHandler.INSTANCE);
 
   /**
    * Shadow size property
@@ -216,7 +267,11 @@ public class TabbedPanelProperties extends PropertyMapContainer {
    * @see #setShadowSize
    * @see #getShadowSize
    */
-  public static final IntegerProperty SHADOW_SIZE = IntegerProperty.createPositive(PROPERTIES, "Shadow Size", "The size of the tab shadow.", 2, PropertyMapValueHandler.INSTANCE);
+  public static final IntegerProperty SHADOW_SIZE = IntegerProperty.createPositive(PROPERTIES,
+                                                                                   "Shadow Size",
+                                                                                   "The size of the tab shadow.",
+                                                                                   2,
+                                                                                   PropertyMapValueHandler.INSTANCE);
 
   /**
    * Shadow blend area size property
@@ -236,7 +291,10 @@ public class TabbedPanelProperties extends PropertyMapContainer {
    * @see #setShadowColor
    * @see #getShadowColor
    */
-  public static final ColorProperty SHADOW_COLOR = new ColorProperty(PROPERTIES, "Shadow Color", "The color of the shadow.", PropertyMapValueHandler.INSTANCE);
+  public static final ColorProperty SHADOW_COLOR = new ColorProperty(PROPERTIES,
+                                                                     "Shadow Color",
+                                                                     "The color of the shadow.",
+                                                                     PropertyMapValueHandler.INSTANCE);
 
   /**
    * Shadow strength property
@@ -244,8 +302,13 @@ public class TabbedPanelProperties extends PropertyMapContainer {
    * @see #setShadowStrength
    * @see #getShadowStrength
    */
-  public static final FloatProperty SHADOW_STRENGTH = new FloatProperty(PROPERTIES, "Shadow Strength", "The strength of the shadow. 0 means the shadow color is the same as the backgound color, "
-                                                                                                       + "1 means the shadow color is '" + SHADOW_COLOR + "'.", PropertyMapValueHandler.INSTANCE, 0, 1);
+  public static final FloatProperty SHADOW_STRENGTH = new FloatProperty(PROPERTIES,
+                                                                        "Shadow Strength",
+                                                                        "The strength of the shadow. 0 means the shadow color is the same as the backgound color, "
+                                                                        + "1 means the shadow color is '" + SHADOW_COLOR + "'.",
+                                                                        PropertyMapValueHandler.INSTANCE,
+                                                                        0,
+                                                                        1);
 
   /**
    * Array with all properties that controls the functional behavior
@@ -268,7 +331,9 @@ public class TabbedPanelProperties extends PropertyMapContainer {
    * Array with all properties that controls the visual apperance including
    * shadow
    */
-  public static final Property[] VISUAL_PROPERTIES = (Property[]) ArrayUtil.append(TABS_VISUAL_PROPERTIES, SHADOW_PROPERTIES, new Property[TABS_VISUAL_PROPERTIES.length + SHADOW_PROPERTIES.length]);
+  public static final Property[] VISUAL_PROPERTIES = (Property[]) ArrayUtil.append(TABS_VISUAL_PROPERTIES,
+                                                                                   SHADOW_PROPERTIES,
+                                                                                   new Property[TABS_VISUAL_PROPERTIES.length + SHADOW_PROPERTIES.length]);
 
   private static final TabbedPanelProperties DEFAULT_PROPERTIES = new TabbedPanelProperties(PROPERTIES.getDefaultMap());
 
@@ -300,18 +365,37 @@ public class TabbedPanelProperties extends PropertyMapContainer {
   private static void updateVisualProperties() {
     PropertyMapManager.runBatch(new Runnable() {
       public void run() {
-        DEFAULT_PROPERTIES.getContentPanelProperties().getComponentProperties().setBorder(new OpenContentBorder(TabbedUIDefaults.getDarkShadow(), TabbedUIDefaults.getHighlight())).setInsets(TabbedUIDefaults.getContentAreaInsets()).setBackgroundColor(TabbedUIDefaults.getContentAreaBackground());
-        DEFAULT_PROPERTIES.getTabAreaComponentsProperties().setStretchEnabled(false).getComponentProperties().setBorder(new CompoundBorder(new TabAreaLineBorder(TabbedUIDefaults.getDarkShadow()), new HighlightBorder(false, TabbedUIDefaults.getHighlight()))).setBackgroundColor(TabbedUIDefaults.getContentAreaBackground());
+        DEFAULT_PROPERTIES.getContentPanelProperties().getComponentProperties().setBorder(
+            new OpenContentBorder(TabbedUIDefaults.getDarkShadow(), TabbedUIDefaults.getHighlight()))
+            .setInsets(TabbedUIDefaults.getContentAreaInsets())
+            .setBackgroundColor(TabbedUIDefaults.getContentAreaBackground());
+        DEFAULT_PROPERTIES.getTabAreaComponentsProperties().setStretchEnabled(false).getComponentProperties()
+            .setBorder(
+                new CompoundBorder(new TabAreaLineBorder(TabbedUIDefaults.getDarkShadow()),
+                                   new HighlightBorder(false, TabbedUIDefaults.getHighlight())))
+            .setBackgroundColor(TabbedUIDefaults.getContentAreaBackground());
       }
     });
   }
 
   private static void updateFunctionalProperties() {
-    DEFAULT_PROPERTIES.setTabReorderEnabled(false).setAbortDragKey(KeyEvent.VK_ESCAPE).setTabLayoutPolicy(TabLayoutPolicy.SCROLLING).setTabDropDownListVisiblePolicy(TabDropDownListVisiblePolicy.NEVER).setTabSelectTrigger(TabSelectTrigger.MOUSE_PRESS).setTabScrollingOffset(10).setTabSpacing(0).setEnsureSelectedTabVisible(false).setTabAreaOrientation(Direction.UP).setAutoSelectTab(true).setHighlightPressedTab(true)
+    DEFAULT_PROPERTIES.setTabReorderEnabled(false)
+        .setAbortDragKey(KeyEvent.VK_ESCAPE)
+        .setTabLayoutPolicy(TabLayoutPolicy.SCROLLING)
+        .setTabDropDownListVisiblePolicy(TabDropDownListVisiblePolicy.NEVER)
+        .setTabSelectTrigger(TabSelectTrigger.MOUSE_PRESS)
+        .setTabScrollingOffset(10).setTabSpacing(-1)
+        .setTabDepthOrderPolicy(TabDepthOrderPolicy.DESCENDING)
+        .setEnsureSelectedTabVisible(false)
+        .setTabAreaOrientation(Direction.UP)
+        .setAutoSelectTab(true)
+        .setHighlightPressedTab(true)
 
-        .setShadowEnabled(false).setShadowSize(3).setShadowBlendAreaSize(2)
-
-        .setShadowColor(Color.BLACK).setShadowStrength(0.4F);
+        .setShadowEnabled(false)
+        .setShadowSize(3)
+        .setShadowBlendAreaSize(2)
+        .setShadowColor(Color.BLACK)
+        .setShadowStrength(0.4F);
   }
 
   /**
@@ -613,14 +697,46 @@ public class TabbedPanelProperties extends PropertyMapContainer {
   }
 
   /**
+   * <p>
    * Sets the tab spacing, i.e. number of pixels between the tabs in the tab
-   * area
+   * area.
+   * </p>
    *
-   * @param value number of pixels
+   * <p>
+   * This can be a negative value i.e. tabs will be overlapping each other. The
+   * depth order can be controlled with the property TAB_DEPTH_ORDER.
+   * </p>
+   *
+   * @param value number of pixels. A negative value reuslts in tabs
+   *              overlapping each other with the number of pixels.
    * @return this TabbedPanelProperties
+   * @see #setTabDepthOrderPolicy
    */
   public TabbedPanelProperties setTabSpacing(int value) {
     TAB_SPACING.set(getMap(), value);
+    return this;
+  }
+
+  /**
+   * <p>
+   * Sets the tab depth order policy to be used when tabs are overlapping i.e.
+   * negative tab spacing.
+   * </p>
+   *
+   * <p>
+   * If the depth order is descending, the first tab will be the top most and
+   * the last tab the bottom most. If the depth order is ascending, then the
+   * first tab will be the bottom most and the last tab the top most. Note that
+   * if a tab is highlighted, it will always be shown as the top most tab.
+   * </p>
+   *
+   * @param policy the tab depth order policy
+   * @return this TabbedPanelProperties
+   * @see #setTabSpacing
+   * @since ITP 1.2.0
+   */
+  public TabbedPanelProperties setTabDepthOrderPolicy(TabDepthOrderPolicy policy) {
+    TAB_DEPTH_ORDER.set(getMap(), policy);
     return this;
   }
 
@@ -869,13 +985,42 @@ public class TabbedPanelProperties extends PropertyMapContainer {
   }
 
   /**
+   * <p>
    * Gets the tab spacing, i.e. number of pixels between the tabs in the tab
-   * area
+   * area.
+   * </p>
    *
-   * @return number of pixels
+   * <p>
+   * This can be a negative value i.e. tabs will be overlapping each other. The
+   * depth order can be controlled with the property TAB_DEPTH_ORDER.
+   * </p>
+   *
+   * @return number of pixels, can be negative i.e. tabs will be overlapping
+   * @see #getTabDepthOrderPolicy
    */
   public int getTabSpacing() {
     return TAB_SPACING.get(getMap());
+  }
+
+  /**
+   * <p>
+   * Gets the tab depth order policy to be used when tabs are overlapping i.e.
+   * negative tab spacing.
+   * </p>
+   *
+   * <p>
+   * If the depth order is descending, the first tab will be the top most and
+   * the last tab the bottom most. If the depth order is ascending, then the
+   * first tab will be the bottom most and the last tab the top most. Note that
+   * if a tab is highlighted, it will always be shown as the top most tab.
+   * </p>
+   *
+   * @return the tab depth order policy
+   * @see #getTabSpacing
+   * @since ITP 1.2.0
+   */
+  public TabDepthOrderPolicy getTabDepthOrderPolicy() {
+    return TAB_DEPTH_ORDER.get(getMap());
   }
 
   /**

@@ -20,18 +20,19 @@
  */
 
 
-//$Id: SlimFlatDockingTheme.java,v 1.12 2004/09/28 15:23:30 jesper Exp $
+//$Id: SlimFlatDockingTheme.java,v 1.14 2004/11/11 14:09:46 jesper Exp $
 package net.infonode.docking.theme;
 
 import net.infonode.docking.properties.RootWindowProperties;
 import net.infonode.docking.properties.WindowBarProperties;
 import net.infonode.docking.properties.WindowTabProperties;
 import net.infonode.gui.icon.button.CloseIcon;
+import net.infonode.gui.icon.button.MaximizeIcon;
 import net.infonode.gui.icon.button.MinimizeIcon;
 import net.infonode.gui.icon.button.RestoreIcon;
 import net.infonode.tabbedpanel.TabLayoutPolicy;
 import net.infonode.tabbedpanel.TabbedPanelProperties;
-import net.infonode.tabbedpanel.border.TabLineBorder;
+import net.infonode.tabbedpanel.border.TabAreaLineBorder;
 import net.infonode.tabbedpanel.theme.SmallFlatTheme;
 
 import javax.swing.border.Border;
@@ -41,7 +42,7 @@ import java.awt.*;
  * A theme very slim theme that doesn't waste any screen space.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.14 $
  */
 public final class SlimFlatDockingTheme extends DockingWindowsTheme {
   private RootWindowProperties rootWindowProperties;
@@ -81,12 +82,19 @@ public final class SlimFlatDockingTheme extends DockingWindowsTheme {
     WindowTabProperties tabProperties = rootWindowProperties.getTabWindowProperties().getTabProperties();
     tabProperties.getTitledTabProperties().addSuperObject(smallFlatTheme.getTitledTabProperties());
 
-    tabProperties.getTitledTabProperties().getHighlightedProperties().getComponentProperties().setFont(tabProperties.getTitledTabProperties().getHighlightedProperties().getComponentProperties().getFont().
-                                                                                                       deriveFont(tabProperties.getTitledTabProperties().getNormalProperties().getComponentProperties().getFont().getSize2D()));
+    tabProperties.getTitledTabProperties().getHighlightedProperties().getComponentProperties().setFont(
+        tabProperties.getTitledTabProperties().getHighlightedProperties().getComponentProperties().getFont().
+        deriveFont(
+            tabProperties.getTitledTabProperties().getNormalProperties().getComponentProperties().getFont().getSize2D()));
 
     tabProperties.getNormalButtonProperties().getCloseButtonProperties().setIcon(new CloseIcon(8));
     tabProperties.getNormalButtonProperties().getRestoreButtonProperties().setIcon(new RestoreIcon(8));
     tabProperties.getNormalButtonProperties().getMinimizeButtonProperties().setIcon(new MinimizeIcon(8));
+
+    rootWindowProperties.getTabWindowProperties().getCloseButtonProperties().setIcon(new CloseIcon(8));
+    rootWindowProperties.getTabWindowProperties().getRestoreButtonProperties().setIcon(new RestoreIcon(8));
+    rootWindowProperties.getTabWindowProperties().getMinimizeButtonProperties().setIcon(new MinimizeIcon(8));
+    rootWindowProperties.getTabWindowProperties().getMaximizeButtonProperties().setIcon(new MaximizeIcon(8));
 
     setWindowBarProperties(rootWindowProperties.getWindowBarProperties());
 
@@ -96,7 +104,7 @@ public final class SlimFlatDockingTheme extends DockingWindowsTheme {
   private static void setWindowBarProperties(WindowBarProperties windowBarProperties) {
     windowBarProperties.setMinimumWidth(3);
 
-    Border border = new TabLineBorder(false, false);
+    Border border = new TabAreaLineBorder(false, true, true, false);
 
     windowBarProperties.getTabWindowProperties().getTabProperties().getTitledTabProperties().getNormalProperties()
         .getComponentProperties().setInsets(new Insets(0, 4, 0, 4))

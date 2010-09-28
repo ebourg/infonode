@@ -20,10 +20,11 @@
  */
 
 
-// $Id: WindowMenuUtil.java,v 1.7 2004/09/09 15:14:24 jesper Exp $
+// $Id: WindowMenuUtil.java,v 1.11 2004/11/11 14:09:46 jesper Exp $
 package net.infonode.docking.util;
 
 import net.infonode.docking.*;
+import net.infonode.gui.MenuUtil;
 import net.infonode.tabbedpanel.TabbedPanelProperties;
 import net.infonode.tabbedpanel.titledtab.TitledTabProperties;
 import net.infonode.util.Direction;
@@ -36,7 +37,7 @@ import java.awt.event.ActionListener;
  * Class containing utility methods for creating window popup menues.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.11 $
  */
 public final class WindowMenuUtil {
   private WindowMenuUtil() {
@@ -73,7 +74,7 @@ public final class WindowMenuUtil {
   }
 
   private static void addWindowMenuItems(JPopupMenu menu, final DockingWindow window) {
-    if (window.isMinimized() || window.isMaximized())
+    if ((window.isMinimized() || window.isMaximized()) && window.isRestorable())
       menu.add("Restore").addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
           window.restore();
@@ -88,23 +89,24 @@ public final class WindowMenuUtil {
       });
     }
 
-    if (!window.isMaximized() && window instanceof TabWindow)
+    if (!window.isMaximized() && window.isMaximizable() && window instanceof TabWindow)
       menu.add("Maximize").addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
           window.maximize();
         }
       });
 
-    menu.add("Close").addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        try {
-          window.closeWithAbort();
+    if (window.isClosable())
+      menu.add("Close").addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          try {
+            window.closeWithAbort();
+          }
+          catch (OperationAbortedException e1) {
+            // Ignore
+          }
         }
-        catch (OperationAbortedException e1) {
-          // Ignore
-        }
-      }
-    });
+      });
 
 
     JMenu moveToMenu = getMoveToMenuItems(window);
@@ -187,13 +189,42 @@ public final class WindowMenuUtil {
         item.setEnabled(dir != properties.getNormalProperties().getDirection());
         item.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            tabWindow.getTabWindowProperties().getTabProperties().getTitledTabProperties().getNormalProperties().setDirection(dir);
+            tabWindow.getTabWindowProperties().getTabProperties().getTitledTabProperties().getNormalProperties()
+                .setDirection(dir);
           }
         });
       }
     }
 
     menu.add(directionMenu);
+  }
+
+  private static void addSplitWindowMenuItems(JPopupMenu menu, final DockingWindow window) {
+    if (window instanceof SplitWindow) {
+      JMenu splitMenu = new JMenu("Split Window");
+
+      splitMenu.add("Center").addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          ((SplitWindow) window).setDividerLocation(0.5f);
+        }
+      });
+
+      splitMenu.add("Flip Orientation").addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          ((SplitWindow) window).setHorizontal(!((SplitWindow) window).isHorizontal());
+        }
+      });
+
+      splitMenu.add("Swap Windows").addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          SplitWindow sw = (SplitWindow) window;
+          sw.setWindows(window.getChildWindow(1), window.getChildWindow(0));
+          sw.setDividerLocation(1 - sw.getDividerLocation());
+        }
+      });
+
+      menu.add(splitMenu);
+    }
   }
 
   /**
@@ -203,8 +234,22 @@ public final class WindowMenuUtil {
    * @param addTabItems        add items for changing tab direction and orientation
    * @return the window popup menu factory
    */
+  public static WindowPopupMenuFactory createWindowMenuFactory(ViewFactoryManager viewFactoryManager,
+                                                               boolean addTabItems) {
+    return createWindowMenuFactory(viewFactoryManager, addTabItems, true);
+  }
+
+  /**
+   * Creates a factory which creates a popup menu containing common window actions.
+   *
+   * @param viewFactoryManager  used for creating a list of views that the user can show
+   * @param addTabItems         add items for changing tab direction and orientation
+   * @param addSplitWindowItems add items for {@link SplitWindow}'s
+   * @return the window popup menu factory
+   * @since IDW 1.2.0
+   */
   public static WindowPopupMenuFactory createWindowMenuFactory(final ViewFactoryManager viewFactoryManager,
-                                                               final boolean addTabItems) {
+                                                               final boolean addTabItems, final boolean addSplitWindowItems) {
     return new WindowPopupMenuFactory() {
       public JPopupMenu createPopupMenu(DockingWindow window) {
         JPopupMenu menu = new JPopupMenu(window.getTitle());
@@ -220,11 +265,18 @@ public final class WindowMenuUtil {
             addTabDirectionMenuItems(menu, window);
             menu.addSeparator();
           }
+
+          if (addSplitWindowItems) {
+            addSplitWindowMenuItems(menu, window);
+            menu.addSeparator();
+          }
         }
 
         addNewViewMenuItems(menu, window, viewFactoryManager);
+        MenuUtil.optimizeSeparators(menu);
         return menu;
       }
     };
   }
+
 }

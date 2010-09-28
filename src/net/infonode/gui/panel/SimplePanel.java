@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SimplePanel.java,v 1.3 2004/09/22 14:35:04 jesper Exp $
+// $Id: SimplePanel.java,v 1.4 2004/10/15 14:22:32 jesper Exp $
 package net.infonode.gui.panel;
 
 import javax.swing.*;
@@ -32,6 +32,11 @@ public class SimplePanel extends JPanel {
 
   public SimplePanel() {
     this(new BorderLayout());
+  }
+
+  public SimplePanel(Border border) {
+    this();
+    setBorder(border);
   }
 
   public SimplePanel(Border border, Component comp) {

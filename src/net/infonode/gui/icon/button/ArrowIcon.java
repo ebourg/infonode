@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ArrowIcon.java,v 1.4 2004/09/22 14:35:04 jesper Exp $
+// $Id: ArrowIcon.java,v 1.5 2004/11/11 14:11:14 jesper Exp $
 package net.infonode.gui.icon.button;
 
 import net.infonode.util.Direction;
@@ -56,7 +56,8 @@ public class ArrowIcon extends AbstractButtonIcon {
   protected void paintIcon(Component c, Graphics g, int x1, int y1, int x2, int y2) {
     int size = (x2 - x1 + 1) + ((x2 - x1 + 1) % 2) - 1;
     int offset = (direction.isHorizontal() ? x1 : y1) +
-                 (direction == Direction.RIGHT || direction == Direction.DOWN ? (size + 1) / 4 : (size - (size + 1) / 2) / 2);
+                 (direction == Direction.RIGHT || direction == Direction.DOWN ?
+                  (size + 1) / 4 : (size - (size + 1) / 2) / 2);
     int o2 = direction.isHorizontal() ? y1 : x1;
     int[] c1 = direction == Direction.DOWN || direction == Direction.RIGHT ?
                new int[]{offset, offset, offset + size / 2 + 1} :

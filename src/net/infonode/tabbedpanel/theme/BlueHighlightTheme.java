@@ -20,13 +20,12 @@
  */
 
 
-// $Id: BlueHighlightTheme.java,v 1.19 2004/09/28 15:07:29 jesper Exp $
+// $Id: BlueHighlightTheme.java,v 1.21 2004/11/11 14:10:33 jesper Exp $
 package net.infonode.tabbedpanel.theme;
 
 import net.infonode.gui.border.HighlightBorder;
 import net.infonode.tabbedpanel.TabbedPanelProperties;
 import net.infonode.tabbedpanel.border.TabAreaLineBorder;
-import net.infonode.tabbedpanel.border.TabLineBorder;
 import net.infonode.tabbedpanel.titledtab.TitledTabProperties;
 
 import javax.swing.border.CompoundBorder;
@@ -38,7 +37,7 @@ import java.awt.*;
  * highlighted state.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.19 $
+ * @version $Revision: 1.21 $
  */
 public class BlueHighlightTheme extends TabbedPanelTitledTabTheme {
   private TitledTabProperties tabProperties = new TitledTabProperties();
@@ -60,11 +59,13 @@ public class BlueHighlightTheme extends TabbedPanelTitledTabTheme {
     tabProperties.getHighlightedProperties().getComponentProperties()
         .setForegroundColor(Color.WHITE)
         .setBackgroundColor(backgroundColor)
-        .setBorder(new TabLineBorder(Color.BLACK));
+        .setBorder(new TabAreaLineBorder(Color.BLACK));
 
-    tabbedPanelProperties.getContentPanelProperties().getComponentProperties().setBorder(new CompoundBorder(new LineBorder(Color.BLACK),
-                                                                                                            new HighlightBorder()));
-    tabbedPanelProperties.getTabAreaComponentsProperties().getComponentProperties().setBorder(new TabAreaLineBorder(Color.BLACK));
+    tabbedPanelProperties.getContentPanelProperties().getComponentProperties().setBorder(new CompoundBorder(
+        new LineBorder(Color.BLACK),
+        new HighlightBorder()));
+    tabbedPanelProperties.getTabAreaComponentsProperties().getComponentProperties().setBorder(
+        new TabAreaLineBorder(Color.BLACK));
   }
 
   /**

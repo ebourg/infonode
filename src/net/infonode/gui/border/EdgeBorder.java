@@ -20,21 +20,27 @@
  */
 
 
-// $Id: EdgeBorder.java,v 1.6 2004/09/08 14:53:06 jesper Exp $
+// $Id: EdgeBorder.java,v 1.9 2004/11/11 14:11:14 jesper Exp $
 package net.infonode.gui.border;
 
 import net.infonode.gui.ComponentUtil;
+import net.infonode.gui.colorprovider.ColorProvider;
+import net.infonode.gui.colorprovider.FixedColorProvider;
 import net.infonode.util.ColorUtil;
 
 import javax.swing.border.Border;
 import java.awt.*;
+import java.io.Serializable;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.9 $
  */
-public class EdgeBorder implements Border {
-  private Color color;
+public class EdgeBorder implements Border, Serializable {
+  private static final long serialVersionUID = 1;
+
+  private ColorProvider topLeftColor;
+  private ColorProvider bottomRightColor;
   private boolean drawTop;
   private boolean drawBottom;
   private boolean drawLeft;
@@ -46,7 +52,17 @@ public class EdgeBorder implements Border {
   }
 
   public EdgeBorder(Color color, boolean drawTop, boolean drawBottom, boolean drawLeft, boolean drawRight) {
-    this.color = color;
+    ColorProvider c = color == null ? null : new FixedColorProvider(color);
+    init(c, c, drawTop, drawBottom, drawLeft, drawRight);
+  }
+
+  public EdgeBorder(ColorProvider topLeftColor, ColorProvider bottomRightColor, boolean drawTop, boolean drawBottom, boolean drawLeft, boolean drawRight) {
+    init(topLeftColor, bottomRightColor, drawTop, drawBottom, drawLeft, drawRight);
+  }
+
+  private void init(ColorProvider topLeftColor, ColorProvider bottomRightColor, boolean drawTop, boolean drawBottom, boolean drawLeft, boolean drawRight) {
+    this.topLeftColor = topLeftColor;
+    this.bottomRightColor = bottomRightColor;
     this.drawTop = drawTop;
     this.drawBottom = drawBottom;
     this.drawLeft = drawLeft;
@@ -55,28 +71,25 @@ public class EdgeBorder implements Border {
   }
 
   public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-    if (color == null) {
-      Color background = ComponentUtil.getBackgroundColor(c);
+    Color topLeft = getColor(topLeftColor, c);
+    Color bottomRight = getColor(bottomRightColor, c);
 
-      if (background == null)
-        return;
+    if (topLeft != null && bottomRight != null) {
+      g.setColor(topLeft);
 
-      g.setColor(ColorUtil.mult(background, 0.7f));
+      if (drawTop)
+        g.drawLine(x, y, x + width - 1, y);
+
+      if (drawLeft)
+        g.drawLine(x, y, x, y + height - 1);
+
+      g.setColor(bottomRight);
+      if (drawRight)
+        g.drawLine(x + width - 1, y, x + width - 1, y + height - 1);
+
+      if (drawBottom)
+        g.drawLine(x, y + height - 1, x + width - 1, y + height - 1);
     }
-    else
-      g.setColor(color);
-
-    if (drawTop)
-      g.drawLine(x, y, x + width - 1, y);
-
-    if (drawLeft)
-      g.drawLine(x, y, x, y + height - 1);
-
-    if (drawRight)
-      g.drawLine(x + width - 1, y, x + width - 1, y + height - 1);
-
-    if (drawBottom)
-      g.drawLine(x, y + height - 1, x + width - 1, y + height - 1);
   }
 
   public Insets getBorderInsets(Component c) {
@@ -85,5 +98,16 @@ public class EdgeBorder implements Border {
 
   public boolean isBorderOpaque() {
     return false;
+  }
+
+  private Color getColor(ColorProvider color, Component c) {
+    Color col = color != null ? color.getColor() : null;
+    ;
+    if (col == null) {
+      Color background = ComponentUtil.getBackgroundColor(c);
+      return background == null ? null : ColorUtil.mult(background, 0.7f);
+    }
+
+    return col;
   }
 }

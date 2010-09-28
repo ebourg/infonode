@@ -20,12 +20,13 @@
  */
 
 
-// $Id: DirectionLayout.java,v 1.9 2004/09/22 14:35:04 jesper Exp $
+// $Id: DirectionLayout.java,v 1.11 2004/11/11 14:11:14 jesper Exp $
 package net.infonode.gui.layout;
 
 import net.infonode.util.Direction;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DirectionLayout implements LayoutManager2 {
@@ -35,6 +36,8 @@ public class DirectionLayout implements LayoutManager2 {
   private HashMap componentInsets;
   private int componentSpacing;
   private boolean compressing;
+
+  private ArrayList layoutOrderList;
 
   public DirectionLayout() {
     this(Direction.RIGHT);
@@ -84,6 +87,10 @@ public class DirectionLayout implements LayoutManager2 {
     this.compressing = compressing;
   }
 
+  public void setLayoutOrderList(ArrayList layoutOrderList) {
+    this.layoutOrderList = layoutOrderList;
+  }
+
   private int getSize(Dimension d) {
     return (int) (isVertical() ? d.getHeight() : d.getWidth());
   }
@@ -102,7 +109,8 @@ public class DirectionLayout implements LayoutManager2 {
 
   private static Dimension getSize(Dimension interiorSize, Container component) {
     Insets insets = component.getInsets();
-    return new Dimension(interiorSize.width + insets.left + insets.right, interiorSize.height + insets.top + insets.bottom);
+    return new Dimension(interiorSize.width + insets.left + insets.right,
+                         interiorSize.height + insets.top + insets.bottom);
   }
 
   private int getOtherSize(Dimension dim) {
@@ -115,7 +123,13 @@ public class DirectionLayout implements LayoutManager2 {
   }
 
   public void layoutContainer(Container parent) {
-    Component[] components = LayoutUtil.getVisibleChildren(parent);
+    Component[] components = getVisibleChildren(parent);
+    
+    /*System.out.println("Parent: " + parent.getComponentCount() + "  List: " + components.length);
+    for (int i = 0; i < components.length; i++) {
+    	System.out.println("Parent: " + parent.getComponent(i) + "  List: " + components[i]);
+    }*/
+    
     int count = components.length;
 
     if (components.length == 0)
@@ -222,7 +236,7 @@ public class DirectionLayout implements LayoutManager2 {
       }
 
       pos += getSize(components[i].getSize()) + getAfterSpacing(components[i], i == components.length - 1);
-      //System.out.println(components[i].getBounds() + "  " + components[i].getPreferredSize() + "  " + ((JComponent)components[i]).getInsets());
+      //System.out.println("\n" + components[i] + " " + components[i].getLocation() + "  " + components[i].getSize() + "  " + ((JComponent)components[i]).getInsets());
     }
   }
 
@@ -238,6 +252,18 @@ public class DirectionLayout implements LayoutManager2 {
     }
   }
 
+  private Component[] getVisibleChildren(Container parent) {
+    if (layoutOrderList != null) {
+      Component[] components = new Component[layoutOrderList.size()];
+      for (int i = 0; i < layoutOrderList.size(); i++)
+        components[i] = (Component) layoutOrderList.get(i);
+
+      return LayoutUtil.getVisibleChildren(components);
+    }
+
+    return LayoutUtil.getVisibleChildren(parent);
+  }
+
   private int getSpacing(Component component, boolean isLast) {
     Insets insets = getInsets(component);
     return insets.left + insets.right + (isLast ? 0 : componentSpacing);
@@ -249,7 +275,7 @@ public class DirectionLayout implements LayoutManager2 {
   }
 
   public Dimension minimumLayoutSize(Container parent) {
-    Component[] c = LayoutUtil.getVisibleChildren(parent);
+    Component[] c = getVisibleChildren(parent);
     int size = 0;
     int maxHeight = 0;
 
@@ -259,11 +285,12 @@ public class DirectionLayout implements LayoutManager2 {
     }
 
     Dimension d = getSize(isVertical() ? new Dimension(maxHeight, size) : new Dimension(size, maxHeight), parent);
+    //System.out.println("Minimum size: " + d);
     return d;
   }
 
   public Dimension preferredLayoutSize(Container parent) {
-    Component[] c = LayoutUtil.getVisibleChildren(parent);
+    Component[] c = getVisibleChildren(parent);
     int size = 0;
     int maxHeight = 0;
 
@@ -275,6 +302,7 @@ public class DirectionLayout implements LayoutManager2 {
     }
 
     Dimension d = getSize(isVertical() ? new Dimension(maxHeight, size) : new Dimension(size, maxHeight), parent);
+    //System.out.println("Preferred size: " + d);
     return d;
   }
 
@@ -303,7 +331,7 @@ public class DirectionLayout implements LayoutManager2 {
   }
 
   public Dimension maximumLayoutSize(Container parent) {
-    Component[] c = LayoutUtil.getVisibleChildren(parent);
+    Component[] c = getVisibleChildren(parent);
     int size = 0;
     int maxHeight = Integer.MAX_VALUE;
 
@@ -313,6 +341,7 @@ public class DirectionLayout implements LayoutManager2 {
     }
 
     Dimension d = getSize(isVertical() ? new Dimension(maxHeight, size) : new Dimension(size, maxHeight), parent);
+    //System.out.println("Maximum size: " + d);
     return d;
   }
 }

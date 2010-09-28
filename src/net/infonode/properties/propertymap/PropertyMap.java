@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyMap.java,v 1.12 2004/09/28 14:48:20 jesper Exp $
+// $Id: PropertyMap.java,v 1.14 2004/11/11 14:10:12 jesper Exp $
 package net.infonode.properties.propertymap;
 
 import net.infonode.properties.base.Property;
@@ -50,7 +50,7 @@ import java.io.ObjectOutputStream;
  * Property maps are created using the factory methods in {@link PropertyMapFactory}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.14 $
  */
 public interface PropertyMap extends ReadWritable {
   /**
@@ -63,7 +63,7 @@ public interface PropertyMap extends ReadWritable {
   void addListener(PropertyMapListener listener);
 
   /**
-   * Removes a previously added listener.
+   * Removes a listener which was previously added with {@link #addListener(PropertyMapListener)}.
    *
    * @param listener the listener
    */

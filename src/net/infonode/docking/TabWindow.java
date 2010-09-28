@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabWindow.java,v 1.19 2004/09/24 16:29:56 jesper Exp $
+// $Id: TabWindow.java,v 1.23 2004/11/11 14:09:46 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.internalutil.*;
@@ -31,17 +31,15 @@ import net.infonode.tabbedpanel.TabAdapter;
 import net.infonode.tabbedpanel.TabEvent;
 import net.infonode.tabbedpanel.TabRemovedEvent;
 import net.infonode.util.ArrayUtil;
-import net.infonode.util.Direction;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 /**
  * A docking window containing a tabbed panel.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.19 $
+ * @version $Revision: 1.23 $
  */
 public class TabWindow extends AbstractTabWindow {
   private static final ButtonInfo[] buttonInfos = {
@@ -74,6 +72,7 @@ public class TabWindow extends AbstractTabWindow {
                null;
       }
     });
+
     init();
 
     getTabbedPanel().addTabListener(new TabAdapter() {
@@ -115,8 +114,6 @@ public class TabWindow extends AbstractTabWindow {
   }
 
   protected void update() {
-    updateBorder();
-
     if (getRootWindow() != null)
       windowMover.setAbortDragKey(getRootWindow().getRootWindowProperties().getAbortDragKey());
 
@@ -130,14 +127,6 @@ public class TabWindow extends AbstractTabWindow {
 
       getTabbedPanel().setTabAreaComponents(components);
     }
-  }
-
-  private void updateBorder() {
-    Direction dir = getTabbedPanel().getProperties().getTabAreaOrientation();
-    setBorder(new EmptyBorder(dir == Direction.UP ? 3 : 0,
-                              dir == Direction.LEFT ? 3 : 0,
-                              dir == Direction.DOWN ? 3 : 0,
-                              dir == Direction.RIGHT ? 3 : 0));
   }
 
   protected void optimizeWindowLayout() {
@@ -187,11 +176,6 @@ public class TabWindow extends AbstractTabWindow {
 
   protected DockingWindow getOptimizedWindow() {
     return getChildWindowCount() == 1 ? getChildWindow(0).getOptimizedWindow() : super.getOptimizedWindow();
-  }
-
-  void doDrop(Point p, DockingWindow window) {
-    super.doDrop(p, window);
-    FocusManager.focusWindow(window);
   }
 
 }

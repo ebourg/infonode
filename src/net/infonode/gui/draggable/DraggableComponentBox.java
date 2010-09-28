@@ -20,7 +20,8 @@
  */
 
 
-// $Id: DraggableComponentBox.java,v 1.22 2004/09/22 14:35:04 jesper Exp $
+// $Id: DraggableComponentBox.java,v 1.30 2004/11/11 14:11:14 jesper Exp $
+
 package net.infonode.gui.draggable;
 
 import net.infonode.gui.*;
@@ -37,21 +38,28 @@ import java.util.ArrayList;
 public class DraggableComponentBox extends SimplePanel {
   private JComponent componentBox;
   private JComponent componentContainer;
+
+  private JComponent outerParentArea = this;
   private Direction componentDirection = Direction.UP;
   private boolean scrollEnabled = false;
   private boolean ensureSelectedVisible;
   private boolean autoSelect = true;
+  private boolean descendingSortOrder = true;
 
   private int scrollOffset;
   private int iconSize;
   private DraggableComponent selectedComponent;
+  private DraggableComponent topComponent;
   private ArrayList listeners;
   private ArrayList componentList = new ArrayList(4);
 
+  private ArrayList layoutOrderList = new ArrayList();
   private ScrollButtonBox scrollButtonBox;
 
   private DraggableComponentListener draggableComponentListener = new DraggableComponentListener() {
     public void changed(DraggableComponentEvent event) {
+      if (event.getType() == DraggableComponentEvent.TYPE_MOVED)
+        sortComponentList(!descendingSortOrder);
       fireChangedEvent(event);
     }
 
@@ -75,17 +83,28 @@ public class DraggableComponentBox extends SimplePanel {
   public DraggableComponentBox(int iconSize) {
     this.iconSize = iconSize;
     // Fix minimum size when flipping direction
-    final DirectionLayout layout = new DirectionLayout(componentDirection == Direction.UP ? Direction.RIGHT :
-                                                       componentDirection == Direction.LEFT ? Direction.DOWN :
-                                                       componentDirection == Direction.DOWN ? Direction.RIGHT :
-                                                       Direction.DOWN) {
+    final DirectionLayout layout = new DirectionLayout(componentDirection == Direction.UP ? Direction.RIGHT : componentDirection == Direction.LEFT
+                                                                                                              ?
+                                                                                                              Direction.DOWN
+                                                                                                              :
+                                                                                                              componentDirection == Direction.DOWN ?
+                                                                                                              Direction.RIGHT :
+                                                                                                              Direction.DOWN) {
       public Dimension minimumLayoutSize(Container parent) {
         Dimension min = super.minimumLayoutSize(parent);
         Dimension pref = super.preferredLayoutSize(parent);
-        return componentDirection.isHorizontal() ? new Dimension(pref.width, min.height) : new Dimension(min.width, pref.height);
+        return componentDirection.isHorizontal() ?
+               new Dimension(pref.width, min.height) : new Dimension(min.width, pref.height);
       }
     };
-    componentBox = new SimplePanel(layout);
+    layout.setLayoutOrderList(layoutOrderList);
+
+    componentBox = new SimplePanel(layout) {
+      public boolean isOptimizedDrawingEnabled() {
+        return DraggableComponentBox.this != null && getComponentSpacing() >= 0;
+      }
+    };
+
     componentBox.addComponentListener(new ComponentAdapter() {
       public void componentResized(ComponentEvent e) {
         fireChangedEvent();
@@ -115,27 +134,36 @@ public class DraggableComponentBox extends SimplePanel {
     }
   }
 
+
   public void addDraggableComponent(DraggableComponent component) {
     insertDraggableComponent(component, -1);
   }
 
   public void insertDraggableComponent(DraggableComponent component, int index) {
+    component.setLayoutOrderList(layoutOrderList);
+
     component.addListener(draggableComponentListener);
-    if (index < 0)
+    if (index < 0) {
+      layoutOrderList.add(component.getComponent());
       componentBox.add(component.getComponent());
-    else
+    }
+    else {
+      layoutOrderList.add(index, component.getComponent());
       componentBox.add(component.getComponent(), index);
+    }
+
+    sortComponentList(!descendingSortOrder);
 
     componentList.add(component);
-    component.setOuterParentArea(this);
+    component.setOuterParentArea(outerParentArea);
     fireAddedEvent(component);
-    if (autoSelect && componentBox.getComponentCount() == 1 && selectedComponent == null && component.isEnabled())
+    if (autoSelect && layoutOrderList.size() == 1 && selectedComponent == null && component.isEnabled())
       doSelectComponent(component);
   }
 
   public void insertDraggableComponent(DraggableComponent component, Point p) {
-    int componentIndex = ComponentUtil.getComponentIndex(componentBox.getComponentAt(SwingUtilities.convertPoint(this, p, componentBox)));
-    if (componentIndex != -1 && componentBox.getComponentCount() > 0)
+    int componentIndex = getComponentIndexAtPoint(p);
+    if (componentIndex != -1 && layoutOrderList.size() > 0)
       insertDraggableComponent(component, componentIndex);
     else
       insertDraggableComponent(component, -1);
@@ -156,14 +184,16 @@ public class DraggableComponentBox extends SimplePanel {
 
   public void removeDraggableComponent(DraggableComponent component) {
     if (component != null && component.getComponent().getParent() == componentBox) {
-      int index = ComponentUtil.getComponentIndex(component.getComponent());
+      int index = layoutOrderList.indexOf(component.getComponent());
       component.removeListener(draggableComponentListener);
-      if (componentBox.getComponentCount() > 1 && selectedComponent != null) {
+      if (component == topComponent)
+        topComponent = null;
+      if (layoutOrderList.size() > 1 && selectedComponent != null) {
         if (selectedComponent == component) {
           if (autoSelect) {
             int selectIndex = findSelectableComponentIndex(index);
             if (selectIndex > -1)
-              selectDraggableComponent(findDraggableComponent(componentBox.getComponent(selectIndex)));
+              selectDraggableComponent(findDraggableComponent((Component) layoutOrderList.get(selectIndex)));
             else
               selectedComponent = null;
           }
@@ -180,7 +210,13 @@ public class DraggableComponentBox extends SimplePanel {
         }
       }
       componentList.remove(component);
+      layoutOrderList.remove(component.getComponent());
       componentBox.remove(component.getComponent());
+      componentBox.validate();
+      component.setLayoutOrderList(null);
+
+      sortComponentList(!descendingSortOrder);
+
       fireRemovedEvent(component);
     }
   }
@@ -190,15 +226,24 @@ public class DraggableComponentBox extends SimplePanel {
   }
 
   public int getDraggableComponentCount() {
-    return componentBox.getComponentCount();
+    return layoutOrderList.size();
   }
 
   public DraggableComponent getDraggableComponentAt(int index) {
-    return findDraggableComponent(componentBox.getComponent(index));
+    return findDraggableComponent((Component) layoutOrderList.get(index));
   }
 
-  public static int getDraggableComponentIndex(DraggableComponent component) {
-    return ComponentUtil.getComponentIndex(component.getComponent());
+  public int getDraggableComponentIndex(DraggableComponent component) {
+    return layoutOrderList.indexOf(component.getComponent());
+  }
+
+  public boolean getDepthSortOrder() {
+    return descendingSortOrder;
+  }
+
+  public void setDepthSortOrder(boolean descending) {
+    this.descendingSortOrder = descending;
+    sortComponentList(!descending);
   }
 
   public boolean isScrollEnabled() {
@@ -230,7 +275,13 @@ public class DraggableComponentBox extends SimplePanel {
 
   public void setComponentSpacing(int componentSpacing) {
     if (componentSpacing != getDirectionLayout().getComponentSpacing()) {
+      if (getComponentSpacing() < 0 && componentSpacing >= 0) {
+        DraggableComponent tmp = topComponent;
+        sortComponentList(false);
+        topComponent = tmp;
+      }
       getDirectionLayout().setComponentSpacing(componentSpacing);
+      sortComponentList(!descendingSortOrder);
       componentBox.revalidate();
     }
   }
@@ -258,7 +309,11 @@ public class DraggableComponentBox extends SimplePanel {
   public void setComponentDirection(Direction componentDirection) {
     if (componentDirection != this.componentDirection) {
       this.componentDirection = componentDirection;
-      getDirectionLayout().setDirection(componentDirection == Direction.UP ? Direction.RIGHT : componentDirection == Direction.LEFT ? Direction.DOWN : componentDirection == Direction.DOWN ? Direction.RIGHT : Direction.DOWN);
+      getDirectionLayout().setDirection(componentDirection == Direction.UP ? Direction.RIGHT : componentDirection == Direction.LEFT ? Direction.DOWN : componentDirection == Direction.DOWN
+                                                                                                                                                       ?
+                                                                                                                                                       Direction.RIGHT
+                                                                                                                                                       :
+                                                                                                                                                       Direction.DOWN);
       if (scrollEnabled) {
         scrollButtonBox.setVertical(componentDirection.isHorizontal());
         ((ScrollableBox) componentContainer).setVertical(componentDirection.isHorizontal());
@@ -266,8 +321,23 @@ public class DraggableComponentBox extends SimplePanel {
     }
   }
 
+  public void setTopComponent(DraggableComponent topComponent) {
+    if (topComponent != this.topComponent) {
+      this.topComponent = topComponent;
+      sortComponentList(!descendingSortOrder);
+    }
+  }
+
   public ScrollButtonBox getScrollButtonBox() {
     return scrollButtonBox;
+  }
+
+  public JComponent getOuterParentArea() {
+    return outerParentArea;
+  }
+
+  public void setOuterParentArea(JComponent outerParentArea) {
+    this.outerParentArea = outerParentArea;
   }
 
   public void dragDraggableComponent(DraggableComponent component, Point p) {
@@ -289,6 +359,37 @@ public class DraggableComponentBox extends SimplePanel {
     return scrollEnabled ? componentBox.getPreferredSize() : componentBox.getSize();
   }
 
+  private void sortComponentList(boolean reverseSort) {
+    if (getComponentSpacing() < 0) {
+      Component c;
+      Component tc = topComponent != null ? topComponent.getComponent() : null;
+
+      componentBox.removeAll();
+
+      if (tc != null)
+        componentBox.add(tc);
+
+      int size = layoutOrderList.size();
+      for (int i = 0; i < size; i++) {
+        c = (Component) layoutOrderList.get(reverseSort ? size - i - 1 : i);
+        if (c != tc)
+          componentBox.add(c);
+      }
+    }
+  }
+
+  private int getComponentIndexAtPoint(Point p) {
+    JComponent c = null;
+    Point p2 = SwingUtilities.convertPoint(this, p, componentBox);
+    Point p3 = SwingUtilities.convertPoint(componentBox, p, outerParentArea);
+    if (outerParentArea.contains(p3))
+      c = (JComponent) ComponentUtil.getChildAtLine(componentBox,
+                                                    p2,
+                                                    getDirectionLayout().getDirection().isHorizontal());
+
+    return layoutOrderList.indexOf(c);
+  }
+
   private void doSelectComponent(DraggableComponent component) {
     if (selectedComponent != null) {
       DraggableComponent oldSelected = selectedComponent;
@@ -306,8 +407,8 @@ public class DraggableComponentBox extends SimplePanel {
   private int findSelectableComponentIndex(int index) {
     int selectIndex = -1;
     int k;
-    for (int i = 0; i < componentBox.getComponentCount(); i++) {
-      if ((findDraggableComponent(componentBox.getComponent(i))).isEnabled() && i != index) {
+    for (int i = 0; i < layoutOrderList.size(); i++) {
+      if ((findDraggableComponent((Component) layoutOrderList.get(i))).isEnabled() && i != index) {
         k = selectIndex;
         selectIndex = i;
         if (k < index && selectIndex > index)
@@ -341,7 +442,10 @@ public class DraggableComponentBox extends SimplePanel {
 
     if (scrollEnabled) {
       scrollButtonBox = new ScrollButtonBox(componentDirection.isHorizontal(), iconSize);
-      final ScrollableBox scrollableBox = new ScrollableBox(componentBox, componentDirection.isHorizontal(), scrollOffset);
+      final ScrollableBox scrollableBox = new ScrollableBox(componentBox,
+                                                            componentDirection.isHorizontal(),
+                                                            scrollOffset);
+      scrollableBox.setLayoutOrderList(layoutOrderList);
       scrollButtonBox.addListener(new ScrollButtonBoxListener() {
         public void scrollButton1() {
           scrollableBox.scrollLeft(1);
@@ -385,15 +489,20 @@ public class DraggableComponentBox extends SimplePanel {
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
         if (scrollEnabled && ensureSelectedVisible && selectedComponent != null)
-          ((ScrollableBox) componentContainer).ensureVisible(ComponentUtil.getComponentIndex(selectedComponent.getComponent()));
+          ((ScrollableBox) componentContainer).ensureVisible(layoutOrderList.indexOf(selectedComponent.getComponent()));
       }
     });
   }
 
   private void fireDraggedEvent(DraggableComponentEvent e) {
     if (listeners != null) {
-      DraggableComponentBoxEvent event = new DraggableComponentBoxEvent(this, e.getSource(), e,
-                                                                        SwingUtilities.convertPoint(e.getSource().getComponent(), e.getPoint(), this));
+      DraggableComponentBoxEvent event = new DraggableComponentBoxEvent(this,
+                                                                        e.getSource(),
+                                                                        e,
+                                                                        SwingUtilities.convertPoint(
+                                                                            e.getSource().getComponent(),
+                                                                            e.getPoint(),
+                                                                            this));
       Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
         ((DraggableComponentBoxListener) l[i]).componentDragged(event);
@@ -402,8 +511,13 @@ public class DraggableComponentBox extends SimplePanel {
 
   private void fireDroppedEvent(DraggableComponentEvent e) {
     if (listeners != null) {
-      DraggableComponentBoxEvent event = new DraggableComponentBoxEvent(this, e.getSource(), e,
-                                                                        SwingUtilities.convertPoint(e.getSource().getComponent(), e.getPoint(), this));
+      DraggableComponentBoxEvent event = new DraggableComponentBoxEvent(this,
+                                                                        e.getSource(),
+                                                                        e,
+                                                                        SwingUtilities.convertPoint(
+                                                                            e.getSource().getComponent(),
+                                                                            e.getPoint(),
+                                                                            this));
       Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
         ((DraggableComponentBoxListener) l[i]).componentDropped(event);

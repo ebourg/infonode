@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SlimInternalFrameTitlePane.java,v 1.1 2004/08/20 15:04:26 jesper Exp $
+// $Id: SlimInternalFrameTitlePane.java,v 1.2 2004/11/11 14:11:14 jesper Exp $
 package net.infonode.gui.laf.ui;
 
 import net.infonode.gui.ButtonFactory;
@@ -31,7 +31,7 @@ import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class SlimInternalFrameTitlePane extends BasicInternalFrameTitlePane {
   public SlimInternalFrameTitlePane(JInternalFrame f) {
@@ -40,13 +40,22 @@ public class SlimInternalFrameTitlePane extends BasicInternalFrameTitlePane {
   }
 
   protected void createButtons() {
-    iconButton = ButtonFactory.createFlatHighlightButton(iconIcon, UIManager.getString("InternalFrame.iconButtonToolTip"), 0, iconifyAction);
+    iconButton = ButtonFactory.createFlatHighlightButton(iconIcon,
+                                                         UIManager.getString("InternalFrame.iconButtonToolTip"),
+                                                         0,
+                                                         iconifyAction);
     iconButton.setFocusable(false);
 
-    closeButton = ButtonFactory.createFlatHighlightButton(closeIcon, UIManager.getString("InternalFrame.closeButtonToolTip"), 0, closeAction);
+    closeButton = ButtonFactory.createFlatHighlightButton(closeIcon,
+                                                          UIManager.getString("InternalFrame.closeButtonToolTip"),
+                                                          0,
+                                                          closeAction);
     closeButton.setFocusable(false);
 
-    maxButton = ButtonFactory.createFlatHighlightButton(maxIcon, UIManager.getString("InternalFrame.maxButtonToolTip"), 0, maximizeAction);
+    maxButton = ButtonFactory.createFlatHighlightButton(maxIcon,
+                                                        UIManager.getString("InternalFrame.maxButtonToolTip"),
+                                                        0,
+                                                        maximizeAction);
     maxButton.setFocusable(false);
   }
 

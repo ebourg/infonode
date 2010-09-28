@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowMover.java,v 1.5 2004/08/27 18:53:37 jesper Exp $
+// $Id: WindowMover.java,v 1.6 2004/10/15 16:03:29 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.gui.draggable.DraggableComponent;
@@ -32,7 +32,7 @@ import java.awt.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 class WindowMover {
   private DockingWindow window;
@@ -54,7 +54,7 @@ class WindowMover {
         if (dragger == null) {
           DockingWindow w = windowProvider.getWindow(event.getPoint());
 
-          if (w == null)
+          if (w == null || !w.getWindowProperties().getDragEnabled())
             return;
 
           dragger = new WindowDragger(w);

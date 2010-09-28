@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SimplePropertyValue.java,v 1.5 2004/09/22 11:15:08 jesper Exp $
+// $Id: SimplePropertyValue.java,v 1.6 2004/11/05 13:03:34 jesper Exp $
 package net.infonode.properties.propertymap.value;
 
 import net.infonode.properties.propertymap.PropertyMapImpl;
@@ -32,13 +32,16 @@ import java.io.ObjectOutputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class SimplePropertyValue implements PropertyValue {
   private final Object value;
 
   public SimplePropertyValue(Object value) {
     this.value = value;
+  }
+
+  public void updateListener(boolean enable) {
   }
 
   public PropertyValue getParent() {

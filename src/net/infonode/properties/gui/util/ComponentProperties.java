@@ -19,7 +19,8 @@
  * MA 02111-1307, USA.
  */
 
-// $Id: ComponentProperties.java,v 1.10 2004/09/22 14:32:50 jesper Exp $
+
+// $Id: ComponentProperties.java,v 1.12 2004/11/11 14:03:24 jesper Exp $
 package net.infonode.properties.gui.util;
 
 import net.infonode.gui.InsetsUtil;
@@ -40,7 +41,7 @@ import java.awt.*;
  * Properties and property values for a {@link JComponent}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.12 $
  */
 public class ComponentProperties extends PropertyMapContainer {
   /**
@@ -237,7 +238,7 @@ public class ComponentProperties extends PropertyMapContainer {
   }
 
   /**
-   * Applies the property values to a component and rotated the insets in the
+   * Applies the property values to a component and rotates the insets in the
    * given direction.
    *
    * @param component       the component on which to apply the property values

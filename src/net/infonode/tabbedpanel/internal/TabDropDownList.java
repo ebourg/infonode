@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabDropDownList.java,v 1.13 2004/09/28 14:55:34 jesper Exp $
+// $Id: TabDropDownList.java,v 1.14 2004/11/11 14:10:33 jesper Exp $
 
 package net.infonode.tabbedpanel.internal;
 
@@ -39,7 +39,7 @@ import java.awt.*;
 
 /**
  * @author Bjorn Lind
- * @version $Revision: 1.13 $ $Date: 2004/09/28 14:55:34 $
+ * @version $Revision: 1.14 $ $Date: 2004/11/11 14:10:33 $
  * @since ITP 1.1.0
  */
 public class TabDropDownList extends PopupList {
@@ -59,7 +59,9 @@ public class TabDropDownList extends PopupList {
   };
 
   public TabDropDownList(final TabbedPanel tabbedPanel) {
-    super(ButtonFactory.createFlatHighlightButton(new DropDownIcon(Color.black, TabbedUIDefaults.getButtonIconSize(), Direction.DOWN), null, 0, null));
+    super(
+        ButtonFactory.createFlatHighlightButton(
+            new DropDownIcon(Color.black, TabbedUIDefaults.getButtonIconSize(), Direction.DOWN), null, 0, null));
     this.tabbedPanel = tabbedPanel;
 
     addPopupListListener(new PopupListListener() {

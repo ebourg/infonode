@@ -20,16 +20,18 @@
  */
 
 
-//$Id: RestoreIcon.java,v 1.4 2004/09/22 14:35:04 jesper Exp $
+//$Id: RestoreIcon.java,v 1.6 2004/11/11 14:11:14 jesper Exp $
 package net.infonode.gui.icon.button;
 
 import java.awt.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.6 $
  */
 public class RestoreIcon extends AbstractButtonIcon {
+  private static final long serialVersionUID = 4019344427358669254L;
+
   public RestoreIcon() {
     super();
   }

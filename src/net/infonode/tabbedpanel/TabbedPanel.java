@@ -20,14 +20,20 @@
  */
 
 
-// $Id: TabbedPanel.java,v 1.80 2004/09/28 15:07:29 jesper Exp $
+// $Id: TabbedPanel.java,v 1.98 2004/11/11 14:10:33 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.gui.ComponentUtil;
+import net.infonode.gui.DimensionUtil;
 import net.infonode.gui.ScrollButtonBox;
+import net.infonode.gui.componentpainter.ComponentPainter;
+import net.infonode.gui.componentpainter.SolidColorComponentPainter;
 import net.infonode.gui.draggable.*;
 import net.infonode.gui.layout.DirectionLayout;
+import net.infonode.gui.shaped.panel.ShapedPanel;
+import net.infonode.properties.gui.util.ShapedPanelProperties;
 import net.infonode.properties.propertymap.PropertyMapTreeListener;
+import net.infonode.properties.propertymap.PropertyMapWeakListenerManager;
 import net.infonode.tabbedpanel.internal.ShadowPainter;
 import net.infonode.tabbedpanel.internal.TabDropDownList;
 import net.infonode.tabbedpanel.titledtab.TitledTab;
@@ -105,7 +111,7 @@ import java.util.Map;
  * </p>
  *
  * @author $Author: jesper $
- * @version $Revision: 1.80 $
+ * @version $Revision: 1.98 $
  * @see Tab
  * @see TitledTab
  * @see TabbedPanelProperties
@@ -128,8 +134,10 @@ public class TabbedPanel extends JPanel {
       setScrollButtonsVisible();
       super.layoutContainer(parent);
       if (contentPanel != null) {
-        int newSize = (tabAreaOrientation == Direction.UP || tabAreaOrientation == Direction.DOWN) ? draggableComponentBox.getWidth() : draggableComponentBox.getHeight();
-        int newOuterSize = (tabAreaOrientation == Direction.UP || tabAreaOrientation == Direction.DOWN) ? tabAreaContainer.getWidth() : tabAreaContainer.getHeight();
+        int newSize = (tabAreaOrientation == Direction.UP || tabAreaOrientation == Direction.DOWN) ?
+                      draggableComponentBox.getWidth() : draggableComponentBox.getHeight();
+        int newOuterSize = (tabAreaOrientation == Direction.UP || tabAreaOrientation == Direction.DOWN) ?
+                           tabAreaContainer.getWidth() : tabAreaContainer.getHeight();
         if (newOuterSize == outerSize && newSize != size) {
           size = newSize;
           SwingUtilities.invokeLater(new Runnable() {
@@ -145,23 +153,31 @@ public class TabbedPanel extends JPanel {
     }
   };
 
-  private JPanel tabAreaContainer = new JPanel(tabAreaLayoutManager) {
+  private ShapedPanel tabAreaContainer = new ShapedPanel(tabAreaLayoutManager) {
     public Dimension getPreferredSize() {
       if (getTabCount() == 0)
         return super.getPreferredSize();
 
       boolean vertical = tabAreaOrientation == Direction.RIGHT || tabAreaOrientation == Direction.LEFT;
-      Dimension d = super.getPreferredSize();
-      Dimension d2 = draggableComponentBox.getPreferredSize();
-      Dimension d3 = tabAreaComponentsPanel.getPreferredSize();
-      Insets insets = tabAreaContainer.getInsets();
+      Dimension d = DimensionUtil.add(draggableComponentBox.getPreferredSize(), tabAreaContainer.getInsets());
 
-      return new Dimension((int) (vertical ? Math.max(d2.getWidth(), d3.getWidth()) : d.getWidth()) + insets.left + insets.right, (int) (vertical ? d.getHeight() : Math.max(d2.getHeight(),
-                                                                                                                                                                             d3.getHeight())) + insets.top + insets.bottom);
+      if (tabAreaComponentsPanel.isVisible() && !ComponentUtil.isOnlyVisibleComponent(scrollButtonBox)) {
+        Dimension d2 = new Dimension(0, 0);
+        Component c[] = tabAreaComponentsPanel.getComponents();
+        for (int i = 0; i < c.length; i++) {
+          if (c[i] != scrollButtonBox)
+            d = DimensionUtil.add(d, c[i].getPreferredSize(), !vertical);
+        }
+        Dimension d3 = tabAreaComponentsPanel.getPreferredSize();
+        d = new Dimension(vertical ? Math.max(d.width, d2.width) : d.width,
+                          vertical ? d.height : Math.max(d.height, d3.height));
+      }
+
+      return d;
     }
   };
 
-  private JPanel tabAreaComponentsPanel = new JPanel(new DirectionLayout()) {
+  private ShapedPanel tabAreaComponentsPanel = new ShapedPanel(new DirectionLayout()) {
     public Dimension getMaximumSize() {
       return getPreferredSize();
     }
@@ -173,7 +189,9 @@ public class TabbedPanel extends JPanel {
       Dimension d = super.getPreferredSize();
       boolean vertical = tabAreaOrientation == Direction.RIGHT || tabAreaOrientation == Direction.LEFT;
       Insets insets = getInsets();
-      int size = vertical ? ComponentUtil.getPreferredMaxWidth(getComponents()) + insets.left + insets.right : (ComponentUtil.getPreferredMaxHeight(getComponents()) + insets.top + insets.bottom);
+      int size = vertical ?
+                 ComponentUtil.getPreferredMaxWidth(getComponents()) + insets.left + insets.right :
+                 (ComponentUtil.getPreferredMaxHeight(getComponents()) + insets.top + insets.bottom);
 
       return new Dimension(vertical ? size : (int) d.getWidth(), vertical ? (int) d.getHeight() : size);
     }
@@ -422,7 +440,8 @@ public class TabbedPanel extends JPanel {
    */
   public void moveTab(Tab tab, Point p) {
     if (tabs.contains(tab))
-      draggableComponentBox.dragDraggableComponent(tab.getDraggableComponent(), SwingUtilities.convertPoint(this, p, draggableComponentBox));
+      draggableComponentBox.dragDraggableComponent(tab.getDraggableComponent(),
+                                                   SwingUtilities.convertPoint(this, p, draggableComponentBox));
   }
 
   /**
@@ -475,15 +494,19 @@ public class TabbedPanel extends JPanel {
       settingHighlighted = true;
       Tab oldTab = this.highlightedTab;
       Tab newTab = null;
+      if (oldTab != highlightedTab)
+        draggableComponentBox.setTopComponent(highlightedTab != null ? highlightedTab.getDraggableComponent() : null);
       if (highlightedTab != null) {
         if (getTabIndex(highlightedTab) > -1) {
           this.highlightedTab = highlightedTab;
-          if (oldTab != null && oldTab != highlightedTab)
+          if (oldTab != null && oldTab != highlightedTab) {
             oldTab.setHighlighted(false);
+          }
 
           if (oldTab != highlightedTab)
-            if (highlightedTab.isEnabled())
+            if (highlightedTab.isEnabled()) {
               highlightedTab.setHighlighted(true);
+            }
             else {
               highlightedTab.setHighlighted(false);
               this.highlightedTab = null;
@@ -544,7 +567,7 @@ public class TabbedPanel extends JPanel {
    * @return index or -1 if tab is not a member of this TabbedPanel
    */
   public int getTabIndex(Tab tab) {
-    return tab == null ? -1 : DraggableComponentBox.getDraggableComponentIndex(tab.getDraggableComponent());
+    return tab == null ? -1 : draggableComponentBox.getDraggableComponentIndex(tab.getDraggableComponent());
   }
 
   /**
@@ -574,6 +597,16 @@ public class TabbedPanel extends JPanel {
         tabAreaComponentsPanel.add(tabAreaComponents[i]);
 
     revalidate();
+  }
+
+  /**
+   * Gets if any tab area components i.e. scroll buttons etc are visible at the moment
+   *
+   * @return true if visible, otherwise false
+   * @since ITP 1.2.0
+   */
+  public boolean isTabAreaComponentsVisible() {
+    return tabAreaComponentsPanel.isVisible();
   }
 
   /**
@@ -634,10 +667,12 @@ public class TabbedPanel extends JPanel {
 
   private void initialize(JComponent contentPanel) {
     setLayout(new BorderLayout());
+
     setOpaque(false);
     tabAreaContainer.setOpaque(false);
     tabAreaComponentsPanel.setOpaque(false);
 
+    draggableComponentBox.setOuterParentArea(tabAreaContainer);
     tabAreaContainer.add(draggableComponentBox);
     tabAreaContainer.add(tabAreaComponentsPanel);
 
@@ -650,7 +685,7 @@ public class TabbedPanel extends JPanel {
 
     add(componentsPanel, BorderLayout.CENTER);
 
-    properties.getMap().addTreeListener(propertyChangedListener);
+    PropertyMapWeakListenerManager.addWeakTreeListener(properties.getMap(), propertyChangedListener);
     updateProperties();
   }
 
@@ -664,7 +699,8 @@ public class TabbedPanel extends JPanel {
 
     // Shadow
     shadowSize = properties.getShadowSize();
-    componentsPanel.setBorder(contentPanel != null && properties.getShadowEnabled() ? new EmptyBorder(0, 0, shadowSize, shadowSize) : null);
+    componentsPanel.setBorder(
+        contentPanel != null && properties.getShadowEnabled() ? new EmptyBorder(0, 0, shadowSize, shadowSize) : null);
 
     checkOnlyOneTab(true);
 
@@ -717,23 +753,71 @@ public class TabbedPanel extends JPanel {
   private void updateTabArea() {
     boolean stretch = properties.getTabAreaComponentsProperties().getStretchEnabled();
     if (tabAreaOrientation == Direction.UP) {
-      setTabAreaLayoutConstraints(draggableComponentBox, 0, 0, GridBagConstraints.HORIZONTAL, 1, 1, GridBagConstraints.SOUTH);
-      setTabAreaLayoutConstraints(tabAreaComponentsPanel, 1, 0, stretch ? GridBagConstraints.VERTICAL : GridBagConstraints.NONE, 0, 1, GridBagConstraints.SOUTH);
+      setTabAreaLayoutConstraints(draggableComponentBox,
+                                  0,
+                                  0,
+                                  GridBagConstraints.HORIZONTAL,
+                                  1,
+                                  1,
+                                  GridBagConstraints.SOUTH);
+      setTabAreaLayoutConstraints(tabAreaComponentsPanel,
+                                  1,
+                                  0,
+                                  stretch ? GridBagConstraints.VERTICAL : GridBagConstraints.NONE,
+                                  0,
+                                  1,
+                                  GridBagConstraints.SOUTH);
       updateTabAreaComponentsPanel(Direction.RIGHT, 0, 1);
     }
     else if (tabAreaOrientation == Direction.DOWN) {
-      setTabAreaLayoutConstraints(draggableComponentBox, 0, 0, GridBagConstraints.HORIZONTAL, 1, 1, GridBagConstraints.NORTH);
-      setTabAreaLayoutConstraints(tabAreaComponentsPanel, 1, 0, stretch ? GridBagConstraints.VERTICAL : GridBagConstraints.NONE, 0, 0, GridBagConstraints.NORTH);
+      setTabAreaLayoutConstraints(draggableComponentBox,
+                                  0,
+                                  0,
+                                  GridBagConstraints.HORIZONTAL,
+                                  1,
+                                  1,
+                                  GridBagConstraints.NORTH);
+      setTabAreaLayoutConstraints(tabAreaComponentsPanel,
+                                  1,
+                                  0,
+                                  stretch ? GridBagConstraints.VERTICAL : GridBagConstraints.NONE,
+                                  0,
+                                  0,
+                                  GridBagConstraints.NORTH);
       updateTabAreaComponentsPanel(Direction.RIGHT, 0, 0);
     }
     else if (tabAreaOrientation == Direction.LEFT) {
-      setTabAreaLayoutConstraints(draggableComponentBox, 0, 0, GridBagConstraints.VERTICAL, 1, 1, GridBagConstraints.EAST);
-      setTabAreaLayoutConstraints(tabAreaComponentsPanel, 0, 1, stretch ? GridBagConstraints.HORIZONTAL : GridBagConstraints.NONE, 0, 0, GridBagConstraints.EAST);
+      setTabAreaLayoutConstraints(draggableComponentBox,
+                                  0,
+                                  0,
+                                  GridBagConstraints.VERTICAL,
+                                  1,
+                                  1,
+                                  GridBagConstraints.EAST);
+      setTabAreaLayoutConstraints(tabAreaComponentsPanel,
+                                  0,
+                                  1,
+                                  stretch ? GridBagConstraints.HORIZONTAL : GridBagConstraints.NONE,
+                                  0,
+                                  0,
+                                  GridBagConstraints.EAST);
       updateTabAreaComponentsPanel(Direction.DOWN, 0, 0);
     }
     else {
-      setTabAreaLayoutConstraints(draggableComponentBox, 0, 0, GridBagConstraints.VERTICAL, 1, 1, GridBagConstraints.WEST);
-      setTabAreaLayoutConstraints(tabAreaComponentsPanel, 0, 1, stretch ? GridBagConstraints.HORIZONTAL : GridBagConstraints.NONE, 0, 0, GridBagConstraints.WEST);
+      setTabAreaLayoutConstraints(draggableComponentBox,
+                                  0,
+                                  0,
+                                  GridBagConstraints.VERTICAL,
+                                  1,
+                                  1,
+                                  GridBagConstraints.WEST);
+      setTabAreaLayoutConstraints(tabAreaComponentsPanel,
+                                  0,
+                                  1,
+                                  stretch ? GridBagConstraints.HORIZONTAL : GridBagConstraints.NONE,
+                                  0,
+                                  0,
+                                  GridBagConstraints.WEST);
       updateTabAreaComponentsPanel(Direction.DOWN, 0, 1);
     }
 
@@ -745,13 +829,39 @@ public class TabbedPanel extends JPanel {
     draggableComponentBox.setAutoSelect(properties.getAutoSelectTab());
 
     draggableComponentBox.setComponentSpacing(properties.getTabSpacing());
+    draggableComponentBox.setDepthSortOrder(properties.getTabDepthOrderPolicy() == TabDepthOrderPolicy.DESCENDING);
 
     properties.getTabAreaProperties().getComponentProperties().applyTo(tabAreaContainer);
-    properties.getTabAreaComponentsProperties().getComponentProperties().applyTo(tabAreaComponentsPanel, tabAreaOrientation.getNextCW());
+    updateShapedPanelProperties(tabAreaContainer,
+                                properties.getTabAreaProperties().getComponentProperties().getBackgroundColor(),
+                                properties.getTabAreaProperties().getShapedPanelProperties());
+
+    properties.getTabAreaComponentsProperties().getComponentProperties().applyTo(tabAreaComponentsPanel,
+                                                                                 tabAreaOrientation.getNextCW());
+    updateShapedPanelProperties(tabAreaComponentsPanel,
+                                properties.getTabAreaComponentsProperties().getComponentProperties()
+                                .getBackgroundColor(),
+                                properties.getTabAreaComponentsProperties().getShapedPanelProperties());
   }
 
   private void updateTabAreaComponentsPanel(Direction direction, int alignmentX, int alignmentY) {
     ((DirectionLayout) tabAreaComponentsPanel.getLayout()).setDirection(direction);
+  }
+
+  private void updateShapedPanelProperties(ShapedPanel panel, Color backgroundColor, ShapedPanelProperties shapedPanelProperties) {
+    panel.setOpaque(false);
+    ComponentPainter painter = shapedPanelProperties.getComponentPainter();
+    if (painter != null)
+      panel.setComponentPainter(painter);
+    else if (backgroundColor != null)
+      panel.setComponentPainter(SolidColorComponentPainter.BACKGROUND_COLOR_PAINTER);
+    else
+      panel.setComponentPainter(null);
+    panel.setVerticalFlip(shapedPanelProperties.getVerticalFlip());
+    panel.setHorizontalFlip(shapedPanelProperties.getHorizontalFlip());
+    panel.setDirection(getProperties().getTabAreaOrientation().getNextCW());
+    panel.setClipChildren(shapedPanelProperties.getClipChildren());
+    //panel.setDirection(shapedPanelProperties.getDirection() == null ? getProperties().getTabAreaOrientation().getNextCW() : shapedPanelProperties.getDirection());
   }
 
   private void setTabAreaLayoutConstraints(JComponent c, int gridx, int gridy, int fill, double weightx, double weighty, int anchor) {
@@ -770,7 +880,8 @@ public class TabbedPanel extends JPanel {
       tab.setTabbedPanel(this);
       tabs.add(tab);
       if (p != null)
-        draggableComponentBox.insertDraggableComponent(tab.getDraggableComponent(), SwingUtilities.convertPoint(this, p, draggableComponentBox));
+        draggableComponentBox.insertDraggableComponent(tab.getDraggableComponent(),
+                                                       SwingUtilities.convertPoint(this, p, draggableComponentBox));
       else
         draggableComponentBox.insertDraggableComponent(tab.getDraggableComponent(), index);
       updateTabProperties(tab);
@@ -822,10 +933,17 @@ public class TabbedPanel extends JPanel {
     boolean componentsVisible = includeDropDownWidth
                                 ? ComponentUtil.isOnlyVisibleComponents(new Component[]{scrollButtonBox, dropDownList})
                                 : ComponentUtil.isOnlyVisibleComponent(scrollButtonBox);
-    int insetsWidth = tabAreaComponentsPanel.isVisible() && componentsVisible ? componentsPanelInsets.left + componentsPanelInsets.right : 0;
-    int componentsPanelWidth = tabAreaComponentsPanel.isVisible() ? ((int) tabAreaComponentsPanel.getPreferredSize().getWidth() - insetsWidth - (scrollButtonBox.isVisible()
-                                                                                                                                                 ? scrollButtonBox.getWidth() + (includeDropDownWidth ? dropDownList.getWidth() : 0)
-                                                                                                                                                 : 0)) : 0;
+    int insetsWidth = tabAreaComponentsPanel.isVisible() && componentsVisible ?
+                      componentsPanelInsets.left + componentsPanelInsets.right : 0;
+    int componentsPanelWidth = tabAreaComponentsPanel.isVisible() ?
+                               ((int) tabAreaComponentsPanel.getPreferredSize().getWidth() - insetsWidth - (scrollButtonBox.isVisible()
+                                                                                                            ?
+                                                                                                            scrollButtonBox.getWidth() + (includeDropDownWidth ?
+                                                                                                                                          dropDownList.getWidth() :
+                                                                                                                                          0)
+                                                                                                            :
+                                                                                                            0)) :
+                               0;
     Insets areaInsets = tabAreaContainer.getInsets();
     return tabAreaContainer.getWidth() - componentsPanelWidth - areaInsets.left - areaInsets.right;
   }
@@ -836,10 +954,17 @@ public class TabbedPanel extends JPanel {
     boolean componentsVisible = includeDropDownHeight
                                 ? ComponentUtil.isOnlyVisibleComponents(new Component[]{scrollButtonBox, dropDownList})
                                 : ComponentUtil.isOnlyVisibleComponent(scrollButtonBox);
-    int insetsHeight = tabAreaComponentsPanel.isVisible() && componentsVisible ? componentsPanelInsets.top + componentsPanelInsets.bottom : 0;
-    int componentsPanelHeight = tabAreaComponentsPanel.isVisible() ? ((int) tabAreaComponentsPanel.getPreferredSize().getHeight() - insetsHeight - (scrollButtonBox.isVisible()
-                                                                                                                                                    ? scrollButtonBox.getHeight() + (includeDropDownHeight ? dropDownList.getHeight() : 0)
-                                                                                                                                                    : 0)) : 0;
+    int insetsHeight = tabAreaComponentsPanel.isVisible() && componentsVisible ?
+                       componentsPanelInsets.top + componentsPanelInsets.bottom : 0;
+    int componentsPanelHeight = tabAreaComponentsPanel.isVisible() ?
+                                ((int) tabAreaComponentsPanel.getPreferredSize().getHeight() - insetsHeight - (scrollButtonBox.isVisible()
+                                                                                                               ?
+                                                                                                               scrollButtonBox.getHeight() + (includeDropDownHeight ?
+                                                                                                                                              dropDownList.getHeight() :
+                                                                                                                                              0)
+                                                                                                               :
+                                                                                                               0)) :
+                                0;
     Insets areaInsets = tabAreaContainer.getInsets();
     return tabAreaContainer.getHeight() - componentsPanelHeight - areaInsets.top - areaInsets.bottom;
   }

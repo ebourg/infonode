@@ -20,12 +20,15 @@
  */
 
 
-// $Id: ColorUtil.java,v 1.5 2004/09/22 14:35:05 jesper Exp $
+// $Id: ColorUtil.java,v 1.6 2004/10/15 14:23:09 jesper Exp $
 package net.infonode.util;
 
 import java.awt.*;
 
-public class ColorUtil {
+public final class ColorUtil {
+  private ColorUtil() {
+  }
+
   public static Color getOpposite(Color c) {
     return isDark(c) ? Color.WHITE : Color.BLACK;
   }
@@ -37,7 +40,8 @@ public class ColorUtil {
   public static final Color mult(Color c, double amount) {
     return new Color(Math.min(255, (int) (c.getRed() * amount)),
                      Math.min(255, (int) (c.getGreen() * amount)),
-                     Math.min(255, (int) (c.getBlue() * amount)));
+                     Math.min(255, (int) (c.getBlue() * amount)),
+                     c.getAlpha());
   }
 
   public static Color setAlpha(Color c, int alpha) {
@@ -47,11 +51,16 @@ public class ColorUtil {
   public static final Color add(Color c1, Color c2) {
     return new Color(Math.min(255, c1.getRed() + c2.getRed()),
                      Math.min(255, c1.getGreen() + c2.getGreen()),
-                     Math.min(255, c1.getBlue() + c2.getBlue()));
+                     Math.min(255, c1.getBlue() + c2.getBlue()),
+                     c1.getAlpha());
   }
 
   public static Color blend(Color c1, Color c2, double v) {
-    return add(mult(c1, 1.0 - v), mult(c2, v));
+    double v2 = 1 - v;
+    return new Color(Math.min(255, (int) (c1.getRed() * v2 + c2.getRed() * v)),
+                     Math.min(255, (int) (c1.getGreen() * v2 + c2.getGreen() * v)),
+                     Math.min(255, (int) (c1.getBlue() * v2 + c2.getBlue() * v)),
+                     Math.min(255, (int) (c1.getAlpha() * v2 + c2.getAlpha() * v)));
   }
 
   public static boolean isDark(Color c) {

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ReleaseInfoDialog.java,v 1.12 2004/09/22 14:35:05 jesper Exp $
+// $Id: ReleaseInfoDialog.java,v 1.13 2004/11/11 14:11:14 jesper Exp $
 
 package net.infonode.gui;
 
@@ -48,7 +48,9 @@ public class ReleaseInfoDialog {
 
   public static void showDialog(ReleaseInfo[] info, String[] text) {
     final JComponent message = constructMessage(info, text);
-    JScrollPane scrollPane = new JScrollPane(message, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER) {
+    JScrollPane scrollPane = new JScrollPane(message,
+                                             JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                                             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER) {
       public Dimension getPreferredSize() {
         Dimension d = message.getPreferredSize();
         int height = (int) d.getHeight();
@@ -63,13 +65,18 @@ public class ReleaseInfoDialog {
   private static JComponent constructMessage(ReleaseInfo[] info, String[] text) {
     Box box = new Box(BoxLayout.Y_AXIS);
     for (int i = 0; i < info.length; i++) {
-      JLabel l = new JLabel("<html><body>" + (text == null || text[i] == null ? "" : text[i] + "<br>") + "<table>" + "<tr><td style='font-weight: bold;'>Product Name:</td><td>"
-                            + info[i].getProductName() + "</td></tr>" + "<tr><td style='font-weight: bold;'>Version:</td><td>" + info[i].getProductVersion().toString() + "</td></tr>"
-                            + "<tr><td style='font-weight: bold;'>Build Time:</td><td>" + DATE_FORMAT.format(new Date(info[i].getBuildTime())) + "</td></tr>"
-                            + "<tr><td style='font-weight: bold;'>License:</td><td>" + info[i].getLicense() + "</td></tr>" + "<tr><td style='font-weight: bold;'>Vendor:</td><td>" + info[i].getProductVendor()
-                            + "</td></tr>" + "<tr><td style='font-weight: bold;'>Homepage:</td><td>" + info[i].getHomepage() + "</td></tr>" + "</table></body></html>");
+      JLabel l = new JLabel(
+          "<html><body>" + (text == null || text[i] == null ? "" : text[i] + "<br>") + "<table>" + "<tr><td style='font-weight: bold;'>Product Name:</td><td>"
+          + info[i].getProductName() + "</td></tr>" + "<tr><td style='font-weight: bold;'>Version:</td><td>" + info[i].getProductVersion()
+                                                                                                               .toString() + "</td></tr>"
+          + "<tr><td style='font-weight: bold;'>Build Time:</td><td>" + DATE_FORMAT.format(
+              new Date(info[i].getBuildTime())) + "</td></tr>"
+          + "<tr><td style='font-weight: bold;'>License:</td><td>" + info[i].getLicense() + "</td></tr>" + "<tr><td style='font-weight: bold;'>Vendor:</td><td>" + info[i].getProductVendor()
+          + "</td></tr>" + "<tr><td style='font-weight: bold;'>Homepage:</td><td>" + info[i].getHomepage() + "</td></tr>" + "</table></body></html>");
       l.setFont(l.getFont().deriveFont(Font.PLAIN));
-      l.setBorder(new CompoundBorder(new EmptyBorder(0, 0, i == info.length - 1 ? 0 : 10, 0), new TitledBorder(" " + info[i].getProductName() + " ")));
+      l.setBorder(
+          new CompoundBorder(new EmptyBorder(0, 0, i == info.length - 1 ? 0 : 10, 0),
+                             new TitledBorder(" " + info[i].getProductName() + " ")));
       box.add(l);
     }
     return box;

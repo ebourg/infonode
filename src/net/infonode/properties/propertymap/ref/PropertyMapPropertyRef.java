@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyMapPropertyRef.java,v 1.5 2004/09/22 14:32:50 jesper Exp $
+// $Id: PropertyMapPropertyRef.java,v 1.6 2004/11/11 14:10:12 jesper Exp $
 package net.infonode.properties.propertymap.ref;
 
 import net.infonode.properties.propertymap.PropertyMapImpl;
@@ -32,7 +32,7 @@ import java.io.ObjectOutputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class PropertyMapPropertyRef implements PropertyMapRef {
   private String propertyName;
@@ -46,7 +46,8 @@ public class PropertyMapPropertyRef implements PropertyMapRef {
   }
 
   public PropertyMapImpl getMap(PropertyMapImpl object) {
-    return object == null ? null : object.getChildMapImpl((PropertyMapProperty) object.getPropertyGroup().getProperty(propertyName));
+    return object == null ?
+           null : object.getChildMapImpl((PropertyMapProperty) object.getPropertyGroup().getProperty(propertyName));
   }
 
   public String toString() {

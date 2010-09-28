@@ -20,7 +20,7 @@
  */
 
 
-// $Id: StackableLayout.java,v 1.15 2004/09/23 14:17:01 jesper Exp $
+// $Id: StackableLayout.java,v 1.16 2004/11/11 14:11:14 jesper Exp $
 package net.infonode.gui.layout;
 
 import net.infonode.gui.ComponentUtil;
@@ -120,8 +120,9 @@ public class StackableLayout implements LayoutManager2 {
     component = c;
 
     boolean hasFocus = oldComponent != null &&
-                       LayoutUtil.isDescendingFrom(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(),
-                                                   oldComponent);
+                       LayoutUtil.isDescendingFrom(
+                           KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(),
+                           oldComponent);
 
     if (component != null) {
       component.setVisible(true);

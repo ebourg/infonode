@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyMapManager.java,v 1.6 2004/09/22 14:32:50 jesper Exp $
+// $Id: PropertyMapManager.java,v 1.8 2004/11/11 14:10:12 jesper Exp $
 package net.infonode.properties.propertymap;
 
 import net.infonode.properties.propertymap.value.PropertyValue;
@@ -38,7 +38,7 @@ import java.util.Map;
  * optimize performance.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.8 $
  */
 public class PropertyMapManager {
   private static final PropertyMapManager INSTANCE = new PropertyMapManager();
@@ -63,8 +63,9 @@ public class PropertyMapManager {
       Object newValue = vc.getNewValue() == null ? null : ((PropertyValue) vc.getNewValue()).get(propertyMap);
       Object value = map.get(iterator.getKey());
       map.put(iterator.getKey(),
-              value == null ? new ValueChange(vc.getOldValue() == null ? null : ((PropertyValue) vc.getOldValue()).get(propertyMap),
-                                              newValue) :
+              value == null ? new ValueChange(
+                  vc.getOldValue() == null ? null : ((PropertyValue) vc.getOldValue()).get(propertyMap),
+                  newValue) :
               new ValueChange(((ValueChange) value).getOldValue(), newValue));
     }
   }
@@ -110,8 +111,10 @@ public class PropertyMapManager {
   void endBatch() {
     if (--batchCounter == 0) {
       HashMap treeChanges = new HashMap();
+      HashMap localChanges = changes;
+      changes = null;
 
-      for (Iterator iterator = changes.entrySet().iterator(); iterator.hasNext();) {
+      for (Iterator iterator = localChanges.entrySet().iterator(); iterator.hasNext();) {
         Map.Entry entry = (Map.Entry) iterator.next();
         PropertyMapImpl object = (PropertyMapImpl) entry.getKey();
         HashMap objectChanges = (HashMap) entry.getValue();

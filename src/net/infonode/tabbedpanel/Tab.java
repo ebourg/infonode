@@ -20,7 +20,7 @@
  */
 
 
-// $Id: Tab.java,v 1.20 2004/09/22 14:33:49 jesper Exp $
+// $Id: Tab.java,v 1.24 2004/11/11 14:10:33 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.gui.draggable.DraggableComponent;
@@ -69,7 +69,7 @@ import java.util.ArrayList;
  * </ul></p>
  *
  * @author $Author: jesper $
- * @version $Revision: 1.20 $
+ * @version $Revision: 1.24 $
  * @see TabListener
  * @see TabbedPanel
  * @see TitledTab
@@ -89,7 +89,8 @@ public class Tab extends JPanel {
         int decKey = tabOrientation.isHorizontal() ? KeyEvent.VK_UP : KeyEvent.VK_LEFT;
         int index = tabbedPanel.getTabIndex(Tab.this);
         while (true) {
-          index = (index + tabbedPanel.getTabCount() + (e.getKeyCode() == incKey ? 1 : e.getKeyCode() == decKey ? -1 : 0)) %
+          index = (index + tabbedPanel.getTabCount() + (e.getKeyCode() == incKey ?
+                                                        1 : e.getKeyCode() == decKey ? -1 : 0)) %
                   tabbedPanel.getTabCount();
           Tab tab = tabbedPanel.getTabAt(index);
           if (tab == Tab.this)
@@ -385,6 +386,22 @@ public class Tab extends JPanel {
       this.focusableComponent.addKeyListener(focusableKeyListener);
   }
 
+  /**
+   * <p>Gets the tab {@link Shape}.</p>
+   *
+   * <p>
+   * This returns the shape of the tab. This can be be used by for
+   * example content borders in the tabbed panel so they can skip a gap where the
+   * tab intersects the tabbed panel content area.
+   * </p>
+   *
+   * @return the tab {@link Shape}, null if the tab has the normal component rectangle shape
+   * @since ITP 1.2.0
+   */
+  public Shape getShape() {
+    return null;
+  }
+
   void setTabbedPanel(TabbedPanel tabbedPanel) {
     this.tabbedPanel = tabbedPanel;
     if (this.tabbedPanel != null)
@@ -397,7 +414,11 @@ public class Tab extends JPanel {
 
   private void fireHighlightedEvent(TabStateChangedEvent event) {
     if (listeners != null) {
-      TabStateChangedEvent e = new TabStateChangedEvent(this, event.getTabbedPanel(), this, event.getPreviousTab(), event.getCurrentTab());
+      TabStateChangedEvent e = new TabStateChangedEvent(this,
+                                                        event.getTabbedPanel(),
+                                                        this,
+                                                        event.getPreviousTab(),
+                                                        event.getCurrentTab());
       Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
         ((TabListener) l[i]).tabHighlighted(e);
@@ -406,7 +427,11 @@ public class Tab extends JPanel {
 
   private void fireDehighlightedEvent(TabStateChangedEvent event) {
     if (listeners != null) {
-      TabStateChangedEvent e = new TabStateChangedEvent(this, event.getTabbedPanel(), this, event.getPreviousTab(), event.getCurrentTab());
+      TabStateChangedEvent e = new TabStateChangedEvent(this,
+                                                        event.getTabbedPanel(),
+                                                        this,
+                                                        event.getPreviousTab(),
+                                                        event.getCurrentTab());
       Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
         ((TabListener) l[i]).tabDehighlighted(e);
@@ -415,7 +440,11 @@ public class Tab extends JPanel {
 
   private void fireSelectedEvent(TabStateChangedEvent event) {
     if (listeners != null) {
-      TabStateChangedEvent e = new TabStateChangedEvent(this, event.getTabbedPanel(), this, event.getPreviousTab(), event.getCurrentTab());
+      TabStateChangedEvent e = new TabStateChangedEvent(this,
+                                                        event.getTabbedPanel(),
+                                                        this,
+                                                        event.getPreviousTab(),
+                                                        event.getCurrentTab());
       Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
         ((TabListener) l[i]).tabSelected(e);
@@ -424,7 +453,11 @@ public class Tab extends JPanel {
 
   private void fireDeselectedEvent(TabStateChangedEvent event) {
     if (listeners != null) {
-      TabStateChangedEvent e = new TabStateChangedEvent(this, event.getTabbedPanel(), this, event.getPreviousTab(), event.getCurrentTab());
+      TabStateChangedEvent e = new TabStateChangedEvent(this,
+                                                        event.getTabbedPanel(),
+                                                        this,
+                                                        event.getPreviousTab(),
+                                                        event.getCurrentTab());
       Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
         ((TabListener) l[i]).tabDeselected(e);

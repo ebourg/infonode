@@ -20,7 +20,7 @@
  */
 
 
-// $Id: BorderIcon.java,v 1.3 2004/07/08 13:05:05 jesper Exp $
+// $Id: BorderIcon.java,v 1.4 2004/11/11 14:11:14 jesper Exp $
 package net.infonode.gui.icon.button;
 
 import javax.swing.*;
@@ -48,7 +48,10 @@ public class BorderIcon implements Icon {
       g.fillRect(x, y, getIconWidth(), insets.top);
       g.fillRect(x, y + getIconHeight() - insets.bottom, getIconWidth(), insets.bottom);
       g.fillRect(x, y + insets.top, insets.left, getIconHeight() - insets.top - insets.bottom);
-      g.fillRect(x + getIconWidth() - insets.right, y + insets.top, insets.right, getIconHeight() - insets.top - insets.bottom);
+      g.fillRect(x + getIconWidth() - insets.right,
+                 y + insets.top,
+                 insets.right,
+                 getIconHeight() - insets.top - insets.bottom);
       g.setColor(oldColor);
     }
 

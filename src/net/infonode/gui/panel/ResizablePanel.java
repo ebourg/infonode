@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ResizablePanel.java,v 1.4 2004/09/22 14:35:04 jesper Exp $
+// $Id: ResizablePanel.java,v 1.5 2004/11/09 14:32:47 jesper Exp $
 package net.infonode.gui.panel;
 
 import net.infonode.gui.CursorManager;
@@ -33,7 +33,7 @@ import java.awt.event.MouseMotionAdapter;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class ResizablePanel extends SimplePanel {
   private Direction direction;
@@ -79,19 +79,28 @@ public class ResizablePanel extends SimplePanel {
 
       public void mouseDragged(MouseEvent e) {
         if (offset != -1) {
-          if (direction.isHorizontal()) {
-            int width = (direction == Direction.LEFT ? getWidth() - e.getPoint().x + offset : e.getPoint().x + offset);
-            setPreferredSize(new Dimension(Math.max(getMinimumSize().width, Math.min(width, getMaximumSize().width)), 0));
-          }
-          else {
-            int height = (direction == Direction.UP ? getHeight() - e.getPoint().y + offset : e.getPoint().y + offset);
-            setPreferredSize(new Dimension(0, Math.max(getMinimumSize().height, Math.min(height, getMaximumSize().height))));
-          }
-
+          int size = direction.isHorizontal() ?
+                     (direction == Direction.LEFT ? getWidth() - e.getPoint().x + offset : e.getPoint().x + offset) :
+                     (direction == Direction.UP ? getHeight() - e.getPoint().y + offset : e.getPoint().y + offset);
+          setPreferredSize(getBoundedSize(size));
           revalidate();
         }
       }
     });
+  }
+
+  public Dimension getPreferredSize() {
+    Dimension d = super.getPreferredSize();
+    return getBoundedSize(direction.isHorizontal() ? d.width : d.height);
+  }
+
+  private Dimension getBoundedSize(int size) {
+    if (direction.isHorizontal()) {
+      return new Dimension(Math.max(getMinimumSize().width, Math.min(size, getMaximumSize().width)), 0);
+    }
+    else {
+      return new Dimension(0, Math.max(getMinimumSize().height, Math.min(size, getMaximumSize().height)));
+    }
   }
 
   public void setResizeWidth(int width) {

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: GradientTheme.java,v 1.15 2004/09/28 15:07:29 jesper Exp $
+// $Id: GradientTheme.java,v 1.20 2004/11/12 08:57:36 jesper Exp $
 package net.infonode.tabbedpanel.theme;
 
 import net.infonode.gui.Colors;
@@ -32,7 +32,6 @@ import net.infonode.tabbedpanel.TabbedPanelProperties;
 import net.infonode.tabbedpanel.border.GradientTabAreaBorder;
 import net.infonode.tabbedpanel.border.OpenContentBorder;
 import net.infonode.tabbedpanel.border.TabAreaLineBorder;
-import net.infonode.tabbedpanel.border.TabLineBorder;
 import net.infonode.tabbedpanel.titledtab.TitledTabProperties;
 
 import javax.swing.border.Border;
@@ -43,11 +42,11 @@ import java.awt.*;
  * A theme that draws gradient tab backgrounds.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.20 $
  * @since ITP 1.1.0
  */
 public class GradientTheme extends TabbedPanelTitledTabTheme {
-  private static final float HUE = Colors.BLUE_HUE;
+  private static final float HUE = Colors.ROYAL_BLUE_HUE;
   private static final float SATURATION = 0.06f;
   private static final float BRIGHTNESS = 0.72f;
 
@@ -67,6 +66,8 @@ public class GradientTheme extends TabbedPanelTitledTabTheme {
   private Color borderColor;
   private Color tabAreaBackgroundColor;
   private Border normalTabGradientBorder;
+  private TitledTabProperties titledTabProperties = new TitledTabProperties();
+  private TabbedPanelProperties tabbedPanelProperties = new TabbedPanelProperties();
 
   /**
    * Creates a default theme with transparent tab area and shadows.
@@ -115,8 +116,9 @@ public class GradientTheme extends TabbedPanelTitledTabTheme {
                                                           UIManagerColorProvider.TABBED_PANE_BACKGROUND);
 
     normalTabGradientBorder = new GradientTabAreaBorder(cp, new ColorMultiplier(cp, 1.1));
+    initTabbedPanelProperties();
+    initTitledTabProperties();
   }
-
 
   /**
    * Gets the name for this theme
@@ -127,32 +129,27 @@ public class GradientTheme extends TabbedPanelTitledTabTheme {
     return "Gradient Theme" + (opaqueTabArea ? " - Opaque Tab Area" : "");
   }
 
-  /**
-   * Gets the TabbedPanelProperties for this theme
-   *
-   * @return the TabbedPanelProperties
-   */
-  public TabbedPanelProperties getTabbedPanelProperties() {
-    TabbedPanelProperties properties = new TabbedPanelProperties();
+  private void initTabbedPanelProperties() {
 
-    properties.getContentPanelProperties().getComponentProperties()
+    tabbedPanelProperties.getContentPanelProperties().getComponentProperties()
         .setInsets(new Insets(3, 3, 3, 3))
         .setBorder(new OpenContentBorder(borderColor, opaqueTabArea ? 0 : 1));
 
-    properties
+    tabbedPanelProperties
         .setShadowEnabled(shadowEnabled)
-        .setPaintTabAreaShadow(opaqueTabArea);
+        .setPaintTabAreaShadow(opaqueTabArea)
+        .setTabSpacing(opaqueTabArea ? 0 : -1);
 
     if (opaqueTabArea) {
       if (tabAreaBackgroundColor != null)
-        properties.getTabAreaProperties().getComponentProperties()
+        tabbedPanelProperties.getTabAreaProperties().getComponentProperties()
             .setBackgroundColor(tabAreaBackgroundColor);
 
-      properties.getTabAreaProperties().getComponentProperties()
+      tabbedPanelProperties.getTabAreaProperties().getComponentProperties()
           .setBorder(new CompoundBorder(new TabAreaLineBorder(borderColor), normalTabGradientBorder));
     }
 
-    properties.getTabAreaComponentsProperties()
+    tabbedPanelProperties.getTabAreaComponentsProperties()
         .setStretchEnabled(opaqueTabArea)
 
         .getComponentProperties()
@@ -163,45 +160,42 @@ public class GradientTheme extends TabbedPanelTitledTabTheme {
                                                             true),
                                       TAB_AREA_COMPONENTS_GRADIENT_BORDER))
         .setInsets(opaqueTabArea ? new Insets(0, 3, 0, 3) : new Insets(1, 3, 1, 3));
-
-    return properties;
   }
 
-  /**
-   * Gets the TitledTabProperties for this theme
-   *
-   * @return the TitledTabProperties
-   */
-  public TitledTabProperties getTitledTabProperties() {
-    TitledTabProperties properties = new TitledTabProperties();
-
+  private void initTitledTabProperties() {
     if (opaqueTabArea)
-      properties.setHighlightedRaised(0);
+      titledTabProperties.setHighlightedRaised(0);
 
-    properties.getNormalProperties()
+    titledTabProperties.getNormalProperties()
         .getComponentProperties()
         .setBorder(opaqueTabArea ?
                    (Border) new TabAreaLineBorder(false, false, true, true) :
-                   new CompoundBorder(new TabLineBorder(), normalTabGradientBorder));
+                   new CompoundBorder(new TabAreaLineBorder(), normalTabGradientBorder));
 
     if (opaqueTabArea)
-      properties.getNormalProperties()
+      titledTabProperties.getNormalProperties()
           .getComponentProperties().setBackgroundColor(null);
 
     if (!opaqueTabArea && tabAreaBackgroundColor != null)
-      properties.getNormalProperties()
+      titledTabProperties.getNormalProperties()
           .getComponentProperties().setBackgroundColor(tabAreaBackgroundColor);
 
-    properties.getHighlightedProperties()
+    titledTabProperties.getHighlightedProperties()
         .setIconVisible(true)
 
         .getComponentProperties()
         .setBorder(new CompoundBorder(opaqueTabArea ?
                                       (Border) new TabAreaLineBorder(false, false, true, true) :
-                                      new TabLineBorder(borderColor),
+                                      new TabAreaLineBorder(borderColor),
                                       HIGHLIGHTED_TAB_GRADIENT_BORDER));
+  }
 
-    return properties;
+  public TitledTabProperties getTitledTabProperties() {
+    return titledTabProperties;
+  }
+
+  public TabbedPanelProperties getTabbedPanelProperties() {
+    return tabbedPanelProperties;
   }
 
   /**

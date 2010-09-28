@@ -20,7 +20,7 @@
  */
 
 
-// $Id: FocusManager.java,v 1.5 2004/09/23 15:32:13 jesper Exp $
+// $Id: FocusManager.java,v 1.6 2004/11/11 14:09:46 jesper Exp $
 package net.infonode.docking;
 
 import javax.swing.*;
@@ -34,7 +34,7 @@ import java.util.ArrayList;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 class FocusManager {
   private static final FocusManager INSTANCE = new FocusManager();
@@ -139,7 +139,8 @@ class FocusManager {
   }
 
   private View getViewContaining(Component component) {
-    return component == null ? null : component instanceof View ? (View) component : getViewContaining(component.getParent());
+    return component == null ?
+           null : component instanceof View ? (View) component : getViewContaining(component.getParent());
   }
 
   private void updateWindows(Component focusedComponent, Component component, ArrayList oldFocusedWindows) {

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SplitWindowProperties.java,v 1.13 2004/09/28 15:07:29 jesper Exp $
+// $Id: SplitWindowProperties.java,v 1.15 2004/11/11 14:09:46 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.propertymap.*;
@@ -31,7 +31,7 @@ import net.infonode.properties.types.IntegerProperty;
  * Properties and property values for split windows.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.15 $
  */
 public class SplitWindowProperties extends PropertyMapContainer {
   /**
@@ -59,6 +59,17 @@ public class SplitWindowProperties extends PropertyMapContainer {
                                      "The split pane divider size.",
                                      2,
                                      PropertyMapValueHandler.INSTANCE);
+
+  /**
+   * When enabled the user can drag the SplitWindow divider to a new location.
+   *
+   * @since IDW 1.2.0
+   */
+  public static final BooleanProperty DIVIDER_LOCATION_DRAG_ENABLED =
+      new BooleanProperty(PROPERTIES,
+                          "Divider Location Drag Enabled",
+                          "When enabled the user can drag the SplitWindow divider to a new location.",
+                          PropertyMapValueHandler.INSTANCE);
 
   /**
    * Creates an empty property object.
@@ -146,6 +157,28 @@ public class SplitWindowProperties extends PropertyMapContainer {
    */
   public SplitWindowProperties setContinuousLayoutEnabled(boolean enabled) {
     CONTINUOUS_LAYOUT_ENABLED.set(getMap(), enabled);
+    return this;
+  }
+
+  /**
+   * Returns true if the user can drag the SplitWindow divider to a new location.
+   *
+   * @return true if the user can drag the SplitWindow divider to a new location
+   * @since IDW 1.2.0
+   */
+  public boolean getDividerLocationDragEnabled() {
+    return DIVIDER_LOCATION_DRAG_ENABLED.get(getMap());
+  }
+
+  /**
+   * When enabled the user can drag the SplitWindow divider to a new location.
+   *
+   * @param enabled if true the user can drag the SplitWindow divider to a new location
+   * @return this
+   * @since IDW 1.2.0
+   */
+  public SplitWindowProperties setDividerLocationDragEnabled(boolean enabled) {
+    DIVIDER_LOCATION_DRAG_ENABLED.set(getMap(), enabled);
     return this;
   }
 

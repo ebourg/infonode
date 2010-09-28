@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TitledTabBorderSizePolicyProperty.java,v 1.5 2004/09/22 14:33:49 jesper Exp $
+// $Id: TitledTabBorderSizePolicyProperty.java,v 1.6 2004/11/11 14:10:33 jesper Exp $
 package net.infonode.tabbedpanel.titledtab;
 
 import net.infonode.properties.base.PropertyGroup;
@@ -31,7 +31,7 @@ import net.infonode.properties.util.PropertyValueHandler;
  * Property for TitledTabBorderSizePolicy
  *
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  * @see TitledTabBorderSizePolicy
  */
 public class TitledTabBorderSizePolicyProperty extends EnumProperty {
@@ -44,7 +44,12 @@ public class TitledTabBorderSizePolicyProperty extends EnumProperty {
    * @param valueStorage storage for property
    */
   public TitledTabBorderSizePolicyProperty(PropertyGroup group, String name, String description, PropertyValueHandler valueStorage) {
-    super(group, name, TitledTabBorderSizePolicy.class, description, valueStorage, TitledTabBorderSizePolicy.getSizePolicies());
+    super(group,
+          name,
+          TitledTabBorderSizePolicy.class,
+          description,
+          valueStorage,
+          TitledTabBorderSizePolicy.getSizePolicies());
   }
 
   /**

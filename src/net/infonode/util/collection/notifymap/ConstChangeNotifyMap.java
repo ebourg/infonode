@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ConstChangeNotifyMap.java,v 1.5 2004/09/22 14:35:05 jesper Exp $
+// $Id: ConstChangeNotifyMap.java,v 1.6 2004/11/05 13:06:02 jesper Exp $
 package net.infonode.util.collection.notifymap;
 
 import net.infonode.util.collection.map.base.ConstMap;
@@ -28,7 +28,7 @@ import net.infonode.util.collection.map.base.ConstMap;
 public interface ConstChangeNotifyMap extends ConstMap {
   void addListener(ChangeNotifyMapListener listener);
 
-  void addWeakListener(ChangeNotifyMapListener listener);
+//  void addWeakListener(ChangeNotifyMapListener listener);
 
-  void removeListener(ChangeNotifyMapListener listener);
+  boolean removeListener(ChangeNotifyMapListener listener);
 }

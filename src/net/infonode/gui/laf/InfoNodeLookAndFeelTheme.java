@@ -20,7 +20,7 @@
  */
 
 
-// $Id: InfoNodeLookAndFeelTheme.java,v 1.9 2004/09/28 15:07:29 jesper Exp $
+// $Id: InfoNodeLookAndFeelTheme.java,v 1.11 2004/11/11 14:11:14 jesper Exp $
 package net.infonode.gui.laf;
 
 import net.infonode.gui.Colors;
@@ -47,10 +47,10 @@ import java.awt.*;
  * affect other, unmodified colors.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.11 $
  */
 public class InfoNodeLookAndFeelTheme {
-  private static final float PRIMARY_HUE = Colors.BLUE_HUE;
+  private static final float PRIMARY_HUE = Colors.ROYAL_BLUE_HUE;
   private static final float PRIMARY_SATURATION = 0.6f;
   private static final float PRIMARY_BRIGHTNESS = 0.67f;
 
@@ -64,7 +64,9 @@ public class InfoNodeLookAndFeelTheme {
   public static final Color DEFAULT_SELECTED_TEXT_COLOR = Color.WHITE;
   public static final Color DEFAULT_TOOLTIP_BACKGROUND_COLOR = new Color(255, 255, 180);
   public static final Color DEFAULT_TOOLTIP_FOREGROUND_COLOR = Color.BLACK;
-  public static final Color DEFAULT_DESKTOP_COLOR = Color.getHSBColor(PRIMARY_HUE - 0.02f, PRIMARY_SATURATION, PRIMARY_BRIGHTNESS);
+  public static final Color DEFAULT_DESKTOP_COLOR = Color.getHSBColor(PRIMARY_HUE - 0.02f,
+                                                                      PRIMARY_SATURATION,
+                                                                      PRIMARY_BRIGHTNESS);
 
   public static final int DEFAULT_FONT_SIZE = 11;
 
@@ -277,20 +279,26 @@ public class InfoNodeLookAndFeelTheme {
     selectedMenuBackgroundColor.setDefaultColor(selectedTextBackgroundColor);
     selectedMenuForegroundColor.setDefaultColor(selectedTextColor);
 
-    treeIconBackgroundColor.setDefaultColor(ColorUtil.blend(backgroundColor.getColor(), primaryControlColor.getColor(), 0.15f));
+    treeIconBackgroundColor.setDefaultColor(
+        ColorUtil.blend(backgroundColor.getColor(), primaryControlColor.getColor(), 0.15f));
 
     activeInternalFrameTitleBackgroundColor.setDefaultColor(ColorUtil.blend(primaryControlColor.getColor(),
                                                                             ColorUtil.getOpposite(getTextColor()),
                                                                             0.5f));
     inactiveInternalFrameTitleBackgroundColor.setDefaultColor(controlLightShadowColor);
 
-    menuBarBorder.setDefaultBorder(new BorderUIResource(new EtchedLineBorder(false, false, true, false, controlHighlightColor, controlDarkShadowColor)));
-    popupMenuBorder.setDefaultBorder(new BorderUIResource(new PopupMenuBorder(controlHighlightColor, controlDarkShadowColor)));
-    textFieldBorder.setDefaultBorder(new BorderUIResource(new CompoundBorder(new LineBorder(controlDarkShadowColor), new EmptyBorder(1, 2, 1, 2))));
+    menuBarBorder.setDefaultBorder(
+        new BorderUIResource(
+            new EtchedLineBorder(false, false, true, false, controlHighlightColor, controlDarkShadowColor)));
+    popupMenuBorder.setDefaultBorder(
+        new BorderUIResource(new PopupMenuBorder(controlHighlightColor, controlDarkShadowColor)));
+    textFieldBorder.setDefaultBorder(
+        new BorderUIResource(new CompoundBorder(new LineBorder(controlDarkShadowColor), new EmptyBorder(1, 2, 1, 2))));
 
-    tableHeaderCellBorder.setDefaultBorder(new BorderUIResource(new CompoundBorder(new CompoundBorder(new EdgeBorder(controlDarkShadowColor, false, true, false, true),
-                                                                                                      new HighlightBorder(false, controlHighlightColor)),
-                                                                                   new EmptyBorder(1, 4, 1, 4))));
+    tableHeaderCellBorder.setDefaultBorder(new BorderUIResource(new CompoundBorder(
+        new CompoundBorder(new EdgeBorder(controlDarkShadowColor, false, true, false, true),
+                           new HighlightBorder(false, controlHighlightColor)),
+        new EmptyBorder(1, 4, 1, 4))));
 
     listFocusedItemBorder.setDefaultBorder(new CompoundBorder(new LineBorder(focusColor.getColor()),
                                                               new EmptyBorder(0, 3, 0, 3)));

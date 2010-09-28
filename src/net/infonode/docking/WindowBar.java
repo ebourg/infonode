@@ -20,9 +20,10 @@
  */
 
 
-// $Id: WindowBar.java,v 1.34 2004/09/28 15:23:30 jesper Exp $
+// $Id: WindowBar.java,v 1.38 2004/11/11 14:09:46 jesper Exp $
 package net.infonode.docking;
 
+import net.infonode.docking.internalutil.DropAction;
 import net.infonode.docking.properties.WindowBarProperties;
 import net.infonode.docking.util.DockingUtil;
 import net.infonode.gui.panel.ResizablePanel;
@@ -45,7 +46,7 @@ import java.util.HashMap;
  * A window bar is enabled and disabled using the {@link Component#setEnabled} method.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.34 $
+ * @version $Revision: 1.38 $
  */
 public class WindowBar extends AbstractTabWindow {
   private RootWindow rootWindow;
@@ -78,7 +79,8 @@ public class WindowBar extends AbstractTabWindow {
 
         MouseListener listener = new MouseAdapter() {
           public void mouseClicked(MouseEvent e) {
-            if (e.getClickCount() == 2 && getRootWindow() != null && getRootWindow().getRootWindowProperties().getDoubleClickRestoresWindow())
+            if (e.getClickCount() == 2 && getRootWindow() != null && getRootWindow().getRootWindowProperties()
+                .getDoubleClickRestoresWindow())
               ((WindowTab) tab).getWindow().restore();
           }
         };
@@ -157,7 +159,7 @@ public class WindowBar extends AbstractTabWindow {
 
   protected void update() {
     edgePanel.setResizeWidth(windowBarProperties.getContentPanelEdgeResizeDistance());
-    windowBarProperties.getComponentProperties().applyTo(this);
+    windowBarProperties.getComponentProperties().applyTo(this, direction.getNextCW());
   }
 
   public Dimension getPreferredSize() {
@@ -167,7 +169,7 @@ public class WindowBar extends AbstractTabWindow {
       return new Dimension(Math.max(minWidth, size.width), Math.max(minWidth, size.height));
     }
     else
-      return super.getPreferredSize();
+      return new Dimension(0, 0);
   }
 
   protected void tabSelected(WindowTab tab) {
@@ -195,7 +197,7 @@ public class WindowBar extends AbstractTabWindow {
     return false;
   }
 
-  DockingWindow acceptDrop(Point p, DockingWindow window) {
+  DropAction acceptDrop(Point p, DockingWindow window) {
     return isEnabled() ? super.acceptDrop(p, window) : null;
   }
 

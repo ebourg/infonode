@@ -20,10 +20,11 @@
  */
 
 
-// $Id: TabbedPanelContentPanelProperties.java,v 1.19 2004/09/24 09:34:13 johan Exp $
+// $Id: TabbedPanelContentPanelProperties.java,v 1.21 2004/11/11 14:10:33 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.properties.gui.util.ComponentProperties;
+import net.infonode.properties.gui.util.ShapedPanelProperties;
 import net.infonode.properties.propertymap.*;
 
 /**
@@ -32,8 +33,8 @@ import net.infonode.properties.propertymap.*;
  * content area of a TabbedPanel. TabbedPanelProperties contains
  * TabbedPanelContentPanelProperties.
  *
- * @author $Author: johan $
- * @version $Revision: 1.19 $
+ * @author $Author: jesper $
+ * @version $Revision: 1.21 $
  * @see TabbedPanel
  * @see TabbedPanelProperties
  */
@@ -41,14 +42,29 @@ public class TabbedPanelContentPanelProperties extends PropertyMapContainer {
   /**
    * A property group for all properties in TabbedPanelContentPanelProperties
    */
-  public static final PropertyMapGroup PROPERTIES = new PropertyMapGroup("Tab Content Panel Properties", "Properties for the TabContentPanel class.");
+  public static final PropertyMapGroup PROPERTIES = new PropertyMapGroup("Tab Content Panel Properties",
+                                                                         "Properties for the TabContentPanel class.");
 
   /**
    * Properties for the component
    *
    * @see #getComponentProperties
    */
-  public static final PropertyMapProperty COMPONENT_PROPERTIES = new PropertyMapProperty(PROPERTIES, "Component Properties", "Properties for the content area component.", ComponentProperties.PROPERTIES);
+  public static final PropertyMapProperty COMPONENT_PROPERTIES = new PropertyMapProperty(PROPERTIES,
+                                                                                         "Component Properties",
+                                                                                         "Properties for the content area component.",
+                                                                                         ComponentProperties.PROPERTIES);
+
+  /**
+   * Properties for the shaped panel
+   *
+   * @see #getShapedPanelProperties
+   * @since ITP 1.2.0
+   */
+  public static final PropertyMapProperty SHAPED_PANEL_PROPERTIES = new PropertyMapProperty(PROPERTIES,
+                                                                                            "Shaped Panel Properties",
+                                                                                            "Properties for shaped tab area components area.",
+                                                                                            ShapedPanelProperties.PROPERTIES);
 
   /**
    * Constructs an empty TabbedPanelContentPanelProperties object
@@ -106,5 +122,15 @@ public class TabbedPanelContentPanelProperties extends PropertyMapContainer {
    */
   public ComponentProperties getComponentProperties() {
     return new ComponentProperties(COMPONENT_PROPERTIES.get(getMap()));
+  }
+
+  /**
+   * Gets the shaped panel properties
+   *
+   * @return shaped panel properties
+   * @since ITP 1.2.0
+   */
+  public ShapedPanelProperties getShapedPanelProperties() {
+    return new ShapedPanelProperties(SHAPED_PANEL_PROPERTIES.get(getMap()));
   }
 }

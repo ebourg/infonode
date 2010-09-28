@@ -20,44 +20,37 @@
  */
 
 
-// $Id: GradientBorder.java,v 1.4 2004/09/28 15:07:29 jesper Exp $
-package net.infonode.gui.border;
+// $Id: AbstractShapedBorderWrapper.java,v 1.5 2004/11/11 09:51:41 jesper Exp $
+package net.infonode.gui.shaped.border;
 
-import net.infonode.gui.GradientPainter;
-import net.infonode.gui.colorprovider.ColorProvider;
-
-import javax.swing.border.Border;
 import java.awt.*;
-import java.io.Serializable;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
-public class GradientBorder implements Border, Serializable {
+public class AbstractShapedBorderWrapper extends AbstractShapedBorder {
   private static final long serialVersionUID = 1;
 
-  private GradientPainter painter;
+  private ShapedBorder border;
 
-  public GradientBorder(Color topLeftColor, Color topRightColor, Color bottomLeftColor,
-                        Color bottomRightColor) {
-    painter = new GradientPainter(topLeftColor, topRightColor, bottomLeftColor, bottomRightColor);
+  protected AbstractShapedBorderWrapper(ShapedBorder border) {
+    this.border = border;
   }
 
-  public GradientBorder(ColorProvider topLeftColor, ColorProvider topRightColor, ColorProvider bottomLeftColor,
-                        ColorProvider bottomRightColor) {
-    painter = new GradientPainter(topLeftColor, topRightColor, bottomLeftColor, bottomRightColor);
-  }
-
-  public boolean isBorderOpaque() {
-    return false;
-  }
-
-  public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-    painter.paint(c, g, x, y, width, height);
+  public Shape getShape(Component c, int x, int y, int width, int height) {
+    return border.getShape(c, x, y, width, height);
   }
 
   public Insets getBorderInsets(Component c) {
-    return new Insets(0, 0, 0, 0);
+    return border.getBorderInsets(c);
+  }
+
+  public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+    border.paintBorder(c, g, x, y, width, height);
+  }
+
+  public boolean isBorderOpaque() {
+    return border.isBorderOpaque();
   }
 }

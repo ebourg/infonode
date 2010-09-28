@@ -20,9 +20,10 @@
  */
 
 
-// $Id: SplitWindow.java,v 1.14 2004/09/15 15:20:51 jesper Exp $
+// $Id: SplitWindow.java,v 1.20 2004/11/11 14:09:46 jesper Exp $
 package net.infonode.docking;
 
+import net.infonode.docking.internalutil.DropAction;
 import net.infonode.docking.location.WindowLocation;
 import net.infonode.docking.location.WindowSplitLocation;
 import net.infonode.docking.properties.SplitWindowProperties;
@@ -32,6 +33,9 @@ import net.infonode.properties.propertymap.PropertyMapManager;
 import net.infonode.util.Direction;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -40,7 +44,7 @@ import java.io.ObjectOutputStream;
  * A window with a split pane that contains two child windows.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.14 $
+ * @version $Revision: 1.20 $
  */
 public class SplitWindow extends DockingWindow {
   private SplitWindowProperties rootProperties = new SplitWindowProperties();
@@ -56,6 +60,17 @@ public class SplitWindow extends DockingWindow {
    */
   public SplitWindow(boolean horizontal) {
     splitPane = new SimpleSplitPane(horizontal);
+    splitPane.getDividerPanel().addMouseListener(new MouseAdapter() {
+      public void mousePressed(MouseEvent e) {
+        if (e.isPopupTrigger()) {
+          showMenu(e);
+        }
+      }
+
+      public void mouseReleased(MouseEvent e) {
+        mousePressed(e);
+      }
+    });
     setComponent(splitPane);
     init();
   }
@@ -136,27 +151,54 @@ public class SplitWindow extends DockingWindow {
    * @param leftWindow  the left/upper child window
    * @param rightWindow the right/lower child window
    */
-  public void setWindows(DockingWindow leftWindow, DockingWindow rightWindow) {
-    this.leftWindow = addWindow(leftWindow);
-    this.rightWindow = addWindow(rightWindow);
-    splitPane.setLeftComponent(this.leftWindow);
-    splitPane.setRightComponent(this.rightWindow);
-    fireTitleChanged();
-//    leftWindow.setVisible(true);
-//    rightWindow.setVisible(true);
+  public void setWindows(final DockingWindow leftWindow, final DockingWindow rightWindow) {
+    optimizeAfter(null, new Runnable() {
+      public void run() {
+        SplitWindow.this.leftWindow = addWindow(leftWindow);
+        SplitWindow.this.rightWindow = addWindow(rightWindow);
+        splitPane.setLeftComponent(SplitWindow.this.leftWindow);
+        splitPane.setRightComponent(SplitWindow.this.rightWindow);
+        fireTitleChanged();
+      }
+    });
+  }
+
+  /**
+   * Returns true if this SplitWindow is a horizontal split, otherwise it's vertical.
+   *
+   * @return true if this SplitWindow is a horizontal split, otherwise it's vertical
+   * @since IDW 1.2.0
+   */
+  public boolean isHorizontal() {
+    return splitPane.isHorizontal();
+  }
+
+  /**
+   * Sets the split to horizontal or vertical.
+   *
+   * @param horizontal if true the split is set to horizontal, otherwise vertical
+   * @since IDW 1.2.0
+   */
+  public void setHorizontal(boolean horizontal) {
+    splitPane.setHorizontal(horizontal);
   }
 
   protected void update() {
     splitPane.setDividerSize(splitWindowProperties.getDividerSize());
     splitPane.setContinuousLayout(splitWindowProperties.getContinuousLayoutEnabled());
+    splitPane.setDividerDraggable(splitWindowProperties.getDividerLocationDragEnabled());
   }
 
   protected void optimizeWindowLayout() {
     DockingWindow parent = getWindowParent();
 
     if (parent != null && (getRightWindow() == null || getLeftWindow() == null)) {
-      DockingWindow w = getRightWindow() == null ? getLeftWindow() : getRightWindow();
-      parent.replaceChildWindow(this, w);
+      if (getRightWindow() == null && getLeftWindow() == null)
+        parent.removeChildWindow(this);
+      else {
+        DockingWindow w = getRightWindow() == null ? getLeftWindow() : getRightWindow();
+        parent.replaceChildWindow(this, w);
+      }
     }
   }
 
@@ -189,7 +231,8 @@ public class SplitWindow extends DockingWindow {
   }
 
   public Icon getIcon() {
-    return getLeftWindow() == null ? (getRightWindow() == null ? null : getRightWindow().getIcon()) : getLeftWindow().getIcon();
+    return getLeftWindow() == null ?
+           (getRightWindow() == null ? null : getRightWindow().getIcon()) : getLeftWindow().getIcon();
   }
 
   protected void doReplace(DockingWindow oldWindow, DockingWindow newWindow) {
@@ -240,10 +283,6 @@ public class SplitWindow extends DockingWindow {
       return leftWindow != null ? leftWindow : rightWindow != null ? rightWindow : null;
   }
 
-  protected boolean acceptsCenterDrop() {
-    return getRootWindow().getRootWindowProperties().getRecursiveTabsEnabled();
-  }
-
   protected void rootChanged(final RootWindow oldRoot, final RootWindow newRoot) {
     super.rootChanged(oldRoot, newRoot);
     PropertyMapManager.runBatch(new Runnable() {
@@ -279,4 +318,24 @@ public class SplitWindow extends DockingWindow {
     else
       splitPane.setRightComponent(rightWindow);
   }
+
+  protected DropAction doAcceptDrop(Point p, DockingWindow window) {
+    DropAction da = acceptChildDrop(p, window);
+
+    if (da != null)
+      return da;
+
+    float f = isHorizontal() ? (float) p.y / getHeight() : (float) p.x / getWidth();
+
+    if (f <= 0.33f) {
+      return split(window, isHorizontal() ? Direction.UP : Direction.LEFT);
+    }
+    else if (f >= 0.66f) {
+      return split(window, isHorizontal() ? Direction.DOWN : Direction.RIGHT);
+    }
+    else {
+      return createTabWindow(window);
+    }
+  }
+
 }

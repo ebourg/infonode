@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WeakSet.java,v 1.4 2004/09/22 14:35:05 jesper Exp $
+// $Id: WeakSet.java,v 1.5 2004/11/05 13:05:48 jesper Exp $
 package net.infonode.util.collection;
 
 import java.lang.ref.WeakReference;
@@ -28,7 +28,7 @@ import java.util.ArrayList;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class WeakSet {
   private WeakReference[] elements;
@@ -156,6 +156,11 @@ public class WeakSet {
     System.arraycopy(elements, 0, newElements, 0, size);
     elements = newElements;
     return size++;
+  }
+
+  public boolean isEmpty() {
+    cleanUp();
+    return size == 0;
   }
 
   private static class Iterator implements java.util.Iterator {

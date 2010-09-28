@@ -37,8 +37,8 @@ public class InfoNodeLookAndFeelReleaseInfo {
   private static ReleaseInfo productInfo =
       new ReleaseInfo("InfoNode Look and Feel GPL",
                       "NNL Technology AB",
-                      AntUtils.getBuildTime(1096447201884L),
-                      AntUtils.createProductVersion(1, 1, 0),
+                      AntUtils.getBuildTime(1100250247689L),
+                      AntUtils.createProductVersion(1, 2, 0),
                       "GNU General Public License, Version 2",
                       "http://www.infonode.net");
 

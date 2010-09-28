@@ -20,16 +20,20 @@
  */
 
 
-// $Id: RootWindow.java,v 1.37 2004/09/28 15:07:29 jesper Exp $
+// $Id: RootWindow.java,v 1.48 2004/11/11 14:09:46 jesper Exp $
 package net.infonode.docking;
 
+import net.infonode.docking.internalutil.DropAction;
 import net.infonode.docking.location.WindowLocation;
 import net.infonode.docking.location.WindowRootLocation;
 import net.infonode.docking.properties.RootWindowProperties;
+import net.infonode.gui.componentpainter.RectangleComponentPainter;
 import net.infonode.gui.layout.BorderLayout2;
 import net.infonode.gui.layout.LayoutUtil;
 import net.infonode.gui.layout.StretchLayout;
 import net.infonode.gui.panel.SimplePanel;
+import net.infonode.gui.shaped.panel.ShapedPanel;
+import net.infonode.properties.gui.InternalPropertiesUtil;
 import net.infonode.properties.propertymap.PropertyMap;
 import net.infonode.util.ArrayUtil;
 import net.infonode.util.Direction;
@@ -53,7 +57,7 @@ import java.util.ArrayList;
  * window. The property values of a root window is inherited to the docking windows inside it.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.37 $
+ * @version $Revision: 1.48 $
  */
 public class RootWindow extends DockingWindow implements ReadWritable {
   private static final int SERIALIZE_VERSION = 2;
@@ -123,14 +127,18 @@ public class RootWindow extends DockingWindow implements ReadWritable {
 
   }
 
-  private SingleComponentLayout layerLayout = new SingleComponentLayout();
-  private JLayeredPane layeredPane = new JLayeredPane();
+  private SimplePanel layeredPane = new SimplePanel() {
+    public boolean isOptimizedDrawingEnabled() {
+      return false;
+    }
+  };
+  private ShapedPanel shapedPanel = new ShapedPanel(layeredPane);
   private SimplePanel mainPanel = new SimplePanel();
-  private SimplePanel windowPanel = new SimplePanel(new StretchLayout(true, true));
+  private ShapedPanel windowPanel = new ShapedPanel(new StretchLayout(true, true));
   private ViewSerializer viewSerializer;
   private DockingWindow window;
   private JLabel textComponent = new JLabel();
-  private RectangleBorderComponent rectangleComponent = new RectangleBorderComponent(0);
+  private ShapedPanel rectangleComponent = new ShapedPanel();
   private RootWindowProperties properties;
 //  private View lastFocusedView;
   private WindowBar[] windowBars = new WindowBar[Direction.getDirections().length];
@@ -157,8 +165,8 @@ public class RootWindow extends DockingWindow implements ReadWritable {
     createWindowBars();
 
     layeredPane.add(mainPanel);
-    layeredPane.setLayout(layerLayout);
-    setComponent(layeredPane);
+    layeredPane.setLayout(new SingleComponentLayout());
+    setComponent(shapedPanel);
 
     this.viewSerializer = viewSerializer;
 
@@ -273,7 +281,8 @@ public class RootWindow extends DockingWindow implements ReadWritable {
       getWindowBar(Direction.LEFT).isEnabled() ? pos.x + window.getWidth() : Integer.MAX_VALUE,
       getWindowBar(Direction.RIGHT).isEnabled() ? getWidth() - pos.x : Integer.MAX_VALUE};
 
-    Direction dir = new Direction[]{Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT}[ArrayUtil.findSmallest(distances)];
+    Direction dir = new Direction[]{Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT}[ArrayUtil.findSmallest(
+        distances)];
     return getWindowBar(dir).isEnabled() ? dir : null;
   }
 
@@ -424,7 +433,8 @@ public class RootWindow extends DockingWindow implements ReadWritable {
       int serializeVersion = in.readInt();
 
       if (serializeVersion > SERIALIZE_VERSION)
-        throw new IOException("Can't read serialized data because it was written by a later version of InfoNode Docking Windows!");
+        throw new IOException(
+            "Can't read serialized data because it was written by a later version of InfoNode Docking Windows!");
 
       ReadContext context = new ReadContext(viewSerializer, serializeVersion, in.readBoolean(), readProperties);
       setWindow(in.readBoolean() ? WindowDecoder.decodeWindow(in, context) : null);
@@ -496,6 +506,9 @@ public class RootWindow extends DockingWindow implements ReadWritable {
    * @since IDW 1.1.0
    */
   public void setMaximizedWindow(DockingWindow window) {
+    if (window == maximizedWindow)
+      return;
+
     if (window != null && window.isMinimized())
       window.restore();
 
@@ -548,7 +561,7 @@ public class RootWindow extends DockingWindow implements ReadWritable {
     }
   }
 
-  void setText(Point textPoint, String text) {
+  void setDragText(Point textPoint, String text) {
     if (textPoint != null) {
       if (textComponent.getParent() == null) {
         addComponents();
@@ -566,6 +579,20 @@ public class RootWindow extends DockingWindow implements ReadWritable {
     }
   }
 
+  void setDragRectangle(Rectangle rect) {
+    if (rect != null) {
+      if (textComponent.getParent() == null) {
+        addComponents();
+      }
+
+      rectangleComponent.setVisible(true);
+      rectangleComponent.setBounds(SwingUtilities.convertRectangle(this, rect, rectangleComponent.getParent()));
+    }
+    else {
+      rectangleComponent.setVisible(false);
+    }
+  }
+
   private void createWindowBars() {
     final Direction[] directions = Direction.getDirections();
 
@@ -573,7 +600,7 @@ public class RootWindow extends DockingWindow implements ReadWritable {
       windowBars[i] = new WindowBar(this, directions[i]);
       windowBars[i].setEnabled(false);
       addWindow(windowBars[i]);
-      layeredPane.add(windowBars[i].getEdgePanel(), new Integer(1));
+      layeredPane.add(windowBars[i].getEdgePanel());
 
       mainPanel.add(windowBars[i],
                     new Point(directions[i] == Direction.LEFT ?
@@ -599,11 +626,18 @@ public class RootWindow extends DockingWindow implements ReadWritable {
   }
 
   protected void update() {
-    properties.getComponentProperties().applyTo(this);
+    properties.getComponentProperties().applyTo(shapedPanel);
+    InternalPropertiesUtil.applyTo(properties.getShapedPanelProperties(), shapedPanel);
     properties.getWindowAreaProperties().applyTo(windowPanel);
+    InternalPropertiesUtil.applyTo(properties.getWindowAreaShapedPanelProperties(), windowPanel);
     properties.getDragLabelProperties().applyTo(textComponent);
 
-    rectangleComponent.setLineWidth(properties.getDragRectangleBorderWidth());
+    InternalPropertiesUtil.applyTo(properties.getDragRectangleShapedPanelProperties(), rectangleComponent);
+
+    if (rectangleComponent.getComponentPainter() == null)
+      rectangleComponent.setComponentPainter(new RectangleComponentPainter(Color.BLACK,
+                                                                           Color.WHITE,
+                                                                           properties.getDragRectangleBorderWidth()));
   }
 
   private void addComponents() {
@@ -611,20 +645,6 @@ public class RootWindow extends DockingWindow implements ReadWritable {
     getRootPane().getLayeredPane().setPosition(rectangleComponent, 1);
     getRootPane().getLayeredPane().add(textComponent);
     getRootPane().getLayeredPane().setPosition(textComponent, 0);
-  }
-
-  void setRectangle(Rectangle rect) {
-    if (rect != null) {
-      if (textComponent.getParent() == null) {
-        addComponents();
-      }
-
-      rectangleComponent.setVisible(true);
-      rectangleComponent.setBounds(SwingUtilities.convertRectangle(this, rect, rectangleComponent.getParent()));
-    }
-    else {
-      rectangleComponent.setVisible(false);
-    }
   }
 
   protected void doReplace(DockingWindow oldWindow, DockingWindow newWindow) {
@@ -641,6 +661,7 @@ public class RootWindow extends DockingWindow implements ReadWritable {
           window.setVisible(false);
 
         windowPanel.add(window);
+        revalidate();
       }
     }
   }
@@ -663,13 +684,30 @@ public class RootWindow extends DockingWindow implements ReadWritable {
     return false;
   }
 
-  DockingWindow acceptDrop(Point p, DockingWindow window) {
-    return this.window == null ? this : null;
+  protected DropAction doAcceptDrop(Point p, DockingWindow window) {
+    if (maximizedWindow != null) {
+      Point p2 = SwingUtilities.convertPoint(this, p, maximizedWindow);
+
+      if (maximizedWindow.contains(p2)) {
+        DropAction da = maximizedWindow.acceptDrop(p2, window);
+
+        if (da != null)
+          return da;
+      }
+    }
+
+    return super.doAcceptDrop(p, window);
   }
 
-  void doDrop(Point p, DockingWindow window) {
-    if (this.window == null)
-      setWindow(window);
+  protected DropAction acceptInteriorDrop(Point p, DockingWindow window) {
+    if (this.window != null)
+      return null;
+
+    return new DropAction() {
+      public void execute(DockingWindow window) {
+        setWindow(window);
+      }
+    };
   }
 
   protected WindowLocation getWindowLocation(DockingWindow window) {

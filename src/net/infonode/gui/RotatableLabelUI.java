@@ -20,7 +20,7 @@
  */
 
 
-// $Id: RotatableLabelUI.java,v 1.5 2004/09/28 15:07:29 jesper Exp $
+// $Id: RotatableLabelUI.java,v 1.6 2004/11/11 14:11:14 jesper Exp $
 package net.infonode.gui;
 
 import net.infonode.util.Direction;
@@ -99,7 +99,12 @@ public class RotatableLabelUI extends BasicLabelUI {
     int m = mirror ? -1 : 1;
     g2.transform(direction == Direction.RIGHT ? new AffineTransform(1, 0, 0, m, 0, mirror ? c.getHeight() : 0) :
                  direction == Direction.DOWN ? new AffineTransform(0, 1, -m, 0, mirror ? 0 : c.getWidth(), 0) :
-                 direction == Direction.LEFT ? new AffineTransform(-1, 0, 0, -m, c.getWidth(), mirror ? 0 : c.getHeight()) :
+                 direction == Direction.LEFT ? new AffineTransform(-1,
+                                                                   0,
+                                                                   0,
+                                                                   -m,
+                                                                   c.getWidth(),
+                                                                   mirror ? 0 : c.getHeight()) :
                  new AffineTransform(0, -1, m, 0, mirror ? c.getWidth() : 0, c.getHeight()));
 
     if (icon != null) {

@@ -20,18 +20,17 @@
  */
 
 
-// $Id: DockingWindow.java,v 1.45 2004/09/28 15:07:29 jesper Exp $
+// $Id: DockingWindow.java,v 1.54 2004/11/11 14:09:46 jesper Exp $
 package net.infonode.docking;
 
+import net.infonode.docking.internalutil.DropAction;
 import net.infonode.docking.location.LocationDecoder;
 import net.infonode.docking.location.NullLocation;
 import net.infonode.docking.location.WindowLocation;
 import net.infonode.docking.properties.DockingWindowProperties;
 import net.infonode.gui.ComponentUtil;
 import net.infonode.gui.panel.BasePanel;
-import net.infonode.properties.propertymap.PropertyMap;
-import net.infonode.properties.propertymap.PropertyMapManager;
-import net.infonode.properties.propertymap.PropertyMapTreeListener;
+import net.infonode.properties.propertymap.*;
 import net.infonode.util.ArrayUtil;
 import net.infonode.util.Direction;
 
@@ -43,6 +42,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -52,7 +53,7 @@ import java.util.Map;
  * <b>Warning: </b> the non-public methods in this class can be changed in non-compatible ways in future versions.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.45 $
+ * @version $Revision: 1.54 $
  */
 abstract public class DockingWindow extends BasePanel {
   /**
@@ -85,8 +86,7 @@ abstract public class DockingWindow extends BasePanel {
   /**
  *
    */
-  abstract protected void doReplace(DockingWindow oldWindow,
-                                    DockingWindow newWindow);
+  abstract protected void doReplace(DockingWindow oldWindow, DockingWindow newWindow);
 
   /**
  *
@@ -112,7 +112,19 @@ abstract public class DockingWindow extends BasePanel {
   private ArrayList listeners;
   private Direction lastMinimizedDirection;
 
-  private static DockingWindow optimizeWindow;
+  private PropertyMapListener propertiesListener = new PropertyMapListener() {
+    public void propertyValuesChanged(PropertyMap propertyMap, Map changes) {
+      doUpdate();
+    }
+  };
+
+  private PropertyMapTreeListener propertyObjectTreeListener = new PropertyMapTreeListener() {
+    public void propertyValuesChanged(Map changes) {
+      doUpdate();
+    }
+  };
+
+  private static HashSet optimizeWindows = new HashSet();
   private static int optimizeDepth;
 
   /**
@@ -137,13 +149,19 @@ abstract public class DockingWindow extends BasePanel {
  *
    */
   protected void init() {
-    getPropertyObject().addTreeListener(new PropertyMapTreeListener() {
-      public void propertyValuesChanged(Map changes) {
-        update();
-      }
-    });
+    PropertyMapWeakListenerManager.addWeakListener(getWindowProperties().getMap(), propertiesListener);
+    PropertyMapWeakListenerManager.addWeakTreeListener(getPropertyObject(), propertyObjectTreeListener);
+    doUpdate();
+  }
 
+  /**
+ *
+   */
+  private void doUpdate() {
     update();
+
+    if (windowParent != null && windowParent.getChildWindowCount() == 1)
+      windowParent.doUpdate();
   }
 
   /**
@@ -200,8 +218,9 @@ abstract public class DockingWindow extends BasePanel {
     optimizeAfter(splitWithWindow.getWindowParent(), new Runnable() {
       public void run() {
         getWindowParent().replaceChildWindow(DockingWindow.this, w);
-        w.setWindows(direction == Direction.DOWN || direction == Direction.RIGHT ? DockingWindow.this : splitWithWindow,
-                     direction == Direction.UP || direction == Direction.LEFT ? DockingWindow.this : splitWithWindow);
+        w.setWindows(
+            direction == Direction.DOWN || direction == Direction.RIGHT ? DockingWindow.this : splitWithWindow,
+            direction == Direction.UP || direction == Direction.LEFT ? DockingWindow.this : splitWithWindow);
         w.setDividerLocation(dividerLocation);
         w.getWindowParent().optimizeWindowLayout();
       }
@@ -416,13 +435,50 @@ abstract public class DockingWindow extends BasePanel {
   }
 
   /**
-   * Returns true if this window can be minimized.
+   * Returns true if this window can be minimized by the user.
    *
    * @return true if this window can be minimized
    * @see #minimize()
    */
   public boolean isMinimizable() {
-    return getRootWindow() != null && getRootWindow().windowBarEnabled();
+    return getOptimizedWindow().getWindowProperties().getMinimizeEnabled() &&
+           getRootWindow() != null &&
+           getRootWindow().windowBarEnabled();
+  }
+
+
+  /**
+   * Returns true if this window can be maximized by the user.
+   *
+   * @return true if this window can be maximized
+   * @see #maximize()
+   * @since IDW 1.2.0
+   */
+  public boolean isMaximizable() {
+    return getOptimizedWindow().getWindowProperties().getMaximizeEnabled();
+  }
+
+  /**
+   * Returns true if this window can be closed by the user.
+   *
+   * @return true if this window can be closed
+   * @see #close()
+   * @see #closeWithAbort()
+   * @since IDW 1.2.0
+   */
+  public boolean isClosable() {
+    return getOptimizedWindow().getWindowProperties().getCloseEnabled();
+  }
+
+  /**
+   * Returns true if this window can be restored by the user.
+   *
+   * @return true if this window can be restored
+   * @see #restore()
+   * @since IDW 1.2.0
+   */
+  public boolean isRestorable() {
+    return getOptimizedWindow().getWindowProperties().getRestoreEnabled();
   }
 
   /**
@@ -569,7 +625,8 @@ abstract public class DockingWindow extends BasePanel {
 
   private void fireClosing(DockingWindow window) throws OperationAbortedException {
     if (listeners != null) {
-      DockingWindowListener[] l = (DockingWindowListener[]) listeners.toArray(new DockingWindowListener[listeners.size()]);
+      DockingWindowListener[] l = (DockingWindowListener[]) listeners.toArray(
+          new DockingWindowListener[listeners.size()]);
 
       for (int i = 0; i < l.length; i++)
         l[i].windowClosing(window);
@@ -581,7 +638,8 @@ abstract public class DockingWindow extends BasePanel {
 
   private void fireClosed(DockingWindow window) {
     if (listeners != null) {
-      DockingWindowListener[] l = (DockingWindowListener[]) listeners.toArray(new DockingWindowListener[listeners.size()]);
+      DockingWindowListener[] l = (DockingWindowListener[]) listeners.toArray(
+          new DockingWindowListener[listeners.size()]);
 
       for (int i = 0; i < l.length; i++)
         l[i].windowClosed(window);
@@ -680,8 +738,10 @@ abstract public class DockingWindow extends BasePanel {
  *
    */
   protected static void beginOptimize(DockingWindow window) {
-    if (optimizeDepth++ == 0)
-      optimizeWindow = window;
+    optimizeDepth++;
+
+    if (window != null)
+      optimizeWindows.add(window);
   }
 
   /**
@@ -689,10 +749,15 @@ abstract public class DockingWindow extends BasePanel {
    */
   protected static void endOptimize() {
     if (--optimizeDepth == 0) {
-      if (optimizeWindow != null)
-        optimizeWindow.optimizeWindowLayout();
+      while (optimizeWindows.size() > 0) {
+        HashSet s = optimizeWindows;
+        optimizeWindows = new HashSet();
 
-      optimizeWindow = null;
+        for (Iterator it = s.iterator(); it.hasNext();) {
+          DockingWindow window = (DockingWindow) it.next();
+          window.optimizeWindowLayout();
+        }
+      }
     }
   }
 
@@ -843,83 +908,101 @@ abstract public class DockingWindow extends BasePanel {
   /**
  *
    */
-  protected Direction getSplitDirection(Point p) {
+  protected Direction getSplitDirection(Point p, int splitDistance) {
     int[] dist = new int[]{p.x, getWidth() - p.x, p.y, getHeight() - p.y};
 
-    if (acceptsCenterDrop() && dist[ArrayUtil.findSmallest(dist)] >
-                               getRootWindow().getRootWindowProperties().getEdgeSplitDistance())
+    if (dist[ArrayUtil.findSmallest(dist)] > splitDistance)
       return null;
 
-    double[] relativeDist = new double[]{p.getX() / getWidth(),
-                                         (getWidth() - p.getX()) / getWidth(), p.getY() / getHeight(),
-                                         (getHeight() - p.getY()) / getHeight()};
+    double[] relativeDist = {p.getX() / getWidth(),
+                             (getWidth() - p.getX()) / getWidth(), p.getY() / getHeight(),
+                             (getHeight() - p.getY()) / getHeight()};
     int index = ArrayUtil.findSmallest(relativeDist);
     return index == 0 ? Direction.LEFT : index == 1 ? Direction.RIGHT : index == 2 ? Direction.UP : Direction.DOWN;
   }
 
-  DockingWindow acceptDrop(Point p, DockingWindow window) {
-    if (!getRootWindow().getRootWindowProperties().getRecursiveTabsEnabled() && insideTab())
-      return getWindowParent().acceptDrop(p, window);
+  DropAction acceptDrop(Point p, DockingWindow window) {
+    return !isShowing() ||
+           !contains(p) ||
+           hasParent(window) ||
+           (!getRootWindow().getRootWindowProperties().getRecursiveTabsEnabled() && insideTab()) ? null :
+           doAcceptDrop(p, window);
+  }
 
-    if (!isSplittable() || hasParent(window))
+  protected DropAction doAcceptDrop(Point p, DockingWindow window) {
+    DropAction da = acceptSplitDrop(p, window, getRootWindow().getRootWindowProperties().getEdgeSplitDistance());
+
+    if (da != null)
+      return da;
+
+    da = acceptChildDrop(p, window);
+
+    if (da != null)
+      return da;
+
+    da = acceptInteriorDrop(p, window);
+
+    if (da != null)
+      return da;
+
+    return acceptSplitDrop(p, window, Integer.MAX_VALUE);
+  }
+
+  protected DropAction acceptSplitDrop(Point p, DockingWindow window, int edgeDistance) {
+    if (!isSplittable())
       return null;
 
-    Direction splitDir = getSplitDirection(p);
+    Direction splitDir = getSplitDirection(p, edgeDistance);
 
-    if (splitDir == null) {
-      getRootWindow().setRectangle(SwingUtilities.convertRectangle(this,
-                                                                   new Rectangle(0, 0, getWidth(), getHeight()),
-                                                                   getRootWindow()));
-    }
-    else {
-      int width = splitDir == Direction.LEFT || splitDir == Direction.RIGHT ? getWidth() / 3
-                  : getWidth();
-      int height = splitDir == Direction.DOWN || splitDir == Direction.UP ? getHeight() / 3
-                   : getHeight();
-      int x = splitDir == Direction.RIGHT ? getWidth() - width : 0;
-      int y = splitDir == Direction.DOWN ? getHeight() - height : 0;
+    if (splitDir == null)
+      return null;
 
-      Rectangle rect = new Rectangle(x, y, width, height);
-      getRootWindow().setRectangle(SwingUtilities.convertRectangle(this, rect, getRootWindow()));
-    }
-
-    return this;
+    return split(window, splitDir);
   }
 
-  /**
- *
-   */
-  protected boolean acceptsCenterDrop() {
-    return false;
+  protected DropAction split(DockingWindow window, final Direction splitDir) {
+    int width = splitDir == Direction.LEFT || splitDir == Direction.RIGHT ? getWidth() / 3 : getWidth();
+    int height = splitDir == Direction.DOWN || splitDir == Direction.UP ? getHeight() / 3 : getHeight();
+    int x = splitDir == Direction.RIGHT ? getWidth() - width : 0;
+    int y = splitDir == Direction.DOWN ? getHeight() - height : 0;
+
+    Rectangle rect = new Rectangle(x, y, width, height);
+    getRootWindow().setDragRectangle(SwingUtilities.convertRectangle(this, rect, getRootWindow()));
+
+    return new DropAction() {
+      public void execute(DockingWindow window) {
+        split(window, splitDir, splitDir == Direction.UP || splitDir == Direction.LEFT ? 0.33f : 0.66f);
+        window.restoreFocus();
+      }
+    };
   }
 
-  void abortDrop() {
-    // Ignore
+  protected DropAction createTabWindow(DockingWindow window) {
+    getRootWindow().setDragRectangle(SwingUtilities.convertRectangle(getParent(), getBounds(), getRootWindow()));
+
+    return new DropAction() {
+      public void execute(final DockingWindow window) {
+        optimizeAfter(window.getWindowParent(), new Runnable() {
+          public void run() {
+            TabWindow tabWindow = new TabWindow();
+            windowParent.replaceChildWindow(DockingWindow.this, tabWindow);
+            tabWindow.addTab(DockingWindow.this);
+            tabWindow.addTab(window);
+          }
+        });
+      }
+    };
+  }
+
+  protected DropAction acceptInteriorDrop(Point p, DockingWindow window) {
+    return null;
   }
 
   /**
  *
    */
   protected boolean hasParent(DockingWindow w) {
-    return getWindowParent() == null ? false : getWindowParent() == w || getWindowParent().hasParent(w);
-  }
-
-  void doDrop(Point p, final DockingWindow window) {
-    Direction splitDir = getSplitDirection(p);
-
-    if (splitDir == null)
-      optimizeAfter(window.getWindowParent(), new Runnable() {
-        public void run() {
-          TabWindow tabWindow = new TabWindow();
-          windowParent.replaceChildWindow(DockingWindow.this, tabWindow);
-          tabWindow.addTab(DockingWindow.this);
-          tabWindow.addTab(window);
-        }
-      });
-    else
-      split(window, splitDir, 0.5F);
-
-    FocusManager.focusWindow(window);
+    return w == this || (getWindowParent() != null && getWindowParent().hasParent(w));
   }
 
   /**
@@ -989,13 +1072,25 @@ abstract public class DockingWindow extends BasePanel {
 
     JPopupMenu popupMenu = w.popupMenuFactory.createPopupMenu(this);
 
-    if (popupMenu != null)
+    if (popupMenu != null && popupMenu.getComponentCount() > 0)
       popupMenu.show(event.getComponent(), event.getX(), event.getY());
   }
 
   protected void setFocused(boolean focused) {
     if (tab != null)
       tab.setFocused(focused);
+  }
+
+  protected DropAction acceptChildDrop(Point p, DockingWindow window) {
+    for (int i = 0; i < getChildWindowCount(); i++) {
+      Point p2 = SwingUtilities.convertPoint(this, p, getChildWindow(i));
+      DropAction da = getChildWindow(i).acceptDrop(p2, window);
+
+      if (da != null)
+        return da;
+    }
+
+    return null;
   }
 
 }

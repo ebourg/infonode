@@ -20,7 +20,7 @@
  */
 
 
-// $Id: FixedColorProvider.java,v 1.4 2004/09/28 15:07:29 jesper Exp $
+// $Id: FixedColorProvider.java,v 1.5 2004/10/20 16:04:56 jesper Exp $
 package net.infonode.gui.colorprovider;
 
 import java.awt.*;
@@ -31,7 +31,7 @@ import java.io.Serializable;
  * A {@link ColorProvider} which always returns the same color.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class FixedColorProvider extends AbstractColorProvider implements Serializable {
   private static final long serialVersionUID = 1;
@@ -40,6 +40,11 @@ public class FixedColorProvider extends AbstractColorProvider implements Seriali
    * A provider for the color black.
    */
   public static final FixedColorProvider BLACK = new FixedColorProvider(Color.BLACK);
+
+  /**
+   * A provider for the color white.
+   */
+  public static final FixedColorProvider WHITE = new FixedColorProvider(Color.WHITE);
 
   private final Color color;
 

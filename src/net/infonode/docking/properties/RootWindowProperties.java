@@ -20,7 +20,7 @@
  */
 
 
-// $Id: RootWindowProperties.java,v 1.33 2004/09/28 15:07:29 jesper Exp $
+// $Id: RootWindowProperties.java,v 1.45 2004/11/11 14:09:46 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.docking.DefaultButtonFactories;
@@ -31,6 +31,7 @@ import net.infonode.gui.icon.button.MaximizeIcon;
 import net.infonode.gui.icon.button.MinimizeIcon;
 import net.infonode.gui.icon.button.RestoreIcon;
 import net.infonode.properties.gui.util.ComponentProperties;
+import net.infonode.properties.gui.util.ShapedPanelProperties;
 import net.infonode.properties.propertymap.*;
 import net.infonode.properties.types.BooleanProperty;
 import net.infonode.properties.types.IntegerProperty;
@@ -52,7 +53,7 @@ import java.util.Map;
  * Properties and property values for a root window.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.33 $
+ * @version $Revision: 1.45 $
  */
 public class RootWindowProperties extends PropertyMapContainer {
   /**
@@ -75,13 +76,42 @@ public class RootWindowProperties extends PropertyMapContainer {
                               ComponentProperties.PROPERTIES);
 
   /**
-   * The window area property values.
+   * The root window shaped panel property values.
+   */
+  public static final PropertyMapProperty SHAPED_PANEL_PROPERTIES =
+      new PropertyMapProperty(PROPERTIES,
+                              "Shaped Panel Properties",
+                              "The root window shaped panel property values.",
+                              ShapedPanelProperties.PROPERTIES);
+
+  /**
+   * The window area component property values. The window area is the area inside the WindowBar's.
    */
   public static final PropertyMapProperty WINDOW_AREA_PROPERTIES =
       new PropertyMapProperty(PROPERTIES,
                               "Window Area Properties",
-                              "The window area property values.",
+                              "The window area component property values. The window area is the area inside the WindowBar's.",
                               ComponentProperties.PROPERTIES);
+
+  /**
+   * The window area shaped panel property values. The window area is the area inside the WindowBar's.
+   */
+  public static final PropertyMapProperty WINDOW_AREA_SHAPED_PANEL_PROPERTIES =
+      new PropertyMapProperty(PROPERTIES,
+                              "Window Area Shaped Panel Properties",
+                              "The window area shaped panel property values. The window area is the area inside the WindowBar's.",
+                              ShapedPanelProperties.PROPERTIES);
+
+  /**
+   * Shaped panel properties for the drag rectangle. Setting a painter disables the default drag rectangle.
+   *
+   * @since IDW 1.2.0
+   */
+  public static final PropertyMapProperty DRAG_RECTANGLE_SHAPED_PANEL_PROPERTIES =
+      new PropertyMapProperty(PROPERTIES,
+                              "Drag Rectangle Shaped Panel Properties",
+                              "Shaped panel properties for the drag rectangle. Setting a painter disables the default drag rectangle.",
+                              ShapedPanelProperties.PROPERTIES);
 
   /**
    * The width of the drag rectangle border.
@@ -89,7 +119,9 @@ public class RootWindowProperties extends PropertyMapContainer {
   public static final IntegerProperty DRAG_RECTANGLE_BORDER_WIDTH =
       IntegerProperty.createPositive(PROPERTIES,
                                      "Drag Rectangle Border Width",
-                                     "The width of the drag rectangle border.",
+                                     "The width of the drag rectangle border. The drag rectangle will only " +
+                                     "be painted if the painter of the '" + DRAG_RECTANGLE_SHAPED_PANEL_PROPERTIES.getName() +
+                                     "' property is not set.",
                                      2,
                                      PropertyMapValueHandler.INSTANCE);
 
@@ -103,12 +135,12 @@ public class RootWindowProperties extends PropertyMapContainer {
                               ComponentProperties.PROPERTIES);
 
   /**
-   * Default property values for docking windows inside this root window.
+   * Default property values for DockingWindow's inside this root window.
    */
   public static final PropertyMapProperty DOCKING_WINDOW_PROPERTIES =
       new PropertyMapProperty(PROPERTIES,
                               "Docking Window Properties",
-                              "Default property values for docking windows inside this root window.",
+                              "Default property values for DockingWindow's inside this RootWindow.",
                               DockingWindowProperties.PROPERTIES);
 
   /**
@@ -117,7 +149,7 @@ public class RootWindowProperties extends PropertyMapContainer {
   public static final PropertyMapProperty TAB_WINDOW_PROPERTIES =
       new PropertyMapProperty(PROPERTIES,
                               "Tab Window Properties",
-                              "Default property values for tab windows inside this root window.",
+                              "Default property values for TabWindow's inside this RootWindow.",
                               TabWindowProperties.PROPERTIES);
 
   /**
@@ -126,7 +158,7 @@ public class RootWindowProperties extends PropertyMapContainer {
   public static final PropertyMapProperty SPLIT_WINDOW_PROPERTIES =
       new PropertyMapProperty(PROPERTIES,
                               "Split Window Properties",
-                              "Default property values for split windows inside this root window.",
+                              "Default property values for SplitWindow's inside this RootWindow.",
                               SplitWindowProperties.PROPERTIES);
 
   /**
@@ -135,7 +167,7 @@ public class RootWindowProperties extends PropertyMapContainer {
   public static final PropertyMapProperty VIEW_PROPERTIES =
       new PropertyMapProperty(PROPERTIES,
                               "View Properties",
-                              "Default property values for views inside this root window.",
+                              "Default property values for View's inside this RootWindow.",
                               ViewProperties.PROPERTIES);
 
   /**
@@ -148,12 +180,16 @@ public class RootWindowProperties extends PropertyMapContainer {
                           PropertyMapValueHandler.INSTANCE);
 
   /**
-   * Makes it possible to have a tab window inside another tab window.
+   * If true, makes it possible for the user to create tab windows inside other tab windows when dragging windows.
+   * If false, only one level of tab windows is allowed.
+   * Changing the value of this property does not alter the window tree.
    */
   public static final BooleanProperty RECURSIVE_TABS_ENABLED =
       new BooleanProperty(PROPERTIES,
                           "Recursive Tabs Enabled",
-                          "Makes it possible to have a tab window inside another tab window.",
+                          "If true, makes it possible for the user to create tab windows inside other tab windows by " +
+                          "dragging windows. If false, only one level of tab windows is allowed. Changing the value of " +
+                          "this property does not alter the window tree.",
                           PropertyMapValueHandler.INSTANCE);
 
   /**
@@ -184,7 +220,7 @@ public class RootWindowProperties extends PropertyMapContainer {
   public static final PropertyMapProperty WINDOW_BAR_PROPERTIES =
       new PropertyMapProperty(PROPERTIES,
                               "Window Bar Properties",
-                              "The default window bar property values.",
+                              "Default property values for WindowBar's inside this RootWindow.",
                               WindowBarProperties.PROPERTIES);
 
   private static RootWindowProperties DEFAULT_VALUES;
@@ -229,7 +265,7 @@ public class RootWindowProperties extends PropertyMapContainer {
         .setTabDropDownListVisiblePolicy(TabDropDownListVisiblePolicy.TABS_NOT_VISIBLE)
         .setTabSelectTrigger(TabSelectTrigger.MOUSE_RELEASE)
         .setEnsureSelectedTabVisible(true)
-        .setTabReorderEnabled(true)
+        .setTabReorderEnabled(false)
         .setHighlightPressedTab(false)
         .setShadowEnabled(true);
 
@@ -307,7 +343,8 @@ public class RootWindowProperties extends PropertyMapContainer {
     DEFAULT_VALUES = new RootWindowProperties(PROPERTIES.getDefaultMap());
 
     DEFAULT_VALUES.getWindowBarProperties().getTabWindowProperties().getTabProperties().getTitledTabProperties()
-        .getNormalProperties().getComponentProperties().setBackgroundColor(TabbedUIDefaults.getHighlightedStateBackground());
+        .getNormalProperties().getComponentProperties().setBackgroundColor(
+            TabbedUIDefaults.getHighlightedStateBackground());
 
     DEFAULT_VALUES.getComponentProperties()
         .setBackgroundColor(TabbedUIDefaults.getNormalStateBackground());
@@ -325,7 +362,9 @@ public class RootWindowProperties extends PropertyMapContainer {
   }
 
   private static void updateFont() {
-    Font font = TitledTabProperties.getDefaultProperties().getHighlightedProperties().getComponentProperties().getFont().deriveFont(Font.BOLD);
+    Font font = TitledTabProperties.getDefaultProperties().getHighlightedProperties().
+        getComponentProperties().getFont().deriveFont(Font.BOLD);
+
     DEFAULT_VALUES.getTabWindowProperties().getTabProperties().getTitledTabProperties().
         getHighlightedProperties().getComponentProperties().setFont(font);
   }
@@ -335,8 +374,15 @@ public class RootWindowProperties extends PropertyMapContainer {
 
     DEFAULT_VALUES
         .setAbortDragKey(TabbedPanelProperties.getDefaultProperties().getAbortDragKey())
-        .setEdgeSplitDistance(30)
+        .setEdgeSplitDistance(4)
         .setDragRectangleBorderWidth(5);
+
+    DEFAULT_VALUES.getDockingWindowProperties()
+        .setMaximizeEnabled(true)
+        .setMinimizeEnabled(true)
+        .setCloseEnabled(true)
+        .setRestoreEnabled(true)
+        .setDragEnabled(true);
 
     DEFAULT_VALUES.getWindowAreaProperties()
         .setInsets(new Insets(6, 6, 2, 2));
@@ -346,7 +392,8 @@ public class RootWindowProperties extends PropertyMapContainer {
 
     DEFAULT_VALUES.getSplitWindowProperties()
         .setContinuousLayoutEnabled(true)
-        .setDividerSize(4);
+        .setDividerSize(4)
+        .setDividerLocationDragEnabled(true);
 
     DEFAULT_VALUES.getViewProperties().setAlwaysShowTitle(true);
 
@@ -358,11 +405,12 @@ public class RootWindowProperties extends PropertyMapContainer {
 
     updateFont();
 
-    TitledTabProperties.getDefaultProperties().getHighlightedProperties().getMap().addListener(new PropertyMapListener() {
-      public void propertyValuesChanged(PropertyMap propertyObject, Map changes) {
-        updateFont();
-      }
-    });
+    TitledTabProperties.getDefaultProperties().getHighlightedProperties().getComponentProperties().getMap().
+        addListener(new PropertyMapListener() {
+          public void propertyValuesChanged(PropertyMap propertyObject, Map changes) {
+            updateFont();
+          }
+        });
 
     DynamicUIManager.getInstance().addListener(new DynamicUIManagerListener() {
       public void lookAndFeelChanged() {
@@ -546,12 +594,31 @@ public class RootWindowProperties extends PropertyMapContainer {
   }
 
   /**
-   * Returns the property values for the window area component.
+   * Returns the property values for the root window shaped panel.
    *
-   * @return the property values for the window area component
+   * @return the property values for the root window shaped panel
+   * @since IDW 1.2.0
+   */
+  public ShapedPanelProperties getShapedPanelProperties() {
+    return new ShapedPanelProperties(SHAPED_PANEL_PROPERTIES.get(getMap()));
+  }
+
+  /**
+   * Returns the component property values for the window area component.
+   *
+   * @return the component property values for the window area component
    */
   public ComponentProperties getWindowAreaProperties() {
     return new ComponentProperties(WINDOW_AREA_PROPERTIES.get(getMap()));
+  }
+
+  /**
+   * Returns the shaped panel property values for the window area component.
+   *
+   * @return the shaped panel property values for the window area component
+   */
+  public ShapedPanelProperties getWindowAreaShapedPanelProperties() {
+    return new ShapedPanelProperties(WINDOW_AREA_SHAPED_PANEL_PROPERTIES.get(getMap()));
   }
 
   /**
@@ -602,6 +669,16 @@ public class RootWindowProperties extends PropertyMapContainer {
    */
   public WindowBarProperties getWindowBarProperties() {
     return new WindowBarProperties(WINDOW_BAR_PROPERTIES.get(getMap()));
+  }
+
+  /**
+   * Shaped panel properties for the drag rectangle. Setting a painter disables the default drag rectangle.
+   *
+   * @return the drag rectangle shaped panel properties
+   * @since IDW 1.2.0
+   */
+  public ShapedPanelProperties getDragRectangleShapedPanelProperties() {
+    return new ShapedPanelProperties(DRAG_RECTANGLE_SHAPED_PANEL_PROPERTIES.get(getMap()));
   }
 
 }

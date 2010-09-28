@@ -20,13 +20,13 @@
  */
 
 
-// $Id: GradientTabAreaBorder.java,v 1.10 2004/09/28 14:55:27 jesper Exp $
+// $Id: GradientTabAreaBorder.java,v 1.14 2004/11/11 14:10:33 jesper Exp $
 package net.infonode.tabbedpanel.border;
 
-import net.infonode.gui.GradientPainter;
 import net.infonode.gui.colorprovider.ColorProvider;
 import net.infonode.gui.colorprovider.ColorProviderUtil;
 import net.infonode.gui.colorprovider.UIManagerColorProvider;
+import net.infonode.gui.componentpainter.GradientComponentPainter;
 import net.infonode.tabbedpanel.TabbedPanel;
 import net.infonode.tabbedpanel.TabbedUtils;
 
@@ -40,13 +40,13 @@ import java.io.Serializable;
  * content panel.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.14 $
  * @since ITP 1.1.0
  */
 public class GradientTabAreaBorder implements Border, Serializable {
   private static final long serialVersionUID = 1;
 
-  private GradientPainter painter;
+  private GradientComponentPainter painter;
 
   /**
    * Creates a border where the color of the component edge closest to the tabben panel content panel will be the
@@ -76,7 +76,10 @@ public class GradientTabAreaBorder implements Border, Serializable {
    * @param bottomColorProvider provides the color of the component edge closest to the tabbed panel content panel
    */
   public GradientTabAreaBorder(ColorProvider topColorProvider, ColorProvider bottomColorProvider) {
-    painter = new GradientPainter(topColorProvider, topColorProvider, bottomColorProvider, bottomColorProvider);
+    painter = new GradientComponentPainter(topColorProvider,
+                                           topColorProvider,
+                                           bottomColorProvider,
+                                           bottomColorProvider);
   }
 
   public boolean isBorderOpaque() {
@@ -89,7 +92,15 @@ public class GradientTabAreaBorder implements Border, Serializable {
     if (tp == null)
       return;
 
-    painter.paint(tp.getProperties().getTabAreaOrientation().getNextCW(), component, g, x, y, width, height);
+    painter.paint(component,
+                  g,
+                  x,
+                  y,
+                  width,
+                  height,
+                  tp.getProperties().getTabAreaOrientation().getNextCW(),
+                  false,
+                  false);
   }
 
   public Insets getBorderInsets(Component c) {

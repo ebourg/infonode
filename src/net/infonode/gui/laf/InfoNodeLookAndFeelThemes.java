@@ -20,10 +20,11 @@
  */
 
 
-// $Id: InfoNodeLookAndFeelThemes.java,v 1.3 2004/09/28 15:07:29 jesper Exp $
+// $Id: InfoNodeLookAndFeelThemes.java,v 1.7 2004/11/11 14:11:14 jesper Exp $
 package net.infonode.gui.laf;
 
 import net.infonode.gui.Colors;
+import net.infonode.util.ColorUtil;
 
 import java.awt.*;
 
@@ -31,7 +32,7 @@ import java.awt.*;
  * Contains some predefined InfoNode look and feel themes.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.7 $
  */
 public class InfoNodeLookAndFeelThemes {
   private InfoNodeLookAndFeelThemes() {
@@ -43,7 +44,7 @@ public class InfoNodeLookAndFeelThemes {
    * @return the theme
    */
   public static InfoNodeLookAndFeelTheme getDarkBlueGreenTheme() {
-    float hue = Colors.BLUE_HUE;
+    float hue = Colors.ROYAL_BLUE_HUE;
     float saturation = 0.20f;
 
     return new InfoNodeLookAndFeelTheme("Dark Blue Green Theme",
@@ -62,7 +63,7 @@ public class InfoNodeLookAndFeelThemes {
    * @return the theme
    */
   public static InfoNodeLookAndFeelTheme getGrayTheme() {
-    float hue = Colors.BLUE_HUE;
+    float hue = Colors.ROYAL_BLUE_HUE;
     float saturation = 0.4f;
 
     return new InfoNodeLookAndFeelTheme("Gray Theme",
@@ -73,5 +74,28 @@ public class InfoNodeLookAndFeelThemes {
                                         Color.getHSBColor(hue, saturation, 1.0f),
                                         Color.BLACK);
   }
+
+  /**
+   * A theme with light blue controls and blue selection.
+   *
+   * @return the theme
+   */
+  public static InfoNodeLookAndFeelTheme getBlueIceTheme() {
+    float hue = Colors.ROYAL_BLUE_HUE;
+    float saturation = 0.4f;
+
+    Color color = new Color(197, 206, 218);
+    InfoNodeLookAndFeelTheme theme = new InfoNodeLookAndFeelTheme("Blue Ice Theme",
+                                                                  color,
+                                                                  Color.getHSBColor(hue, saturation + 0.3f, 1f),
+                                                                  InfoNodeLookAndFeelTheme.DEFAULT_BACKGROUND_COLOR,
+                                                                  InfoNodeLookAndFeelTheme.DEFAULT_TEXT_COLOR,
+                                                                  Color.getHSBColor(hue, saturation - 0.15f, 0.9f),
+                                                                  Color.BLACK,
+                                                                  0.3);
+    theme.setPrimaryControlColor(ColorUtil.mult(color, 0.9));
+    return theme;
+  }
+
 
 }

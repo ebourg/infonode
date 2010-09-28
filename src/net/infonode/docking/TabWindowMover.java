@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabWindowMover.java,v 1.8 2004/09/15 15:20:51 jesper Exp $
+// $Id: TabWindowMover.java,v 1.11 2004/11/11 14:09:46 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.tabbedpanel.TabAdapter;
@@ -32,26 +32,33 @@ import javax.swing.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.11 $
  */
 class TabWindowMover extends TabAdapter {
-  private DockingWindow window;
+  private AbstractTabWindow window;
   private TabbedPanel tabbedPanel;
   private WindowDragger dragger;
 
-  TabWindowMover(DockingWindow window, TabbedPanel tabbedPanel) {
+  TabWindowMover(AbstractTabWindow window, TabbedPanel tabbedPanel) {
     this.window = window;
     this.tabbedPanel = tabbedPanel;
   }
 
   public void tabDragged(TabDragEvent event) {
-    if (dragger == null)
-      dragger = new WindowDragger(((WindowTab) event.getTab()).getWindow());
+    if (dragger == null) {
+      DockingWindow w = ((WindowTab) event.getTab()).getWindow();
 
-    if (tabbedPanel.tabAreaContainsPoint(SwingUtilities.convertPoint(event.getTab(), event.getPoint(), tabbedPanel)))
+      if (!w.getWindowProperties().getDragEnabled())
+        return;
+
+      dragger = new WindowDragger(w);
+      window.setDraggedTabIndex(tabbedPanel.getTabIndex(event.getTab()));
+    }
+
+/*    if (tabbedPanel.tabAreaContainsPoint(SwingUtilities.convertPoint(event.getTab(), event.getPoint(), tabbedPanel)))
       dragger.abort();
-    else
-      dragger.dragTo(SwingUtilities.convertPoint(event.getTab(), event.getPoint(), window.getRootWindow()));
+    else*/
+    dragger.dragTo(SwingUtilities.convertPoint(event.getTab(), event.getPoint(), window.getRootWindow()));
   }
 
   public void tabDropped(TabDragEvent event) {

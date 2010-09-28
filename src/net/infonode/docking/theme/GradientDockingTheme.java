@@ -20,18 +20,18 @@
  */
 
 
-// $Id: GradientDockingTheme.java,v 1.4 2004/09/28 15:23:30 jesper Exp $
+// $Id: GradientDockingTheme.java,v 1.8 2004/11/11 16:41:58 jesper Exp $
 package net.infonode.docking.theme;
 
 import net.infonode.docking.properties.RootWindowProperties;
 import net.infonode.docking.properties.WindowBarProperties;
-import net.infonode.gui.border.GradientBorder;
 import net.infonode.gui.colorprovider.ColorMultiplier;
 import net.infonode.gui.colorprovider.UIManagerColorProvider;
+import net.infonode.gui.componentpainter.GradientComponentPainter;
 import net.infonode.properties.gui.util.ComponentProperties;
 import net.infonode.tabbedpanel.border.OpenContentBorder;
 import net.infonode.tabbedpanel.border.TabAreaLineBorder;
-import net.infonode.tabbedpanel.border.TabLineBorder;
+import net.infonode.tabbedpanel.theme.GradientTheme;
 import net.infonode.tabbedpanel.titledtab.TitledTabProperties;
 
 import javax.swing.border.Border;
@@ -43,7 +43,7 @@ import java.awt.*;
  * A theme that draws gradient tab backgrounds.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.8 $
  * @since IDW 1.1.0
  */
 public class GradientDockingTheme extends DockingWindowsTheme {
@@ -109,28 +109,30 @@ public class GradientDockingTheme extends DockingWindowsTheme {
     this.borderColor = borderColor;
     this.tabAreaBackgroundColor = tabAreaBackgroundColor;
 
-    net.infonode.tabbedpanel.theme.GradientTheme theme =
-        new net.infonode.tabbedpanel.theme.GradientTheme(opaqueTabArea, shadowEnabled, borderColor);
+    GradientTheme theme = new net.infonode.tabbedpanel.theme.GradientTheme(opaqueTabArea, shadowEnabled, borderColor);
 
     rootProperties = new RootWindowProperties();
     createRootWindowProperties(theme);
     createWindowBarProperties(theme);
   }
 
-  private void createRootWindowProperties(net.infonode.tabbedpanel.theme.GradientTheme theme) {
+  private void createRootWindowProperties(GradientTheme theme) {
     rootProperties.getTabWindowProperties().getTabbedPanelProperties().addSuperObject(theme.getTabbedPanelProperties());
-    rootProperties.getTabWindowProperties().getTabProperties().getTitledTabProperties().addSuperObject(theme.getTitledTabProperties());
+    rootProperties.getTabWindowProperties().getTabProperties().getTitledTabProperties().addSuperObject(
+        theme.getTitledTabProperties());
 
     rootProperties.getTabWindowProperties().getCloseButtonProperties().setVisible(false);
 
     if (!shadowEnabled)
       rootProperties.getWindowAreaProperties().setInsets(new Insets(6, 6, 6, 6));
 
-    rootProperties.getWindowAreaProperties().setBorder(new CompoundBorder(new LineBorder(Color.BLACK),
-                                                                          new GradientBorder(UIManagerColorProvider.DESKTOP_BACKGROUND,
-                                                                                             new ColorMultiplier(UIManagerColorProvider.DESKTOP_BACKGROUND, 0.9f),
-                                                                                             new ColorMultiplier(UIManagerColorProvider.DESKTOP_BACKGROUND, 0.9f),
-                                                                                             new ColorMultiplier(UIManagerColorProvider.DESKTOP_BACKGROUND, 0.8f))));
+    rootProperties.getWindowAreaShapedPanelProperties().setComponentPainter(
+        new GradientComponentPainter(UIManagerColorProvider.DESKTOP_BACKGROUND,
+                                              new ColorMultiplier(UIManagerColorProvider.DESKTOP_BACKGROUND, 0.9f),
+                                              new ColorMultiplier(UIManagerColorProvider.DESKTOP_BACKGROUND, 0.9f),
+                                              new ColorMultiplier(UIManagerColorProvider.DESKTOP_BACKGROUND, 0.8f)));
+
+    rootProperties.getWindowAreaProperties().setBorder(new LineBorder(Color.BLACK));
 
     if (tabAreaBackgroundColor != null)
       rootProperties.getComponentProperties().setBackgroundColor(tabAreaBackgroundColor);
@@ -138,7 +140,8 @@ public class GradientDockingTheme extends DockingWindowsTheme {
     if (!shadowEnabled)
       rootProperties.getSplitWindowProperties().setDividerSize(6);
 
-    TitledTabProperties tabProperties = rootProperties.getTabWindowProperties().getTabProperties().getTitledTabProperties();
+    TitledTabProperties tabProperties = rootProperties.getTabWindowProperties().getTabProperties()
+        .getTitledTabProperties();
 
     tabProperties.getNormalProperties().setIconVisible(false);
     tabProperties.getHighlightedProperties().setIconVisible(true);
@@ -154,13 +157,13 @@ public class GradientDockingTheme extends DockingWindowsTheme {
       tabProperties.getHighlightedProperties().getComponentProperties()
           .setBorder(new CompoundBorder(opaqueTabArea ?
                                         (Border) new TabAreaLineBorder(false, false, true, true) :
-                                        new TabLineBorder(borderColor),
+                                        new TabAreaLineBorder(borderColor),
                                         theme.getTabAreaComponentsGradientBorder()));
 
       rootProperties.getTabWindowProperties().getTabProperties().getFocusedProperties().getComponentProperties()
           .setBorder(new CompoundBorder(opaqueTabArea ?
                                         (Border) new TabAreaLineBorder(false, false, true, true) :
-                                        new TabLineBorder(borderColor),
+                                        new TabAreaLineBorder(borderColor),
                                         theme.getHighlightedTabGradientBorder()));
     }
 
@@ -168,20 +171,24 @@ public class GradientDockingTheme extends DockingWindowsTheme {
         .getComponentProperties().setInsets(opaqueTabArea ? new Insets(0, 3, 0, 3) : new Insets(1, 3, 1, 3));
 
 
-    rootProperties.getTabWindowProperties().getTabProperties().getHighlightedButtonProperties().getCloseButtonProperties()
+    rootProperties.getTabWindowProperties().getTabProperties().getHighlightedButtonProperties()
+        .getCloseButtonProperties()
         .setVisible(false);
 
-    rootProperties.getTabWindowProperties().getTabProperties().getHighlightedButtonProperties().getMinimizeButtonProperties()
+    rootProperties.getTabWindowProperties().getTabProperties().getHighlightedButtonProperties()
+        .getMinimizeButtonProperties()
         .setVisible(true);
 
-    rootProperties.getTabWindowProperties().getTabProperties().getHighlightedButtonProperties().getRestoreButtonProperties()
+    rootProperties.getTabWindowProperties().getTabProperties().getHighlightedButtonProperties()
+        .getRestoreButtonProperties()
         .setVisible(true);
   }
 
-  private void createWindowBarProperties(net.infonode.tabbedpanel.theme.GradientTheme theme) {
+  private void createWindowBarProperties(GradientTheme theme) {
     WindowBarProperties barProperties = rootProperties.getWindowBarProperties();
 
-    barProperties.getTabWindowProperties().getTabbedPanelProperties().getContentPanelProperties().getComponentProperties()
+    barProperties.getTabWindowProperties().getTabbedPanelProperties().getContentPanelProperties()
+        .getComponentProperties()
         .setBorder(new OpenContentBorder(Color.BLACK, 1));
 
     barProperties.getTabWindowProperties().getTabProperties().getNormalButtonProperties().
@@ -190,15 +197,17 @@ public class GradientDockingTheme extends DockingWindowsTheme {
     barProperties.getTabWindowProperties().getTabProperties().getTitledTabProperties().getNormalProperties()
         .setIconVisible(true)
         .getComponentProperties()
-        .setBorder(new CompoundBorder(new TabLineBorder(), theme.getTabAreaComponentsGradientBorder()));
+        .setBorder(new CompoundBorder(new TabAreaLineBorder(), theme.getTabAreaComponentsGradientBorder()));
 
     barProperties.getTabWindowProperties().getTabProperties().getFocusedProperties()
         .getComponentProperties()
-        .setBorder(new CompoundBorder(new TabLineBorder(Color.BLACK), theme.getHighlightedTabGradientBorder()));
+        .setBorder(new CompoundBorder(new TabAreaLineBorder(Color.BLACK), theme.getHighlightedTabGradientBorder()));
 
     barProperties.getTabWindowProperties().getTabProperties().getTitledTabProperties().getHighlightedProperties()
         .getComponentProperties()
-        .setBorder(new CompoundBorder(new TabLineBorder(Color.BLACK), theme.getHighlightedTabGradientBorder()));
+        .setBorder(new CompoundBorder(new TabAreaLineBorder(Color.BLACK), theme.getHighlightedTabGradientBorder()));
+
+    barProperties.getTabWindowProperties().getTabbedPanelProperties().setTabSpacing(-1);
 
     barProperties.getTabWindowProperties().getTabbedPanelProperties().getTabAreaProperties().getComponentProperties()
         .setBorder(null)

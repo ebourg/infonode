@@ -20,7 +20,8 @@
  */
 
 
-// $Id: DraggableComponent.java,v 1.8 2004/09/28 15:07:29 jesper Exp $
+// $Id: DraggableComponent.java,v 1.13 2004/11/11 14:11:14 jesper Exp $
+
 package net.infonode.gui.draggable;
 
 import net.infonode.gui.ComponentUtil;
@@ -53,6 +54,8 @@ public class DraggableComponent {
   private int dragIndex;
   private int dragFromIndex;
   private int abortDragKeyCode = KeyEvent.VK_ESCAPE;
+
+  private ArrayList layoutOrderList;
 
   private ArrayList listeners;
   private JComponent outerParentArea;
@@ -203,10 +206,14 @@ public class DraggableComponent {
 
   public void drag(Point p) {
     if (enabled) {
-      dragIndex = ComponentUtil.getComponentIndex(component);
+      dragIndex = getComponentIndex(component);
       dragFromIndex = dragIndex;
       doDrag(p);
     }
+  }
+
+  public void setLayoutOrderList(ArrayList layoutOrderList) {
+    this.layoutOrderList = layoutOrderList;
   }
 
   public void select() {
@@ -225,7 +232,7 @@ public class DraggableComponent {
       dragStarted = false;
       KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(abortDragKeyDispatcher);
       mousePressed = true;
-      dragIndex = ComponentUtil.getComponentIndex(component);
+      dragIndex = getComponentIndex(component);
       dragFromIndex = dragIndex;
 
       fireChangedEvent(DraggableComponentEvent.TYPE_PRESSED);
@@ -247,7 +254,9 @@ public class DraggableComponent {
     if (enabled && mousePressed) {
       Point p = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), component);
       if (dragStarted || enableInsideDrag || !component.contains(p)) {
-        doDrag(p);
+        if (reorderEnabled)
+          doDrag(p);
+
         fireDraggedEvent(p);
       }
     }
@@ -287,7 +296,7 @@ public class DraggableComponent {
   private void updateParent() {
     if (component.getParent() != null) {
       ((JComponent) component.getParent()).revalidate();
-      component.getParent().repaint();
+      //component.getParent().repaint();
     }
   }
 
@@ -302,45 +311,43 @@ public class DraggableComponent {
     int toIndex = getMoveComponentIndex(p2);
     if (toIndex != -1) {
       toIndex = Math.min(toIndex, parent.getComponentCount() - 1);
-      Component fromComponent = parent.getComponent(dragIndex);
+      Component fromComponent = getComponent(parent, dragIndex);
       int fromDimension;
       int toPos;
       int toDimension;
 
       if (isVerticalDrag()) {
         fromDimension = fromComponent.getHeight();
-        toPos = (int) SwingUtilities.convertPoint(parent, p2, parent.getComponent(toIndex)).getY();
-        toDimension = parent.getComponent(toIndex).getHeight();
+        toPos = (int) SwingUtilities.convertPoint(parent, p2, getComponent(parent, toIndex)).getY();
+        toDimension = getComponent(parent, toIndex).getHeight();
       }
       else {
         fromDimension = fromComponent.getWidth();
-        toPos = (int) SwingUtilities.convertPoint(parent, p2, parent.getComponent(toIndex)).getX();
-        toDimension = parent.getComponent(toIndex).getWidth();
+        toPos = (int) SwingUtilities.convertPoint(parent, p2, getComponent(parent, toIndex)).getX();
+        toDimension = getComponent(parent, toIndex).getWidth();
       }
 
-      if ((toIndex > dragIndex && toDimension - toPos > fromDimension) ||
-          ((dragIndex == -1 || toIndex < dragIndex) && toPos > fromDimension))
+      if ((toIndex > dragIndex && toDimension - toPos > fromDimension) || ((dragIndex == -1 || toIndex < dragIndex) && toPos > fromDimension))
         return;
 
-      if (reorderEnabled && dragIndex != -1 && dragIndex != toIndex) {
-        parent.remove(dragIndex);
-        parent.add(fromComponent, toIndex);
+      if (dragIndex != -1 && dragIndex != toIndex) {
+        removeComponent(parent, null, dragIndex);
+        addComponent(parent, fromComponent, toIndex);
         fireChangedEvent(DraggableComponentEvent.TYPE_MOVED);
       }
     }
 
     if (toIndex < 0) {
-      if (reorderRestoreOnDrag)
-        restoreComponentOrder();
+      restoreComponentOrder();
     }
-    else if (reorderEnabled)
+    else
       dragIndex = toIndex;
   }
 
   private boolean isVerticalDrag() {
     JComponent parent = (JComponent) component.getParent();
     if (parent.getComponentCount() > 1)
-      return parent.getComponent(0).getY() < parent.getComponent(1).getY();
+      return getComponent(parent, 0).getY() < getComponent(parent, 1).getY();
 
     return false;
   }
@@ -351,10 +358,13 @@ public class DraggableComponent {
 
     Point p2 = SwingUtilities.convertPoint(component.getParent(), p, outerParentArea);
     if (detectOuterAreaAsLine) {
-      Insets i = outerParentArea.getInsets();
-      return component.getParent().contains(p) || (outerParentArea.contains(p2) &&
-                                                   (isVerticalDrag() ? (p2.getX() >= i.left && p2.getX() < (outerParentArea.getWidth() - i.right)) :
-                                                    (p2.getY() >= i.top && p2.getY() < (outerParentArea.getHeight() - i.bottom))));
+      Insets i = new Insets(0, 0, 0, 0);//outerParentArea.getInsets();
+      return component.getParent().contains(p)
+             || (outerParentArea.contains(p2) && (isVerticalDrag()
+                                                  ?
+                                                  (p2.getX() >= i.left && p2.getX() < (outerParentArea.getWidth() - i.right))
+                                                  :
+                                                  (p2.getY() >= i.top && p2.getY() < (outerParentArea.getHeight() - i.bottom))));
     }
 
     return component.getParent().contains(p) || outerParentArea.contains(p2);
@@ -365,7 +375,7 @@ public class DraggableComponent {
     if (checkParentContains(p)) {
       boolean vertical = isVerticalDrag();
       for (int i = 0; i < parent.getComponentCount() - 1; i++) {
-        Point p2 = parent.getComponent(i + 1).getLocation();
+        Point p2 = getComponent(parent, i + 1).getLocation();
 
         if (vertical) {
           if (p.getY() >= 0 && p.getY() < p2.getY())
@@ -388,14 +398,53 @@ public class DraggableComponent {
     return -1;
   }
 
+  private JComponent getComponent(Container parent, int index) {
+    if (layoutOrderList != null)
+      return (JComponent) layoutOrderList.get(index);
+
+    return (JComponent) parent.getComponent(index);
+  }
+
+  private int getComponentIndex(Component c) {
+    if (layoutOrderList != null)
+      return layoutOrderList.indexOf(c);
+
+    return ComponentUtil.getComponentIndex(c);
+  }
+
+  private void addComponent(Container parent, Component c, int index) {
+    if (layoutOrderList != null) {
+      layoutOrderList.add(index, c);
+      parent.add(c, index);
+    }
+    else
+      parent.add(c, index);
+  }
+
+  private void removeComponent(Container parent, Component c, int index) {
+    if (layoutOrderList != null)
+      if (index < 0) {
+        layoutOrderList.remove(c);
+        parent.remove(c);
+      }
+      else {
+        Component tmp = (Component) layoutOrderList.get(index);
+        layoutOrderList.remove(index);
+        parent.remove(tmp);
+      }
+    else if (index < 0)
+      parent.remove(c);
+    else
+      parent.remove(index);
+  }
+
   private void restoreComponentOrder() {
-    if (reorderEnabled && dragIndex != -1 &&
-        dragFromIndex != -1 && dragIndex != dragFromIndex) {
+    if (reorderEnabled && dragIndex != -1 && dragFromIndex != -1 && dragIndex != dragFromIndex) {
       Container parent = component.getParent();
-      Component comp = parent.getComponent(dragIndex);
-      parent.remove(comp);
+      Component comp = getComponent(parent, dragIndex);
+      removeComponent(parent, comp, -1);
       dragIndex = dragFromIndex;
-      parent.add(comp, dragIndex);
+      addComponent(parent, comp, dragIndex);
       fireChangedEvent(DraggableComponentEvent.TYPE_MOVED);
     }
   }

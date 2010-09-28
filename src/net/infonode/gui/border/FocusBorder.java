@@ -20,7 +20,7 @@
  */
 
 
-// $Id: FocusBorder.java,v 1.3 2004/08/20 15:07:10 jesper Exp $
+// $Id: FocusBorder.java,v 1.4 2004/11/11 09:51:46 jesper Exp $
 package net.infonode.gui.border;
 
 import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
@@ -31,12 +31,15 @@ import javax.swing.plaf.basic.BasicGraphicsUtils;
 import java.awt.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.io.Serializable;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
-public class FocusBorder implements Border {
+public class FocusBorder implements Border, Serializable {
+  private static final long serialVersionUID = 1;
+
   private static final Insets INSETS = new Insets(1, 1, 1, 1);
 
   public FocusBorder() {

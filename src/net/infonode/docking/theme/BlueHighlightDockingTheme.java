@@ -20,7 +20,7 @@
  */
 
 
-// $Id: BlueHighlightDockingTheme.java,v 1.7 2004/09/24 16:29:56 jesper Exp $
+// $Id: BlueHighlightDockingTheme.java,v 1.8 2004/11/11 14:09:46 jesper Exp $
 package net.infonode.docking.theme;
 
 import net.infonode.docking.properties.RootWindowProperties;
@@ -36,7 +36,7 @@ import java.awt.*;
  * A theme where the tab of the focused window has a blue background.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public final class BlueHighlightDockingTheme extends DockingWindowsTheme {
   private RootWindowProperties rootWindowProperties;
@@ -77,7 +77,8 @@ public final class BlueHighlightDockingTheme extends DockingWindowsTheme {
         .setBackgroundColor(new Color(100, 130, 220));
 */
 
-    tabProperties.getFocusedProperties().addSuperObject(blueHighlightTheme.getTitledTabProperties().getHighlightedProperties());
+    tabProperties.getFocusedProperties().addSuperObject(
+        blueHighlightTheme.getTitledTabProperties().getHighlightedProperties());
 
     tabProperties.getHighlightedButtonProperties().getCloseButtonProperties()
         .setIcon(new CloseIcon(Color.WHITE, RootWindowProperties.DEFAULT_WINDOW_TAB_BUTTON_ICON_SIZE));

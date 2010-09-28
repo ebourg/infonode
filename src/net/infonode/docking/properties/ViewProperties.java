@@ -19,7 +19,7 @@
  * MA 02111-1307, USA.
  */
 
-// $Id: ViewProperties.java,v 1.14 2004/09/28 15:07:29 jesper Exp $
+// $Id: ViewProperties.java,v 1.15 2004/10/14 15:28:35 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.propertymap.*;
@@ -33,7 +33,7 @@ import javax.swing.*;
  * Properties and property values for views.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.14 $
+ * @version $Revision: 1.15 $
  */
 public class ViewProperties extends PropertyMapContainer {
   /**
@@ -42,12 +42,12 @@ public class ViewProperties extends PropertyMapContainer {
   public static final PropertyMapGroup PROPERTIES = new PropertyMapGroup("View Properties", "");
 
   /**
-   * True if the view shows it's title even though it's not in a tabbed panel with other windows.
+   * If true the view will always be placed in a TabWindow so that it's title is shown.
    */
   public static final BooleanProperty ALWAYS_SHOW_TITLE =
       new BooleanProperty(PROPERTIES,
                           "Always Show Title",
-                          "If true the view will always be placed in a tab window so that it's title is shown.",
+                          "If true the view will always be placed in a TabWindow so that it's title is shown.",
                           PropertyMapValueHandler.INSTANCE);
 
   /**
@@ -128,9 +128,9 @@ public class ViewProperties extends PropertyMapContainer {
   }
 
   /**
-   * Set to true if the view shows it's title even though it's not in a tabbed panel with other windows.
+   * Set to true the view should always be placed in a TabWindow so that it's title is shown.
    *
-   * @param showTitle true if the view shows it's title even though it's not in a tabbed panel with other windows.
+   * @param showTitle true the view should always be placed in a TabWindow so that it's title is shown
    * @return this
    */
   public ViewProperties setAlwaysShowTitle(boolean showTitle) {

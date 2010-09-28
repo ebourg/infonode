@@ -20,9 +20,10 @@
  */
 
 
-// $Id: ComponentUtil.java,v 1.7 2004/09/22 14:35:04 jesper Exp $
+// $Id: ComponentUtil.java,v 1.14 2004/11/11 14:11:14 jesper Exp $
 package net.infonode.gui;
 
+import net.infonode.gui.componentpainter.ComponentPainter;
 import net.infonode.util.Direction;
 
 import javax.swing.*;
@@ -30,6 +31,29 @@ import java.awt.*;
 
 public class ComponentUtil {
   private ComponentUtil() {
+  }
+
+  public static final Component getChildAt(Container container, Point p) {
+    Component c = container.getComponentAt(p);
+    return c == null || c.getParent() != container ? null : c;
+  }
+
+  public static final Component getChildAtLine(Container container, Point p, boolean horizontal) {
+    Component c[] = container.getComponents();
+    if (horizontal) {
+      for (int i = 0; i < c.length; i++) {
+        if (p.x >= c[i].getX() && p.x < c[i].getX() + c[i].getWidth())
+          return c[i];
+      }
+    }
+    else {
+      for (int i = 0; i < c.length; i++) {
+        if (p.y >= c[i].getY() && p.y < c[i].getY() + c[i].getHeight())
+          return c[i];
+      }
+    }
+
+    return null;
   }
 
   public static final int getComponentIndex(Component component) {
@@ -52,7 +76,21 @@ public class ComponentUtil {
   }
 
   public static Color getBackgroundColor(Component component) {
-    return component == null ? null : component.isOpaque() ? component.getBackground() : getBackgroundColor(component.getParent());
+    if (component == null)
+      return null;
+
+    if (component instanceof BackgroundPainter) {
+      ComponentPainter painter = ((BackgroundPainter) component).getComponentPainter();
+
+      if (painter != null) {
+        Color c = painter.getColor(component);
+
+        if (c != null)
+          return c;
+      }
+    }
+
+    return component.isOpaque() ? component.getBackground() : getBackgroundColor(component.getParent());
   }
 
   public static int countComponents(Container c) {
@@ -202,5 +240,16 @@ public class ComponentUtil {
         width = k;
     }
     return width;
+  }
+
+  public static void setAllOpaque(Container c, boolean opaque) {
+    if (c instanceof JComponent) {
+      ((JComponent) c).setOpaque(opaque);
+      Component comps[] = c.getComponents();
+      for (int i = 0; i < comps.length; i++) {
+        if (comps[i] instanceof Container)
+          setAllOpaque((Container) comps[i], opaque);
+      }
+    }
   }
 }

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SimpleSplitPane.java,v 1.6 2004/09/22 14:35:05 jesper Exp $
+// $Id: SimpleSplitPane.java,v 1.9 2004/11/11 14:11:14 jesper Exp $
 package net.infonode.gui;
 
 import net.infonode.gui.panel.SimplePanel;
@@ -33,7 +33,7 @@ import java.awt.event.MouseMotionAdapter;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.9 $
  */
 public class SimpleSplitPane extends JLayeredPane {
   private LayoutManager splitLayout = new LayoutManager() {
@@ -71,7 +71,8 @@ public class SimpleSplitPane extends JLayeredPane {
                                (rightComponent == null ? 0 : getDimensionSize(rightComponent.getMinimumSize())),
                                Math.max(leftComponent == null ? 0 : getOtherSize(leftComponent.getMinimumSize()),
                                         rightComponent == null ? 0 : getOtherSize(rightComponent.getMinimumSize())));
-      return new Dimension(d.width + getInsets().left + getInsets().right, d.height + getInsets().top + getInsets().bottom);
+      return new Dimension(d.width + getInsets().left + getInsets().right,
+                           d.height + getInsets().top + getInsets().bottom);
     }
 
     public Dimension preferredLayoutSize(Container parent) {
@@ -80,7 +81,8 @@ public class SimpleSplitPane extends JLayeredPane {
                                (rightComponent == null ? 0 : getDimensionSize(rightComponent.getPreferredSize())),
                                Math.max(leftComponent == null ? 0 : getOtherSize(leftComponent.getPreferredSize()),
                                         rightComponent == null ? 0 : getOtherSize(rightComponent.getPreferredSize())));
-      return new Dimension(d.width + getInsets().left + getInsets().right, d.height + getInsets().top + getInsets().bottom);
+      return new Dimension(d.width + getInsets().left + getInsets().right,
+                           d.height + getInsets().top + getInsets().bottom);
     }
 
     public void removeLayoutComponent(Component comp) {
@@ -135,12 +137,17 @@ public class SimpleSplitPane extends JLayeredPane {
     setRightComponent(rightComponent);
   }
 
+  public JComponent getDividerPanel() {
+    return dividerPanel;
+  }
+
   public boolean isDividerDraggable() {
     return dividerDraggable;
   }
 
   public void setDividerDraggable(boolean dividerDraggable) {
     this.dividerDraggable = dividerDraggable;
+    updateDividerCursor();
   }
 
   private void setDragIndicator(float location) {
@@ -162,7 +169,8 @@ public class SimpleSplitPane extends JLayeredPane {
 
     int leftSize = Math.max((int) (totalSize * location),
                             leftComponent == null ? 0 : getDimensionSize(leftComponent.getMinimumSize()));
-    leftSize = Math.min(leftSize, totalSize - (rightComponent == null ? 0 : getDimensionSize(rightComponent.getMinimumSize())));
+    leftSize = Math.min(leftSize,
+                        totalSize - (rightComponent == null ? 0 : getDimensionSize(rightComponent.getMinimumSize())));
     return (float) leftSize / totalSize;
   }
 
@@ -188,7 +196,8 @@ public class SimpleSplitPane extends JLayeredPane {
   }
 
   private int getOtherSize() {
-    return horizontal ? getHeight() - getInsets().top - getInsets().bottom : getWidth() - getInsets().left - getInsets().right;
+    return horizontal ?
+           getHeight() - getInsets().top - getInsets().bottom : getWidth() - getInsets().left - getInsets().right;
   }
 
   private int getViewSize() {
@@ -222,7 +231,7 @@ public class SimpleSplitPane extends JLayeredPane {
 
   public void setHorizontal(boolean horizontal) {
     this.horizontal = horizontal;
-    dividerPanel.setCursor(new Cursor(horizontal ? Cursor.W_RESIZE_CURSOR : Cursor.N_RESIZE_CURSOR));
+    updateDividerCursor();
     revalidate();
   }
 
@@ -265,5 +274,11 @@ public class SimpleSplitPane extends JLayeredPane {
       add(rightComponent);
 
     revalidate();
+  }
+
+  private void updateDividerCursor() {
+    dividerPanel.setCursor(dividerDraggable ?
+                           new Cursor(horizontal ? Cursor.W_RESIZE_CURSOR : Cursor.N_RESIZE_CURSOR) :
+                           Cursor.getDefaultCursor());
   }
 }

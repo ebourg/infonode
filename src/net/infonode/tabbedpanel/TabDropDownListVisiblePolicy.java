@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabDropDownListVisiblePolicy.java,v 1.9 2004/09/28 14:50:49 jesper Exp $
+// $Id: TabDropDownListVisiblePolicy.java,v 1.10 2004/11/11 14:10:33 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.util.Enum;
@@ -30,7 +30,7 @@ import net.infonode.util.Enum;
  * list of tabs.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  * @see TabbedPanel
  * @see TabbedPanelProperties
  * @since ITP 1.1.0
@@ -48,13 +48,15 @@ public final class TabDropDownListVisiblePolicy extends Enum {
    * More than one tab list policy. This means that a drop down list will be shown
    * if there are more than one tab in the tabbed panel.
    */
-  public static final TabDropDownListVisiblePolicy MORE_THAN_ONE_TAB = new TabDropDownListVisiblePolicy(1, "More than One Tab");
+  public static final TabDropDownListVisiblePolicy MORE_THAN_ONE_TAB = new TabDropDownListVisiblePolicy(1,
+                                                                                                        "More than One Tab");
 
   /**
    * Tabs not visible list policy. This means that a drop down list will be shown when
    * there are tabs are not entirely visible, i.e. scrolled out.
    */
-  public static final TabDropDownListVisiblePolicy TABS_NOT_VISIBLE = new TabDropDownListVisiblePolicy(1, "Some Tabs Not Visible");
+  public static final TabDropDownListVisiblePolicy TABS_NOT_VISIBLE = new TabDropDownListVisiblePolicy(1,
+                                                                                                       "Some Tabs Not Visible");
 
   private static final TabDropDownListVisiblePolicy[] DROP_DOWN_LIST_VISIBLE_POLICIES = new TabDropDownListVisiblePolicy[]{NEVER, MORE_THAN_ONE_TAB, TABS_NOT_VISIBLE};
 

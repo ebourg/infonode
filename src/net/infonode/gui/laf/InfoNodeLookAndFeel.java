@@ -20,7 +20,7 @@
  */
 
 
-// $Id: InfoNodeLookAndFeel.java,v 1.9 2004/09/28 15:07:29 jesper Exp $
+// $Id: InfoNodeLookAndFeel.java,v 1.10 2004/11/11 14:11:14 jesper Exp $
 package net.infonode.gui.laf;
 
 import net.infonode.gui.icon.button.TreeIcon;
@@ -60,7 +60,7 @@ import java.lang.reflect.InvocationTargetException;
  * Do not modify the theme after it has been used in the look and feel!
  *
  * @author $Author: jesper $
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
 public class InfoNodeLookAndFeel extends MetalLookAndFeel {
   public static final UIManager.LookAndFeelInfo LOOK_AND_FEEL_INFO =
@@ -392,8 +392,10 @@ public class InfoNodeLookAndFeel extends MetalLookAndFeel {
       "Tree.openIcon", theme.getTreeOpenIcon(),
       "Tree.closedIcon", theme.getTreeClosedIcon(),
       "Tree.leafIcon", theme.getTreeLeafIcon(),
-      "Tree.collapsedIcon", new IconUIResource(new TreeIcon(TreeIcon.PLUS, 10, 10, true, theme.getTextColor(), theme.getTreeIconBackgroundColor())),
-      "Tree.expandedIcon", new IconUIResource(new TreeIcon(TreeIcon.MINUS, 10, 10, true, theme.getTextColor(), theme.getTreeIconBackgroundColor())),
+      "Tree.collapsedIcon", new IconUIResource(
+          new TreeIcon(TreeIcon.PLUS, 10, 10, true, theme.getTextColor(), theme.getTreeIconBackgroundColor())),
+      "Tree.expandedIcon", new IconUIResource(
+          new TreeIcon(TreeIcon.MINUS, 10, 10, true, theme.getTextColor(), theme.getTreeIconBackgroundColor())),
       "Tree.leftChildIndent", new Integer(5),
       "Tree.rightChildIndent", new Integer(11),
 //    "Tree.rowHeight", new Integer(12),

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowTab.java,v 1.32 2004/09/22 14:31:39 jesper Exp $
+// $Id: WindowTab.java,v 1.36 2004/11/11 14:09:46 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.internalutil.*;
@@ -31,7 +31,7 @@ import net.infonode.gui.panel.SimplePanel;
 import net.infonode.properties.propertymap.PropertyMap;
 import net.infonode.properties.propertymap.PropertyMapListener;
 import net.infonode.properties.propertymap.PropertyMapTreeListener;
-import net.infonode.tabbedpanel.TabbedPanel;
+import net.infonode.properties.propertymap.PropertyMapWeakListenerManager;
 import net.infonode.tabbedpanel.titledtab.TitledTab;
 import net.infonode.tabbedpanel.titledtab.TitledTabStateProperties;
 import net.infonode.util.Direction;
@@ -40,26 +40,39 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionAdapter;
 import java.util.Map;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.32 $
+ * @version $Revision: 1.36 $
  */
 class WindowTab extends TitledTab {
   private static final TitledTabStateProperties EMPTY_PROPERTIES = new TitledTabStateProperties();
 
-  private static final ButtonInfo[] buttonInfos = {new MinimizeButtonInfo(WindowTabStateProperties.MINIMIZE_BUTTON_PROPERTIES),
-                                                   new RestoreButtonInfo(WindowTabStateProperties.RESTORE_BUTTON_PROPERTIES),
-                                                   new CloseButtonInfo(WindowTabStateProperties.CLOSE_BUTTON_PROPERTIES)};
+  private static final ButtonInfo[] buttonInfos = {new MinimizeButtonInfo(
+      WindowTabStateProperties.MINIMIZE_BUTTON_PROPERTIES),
+                                                   new RestoreButtonInfo(
+                                                       WindowTabStateProperties.RESTORE_BUTTON_PROPERTIES),
+                                                   new CloseButtonInfo(
+                                                       WindowTabStateProperties.CLOSE_BUTTON_PROPERTIES)};
 
   private final DockingWindow window;
   private AbstractButton[][] buttons = new AbstractButton[WindowTabState.STATES.length][];
   private SimplePanel[] buttonBoxes = new SimplePanel[WindowTabState.STATES.length];
   private WindowTabProperties windowTabProperties = new WindowTabProperties(new WindowTabProperties());
   private boolean isFocused;
+
+  private PropertyMapListener windowPropertiesListener = new PropertyMapListener() {
+    public void propertyValuesChanged(PropertyMap propertyObject, Map changes) {
+      updateButtons();
+    }
+  };
+
+  private PropertyMapTreeListener windowTabPropertiesListener = new PropertyMapTreeListener() {
+    public void propertyValuesChanged(Map changes) {
+      updateButtons();
+    }
+  };
 
   WindowTab(DockingWindow window, boolean emptyContent) {
     super(window.getTitle(), window.getIcon(), emptyContent ? null : new SimplePanel(window), null);
@@ -73,7 +86,7 @@ class WindowTab extends TitledTab {
     setHighlightedStateTitleComponent(buttonBoxes[WindowTabState.HIGHLIGHTED.getValue()]);
     setNormalStateTitleComponent(buttonBoxes[WindowTabState.NORMAL.getValue()]);
 
-    MouseListener mouseListener = new MouseAdapter() {
+    addMouseListener(new MouseAdapter() {
       public void mousePressed(MouseEvent e) {
         checkPopupMenu(e);
 
@@ -91,34 +104,14 @@ class WindowTab extends TitledTab {
         }
       }
 
-    };
-
-    addMouseListener(mouseListener);
-
-    addMouseMotionListener(new MouseMotionAdapter() {
-      public void mouseDragged(MouseEvent e) {
-        TabbedPanel tabbedPanel = getTabbedPanel();
-
-        if (tabbedPanel != null && tabbedPanel.tabAreaContainsPoint(SwingUtilities.convertPoint(WindowTab.this, e.getPoint(), tabbedPanel))) {
-          getWindow().getRootWindow().setText(null, null);
-          getWindow().getRootWindow().setRectangle(null);
-        }
-      }
     });
 
     super.getProperties().addSuperObject(windowTabProperties.getTitledTabProperties());
 
-    windowTabProperties.getMap().addTreeListener(new PropertyMapTreeListener() {
-      public void propertyValuesChanged(Map changes) {
-        updateButtons();
-      }
-    });
+    PropertyMapWeakListenerManager.addWeakTreeListener(windowTabProperties.getMap(), windowTabPropertiesListener);
 
-    this.window.getWindowProperties().getMap().addListener(new PropertyMapListener() {
-      public void propertyValuesChanged(PropertyMap propertyObject, Map changes) {
-        updateButtons();
-      }
-    });
+    PropertyMapWeakListenerManager.addWeakListener(this.window.getWindowProperties().getMap(),
+                                                   windowPropertiesListener);
 
     windowTabProperties.getTitledTabProperties().getHighlightedProperties().addSuperObject(EMPTY_PROPERTIES);
   }

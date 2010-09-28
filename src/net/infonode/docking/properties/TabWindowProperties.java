@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabWindowProperties.java,v 1.12 2004/09/28 15:07:29 jesper Exp $
+// $Id: TabWindowProperties.java,v 1.13 2004/10/14 15:28:35 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.propertymap.*;
@@ -30,7 +30,7 @@ import net.infonode.tabbedpanel.TabbedPanelProperties;
  * Properties and property values for tab windows.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.13 $
  */
 public class TabWindowProperties extends PropertyMapContainer {
   /**
@@ -44,7 +44,7 @@ public class TabWindowProperties extends PropertyMapContainer {
   public static final PropertyMapProperty TABBED_PANEL_PROPERTIES =
       new PropertyMapProperty(PROPERTIES,
                               "Tabbed Panel Properties",
-                              "Property values for the tabbed panel in the tab window.",
+                              "Property values for the tabbed panel in the TabWindow.",
                               TabbedPanelProperties.PROPERTIES);
 
   /**
@@ -53,7 +53,7 @@ public class TabWindowProperties extends PropertyMapContainer {
   public static final PropertyMapProperty TAB_PROPERTIES =
       new PropertyMapProperty(PROPERTIES,
                               "Tab Properties",
-                              "Default property values for the window tabs in the tab window.",
+                              "Default property values for the window tabs in the TabWindow.",
                               WindowTabProperties.PROPERTIES);
 
   /**

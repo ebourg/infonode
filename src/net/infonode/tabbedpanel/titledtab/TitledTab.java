@@ -20,15 +20,22 @@
  */
 
 
-// $Id: TitledTab.java,v 1.22 2004/09/28 15:07:29 jesper Exp $
+// $Id: TitledTab.java,v 1.39 2004/11/11 14:10:33 jesper Exp $
 package net.infonode.tabbedpanel.titledtab;
 
 import net.infonode.gui.InsetsUtil;
 import net.infonode.gui.RotatableLabel;
+import net.infonode.gui.TranslatingShape;
 import net.infonode.gui.border.FocusBorder;
+import net.infonode.gui.componentpainter.ComponentPainter;
+import net.infonode.gui.componentpainter.SolidColorComponentPainter;
 import net.infonode.gui.icon.IconProvider;
 import net.infonode.gui.layout.StackableLayout;
+import net.infonode.gui.shaped.panel.ShapedPanel;
+import net.infonode.properties.gui.util.ComponentProperties;
+import net.infonode.properties.gui.util.ShapedPanelProperties;
 import net.infonode.properties.propertymap.PropertyMapTreeListener;
+import net.infonode.properties.propertymap.PropertyMapWeakListenerManager;
 import net.infonode.tabbedpanel.Tab;
 import net.infonode.tabbedpanel.TabAdapter;
 import net.infonode.tabbedpanel.TabEvent;
@@ -74,14 +81,13 @@ import java.util.Map;
  * tab drop down list in a tabbed panel.</p>
  *
  * @author $Author: jesper $
- * @version $Revision: 1.22 $
+ * @version $Revision: 1.39 $
  * @see TitledTabProperties
  * @see TitledTabStateProperties
  */
 public class TitledTab extends Tab implements IconProvider {
-
   private class StatePanel extends JPanel {
-    private JPanel panel = new JPanel(new BorderLayout());
+    private ShapedPanel panel = new ShapedPanel();
     private JPanel titleComponentPanel = new JPanel(new BorderLayout());
     private RotatableLabel label = new RotatableLabel(null, null);
     private JComponent titleComponent;
@@ -91,14 +97,15 @@ public class TitledTab extends Tab implements IconProvider {
     private Alignment currentLayoutAlignment;
     private String toolTipText;
 
-    StatePanel() {
+    public StatePanel() {
       super(new BorderLayout());
+      panel.setLayout(new BorderLayout());
       setOpaque(false);
-      panel.setOpaque(false);
       titleComponentPanel.setOpaque(false);
 
       label.setBorder(new FocusBorder(label));
       label.setMinimumSize(new Dimension(0, 0));
+
       panel.add(label, BorderLayout.CENTER);
       add(panel, BorderLayout.CENTER);
     }
@@ -122,6 +129,10 @@ public class TitledTab extends Tab implements IconProvider {
 
     public JComponent getTitleComponent() {
       return titleComponent;
+    }
+
+    public Shape getShape() {
+      return panel.getShape();
     }
 
     public void setTitleComponent(JComponent titleComponent) {
@@ -200,19 +211,23 @@ public class TitledTab extends Tab implements IconProvider {
           panel.remove(titleComponentPanel);
           if (d == Direction.UP) {
             panel.add(titleComponentPanel, alignment == Alignment.LEFT ? BorderLayout.SOUTH : BorderLayout.NORTH);
-            titleComponentPanel.setBorder(new EmptyBorder(alignment == Alignment.LEFT ? gap : 0, 0, alignment == Alignment.LEFT ? 0 : gap, 0));
+            titleComponentPanel.setBorder(
+                new EmptyBorder(alignment == Alignment.LEFT ? gap : 0, 0, alignment == Alignment.LEFT ? 0 : gap, 0));
           }
           else if (d == Direction.LEFT) {
             panel.add(titleComponentPanel, alignment == Alignment.LEFT ? BorderLayout.EAST : BorderLayout.WEST);
-            titleComponentPanel.setBorder(new EmptyBorder(0, alignment == Alignment.LEFT ? gap : 0, 0, alignment == Alignment.LEFT ? 0 : gap));
+            titleComponentPanel.setBorder(
+                new EmptyBorder(0, alignment == Alignment.LEFT ? gap : 0, 0, alignment == Alignment.LEFT ? 0 : gap));
           }
           else if (d == Direction.DOWN) {
             panel.add(titleComponentPanel, alignment == Alignment.LEFT ? BorderLayout.NORTH : BorderLayout.SOUTH);
-            titleComponentPanel.setBorder(new EmptyBorder(alignment == Alignment.LEFT ? 0 : gap, 0, alignment == Alignment.LEFT ? gap : 0, 0));
+            titleComponentPanel.setBorder(
+                new EmptyBorder(alignment == Alignment.LEFT ? 0 : gap, 0, alignment == Alignment.LEFT ? gap : 0, 0));
           }
           else {
             panel.add(titleComponentPanel, alignment == Alignment.LEFT ? BorderLayout.WEST : BorderLayout.EAST);
-            titleComponentPanel.setBorder(new EmptyBorder(0, alignment == Alignment.LEFT ? 0 : gap, 0, alignment == Alignment.LEFT ? gap : 0));
+            titleComponentPanel.setBorder(
+                new EmptyBorder(0, alignment == Alignment.LEFT ? 0 : gap, 0, alignment == Alignment.LEFT ? gap : 0));
           }
         }
       }
@@ -253,16 +268,49 @@ public class TitledTab extends Tab implements IconProvider {
     }
 
     private void updatePanel(Border border, TitledTabStateProperties properties) {
+      ComponentProperties componentProperties = properties.getComponentProperties();
+      ShapedPanelProperties shapedPanelProperties = properties.getShapedPanelProperties();
+
+      Direction d = getTabbedPanel().getProperties().getTabAreaOrientation();
+      panel.setDirection(d.getNextCW());
       panel.setBorder(border);
-      panel.setForeground(properties.getComponentProperties().getForegroundColor());
-      panel.setBackground(properties.getComponentProperties().getBackgroundColor());
-      panel.setOpaque(properties.getComponentProperties().getBackgroundColor() != null);
+
+      panel.setForeground(componentProperties.getForegroundColor());
+      panel.setBackground(componentProperties.getBackgroundColor());
+
+      ComponentPainter painter = shapedPanelProperties.getComponentPainter();
+      Color backgroundColor = componentProperties.getBackgroundColor();
+      if (painter != null)
+        panel.setComponentPainter(painter);
+      else if (backgroundColor != null)
+        panel.setComponentPainter(SolidColorComponentPainter.BACKGROUND_COLOR_PAINTER);
+      else
+        panel.setComponentPainter(null);
+      panel.setHorizontalFlip(
+          d == Direction.DOWN || d == Direction.LEFT ?
+          !shapedPanelProperties.getHorizontalFlip() : shapedPanelProperties.getHorizontalFlip());
+      panel.setVerticalFlip(shapedPanelProperties.getVerticalFlip());
+      panel.setClipChildren(shapedPanelProperties.getClipChildren());
     }
   }
 
   private TitledTabProperties properties = TitledTabProperties.getDefaultProperties();
 
-  private JPanel eventPanel = new JPanel(new BorderLayout());
+  private JPanel eventPanel = new JPanel(new BorderLayout()) {
+    public boolean contains(int x, int y) {
+      Component c = getComponent(0);
+      //System.out.println("contains x=" + x + "  y=" + y);
+
+      //System.out.println((c != null ? c.contains(x, y) : false) + "  " + c);
+      return c != null ? c.contains(x, y) : false;
+    }
+
+    public boolean inside(int x, int y) {
+      //System.out.println("inside x=" + x + "  y=" + y);
+      Component c = getComponent(0);
+      return c != null ? c.inside(x, y) : false;
+    }
+  };
 
   private StatePanel normalStatePanel = new StatePanel();
   private StatePanel highlightedStatePanel = new StatePanel();
@@ -385,16 +433,18 @@ public class TitledTab extends Tab implements IconProvider {
     eventPanel.addMouseListener(mouseListener);
     eventPanel.addMouseMotionListener(mouseMotionListener);
 
-    properties.getMap().addTreeListener(propertiesListener);
+    PropertyMapWeakListenerManager.addWeakTreeListener(properties.getMap(), propertiesListener);
 
     addTabListener(new TabAdapter() {
       public void tabAdded(TabEvent event) {
-        getTabbedPanel().getProperties().getMap().addTreeListener(propertiesListener);
+        PropertyMapWeakListenerManager.addWeakTreeListener(getTabbedPanel().getProperties().getMap(),
+                                                           propertiesListener);
         updateTab();
       }
 
       public void tabRemoved(TabRemovedEvent event) {
-        event.getTabbedPanel().getProperties().getMap().removeTreeListener(propertiesListener);
+        PropertyMapWeakListenerManager.removeWeakTreeListener(event.getTabbedPanel().getProperties().getMap(),
+                                                              propertiesListener);
         updateTab();
       }
     });
@@ -640,6 +690,23 @@ public class TitledTab extends Tab implements IconProvider {
     return listeners;
   }
 
+
+  /**
+   * Gets the Shape for the current active rendering state.
+   *
+   * @return the Shape for the active rendering state, null if no special shape
+   * @since ITP 1.2.0
+   */
+  public Shape getShape() {
+    Shape shape = currentStatePanel.getShape();
+
+    if (shape == null)
+      return null;
+
+    Point p = SwingUtilities.convertPoint(currentStatePanel, 0, 0, this);
+    return new TranslatingShape(shape, p.x, p.y);
+  }
+
   private Insets getBorderInsets(Border border) {
     return border == null ? InsetsUtil.EMPTY_INSETS : border.getBorderInsets(this);
   }
@@ -655,9 +722,13 @@ public class TitledTab extends Tab implements IconProvider {
 
       Insets maxInsets = properties.getBorderSizePolicy() == TitledTabBorderSizePolicy.INDIVIDUAL_SIZE ?
                          null :
-                         InsetsUtil.max(getBorderInsets(properties.getNormalProperties().getComponentProperties().getBorder()),
-                                        InsetsUtil.max(getBorderInsets(properties.getHighlightedProperties().getComponentProperties().getBorder()),
-                                                       getBorderInsets(properties.getDisabledProperties().getComponentProperties().getBorder())));
+                         InsetsUtil.max(
+                             getBorderInsets(properties.getNormalProperties().getComponentProperties().getBorder()),
+                             InsetsUtil.max(
+                                 getBorderInsets(
+                                     properties.getHighlightedProperties().getComponentProperties().getBorder()),
+                                 getBorderInsets(
+                                     properties.getDisabledProperties().getComponentProperties().getBorder())));
 
       Insets normalInsets = InsetsUtil.rotate(properties.getNormalProperties().getDirection(),
                                               properties.getNormalProperties().getComponentProperties().getInsets());
@@ -672,9 +743,18 @@ public class TitledTab extends Tab implements IconProvider {
 
       int normalLowered = Math.min(edgeInset, raised);
 
-      Border innerNormalBorder = getInnerBorder(properties.getNormalProperties(), tabOrientation, -normalLowered, maxInsets);
-      Border innerHighlightBorder = getInnerBorder(properties.getHighlightedProperties(), tabOrientation, raised - normalLowered, maxInsets);
-      Border innerDisabledBorder = getInnerBorder(properties.getDisabledProperties(), tabOrientation, -normalLowered, maxInsets);
+      Border innerNormalBorder = getInnerBorder(properties.getNormalProperties(),
+                                                tabOrientation,
+                                                -normalLowered,
+                                                maxInsets);
+      Border innerHighlightBorder = getInnerBorder(properties.getHighlightedProperties(),
+                                                   tabOrientation,
+                                                   raised - normalLowered,
+                                                   maxInsets);
+      Border innerDisabledBorder = getInnerBorder(properties.getDisabledProperties(),
+                                                  tabOrientation,
+                                                  -normalLowered,
+                                                  maxInsets);
 
       normalStatePanel.updateStatePanel(properties.getNormalProperties(), normalBorder, innerNormalBorder);
       highlightedStatePanel.updateStatePanel(properties.getHighlightedProperties(), null, innerHighlightBorder);
@@ -692,8 +772,9 @@ public class TitledTab extends Tab implements IconProvider {
     Insets insets = InsetsUtil.rotate(tabDir, properties.getComponentProperties().getInsets());
 
     if (maxInsets != null)
-      insets = InsetsUtil.add(insets, InsetsUtil.sub(maxInsets,
-                                                     getBorderInsets(properties.getComponentProperties().getBorder())));
+      insets = InsetsUtil.add(insets,
+                              InsetsUtil.sub(maxInsets,
+                                             getBorderInsets(properties.getComponentProperties().getBorder())));
 
     Border border = properties.getComponentProperties().getBorder();
     Border innerBorder = new EmptyBorder(InsetsUtil.add(insets,

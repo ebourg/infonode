@@ -20,11 +20,11 @@
  */
 
 
-// $Id: HighlightBorder.java,v 1.11 2004/09/28 16:46:05 jesper Exp $
+// $Id: HighlightBorder.java,v 1.13 2004/11/11 14:11:14 jesper Exp $
 package net.infonode.gui.border;
 
 import net.infonode.gui.InsetsUtil;
-import net.infonode.gui.colorprovider.BackgroundColorProvider;
+import net.infonode.gui.colorprovider.BackgroundPainterColorProvider;
 import net.infonode.gui.colorprovider.ColorMultiplier;
 import net.infonode.gui.colorprovider.ColorProvider;
 import net.infonode.gui.colorprovider.ColorProviderUtil;
@@ -36,7 +36,7 @@ import java.io.Serializable;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.13 $
  */
 public class HighlightBorder implements Border, Serializable {
   private static final long serialVersionUID = 1;
@@ -60,8 +60,9 @@ public class HighlightBorder implements Border, Serializable {
 
   public HighlightBorder(boolean lowered, boolean pressed, Color color) {
     this(lowered, pressed, ColorProviderUtil.getColorProvider(color,
-                                                              new ColorMultiplier(BackgroundColorProvider.INSTANCE,
-                                                                                  lowered ? 0.7 : 1.70)));
+                                                              new ColorMultiplier(
+                                                                  BackgroundPainterColorProvider.INSTANCE,
+                                                                  lowered ? 0.7 : 1.70)));
   }
 
   public HighlightBorder(boolean lowered, boolean pressed, ColorProvider colorProvider) {

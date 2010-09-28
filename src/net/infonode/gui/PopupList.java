@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PopupList.java,v 1.7 2004/09/22 14:35:05 jesper Exp $
+// $Id: PopupList.java,v 1.8 2004/11/11 14:11:14 jesper Exp $
 package net.infonode.gui;
 
 import net.infonode.gui.panel.SimplePanel;
@@ -55,7 +55,9 @@ public class PopupList extends SimplePanel {
 
   private class Popup extends JPopupMenu {
     private JList list = new JList();
-    private JScrollPane scrollPane = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    private JScrollPane scrollPane = new JScrollPane(list,
+                                                     JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                                                     JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     private int oldIndex;
 
     Popup() {

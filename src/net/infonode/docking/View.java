@@ -20,9 +20,10 @@
  */
 
 
-// $Id: View.java,v 1.26 2004/09/28 14:48:03 jesper Exp $
+// $Id: View.java,v 1.29 2004/11/11 14:09:46 jesper Exp $
 package net.infonode.docking;
 
+import net.infonode.docking.internalutil.DropAction;
 import net.infonode.docking.location.NullLocation;
 import net.infonode.docking.location.WindowLocation;
 import net.infonode.docking.properties.ViewProperties;
@@ -31,6 +32,7 @@ import net.infonode.gui.panel.SimplePanel;
 import net.infonode.properties.base.Property;
 import net.infonode.properties.propertymap.PropertyMap;
 import net.infonode.properties.propertymap.PropertyMapManager;
+import net.infonode.properties.propertymap.PropertyMapWeakListenerManager;
 import net.infonode.properties.util.PropertyChangeListener;
 
 import javax.swing.*;
@@ -46,7 +48,7 @@ import java.lang.ref.WeakReference;
  * A view is a docking window containing a component.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.26 $
+ * @version $Revision: 1.29 $
  */
 public class View extends DockingWindow {
   private Component lastFocusedComponent;
@@ -59,6 +61,12 @@ public class View extends DockingWindow {
   private ViewProperties rootProperties = new ViewProperties();
   private ViewProperties viewProperties = new ViewProperties(rootProperties);
   private WeakReference lastRootWindow;
+  private PropertyChangeListener listener = new PropertyChangeListener() {
+    public void propertyChanged(Property property, Object valueContainer, Object oldValue, Object newValue) {
+      fireTitleChanged();
+    }
+  };
+
 
   /**
    * Constructor.
@@ -73,14 +81,12 @@ public class View extends DockingWindow {
     super.setComponent(contentPanel);
     contentPanel.setComponent(component);
 
-    PropertyChangeListener listener = new PropertyChangeListener() {
-      public void propertyChanged(Property property, Object valueContainer, Object oldValue, Object newValue) {
-        fireTitleChanged();
-      }
-    };
-
-    viewProperties.getMap().addPropertyChangeListener(ViewProperties.TITLE, listener);
-    viewProperties.getMap().addPropertyChangeListener(ViewProperties.ICON, listener);
+    PropertyMapWeakListenerManager.addWeakPropertyChangeListener(viewProperties.getMap(),
+                                                                 ViewProperties.TITLE,
+                                                                 listener);
+    PropertyMapWeakListenerManager.addWeakPropertyChangeListener(viewProperties.getMap(),
+                                                                 ViewProperties.ICON,
+                                                                 listener);
     init();
   }
 
@@ -200,10 +206,10 @@ public class View extends DockingWindow {
     baos.writeTo(out);
   }
 
-  DockingWindow acceptDrop(Point p, DockingWindow window) {
+  protected DropAction doAcceptDrop(Point p, DockingWindow window) {
     return getWindowParent() instanceof TabWindow && getWindowParent().getChildWindowCount() == 1 ?
-           getWindowParent().acceptDrop(p, window) :
-           super.acceptDrop(p, window);
+           null :
+           super.doAcceptDrop(p, window);
   }
 
   public String toString() {

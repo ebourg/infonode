@@ -20,7 +20,7 @@
  */
 
 
-// $Id: CloseButtonInfo.java,v 1.4 2004/09/24 16:29:56 jesper Exp $
+// $Id: CloseButtonInfo.java,v 1.5 2004/10/28 14:16:41 jesper Exp $
 package net.infonode.docking.internalutil;
 
 import net.infonode.docking.DockingWindow;
@@ -32,7 +32,7 @@ import java.awt.event.ActionListener;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class CloseButtonInfo extends AbstractButtonInfo {
   public CloseButtonInfo(PropertyMapProperty property) {
@@ -40,7 +40,7 @@ public class CloseButtonInfo extends AbstractButtonInfo {
   }
 
   public boolean isVisible(DockingWindow window) {
-    return true;
+    return window.isClosable();
   }
 
   public ActionListener getActionListener(final DockingWindow window) {

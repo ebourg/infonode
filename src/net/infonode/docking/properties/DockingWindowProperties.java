@@ -20,16 +20,17 @@
  */
 
 
-// $Id: DockingWindowProperties.java,v 1.8 2004/09/28 15:07:29 jesper Exp $
+// $Id: DockingWindowProperties.java,v 1.12 2004/11/11 14:09:46 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.propertymap.*;
+import net.infonode.properties.types.BooleanProperty;
 
 /**
  * Properties and property values common for all docking windows.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.12 $
  */
 public class DockingWindowProperties extends PropertyMapContainer {
   /**
@@ -38,13 +39,68 @@ public class DockingWindowProperties extends PropertyMapContainer {
   public static final PropertyMapGroup PROPERTIES = new PropertyMapGroup("Docking Window Properties", "");
 
   /**
-   * Property values for the window tab which is used in tabbed panels.
+   * Property values for the window tab when the window is located in a TabWindow or a WindowBar.
    */
   public static final PropertyMapProperty TAB_PROPERTIES =
       new PropertyMapProperty(PROPERTIES,
                               "Tab Properties",
-                              "Property values for the window tab which is used in tabbed panels.",
+                              "Property values for the window tab when the window is located in a TabWindow or a WindowBar.",
                               WindowTabProperties.PROPERTIES);
+
+  /**
+   * Enables/disables window drag by the user.
+   *
+   * @since IDW 1.2.0
+   */
+  public static final BooleanProperty DRAG_ENABLED =
+      new BooleanProperty(PROPERTIES,
+                          "Drag Enabled",
+                          "Enables/disables window drag by the user.",
+                          PropertyMapValueHandler.INSTANCE);
+
+  /**
+   * Enables/disables window minimize by the user.
+   *
+   * @since IDW 1.2.0
+   */
+  public static final BooleanProperty MINIMIZE_ENABLED =
+      new BooleanProperty(PROPERTIES,
+                          "Minimize Enabled",
+                          "Enables/disables window minimize by the user.",
+                          PropertyMapValueHandler.INSTANCE);
+
+  /**
+   * Enables/disables window close by the user.
+   *
+   * @since IDW 1.2.0
+   */
+  public static final BooleanProperty CLOSE_ENABLED =
+      new BooleanProperty(PROPERTIES,
+                          "Close Enabled",
+                          "Enables/disables window close by the user.",
+                          PropertyMapValueHandler.INSTANCE);
+
+  /**
+   * Enables/disables window restore by the user.
+   *
+   * @since IDW 1.2.0
+   */
+  public static final BooleanProperty RESTORE_ENABLED =
+      new BooleanProperty(PROPERTIES,
+                          "Restore Enabled",
+                          "Enables/disables window restore by the user.",
+                          PropertyMapValueHandler.INSTANCE);
+
+  /**
+   * Enables/disables window maximize by the user.
+   *
+   * @since IDW 1.2.0
+   */
+  public static final BooleanProperty MAXIMIZE_ENABLED =
+      new BooleanProperty(PROPERTIES,
+                          "Maximize Enabled",
+                          "Enables/disables window maximize by the user.",
+                          PropertyMapValueHandler.INSTANCE);
 
 
   /**
@@ -95,12 +151,122 @@ public class DockingWindowProperties extends PropertyMapContainer {
   }
 
   /**
-   * Returns the property values for the window tab which is used in tabbed panels.
+   * Returns the property values for the window tab when the window is located in a TabWindow or a WindowBar.
    *
-   * @return the property values for the window tab which is used in tabbed panels
+   * @return the property values for the window tab when the window is located in a TabWindow or a WindowBar
    */
   public WindowTabProperties getTabProperties() {
     return new WindowTabProperties(TAB_PROPERTIES.get(getMap()));
+  }
+
+  /**
+   * Returns true if the window drag by the user is enabled.
+   *
+   * @return true if the window drag is enabled
+   * @since IDW 1.2.0
+   */
+  public boolean getDragEnabled() {
+    return DRAG_ENABLED.get(getMap());
+  }
+
+  /**
+   * Enables/disables window drag by the user.
+   *
+   * @param enabled if true, drag is enabled, otherwise it's disabled
+   * @return this
+   * @since IDW 1.2.0
+   */
+  public DockingWindowProperties setDragEnabled(boolean enabled) {
+    DRAG_ENABLED.set(getMap(), enabled);
+    return this;
+  }
+
+  /**
+   * Returns true if the window minimize by the user is enabled.
+   *
+   * @return true if the window minimize is enabled
+   * @since IDW 1.2.0
+   */
+  public boolean getMinimizeEnabled() {
+    return MINIMIZE_ENABLED.get(getMap());
+  }
+
+  /**
+   * Enables/disables window minimize by the user.
+   *
+   * @param enabled if true, minimize is enabled, otherwise it's disabled
+   * @return this
+   * @since IDW 1.2.0
+   */
+  public DockingWindowProperties setMinimizeEnabled(boolean enabled) {
+    MINIMIZE_ENABLED.set(getMap(), enabled);
+    return this;
+  }
+
+  /**
+   * Returns true if the window maximize by the user is enabled.
+   *
+   * @return true if the window maximize is enabled
+   * @since IDW 1.2.0
+   */
+  public boolean getMaximizeEnabled() {
+    return MAXIMIZE_ENABLED.get(getMap());
+  }
+
+  /**
+   * Enables/disables window maximize by the user.
+   *
+   * @param enabled if true, maximize is enabled, otherwise it's disabled
+   * @return this
+   * @since IDW 1.2.0
+   */
+  public DockingWindowProperties setMaximizeEnabled(boolean enabled) {
+    MAXIMIZE_ENABLED.set(getMap(), enabled);
+    return this;
+  }
+
+  /**
+   * Returns true if the window close by the user is enabled.
+   *
+   * @return true if the window close is enabled
+   * @since IDW 1.2.0
+   */
+  public boolean getCloseEnabled() {
+    return CLOSE_ENABLED.get(getMap());
+  }
+
+  /**
+   * Enables/disables window close by the user.
+   *
+   * @param enabled if true, close is enabled, otherwise it's disabled
+   * @return this
+   * @since IDW 1.2.0
+   */
+  public DockingWindowProperties setCloseEnabled(boolean enabled) {
+    CLOSE_ENABLED.set(getMap(), enabled);
+    return this;
+  }
+
+  /**
+   * Returns true if the window restore by the user is enabled.
+   *
+   * @return true if the window restore is enabled
+   * @since IDW 1.2.0
+   */
+  public boolean getRestoreEnabled() {
+    return RESTORE_ENABLED.get(getMap());
+  }
+
+  /**
+   * Enables/disables window restore by the user.
+   *
+   * @param enabled if true, restore is enabled, otherwise it's disabled
+   * @return this
+   * @since IDW 1.2.0
+   */
+  public DockingWindowProperties setRestoreEnabled(boolean enabled) {
+    RESTORE_ENABLED.set(getMap(), enabled);
+    return this;
   }
 
 }

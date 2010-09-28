@@ -20,7 +20,7 @@
  */
 
 
-// $Id: InsetsUtil.java,v 1.3 2004/09/22 14:35:05 jesper Exp $
+// $Id: InsetsUtil.java,v 1.9 2004/10/29 13:05:26 jesper Exp $
 package net.infonode.gui;
 
 import net.infonode.util.Direction;
@@ -58,6 +58,13 @@ public class InsetsUtil {
                       i.right + i2.right);
   }
 
+  public static final Insets flip(Insets insets, boolean horizontalFlip, boolean verticalFlip) {
+    return horizontalFlip ? (verticalFlip ? new Insets(insets.bottom, insets.right, insets.top, insets.left) :
+                             new Insets(insets.top, insets.right, insets.bottom, insets.left)) :
+           (verticalFlip ? new Insets(insets.bottom, insets.left, insets.top, insets.right) :
+            insets);
+  }
+
   public static final Insets rotate(Direction d, Insets insets) {
     if (d == Direction.LEFT)
       return new Insets(insets.bottom,
@@ -74,7 +81,7 @@ public class InsetsUtil {
                         insets.top,
                         insets.left,
                         insets.bottom);
-    return insets;
+    return (Insets) insets.clone();
   }
 
   public static Insets max(Insets insets1, Insets insets2) {
@@ -102,5 +109,19 @@ public class InsetsUtil {
     return new Insets(insets.top, insets.left, insets.bottom, insets.right);
   }
 
+  public static void addTo(Insets insets, Insets addition) {
+    insets.top += addition.top;
+    insets.bottom += addition.bottom;
+    insets.left += addition.left;
+    insets.right += addition.right;
+  }
+
+  public static Insets flipHorizontal(Insets insets) {
+    return new Insets(insets.top, insets.right, insets.bottom, insets.left);
+  }
+
+  public static Insets flipVertical(Insets insets) {
+    return new Insets(insets.bottom, insets.left, insets.top, insets.right);
+  }
 }
 

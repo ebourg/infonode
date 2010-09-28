@@ -20,12 +20,19 @@
  */
 
 
-// $Id: TabbedPanelContentPanel.java,v 1.14 2004/09/22 14:33:49 jesper Exp $
+// $Id: TabbedPanelContentPanel.java,v 1.24 2004/11/11 14:10:33 jesper Exp $
 package net.infonode.tabbedpanel;
 
+import net.infonode.gui.componentpainter.ComponentPainter;
+import net.infonode.gui.componentpainter.SolidColorComponentPainter;
 import net.infonode.gui.draggable.DraggableComponentBoxAdapter;
 import net.infonode.gui.draggable.DraggableComponentBoxEvent;
+import net.infonode.gui.shaped.panel.ShapedPanel;
+import net.infonode.properties.base.Property;
+import net.infonode.properties.gui.util.ShapedPanelProperties;
 import net.infonode.properties.propertymap.PropertyMapTreeListener;
+import net.infonode.properties.propertymap.PropertyMapWeakListenerManager;
+import net.infonode.properties.util.PropertyChangeListener;
 import net.infonode.util.Direction;
 
 import javax.swing.*;
@@ -38,12 +45,26 @@ import java.util.Map;
  * the content panel.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.14 $
+ * @version $Revision: 1.24 $
  * @see TabbedPanel
  * @see Tab
  */
 public class TabbedPanelContentPanel extends JPanel {
   private TabbedPanel tabbedPanel;
+  private ShapedPanel shapedPanel = new ShapedPanel();
+  private PropertyMapTreeListener propertiesListener = new PropertyMapTreeListener() {
+    public void propertyValuesChanged(Map changes) {
+      update();
+      repaint();
+    }
+  };
+
+  private PropertyChangeListener tabbedPanelPropertyListener = new PropertyChangeListener() {
+    public void propertyChanged(Property property, Object valueContainer, Object oldValue, Object newValue) {
+      shapedPanel.setDirection(((Direction) newValue).getNextCW());
+      repaint();
+    }
+  };
 
   /**
    * Constructs a TabbedPanelContentPanel
@@ -54,16 +75,16 @@ public class TabbedPanelContentPanel extends JPanel {
    */
   public TabbedPanelContentPanel(TabbedPanel tabbedPanel, JComponent component) {
     super(new BorderLayout());
-    add(component, BorderLayout.CENTER);
+    setOpaque(false);
+    shapedPanel.add(component, BorderLayout.CENTER);
+    add(shapedPanel, BorderLayout.CENTER);
     this.tabbedPanel = tabbedPanel;
-    setOpaque(true);
     update();
 
-    getProperties().getMap().addTreeListener(new PropertyMapTreeListener() {
-      public void propertyValuesChanged(Map changes) {
-        update();
-      }
-    });
+    PropertyMapWeakListenerManager.addWeakTreeListener(getProperties().getMap(), propertiesListener);
+    PropertyMapWeakListenerManager.addWeakPropertyChangeListener(tabbedPanel.getProperties().getMap(),
+                                                                 TabbedPanelProperties.TAB_AREA_ORIENTATION,
+                                                                 tabbedPanelPropertyListener);
 
     tabbedPanel.getDraggableComponentBox().addListener(new DraggableComponentBoxAdapter() {
       public void changed(DraggableComponentBoxEvent event) {
@@ -121,7 +142,21 @@ public class TabbedPanelContentPanel extends JPanel {
   }
 
   private void update() {
-    getProperties().getComponentProperties().applyTo(this);
+    getProperties().getComponentProperties().applyTo(shapedPanel);
+    shapedPanel.setOpaque(false);
+
+    ShapedPanelProperties shapedPanelProperties = getProperties().getShapedPanelProperties();
+    ComponentPainter painter = shapedPanelProperties.getComponentPainter();
+    if (painter != null)
+      shapedPanel.setComponentPainter(painter);
+    else if (getProperties().getComponentProperties().getBackgroundColor() != null)
+      shapedPanel.setComponentPainter(SolidColorComponentPainter.BACKGROUND_COLOR_PAINTER);
+    else
+      shapedPanel.setComponentPainter(null);
+    shapedPanel.setVerticalFlip(shapedPanelProperties.getVerticalFlip());
+    shapedPanel.setHorizontalFlip(shapedPanelProperties.getHorizontalFlip());
+    shapedPanel.setDirection(tabbedPanel.getProperties().getTabAreaOrientation().getNextCW());
+    shapedPanel.setClipChildren(shapedPanelProperties.getClipChildren());
   }
 
   private void repaintBorder() {
@@ -130,14 +165,20 @@ public class TabbedPanelContentPanel extends JPanel {
     Direction d = tabbedPanel.getProperties().getTabAreaOrientation();
 
     if (d == Direction.UP)
-      r = new Rectangle(0, 0, getWidth(), getInsets().top);
+      r = new Rectangle(0, 0, shapedPanel.getWidth(), shapedPanel.getInsets().top);
     else if (d == Direction.LEFT)
-      r = new Rectangle(0, 0, getInsets().left, getHeight());
+      r = new Rectangle(0, 0, shapedPanel.getInsets().left, shapedPanel.getHeight());
     else if (d == Direction.DOWN)
-      r = new Rectangle(0, getHeight() - getInsets().bottom - 1, getWidth(), getHeight());
+      r = new Rectangle(0,
+                        shapedPanel.getHeight() - shapedPanel.getInsets().bottom - 1,
+                        shapedPanel.getWidth(),
+                        shapedPanel.getHeight());
     else
-      r = new Rectangle(getWidth() - getInsets().right - 1, 0, getWidth(), getHeight());
+      r = new Rectangle(shapedPanel.getWidth() - shapedPanel.getInsets().right - 1,
+                        0,
+                        shapedPanel.getWidth(),
+                        shapedPanel.getHeight());
 
-    repaint(r);
+    shapedPanel.repaint(r);
   }
 }

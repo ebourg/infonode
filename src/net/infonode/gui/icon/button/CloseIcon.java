@@ -20,16 +20,18 @@
  */
 
 
-//$Id: CloseIcon.java,v 1.5 2004/09/22 14:35:04 jesper Exp $
+//$Id: CloseIcon.java,v 1.6 2004/11/11 09:51:34 jesper Exp $
 package net.infonode.gui.icon.button;
 
 import java.awt.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class CloseIcon extends AbstractButtonIcon {
+  private static final long serialVersionUID = 1423301116958557861L;
+
   public CloseIcon() {
     super();
   }

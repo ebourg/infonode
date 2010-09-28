@@ -20,7 +20,7 @@
  */
 
 
-// $Id: StretchLayout.java,v 1.4 2004/09/22 14:35:04 jesper Exp $
+// $Id: StretchLayout.java,v 1.5 2004/11/02 16:47:46 jesper Exp $
 package net.infonode.gui.layout;
 
 import java.awt.*;
@@ -49,9 +49,8 @@ public class StretchLayout implements LayoutManager {
     Component[] components = LayoutUtil.getVisibleChildren(parent);
 
     for (int i = 0; i < components.length; i++) {
-      Dimension size = LayoutUtil.getValidSize(new Dimension(horizontal ? innerSize.width : components[i].getPreferredSize().width,
-                                                             vertical ? innerSize.height : components[i].getPreferredSize().height),
-                                               components[i]);
+      Dimension size = new Dimension(horizontal ? innerSize.width : components[i].getPreferredSize().width,
+                                     vertical ? innerSize.height : components[i].getPreferredSize().height);
       components[i].setBounds((int) (insets.left + (innerSize.width - size.width) * components[i].getAlignmentX()),
                               (int) (insets.top + (innerSize.height - size.height) * components[i].getAlignmentY()),
                               size.width,

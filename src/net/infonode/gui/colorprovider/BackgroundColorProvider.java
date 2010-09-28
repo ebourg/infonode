@@ -20,11 +20,10 @@
  */
 
 
-// $Id: BackgroundColorProvider.java,v 1.4 2004/09/28 16:06:49 jesper Exp $
+// $Id: BackgroundColorProvider.java,v 1.7 2004/11/11 14:11:14 jesper Exp $
 package net.infonode.gui.colorprovider;
 
-import net.infonode.gui.ComponentUtil;
-
+import javax.swing.*;
 import java.awt.*;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
@@ -33,7 +32,7 @@ import java.io.Serializable;
  * Returns the background color of a component.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.7 $
  */
 public class BackgroundColorProvider extends AbstractColorProvider implements Serializable {
   private static final long serialVersionUID = 1;
@@ -47,7 +46,8 @@ public class BackgroundColorProvider extends AbstractColorProvider implements Se
   }
 
   public Color getColor(Component component) {
-    return ComponentUtil.getBackgroundColor(component);
+    Color color = component.getBackground();
+    return color == null ? UIManager.getColor("control") : color;
   }
 
   protected Object readResolve() throws ObjectStreamException {

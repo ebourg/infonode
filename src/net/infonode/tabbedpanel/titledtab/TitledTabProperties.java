@@ -19,21 +19,24 @@
  * MA 02111-1307, USA.
  */
 
-// $Id: TitledTabProperties.java,v 1.16 2004/09/28 15:07:29 jesper Exp $
+// $Id: TitledTabProperties.java,v 1.22 2004/11/11 14:10:33 jesper Exp $
 package net.infonode.tabbedpanel.titledtab;
 
 import net.infonode.gui.DynamicUIManager;
 import net.infonode.gui.DynamicUIManagerListener;
 import net.infonode.properties.base.Property;
 import net.infonode.properties.gui.util.ComponentProperties;
+import net.infonode.properties.gui.util.ShapedPanelProperties;
 import net.infonode.properties.propertymap.*;
 import net.infonode.properties.types.BooleanProperty;
 import net.infonode.properties.types.IntegerProperty;
 import net.infonode.tabbedpanel.TabbedUIDefaults;
+import net.infonode.tabbedpanel.border.TabAreaLineBorder;
 import net.infonode.tabbedpanel.border.TabHighlightBorder;
-import net.infonode.tabbedpanel.border.TabLineBorder;
 import net.infonode.util.Alignment;
 import net.infonode.util.Direction;
+
+import javax.swing.border.CompoundBorder;
 
 /**
  * <p>
@@ -64,7 +67,7 @@ import net.infonode.util.Direction;
  * </p>
  *
  * @author $Author: jesper $
- * @version $Revision: 1.16 $
+ * @version $Revision: 1.22 $
  * @see TitledTab
  * @see TitledTabStateProperties
  */
@@ -89,7 +92,8 @@ public class TitledTabProperties extends PropertyMapContainer {
    *
    * @see #getNormalProperties
    */
-  public static final PropertyMapProperty NORMAL_PROPERTIES = new PropertyMapProperty(PROPERTIES, "Normal Properties",
+  public static final PropertyMapProperty NORMAL_PROPERTIES = new PropertyMapProperty(PROPERTIES,
+                                                                                      "Normal Properties",
                                                                                       "Normal tab properties.",
                                                                                       TitledTabStateProperties.PROPERTIES);
 
@@ -130,10 +134,11 @@ public class TitledTabProperties extends PropertyMapContainer {
    * @see #setBorderSizePolicy
    * @see #getBorderSizePolicy
    */
-  public static final TitledTabBorderSizePolicyProperty BORDER_SIZE_POLICY = new TitledTabBorderSizePolicyProperty(PROPERTIES,
-                                                                                                                   "Border Size Policy",
-                                                                                                                   "Border size policy.",
-                                                                                                                   PropertyMapValueHandler.INSTANCE);
+  public static final TitledTabBorderSizePolicyProperty BORDER_SIZE_POLICY = new TitledTabBorderSizePolicyProperty(
+      PROPERTIES,
+      "Border Size Policy",
+      "Border size policy.",
+      PropertyMapValueHandler.INSTANCE);
 
   /**
    * Highlighted raised amount property
@@ -171,7 +176,8 @@ public class TitledTabProperties extends PropertyMapContainer {
 
       for (int i = 0; i < refProperties.length; i++) {
         DEFAULT_VALUES.getHighlightedProperties().getMap().createRelativeRef(refProperties[i],
-                                                                             DEFAULT_VALUES.getNormalProperties().getMap(),
+                                                                             DEFAULT_VALUES.getNormalProperties()
+                                                                             .getMap(),
                                                                              refProperties[i]);
         DEFAULT_VALUES.getDisabledProperties().getMap().createRelativeRef(refProperties[i],
                                                                           DEFAULT_VALUES.getNormalProperties().getMap(),
@@ -190,6 +196,21 @@ public class TitledTabProperties extends PropertyMapContainer {
         DEFAULT_VALUES.getDisabledProperties().getComponentProperties().
             getMap().createRelativeRef(refProperties[i],
                                        DEFAULT_VALUES.getNormalProperties().getComponentProperties().getMap(),
+                                       refProperties[i]);
+      }
+    }
+
+    {
+      Property[] refProperties = ShapedPanelProperties.PROPERTIES.getProperties();
+
+      for (int i = 0; i < refProperties.length; i++) {
+        DEFAULT_VALUES.getHighlightedProperties().getShapedPanelProperties().
+            getMap().createRelativeRef(refProperties[i],
+                                       DEFAULT_VALUES.getNormalProperties().getShapedPanelProperties().getMap(),
+                                       refProperties[i]);
+        DEFAULT_VALUES.getDisabledProperties().getShapedPanelProperties().
+            getMap().createRelativeRef(refProperties[i],
+                                       DEFAULT_VALUES.getNormalProperties().getShapedPanelProperties().getMap(),
                                        refProperties[i]);
       }
     }
@@ -233,15 +254,18 @@ public class TitledTabProperties extends PropertyMapContainer {
             .setFont(TabbedUIDefaults.getFont())
             .setForegroundColor(TabbedUIDefaults.getNormalStateForeground())
             .setBackgroundColor(TabbedUIDefaults.getNormalStateBackground())
-            .setBorder(new TabLineBorder())
+            .setBorder(new TabAreaLineBorder())
             .setInsets(TabbedUIDefaults.getTabInsets());
 
         DEFAULT_VALUES.getHighlightedProperties().getComponentProperties()
             .setBackgroundColor(TabbedUIDefaults.getHighlightedStateBackground())
-            .setBorder(new TabLineBorder(null, new TabHighlightBorder(TabbedUIDefaults.getHighlight(), true)));
+            .setBorder(
+                new CompoundBorder(new TabAreaLineBorder(),
+                                   new TabHighlightBorder(TabbedUIDefaults.getHighlight(), true)));
 
         DEFAULT_VALUES.getDisabledProperties().getComponentProperties()
-            .setForegroundColor(TabbedUIDefaults.getDisabledForeground()).setBackgroundColor(TabbedUIDefaults.getDisabledBackground());
+            .setForegroundColor(TabbedUIDefaults.getDisabledForeground()).setBackgroundColor(
+                TabbedUIDefaults.getDisabledBackground());
       }
     });
   }

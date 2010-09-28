@@ -20,16 +20,27 @@
  */
 
 
-// $Id: Colors.java,v 1.2 2004/09/23 13:44:00 jesper Exp $
+// $Id: Colors.java,v 1.4 2004/10/29 15:57:47 jesper Exp $
 package net.infonode.gui;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.4 $
  */
 public class Colors {
+  public static final float RED_HUE = 0f;
+  public static final float BROWN_HUE = 0.0833f;
+  public static final float COPPER_HUE = 0.09f;
+  public static final float ORANGE_HUE = 0.1055f;
+  public static final float YELLOW_HUE = 1f / 6;
   public static final float SAND_HUE = 0.12f;
-  public static final float BLUE_HUE = 0.61f;
+  public static final float GREEN_HUE = 1f / 3;
+  public static final float CYAN_HUE = 0.5f;
+  public static final float AZURE_BLUE_HUE = 0.58f;
+  public static final float ROYAL_BLUE_HUE = 0.61f;
+  public static final float BLUE_HUE = 2f / 3;
+  public static final float PURPLE_BUE = 0.77777f;
+  public static final float MAGENTA_HUE = 0.83f;
 
   private Colors() {
   }

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: UIManagerColorProvider.java,v 1.3 2004/09/23 13:44:00 jesper Exp $
+// $Id: UIManagerColorProvider.java,v 1.5 2004/11/11 14:11:14 jesper Exp $
 package net.infonode.gui.colorprovider;
 
 import javax.swing.*;
@@ -31,7 +31,7 @@ import java.io.Serializable;
  * A {@link ColorProvider} which returns a property color from the {@link UIManager}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.5 $
  */
 public class UIManagerColorProvider extends AbstractColorProvider implements Serializable {
   private static final long serialVersionUID = 1;
@@ -47,14 +47,21 @@ public class UIManagerColorProvider extends AbstractColorProvider implements Ser
   public static final UIManagerColorProvider TABBED_PANE_HIGHLIGHT = new UIManagerColorProvider("TabbedPane.highlight");
 
   /**
+   * A provider for the 'TabbedPane.shadow' color.
+   */
+  public static final UIManagerColorProvider TABBED_PANE_SHADOW = new UIManagerColorProvider("TabbedPane.shadow");
+
+  /**
    * A provider for the 'TabbedPane.darkShadow' color.
    */
-  public static final UIManagerColorProvider TABBED_PANE_DARK_SHADOW = new UIManagerColorProvider("TabbedPane.darkShadow");
+  public static final UIManagerColorProvider TABBED_PANE_DARK_SHADOW = new UIManagerColorProvider(
+      "TabbedPane.darkShadow");
 
   /**
    * A provider for the 'TabbedPane.background' color.
    */
-  public static final UIManagerColorProvider TABBED_PANE_BACKGROUND = new UIManagerColorProvider("TabbedPane.background");
+  public static final UIManagerColorProvider TABBED_PANE_BACKGROUND = new UIManagerColorProvider(
+      "TabbedPane.background");
 
   /**
    * A provider for the 'Desktop.background' color.

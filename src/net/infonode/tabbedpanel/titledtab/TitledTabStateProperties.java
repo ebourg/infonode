@@ -20,10 +20,11 @@
  */
 
 
-// $Id: TitledTabStateProperties.java,v 1.18 2004/09/28 15:07:29 jesper Exp $
+// $Id: TitledTabStateProperties.java,v 1.21 2004/11/11 14:10:33 jesper Exp $
 package net.infonode.tabbedpanel.titledtab;
 
 import net.infonode.properties.gui.util.ComponentProperties;
+import net.infonode.properties.gui.util.ShapedPanelProperties;
 import net.infonode.properties.propertymap.*;
 import net.infonode.properties.types.*;
 import net.infonode.util.Alignment;
@@ -35,7 +36,7 @@ import javax.swing.*;
  * TitledTabStateProperties holds all properties that are unique for a titled tab state.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.18 $
+ * @version $Revision: 1.21 $
  * @see TitledTab
  * @see TitledTabProperties
  */
@@ -51,7 +52,10 @@ public class TitledTabStateProperties extends PropertyMapContainer {
    * @see #setIcon
    * @see #getIcon
    */
-  public static final IconProperty ICON = new IconProperty(PROPERTIES, "Icon", "Icon", PropertyMapValueHandler.INSTANCE);
+  public static final IconProperty ICON = new IconProperty(PROPERTIES,
+                                                           "Icon",
+                                                           "Icon",
+                                                           PropertyMapValueHandler.INSTANCE);
 
   /**
    * Text property
@@ -59,7 +63,10 @@ public class TitledTabStateProperties extends PropertyMapContainer {
    * @see #setText
    * @see #getText
    */
-  public static final StringProperty TEXT = new StringProperty(PROPERTIES, "Text", "Text", PropertyMapValueHandler.INSTANCE);
+  public static final StringProperty TEXT = new StringProperty(PROPERTIES,
+                                                               "Text",
+                                                               "Text",
+                                                               PropertyMapValueHandler.INSTANCE);
 
   /**
    * Icon text gap property
@@ -67,7 +74,11 @@ public class TitledTabStateProperties extends PropertyMapContainer {
    * @see #setIconTextGap
    * @see #getIconTextGap
    */
-  public static final IntegerProperty ICON_TEXT_GAP = IntegerProperty.createPositive(PROPERTIES, "Icon Text Gap", "Number of pixels between icon and text.", 2, PropertyMapValueHandler.INSTANCE);
+  public static final IntegerProperty ICON_TEXT_GAP = IntegerProperty.createPositive(PROPERTIES,
+                                                                                     "Icon Text Gap",
+                                                                                     "Number of pixels between icon and text.",
+                                                                                     2,
+                                                                                     PropertyMapValueHandler.INSTANCE);
 
   /**
    * Tool tip text property
@@ -75,7 +86,10 @@ public class TitledTabStateProperties extends PropertyMapContainer {
    * @see #setToolTipText
    * @see #getToolTipText
    */
-  public static final StringProperty TOOL_TIP_TEXT = new StringProperty(PROPERTIES, "Tool Tip Text", "Tool tip text", PropertyMapValueHandler.INSTANCE);
+  public static final StringProperty TOOL_TIP_TEXT = new StringProperty(PROPERTIES,
+                                                                        "Tool Tip Text",
+                                                                        "Tool tip text",
+                                                                        PropertyMapValueHandler.INSTANCE);
 
   /**
    * Tool tip enabled property
@@ -83,7 +97,10 @@ public class TitledTabStateProperties extends PropertyMapContainer {
    * @see #setToolTipEnabled
    * @see #getToolTipEnabled
    */
-  public static final BooleanProperty TOOL_TIP_ENABLED = new BooleanProperty(PROPERTIES, "Tool Tip Enabled", "Tool tip enabled or disabled", PropertyMapValueHandler.INSTANCE);
+  public static final BooleanProperty TOOL_TIP_ENABLED = new BooleanProperty(PROPERTIES,
+                                                                             "Tool Tip Enabled",
+                                                                             "Tool tip enabled or disabled",
+                                                                             PropertyMapValueHandler.INSTANCE);
 
 
   /**
@@ -93,7 +110,10 @@ public class TitledTabStateProperties extends PropertyMapContainer {
    * @see #getIconVisible
    * @since ITP 1.1.0
    */
-  public static final BooleanProperty ICON_VISIBLE = new BooleanProperty(PROPERTIES, "Icon Visible", "Icon visible or not visible", PropertyMapValueHandler.INSTANCE);
+  public static final BooleanProperty ICON_VISIBLE = new BooleanProperty(PROPERTIES,
+                                                                         "Icon Visible",
+                                                                         "Icon visible or not visible",
+                                                                         PropertyMapValueHandler.INSTANCE);
 
   /**
    * Text visible property
@@ -102,7 +122,10 @@ public class TitledTabStateProperties extends PropertyMapContainer {
    * @see #getTextVisible
    * @since ITP 1.1.0
    */
-  public static final BooleanProperty TEXT_VISIBLE = new BooleanProperty(PROPERTIES, "Text Visible", "Text visible or not visible", PropertyMapValueHandler.INSTANCE);
+  public static final BooleanProperty TEXT_VISIBLE = new BooleanProperty(PROPERTIES,
+                                                                         "Text Visible",
+                                                                         "Text visible or not visible",
+                                                                         PropertyMapValueHandler.INSTANCE);
 
   /**
    * Title component visible property
@@ -111,7 +134,10 @@ public class TitledTabStateProperties extends PropertyMapContainer {
    * @see #getTitleComponentVisible
    * @since ITP 1.1.0
    */
-  public static final BooleanProperty TITLE_COMPONENT_VISIBLE = new BooleanProperty(PROPERTIES, "Title Component Visible", "Title component visible or not visible", PropertyMapValueHandler.INSTANCE);
+  public static final BooleanProperty TITLE_COMPONENT_VISIBLE = new BooleanProperty(PROPERTIES,
+                                                                                    "Title Component Visible",
+                                                                                    "Title component visible or not visible",
+                                                                                    PropertyMapValueHandler.INSTANCE);
 
   /**
    * Horizontal alignment property
@@ -119,8 +145,11 @@ public class TitledTabStateProperties extends PropertyMapContainer {
    * @see #setHorizontalAlignment
    * @see #getHorizontalAlignment
    */
-  public static final AlignmentProperty HORIZONTAL_ALIGNMENT = new AlignmentProperty(PROPERTIES, "Horizontal Alignment", "Horizontal alignment for the icon and text.",
-                                                                                     PropertyMapValueHandler.INSTANCE, Alignment.getHorizontalAlignments());
+  public static final AlignmentProperty HORIZONTAL_ALIGNMENT = new AlignmentProperty(PROPERTIES,
+                                                                                     "Horizontal Alignment",
+                                                                                     "Horizontal alignment for the icon and text.",
+                                                                                     PropertyMapValueHandler.INSTANCE,
+                                                                                     Alignment.getHorizontalAlignments());
 
   /**
    * Vertical alignment property
@@ -128,8 +157,11 @@ public class TitledTabStateProperties extends PropertyMapContainer {
    * @see #setVerticalAlignment
    * @see #getVerticalAlignment
    */
-  public static final AlignmentProperty VERTICAL_ALIGNMENT = new AlignmentProperty(PROPERTIES, "Vertical Alignment", "Vertical alignment for the icon and text.",
-                                                                                   PropertyMapValueHandler.INSTANCE, Alignment.getVerticalAlignments());
+  public static final AlignmentProperty VERTICAL_ALIGNMENT = new AlignmentProperty(PROPERTIES,
+                                                                                   "Vertical Alignment",
+                                                                                   "Vertical alignment for the icon and text.",
+                                                                                   PropertyMapValueHandler.INSTANCE,
+                                                                                   Alignment.getVerticalAlignments());
 
   /**
    * Icon text relative alignment property
@@ -137,8 +169,11 @@ public class TitledTabStateProperties extends PropertyMapContainer {
    * @see #setIconTextRelativeAlignment
    * @see #getIconTextRelativeAlignment
    */
-  public static final AlignmentProperty ICON_TEXT_RELATIVE_ALIGNMENT = new AlignmentProperty(PROPERTIES, "Icon Text Relative Alignment", "Icon horizontal alignment relative to text.",
-                                                                                             PropertyMapValueHandler.INSTANCE, new Alignment[]{Alignment.LEFT, Alignment.RIGHT});
+  public static final AlignmentProperty ICON_TEXT_RELATIVE_ALIGNMENT = new AlignmentProperty(PROPERTIES,
+                                                                                             "Icon Text Relative Alignment",
+                                                                                             "Icon horizontal alignment relative to text.",
+                                                                                             PropertyMapValueHandler.INSTANCE,
+                                                                                             new Alignment[]{Alignment.LEFT, Alignment.RIGHT});
 
   /**
    * Text title component gap property
@@ -146,7 +181,11 @@ public class TitledTabStateProperties extends PropertyMapContainer {
    * @see #setTextTitleComponentGap
    * @see #getTextTitleComponentGap
    */
-  public static final IntegerProperty TEXT_TITLE_COMPONENT_GAP = IntegerProperty.createPositive(PROPERTIES, "Text Title Component Gap", "Number of pixels between text and title component.", 2, PropertyMapValueHandler.INSTANCE);
+  public static final IntegerProperty TEXT_TITLE_COMPONENT_GAP = IntegerProperty.createPositive(PROPERTIES,
+                                                                                                "Text Title Component Gap",
+                                                                                                "Number of pixels between text and title component.",
+                                                                                                2,
+                                                                                                PropertyMapValueHandler.INSTANCE);
 
   /**
    * Title component text relative alignment property
@@ -154,8 +193,11 @@ public class TitledTabStateProperties extends PropertyMapContainer {
    * @see #setTitleComponentTextRelativeAlignment
    * @see #getTitleComponentTextRelativeAlignment
    */
-  public static final AlignmentProperty TITLE_COMPONENT_TEXT_RELATIVE_ALIGNMENT = new AlignmentProperty(PROPERTIES, "Title Component Text Relative Alignment", "Title component horizontal alignment relative to text and icon.",
-                                                                                                        PropertyMapValueHandler.INSTANCE, new Alignment[]{Alignment.LEFT, Alignment.RIGHT});
+  public static final AlignmentProperty TITLE_COMPONENT_TEXT_RELATIVE_ALIGNMENT = new AlignmentProperty(PROPERTIES,
+                                                                                                        "Title Component Text Relative Alignment",
+                                                                                                        "Title component horizontal alignment relative to text and icon.",
+                                                                                                        PropertyMapValueHandler.INSTANCE,
+                                                                                                        new Alignment[]{Alignment.LEFT, Alignment.RIGHT});
 
   /**
    * Direction property
@@ -163,12 +205,28 @@ public class TitledTabStateProperties extends PropertyMapContainer {
    * @see #setDirection
    * @see #getDirection
    */
-  public static final DirectionProperty DIRECTION = new DirectionProperty(PROPERTIES, "Direction", "Direction for tab contents", PropertyMapValueHandler.INSTANCE);
+  public static final DirectionProperty DIRECTION = new DirectionProperty(PROPERTIES,
+                                                                          "Direction",
+                                                                          "Direction for tab contents",
+                                                                          PropertyMapValueHandler.INSTANCE);
 
   /**
    * Tab component properties.
    */
-  public static final PropertyMapProperty COMPONENT_PROPERTIES = new PropertyMapProperty(PROPERTIES, "Component Properties", "Tab component properties.", ComponentProperties.PROPERTIES);
+  public static final PropertyMapProperty COMPONENT_PROPERTIES = new PropertyMapProperty(PROPERTIES,
+                                                                                         "Component Properties",
+                                                                                         "Tab component properties.",
+                                                                                         ComponentProperties.PROPERTIES);
+
+  /**
+   * Tab shaped panel properties.
+   *
+   * @since ITP 1.2.0
+   */
+  public static final PropertyMapProperty SHAPED_PANEL_PROPERTIES = new PropertyMapProperty(PROPERTIES,
+                                                                                            "Shaped Panel Properties",
+                                                                                            "Tab shaped panel properties.",
+                                                                                            ShapedPanelProperties.PROPERTIES);
 
   /**
    * Constructs an empty TitledTabStateProperties object
@@ -505,5 +563,15 @@ public class TitledTabStateProperties extends PropertyMapContainer {
    */
   public ComponentProperties getComponentProperties() {
     return new ComponentProperties(COMPONENT_PROPERTIES.get(getMap()));
+  }
+
+  /**
+   * Gets the shaped panel properties.
+   *
+   * @return shaped panel properties
+   * @since ITP 1.2.0
+   */
+  public ShapedPanelProperties getShapedPanelProperties() {
+    return new ShapedPanelProperties(SHAPED_PANEL_PROPERTIES.get(getMap()));
   }
 }

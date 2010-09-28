@@ -37,8 +37,8 @@ public class DockingWindowsReleaseInfo {
   private static ReleaseInfo productInfo =
       new ReleaseInfo("InfoNode Docking Windows GPL",
                       "NNL Technology AB",
-                      AntUtils.getBuildTime(1096447605955L),
-                      AntUtils.createProductVersion(1, 1, 0),
+                      AntUtils.getBuildTime(1100250591863L),
+                      AntUtils.createProductVersion(1, 2, 0),
                       "GNU General Public License, Version 2",
                       "http://www.infonode.net");
 

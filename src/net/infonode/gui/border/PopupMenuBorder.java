@@ -20,17 +20,20 @@
  */
 
 
-// $Id: PopupMenuBorder.java,v 1.1 2004/08/20 15:07:10 jesper Exp $
+// $Id: PopupMenuBorder.java,v 1.3 2004/11/11 14:11:14 jesper Exp $
 package net.infonode.gui.border;
 
 import javax.swing.border.Border;
 import java.awt.*;
+import java.io.Serializable;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.3 $
  */
-public class PopupMenuBorder implements Border {
+public class PopupMenuBorder implements Border, Serializable {
+  private static final long serialVersionUID = 1;
+
   private static final Insets INSETS = new Insets(3, 1, 2, 1);
 
   private Color highlightColor;

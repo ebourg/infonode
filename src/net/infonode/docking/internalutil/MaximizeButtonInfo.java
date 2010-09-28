@@ -20,7 +20,7 @@
  */
 
 
-// $Id: MaximizeButtonInfo.java,v 1.3 2004/09/23 15:32:13 jesper Exp $
+// $Id: MaximizeButtonInfo.java,v 1.4 2004/10/28 14:16:41 jesper Exp $
 package net.infonode.docking.internalutil;
 
 import net.infonode.docking.DockingWindow;
@@ -31,7 +31,7 @@ import java.awt.event.ActionListener;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class MaximizeButtonInfo extends AbstractButtonInfo {
   public MaximizeButtonInfo(PropertyMapProperty property) {
@@ -39,7 +39,7 @@ public class MaximizeButtonInfo extends AbstractButtonInfo {
   }
 
   public boolean isVisible(DockingWindow window) {
-    return !window.isMaximized();
+    return !window.isMaximized() && window.isMaximizable();
   }
 
   public ActionListener getActionListener(final DockingWindow window) {
