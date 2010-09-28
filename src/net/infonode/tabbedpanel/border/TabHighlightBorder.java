@@ -20,9 +20,10 @@
  */
 
 
-// $Id: TabHighlightBorder.java,v 1.17 2005/02/16 11:28:14 jesper Exp $
+// $Id: TabHighlightBorder.java,v 1.19 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.tabbedpanel.border;
 
+import net.infonode.gui.GraphicsUtil;
 import net.infonode.gui.colorprovider.ColorProvider;
 import net.infonode.gui.colorprovider.ColorProviderUtil;
 import net.infonode.gui.colorprovider.UIManagerColorProvider;
@@ -43,7 +44,7 @@ import java.io.Serializable;
  * if the border is constructed with open border.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.17 $
+ * @version $Revision: 1.19 $
  * @see Tab
  * @see TabbedPanel
  * @see TabbedPanelProperties
@@ -93,24 +94,24 @@ public class TabHighlightBorder implements Border, Serializable {
       g.setColor(color.getColor(c));
 
       if (d == Direction.UP) {
-        g.drawLine(x + 1, y, x + width - 2, y);
-        g.drawLine(x, y, x, y + height - (openBorder ? 1 : 2));
+        GraphicsUtil.drawOptimizedLine(g, x + 1, y, x + width - 2, y);
+        GraphicsUtil.drawOptimizedLine(g, x, y, x, y + height - (openBorder ? 1 : 2));
       }
       else if (d == Direction.LEFT) {
-        g.drawLine(x + 1, y, x + width - (openBorder ? 1 : 2), y);
-        g.drawLine(x, y, x, y + height - 2);
+        GraphicsUtil.drawOptimizedLine(g, x + 1, y, x + width - (openBorder ? 1 : 2), y);
+        GraphicsUtil.drawOptimizedLine(g, x, y, x, y + height - 2);
       }
       else if (d == Direction.DOWN) {
         if (!openBorder)
-          g.drawLine(x + 1, y, x + width - 2, y);
-        g.drawLine(x, y, x, y + height - 2);
+          GraphicsUtil.drawOptimizedLine(g, x + 1, y, x + width - 2, y);
+        GraphicsUtil.drawOptimizedLine(g, x, y, x, y + height - 2);
       }
       else {
         if (openBorder)
-          g.drawLine(x, y, x + width - 2, y);
+          GraphicsUtil.drawOptimizedLine(g, x, y, x + width - 2, y);
         else {
-          g.drawLine(x + 1, y, x + width - 2, y);
-          g.drawLine(x, y, x, y + height - 2);
+          GraphicsUtil.drawOptimizedLine(g, x + 1, y, x + width - 2, y);
+          GraphicsUtil.drawOptimizedLine(g, x, y, x, y + height - 2);
         }
       }
     }

@@ -20,17 +20,16 @@
  */
 
 
-// $Id: PropertyMapWeakListenerManager.java,v 1.6 2005/02/16 11:28:15 jesper Exp $
+// $Id: PropertyMapWeakListenerManager.java,v 1.8 2005/03/09 16:57:26 jesper Exp $
 package net.infonode.properties.propertymap;
 
 import net.infonode.properties.base.Property;
 import net.infonode.properties.util.PropertyChangeListener;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -40,7 +39,7 @@ import java.util.WeakHashMap;
  * object on which it listens when there are no strong or soft references to the listeners.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.8 $
  * @since IDW 1.2.0
  */
 public class PropertyMapWeakListenerManager {
@@ -134,17 +133,33 @@ public class PropertyMapWeakListenerManager {
   private static WeakHashMap treeListenerMap = new WeakHashMap();
   private static ReferenceQueue refQueue = new ReferenceQueue();
 
-  static {
-    Timer timer = new Timer(200, new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        ListenerRef ref;
+  private static ListenerRef ref;
+  private static Runnable refRemover = new Runnable() {
+    public void run() {
+      while (ref != null) {
+        ref.removeFromMap();
+        ref = (ListenerRef) refQueue.poll();
+      }
+    }
+  };
 
-        while ((ref = (ListenerRef) refQueue.poll()) != null) {
-          ref.removeFromMap();
+  static {
+    Thread thread = new Thread(new Runnable() {
+      public void run() {
+        try {
+          while (true) {
+            ref = (ListenerRef) refQueue.remove();
+            SwingUtilities.invokeAndWait(refRemover);
+          }
+        }
+        catch (InterruptedException e) {
+        }
+        catch (InvocationTargetException e) {
         }
       }
     });
-    timer.start();
+    thread.setDaemon(true);
+    thread.start();
   }
 
   private static void addToMap(WeakHashMap map, Object key, Object value) {

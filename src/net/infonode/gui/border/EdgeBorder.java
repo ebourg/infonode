@@ -20,10 +20,11 @@
  */
 
 
-// $Id: EdgeBorder.java,v 1.12 2005/02/16 11:28:10 jesper Exp $
+// $Id: EdgeBorder.java,v 1.14 2005/12/04 13:46:03 jesper Exp $
 package net.infonode.gui.border;
 
 import net.infonode.gui.ComponentUtil;
+import net.infonode.gui.GraphicsUtil;
 import net.infonode.gui.colorprovider.ColorProvider;
 import net.infonode.gui.colorprovider.FixedColorProvider;
 import net.infonode.util.ColorUtil;
@@ -34,7 +35,7 @@ import java.io.Serializable;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.14 $
  */
 public class EdgeBorder implements Border, Serializable {
   private static final long serialVersionUID = 1;
@@ -96,17 +97,17 @@ public class EdgeBorder implements Border, Serializable {
       g.setColor(topLeft);
 
       if (drawTop)
-        g.drawLine(x, y, x + width - 1, y);
+        GraphicsUtil.drawOptimizedLine(g, x, y, x + width - 1, y);
 
       if (drawLeft)
-        g.drawLine(x, y, x, y + height - 1);
+        GraphicsUtil.drawOptimizedLine(g, x, y, x, y + height - 1);
 
       g.setColor(bottomRight);
       if (drawRight)
-        g.drawLine(x + width - 1, y, x + width - 1, y + height - 1);
+        GraphicsUtil.drawOptimizedLine(g, x + width - 1, y, x + width - 1, y + height - 1);
 
       if (drawBottom)
-        g.drawLine(x, y + height - 1, x + width - 1, y + height - 1);
+        GraphicsUtil.drawOptimizedLine(g, x, y + height - 1, x + width - 1, y + height - 1);
     }
   }
 

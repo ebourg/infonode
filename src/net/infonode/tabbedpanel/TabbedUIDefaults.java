@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabbedUIDefaults.java,v 1.14 2005/02/16 11:28:15 jesper Exp $
+// $Id: TabbedUIDefaults.java,v 1.15 2005/08/29 12:18:41 johan Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.gui.UIManagerUtil;
@@ -33,8 +33,8 @@ import java.awt.*;
  * Methods for retrieving UI defaults for the current "Look and Feel" from the
  * UIManager. The values are adapted to be used with classes in the TabbedPanel package.
  *
- * @author $Author: jesper $
- * @version $Revision: 1.14 $
+ * @author $Author: johan $
+ * @version $Revision: 1.15 $
  */
 public class TabbedUIDefaults {
   private static final int BUTTON_ICON_SIZE = 11;
@@ -48,7 +48,7 @@ public class TabbedUIDefaults {
    * @return a copy of the color
    */
   public static Color getContentAreaBackground() {
-    return UIManagerUtil.getColor("Panel.background", "control");
+    return UIManagerUtil.getColor("Panel.background", "control", Color.LIGHT_GRAY);
   }
 
   /**
@@ -57,7 +57,7 @@ public class TabbedUIDefaults {
    * @return a copy of the color
    */
   public static Color getNormalStateForeground() {
-    return UIManagerUtil.getColor("TabbedPane.foreground", "controlText");
+    return UIManagerUtil.getColor("TabbedPane.foreground", "controlText", Color.BLACK);
   }
 
   /**
@@ -66,7 +66,7 @@ public class TabbedUIDefaults {
    * @return a copy of the color
    */
   public static Color getNormalStateBackground() {
-    return UIManagerUtil.getColor("TabbedPane.background", "control");
+    return UIManagerUtil.getColor("TabbedPane.background", "control", Color.LIGHT_GRAY);
   }
 
   /**
@@ -84,7 +84,7 @@ public class TabbedUIDefaults {
    * @return a copy of the color
    */
   public static Color getHighlightedStateBackground() {
-    return UIManagerUtil.getColor("Panel.background", "control");
+    return UIManagerUtil.getColor("Panel.background", "control", Color.LIGHT_GRAY);
   }
 
   /**
@@ -93,7 +93,7 @@ public class TabbedUIDefaults {
    * @return a copy of the color
    */
   public static Color getDisabledForeground() {
-    return UIManagerUtil.getColor("inactiveCaptionText", "controlText");
+    return UIManagerUtil.getColor("inactiveCaptionText", "controlText", Color.WHITE);
   }
 
   /**
@@ -111,7 +111,7 @@ public class TabbedUIDefaults {
    * @return a copy of the color
    */
   public static Color getDarkShadow() {
-    return UIManagerUtil.getColor("TabbedPane.darkShadow", "controlDkShadow");
+    return UIManagerUtil.getColor("TabbedPane.darkShadow", "controlDkShadow", Color.BLACK);
   }
 
   /**
@@ -147,7 +147,7 @@ public class TabbedUIDefaults {
    * @return a copy of the insets
    */
   public static Insets getTabInsets() {
-    return UIManagerUtil.getInsets("TabbedPane.tabInsets", new Insets(0, 0, 0, 0));
+    return UIManagerUtil.getInsets("TabbedPane.tabInsets", new Insets(2, 2, 0, 2));
   }
 
   /**
@@ -156,7 +156,7 @@ public class TabbedUIDefaults {
    * @return a copy of the insets
    */
   public static Insets getContentAreaInsets() {
-    return UIManagerUtil.getInsets("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0));
+    return UIManagerUtil.getInsets("TabbedPane.contentBorderInsets", new Insets(2, 2, 2, 2));
   }
 
   /**

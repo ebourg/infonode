@@ -20,7 +20,7 @@
  */
 
 
-// $Id: UIManagerColorProvider.java,v 1.8 2005/02/16 11:28:10 jesper Exp $
+// $Id: UIManagerColorProvider.java,v 1.10 2005/12/04 13:46:03 jesper Exp $
 package net.infonode.gui.colorprovider;
 
 import javax.swing.*;
@@ -31,7 +31,7 @@ import java.io.Serializable;
  * A {@link ColorProvider} which returns a property color from the {@link UIManager}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.10 $
  */
 public class UIManagerColorProvider extends AbstractColorProvider implements Serializable {
   private static final long serialVersionUID = 1;
@@ -39,41 +39,46 @@ public class UIManagerColorProvider extends AbstractColorProvider implements Ser
   /**
    * A provider for the 'control' color.
    */
-  public static final UIManagerColorProvider CONTROL_COLOR = new UIManagerColorProvider("control");
+  public static final UIManagerColorProvider CONTROL_COLOR = new UIManagerColorProvider("control", Color.LIGHT_GRAY);
 
   /**
    * A provider for the 'controlDkShadow' color.
    */
-  public static final UIManagerColorProvider CONTROL_DARK_SHADOW = new UIManagerColorProvider("controlDkShadow");
+  public static final UIManagerColorProvider CONTROL_DARK_SHADOW = new UIManagerColorProvider("controlDkShadow",
+                                                                                              Color.BLACK);
 
   /**
    * A provider for the 'TabbedPane.highlight' color.
    */
-  public static final UIManagerColorProvider TABBED_PANE_HIGHLIGHT = new UIManagerColorProvider("TabbedPane.highlight");
+  public static final UIManagerColorProvider TABBED_PANE_HIGHLIGHT = new UIManagerColorProvider("TabbedPane.highlight",
+                                                                                                Color.WHITE);
 
   /**
    * A provider for the 'TabbedPane.shadow' color.
    */
-  public static final UIManagerColorProvider TABBED_PANE_SHADOW = new UIManagerColorProvider("TabbedPane.shadow");
+  public static final UIManagerColorProvider TABBED_PANE_SHADOW = new UIManagerColorProvider("TabbedPane.shadow",
+                                                                                             Color.BLACK);
 
   /**
    * A provider for the 'TabbedPane.darkShadow' color.
    */
   public static final UIManagerColorProvider TABBED_PANE_DARK_SHADOW = new UIManagerColorProvider(
-      "TabbedPane.darkShadow");
+      "TabbedPane.darkShadow", Color.BLACK);
 
   /**
    * A provider for the 'TabbedPane.background' color.
    */
   public static final UIManagerColorProvider TABBED_PANE_BACKGROUND = new UIManagerColorProvider(
-      "TabbedPane.background");
+      "TabbedPane.background", Color.LIGHT_GRAY);
 
   /**
    * A provider for the 'Desktop.background' color.
    */
-  public static final UIManagerColorProvider DESKTOP_BACKGROUND = new UIManagerColorProvider("Desktop.background");
+  public static final UIManagerColorProvider DESKTOP_BACKGROUND = new UIManagerColorProvider("Desktop.background",
+                                                                                             Color.BLUE);
 
   private final String propertyName;
+  private Color defaultColor;
 
   /**
    * Constructor.
@@ -84,7 +89,20 @@ public class UIManagerColorProvider extends AbstractColorProvider implements Ser
     this.propertyName = propertyName;
   }
 
+  /**
+   * Constructor.
+   *
+   * @param propertyName the name of the property which value will be retrieved from the {@link UIManager}.
+   * @param defaultColor the color to be used if the specified color doesn't exist in the UIManager
+   */
+  public UIManagerColorProvider(String propertyName, Color defaultColor) {
+    this.propertyName = propertyName;
+    this.defaultColor = defaultColor;
+  }
+
   public Color getColor() {
-    return UIManager.getColor(propertyName);
+    Color color = UIManager.getColor(propertyName);
+
+    return color == null ? defaultColor : color;
   }
 }

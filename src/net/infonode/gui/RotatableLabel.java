@@ -20,7 +20,7 @@
  */
 
 
-// $Id: RotatableLabel.java,v 1.5 2005/02/16 11:28:13 jesper Exp $
+// $Id: RotatableLabel.java,v 1.8 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.gui;
 
 import net.infonode.util.Direction;
@@ -44,6 +44,7 @@ public class RotatableLabel extends JLabel {
 
   private void init() {
     super.setUI(ui);
+    super.setOpaque(false);
   }
 
   public Direction getDirection() {
@@ -51,8 +52,10 @@ public class RotatableLabel extends JLabel {
   }
 
   public void setDirection(Direction direction) {
-    ui.setDirection(direction);
-    revalidate();
+    if (ui.getDirection() != direction) {
+      ui.setDirection(direction);
+      revalidate();
+    }
   }
 
   public void setMirror(boolean mirror) {
@@ -98,6 +101,9 @@ public class RotatableLabel extends JLabel {
 
   public void setPreferredSize(Dimension preferredSize) {
     super.setPreferredSize(rotateDimension(preferredSize));
+  }
+
+  public void setOpaque(boolean opaque) {
   }
 
 }

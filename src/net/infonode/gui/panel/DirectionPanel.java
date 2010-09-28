@@ -20,27 +20,26 @@
  */
 
 
-// $Id: DirectionPanel.java,v 1.8 2005/02/16 11:28:13 jesper Exp $
+// $Id: DirectionPanel.java,v 1.10 2005/12/04 13:46:03 jesper Exp $
 package net.infonode.gui.panel;
 
 import net.infonode.gui.layout.DirectionLayout;
 import net.infonode.util.Direction;
 
-import javax.swing.*;
 import java.awt.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.10 $
  */
-public class DirectionPanel extends JPanel {
+public class DirectionPanel extends BaseContainer {
   public DirectionPanel() {
     this(Direction.RIGHT, 0);
   }
 
   public DirectionPanel(Direction direction, int spacing) {
     super(new DirectionLayout(direction, spacing));
-    setOpaque(false);
+    setForcedOpaque(false);
   }
 
   public DirectionPanel(Component[] components) {

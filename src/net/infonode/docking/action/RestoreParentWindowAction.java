@@ -20,7 +20,7 @@
  */
 
 
-// $Id: RestoreParentWindowAction.java,v 1.4 2005/02/16 11:28:14 jesper Exp $
+// $Id: RestoreParentWindowAction.java,v 1.5 2005/12/03 14:34:33 jesper Exp $
 package net.infonode.docking.action;
 
 import net.infonode.docking.DockingWindow;
@@ -37,7 +37,7 @@ import java.io.ObjectStreamException;
  * which is maximized, it is restored.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  * @since IDW 1.3.0
  */
 public final class RestoreParentWindowAction extends DockingWindowAction {
@@ -81,7 +81,7 @@ public final class RestoreParentWindowAction extends DockingWindowAction {
     return icon;
   }
 
-  private void restore(DockingWindow window) {
+  private static void restore(DockingWindow window) {
     if (window != null && window.isRestorable())
       window.restore();
   }

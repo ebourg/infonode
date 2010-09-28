@@ -20,9 +20,10 @@
  */
 
 
-// $Id: OpenContentBorder.java,v 1.27 2005/02/16 11:28:14 jesper Exp $
+// $Id: OpenContentBorder.java,v 1.29 2005/07/17 14:29:05 johan Exp $
 package net.infonode.tabbedpanel.border;
 
+import net.infonode.gui.GraphicsUtil;
 import net.infonode.gui.colorprovider.ColorProvider;
 import net.infonode.gui.colorprovider.ColorProviderUtil;
 import net.infonode.gui.colorprovider.FixedColorProvider;
@@ -52,8 +53,8 @@ import java.io.Serializable;
  * shape will be used to calculate where the OpenContentBorder should be open.
  * </p>
  *
- * @author $Author: jesper $
- * @version $Revision: 1.27 $
+ * @author $Author: johan $
+ * @version $Revision: 1.29 $
  * @see TabbedPanel
  */
 public class OpenContentBorder implements Border, Serializable {
@@ -321,7 +322,8 @@ public class OpenContentBorder implements Border, Serializable {
     if (x2 < x1 || y2 < y1)
       return;
 
-    graphics.drawLine(x1, y1, x2, y2);
+    GraphicsUtil.drawOptimizedLine(graphics, x1, y1, x2, y2);
+    //graphics.drawLine(x1, y1, x2, y2);
   }
 
   public Insets getBorderInsets(Component c) {
@@ -332,7 +334,7 @@ public class OpenContentBorder implements Border, Serializable {
   }
 
   public boolean isBorderOpaque() {
-    return false;
+    return true;
   }
 
 }

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: InfoNodeLookAndFeelTheme.java,v 1.13 2005/02/16 11:28:12 jesper Exp $
+// $Id: InfoNodeLookAndFeelTheme.java,v 1.16 2005/12/04 13:46:03 jesper Exp $
 package net.infonode.gui.laf;
 
 import net.infonode.gui.Colors;
@@ -47,7 +47,7 @@ import java.awt.*;
  * affect other, unmodified colors.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.16 $
  */
 public class InfoNodeLookAndFeelTheme {
   private static final float PRIMARY_HUE = Colors.ROYAL_BLUE_HUE;
@@ -107,7 +107,11 @@ public class InfoNodeLookAndFeelTheme {
   private ColorUIResource scrollBarBackgroundShadowColor;
 
   private ColorValue activeInternalFrameTitleBackgroundColor = new ColorValue();
+  private ColorValue activeInternalFrameTitleGradientColor = new ColorValue();
+  private ColorValue activeInternalFrameTitleForegroundColor = new ColorValue();
   private ColorValue inactiveInternalFrameTitleBackgroundColor = new ColorValue();
+  private ColorValue inactiveInternalFrameTitleGradientColor = new ColorValue();
+  private ColorValue inactiveInternalFrameTitleForegroundColor = new ColorValue();
   private IconUIResource internalFrameIcon = new IconUIResource(new BorderIcon(new WindowIcon(Color.BLACK, 12), 2));
   private IconUIResource internalFrameIconifyIcon = new IconUIResource(new MinimizeIcon());
   private IconUIResource internalFrameMinimizeIcon = new IconUIResource(new RestoreIcon());
@@ -285,7 +289,13 @@ public class InfoNodeLookAndFeelTheme {
     activeInternalFrameTitleBackgroundColor.setDefaultColor(ColorUtil.blend(primaryControlColor.getColor(),
                                                                             ColorUtil.getOpposite(getTextColor()),
                                                                             0.5f));
+    activeInternalFrameTitleForegroundColor.setDefaultColor(getTextColor());
+    activeInternalFrameTitleGradientColor.setDefaultColor(
+        ColorUtil.mult(activeInternalFrameTitleBackgroundColor.getColor(), 1.2));
     inactiveInternalFrameTitleBackgroundColor.setDefaultColor(controlLightShadowColor);
+    inactiveInternalFrameTitleForegroundColor.setDefaultColor(getTextColor());
+    inactiveInternalFrameTitleGradientColor.setDefaultColor(
+        ColorUtil.mult(inactiveInternalFrameTitleBackgroundColor.getColor(), 1.2));
 
     menuBarBorder.setDefaultBorder(new BorderUIResource(
         new EtchedLineBorder(false, false, true, false, controlHighlightColor, controlDarkShadowColor)));
@@ -564,12 +574,48 @@ public class InfoNodeLookAndFeelTheme {
   }
 
   /**
+   * Gets the foreground color for active {@link javax.swing.JInternalFrame}'s.
+   *
+   * @return the foreground color for active {@link javax.swing.JInternalFrame}'s
+   */
+  public ColorUIResource getActiveInternalFrameTitleForegroundColor() {
+    return activeInternalFrameTitleForegroundColor.getColor();
+  }
+
+  /**
+   * Gets the gradient color for active {@link javax.swing.JInternalFrame}'s.
+   *
+   * @return the gradient color for active {@link javax.swing.JInternalFrame}'s
+   */
+  public ColorUIResource getActiveInternalFrameTitleGradientColor() {
+    return activeInternalFrameTitleGradientColor.getColor();
+  }
+
+  /**
    * Gets the background color for inactive {@link javax.swing.JInternalFrame}'s.
    *
    * @return the background color for inactive {@link javax.swing.JInternalFrame}'s
    */
   public ColorUIResource getInactiveInternalFrameTitleBackgroundColor() {
     return inactiveInternalFrameTitleBackgroundColor.getColor();
+  }
+
+  /**
+   * Gets the foreground color for inactive {@link javax.swing.JInternalFrame}'s.
+   *
+   * @return the foreground color for inactive {@link javax.swing.JInternalFrame}'s
+   */
+  public ColorUIResource getInactiveInternalFrameTitleForegroundColor() {
+    return inactiveInternalFrameTitleForegroundColor.getColor();
+  }
+
+  /**
+   * Gets the gradient color for inactive {@link javax.swing.JInternalFrame}'s.
+   *
+   * @return the gradient color for inactive {@link javax.swing.JInternalFrame}'s
+   */
+  public ColorUIResource getInactiveInternalFrameTitleGradientColor() {
+    return inactiveInternalFrameTitleGradientColor.getColor();
   }
 
   /**
@@ -965,6 +1011,28 @@ public class InfoNodeLookAndFeelTheme {
   }
 
   /**
+   * Sets the foreground color for the title of an active {@link javax.swing.JInternalFrame}.
+   *
+   * @param activeInternalFrameTitleForegroundColor
+   *         the background color for the title of an active {@link javax.swing.JInternalFrame}
+   */
+  public void setActiveInternalFrameTitleForegroundColor(Color activeInternalFrameTitleForegroundColor) {
+    this.activeInternalFrameTitleForegroundColor.setColor(activeInternalFrameTitleForegroundColor);
+    updateColors();
+  }
+
+  /**
+   * Sets the gradient color for the title of an active {@link javax.swing.JInternalFrame}.
+   *
+   * @param activeInternalFrameTitleGradientColor
+   *         the gradient color for the title of an active {@link javax.swing.JInternalFrame}
+   */
+  public void setActiveInternalFrameTitleGradientColor(Color activeInternalFrameTitleGradientColor) {
+    this.activeInternalFrameTitleGradientColor.setColor(activeInternalFrameTitleGradientColor);
+    updateColors();
+  }
+
+  /**
    * Sets the background color for the title of an inactive {@link javax.swing.JInternalFrame}.
    *
    * @param inactiveInternalFrameTitleBackgroundColor
@@ -972,6 +1040,28 @@ public class InfoNodeLookAndFeelTheme {
    */
   public void setInactiveInternalFrameTitleBackgroundColor(Color inactiveInternalFrameTitleBackgroundColor) {
     this.inactiveInternalFrameTitleBackgroundColor.setColor(inactiveInternalFrameTitleBackgroundColor);
+    updateColors();
+  }
+
+  /**
+   * Sets the foreground color for the title of an inactive {@link javax.swing.JInternalFrame}.
+   *
+   * @param inactiveInternalFrameTitleForegroundColor
+   *         the background color for the title of an active {@link javax.swing.JInternalFrame}
+   */
+  public void setInactiveInternalFrameTitleForegroundColor(Color inactiveInternalFrameTitleForegroundColor) {
+    this.inactiveInternalFrameTitleForegroundColor.setColor(inactiveInternalFrameTitleForegroundColor);
+    updateColors();
+  }
+
+  /**
+   * Sets the gradient color for the title of an inactive {@link javax.swing.JInternalFrame}.
+   *
+   * @param inactiveInternalFrameTitleGradientColor
+   *         the gradient color for the title of an inactive {@link javax.swing.JInternalFrame}
+   */
+  public void setInactiveInternalFrameTitleGradientColor(Color inactiveInternalFrameTitleGradientColor) {
+    this.inactiveInternalFrameTitleGradientColor.setColor(inactiveInternalFrameTitleGradientColor);
     updateColors();
   }
 

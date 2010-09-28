@@ -20,14 +20,16 @@
  */
 
 
-// $Id: DimensionUtil.java,v 1.9 2005/02/16 11:28:13 jesper Exp $
+// $Id: DimensionUtil.java,v 1.11 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.gui;
+
+import net.infonode.util.Direction;
 
 import java.awt.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.11 $
  */
 public class DimensionUtil {
   public static final Dimension ZERO = new Dimension(0, 0);
@@ -54,5 +56,12 @@ public class DimensionUtil {
   public static Dimension add(Dimension d1, Dimension d2, boolean isHorizontalAdd) {
     return new Dimension(isHorizontalAdd ? (d1.width + d2.width) : Math.max(d1.width, d2.width),
                          isHorizontalAdd ? Math.max(d1.height, d2.height) : d1.height + d2.height);
+  }
+
+  public static Dimension rotate(Direction source, Dimension d, Direction destination) {
+    if (source.isHorizontal() && destination.isHorizontal())
+      return d;
+
+    return new Dimension(d.height, d.width);
   }
 }

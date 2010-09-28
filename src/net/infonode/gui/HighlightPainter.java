@@ -20,7 +20,7 @@
  */
 
 
-// $Id: HighlightPainter.java,v 1.5 2005/02/16 11:28:13 jesper Exp $
+// $Id: HighlightPainter.java,v 1.6 2005/04/14 11:59:19 johan Exp $
 package net.infonode.gui;
 
 import net.infonode.util.ColorUtil;
@@ -28,8 +28,8 @@ import net.infonode.util.ColorUtil;
 import java.awt.*;
 
 /**
- * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @author $Author: johan $
+ * @version $Revision: 1.6 $
  */
 public class HighlightPainter {
   private HighlightPainter() {
@@ -48,7 +48,7 @@ public class HighlightPainter {
       g.setColor(ColorUtil.blend(middleColor, blendColor, (float) a * a / l2));
       int hx = inside ? getHighlightOffsetX(dx, dy) : 0;
       int hy = inside ? getHighlightOffsetY(dx, dy) : 0;
-      g.drawLine(x1 + hx, y1 + hy, x2 + hx, y2 + hy);
+      GraphicsUtil.drawOptimizedLine(g, x1 + hx, y1 + hy, x2 + hx, y2 + hy);
     }
 
   }

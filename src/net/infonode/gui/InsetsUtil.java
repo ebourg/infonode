@@ -20,7 +20,7 @@
  */
 
 
-// $Id: InsetsUtil.java,v 1.12 2005/02/16 11:28:13 jesper Exp $
+// $Id: InsetsUtil.java,v 1.14 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.gui;
 
 import net.infonode.util.Direction;
@@ -89,6 +89,10 @@ public class InsetsUtil {
                       Math.max(insets1.left, insets2.left),
                       Math.max(insets1.bottom, insets2.bottom),
                       Math.max(insets1.right, insets2.right));
+  }
+
+  public static int maxInset(Insets i) {
+    return Math.max(i.top, Math.max(i.bottom, Math.max(i.left, i.right)));
   }
 
   public static int getInset(Insets insets, Direction direction) {

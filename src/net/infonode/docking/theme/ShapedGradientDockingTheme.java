@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ShapedGradientDockingTheme.java,v 1.23 2005/02/16 11:28:14 jesper Exp $
+// $Id: ShapedGradientDockingTheme.java,v 1.25 2005/12/04 13:46:05 jesper Exp $
 
 package net.infonode.docking.theme;
 
@@ -47,7 +47,7 @@ import java.awt.*;
  * slopes on left/right side of tab.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.23 $
+ * @version $Revision: 1.25 $
  * @since IDW 1.2.0
  */
 public class ShapedGradientDockingTheme extends DockingWindowsTheme {
@@ -253,6 +253,14 @@ public class ShapedGradientDockingTheme extends DockingWindowsTheme {
 
     rootWindowProperties.getWindowAreaShapedPanelProperties().setComponentPainter(
         new SolidColorComponentPainter(UIManagerColorProvider.CONTROL_COLOR));
+
+    Insets insets = rootWindowProperties.getTabWindowProperties().getTabbedPanelProperties().getContentPanelProperties()
+        .getComponentProperties()
+        .getInsets();
+    if (highlightColor == null)
+      rootWindowProperties.getTabWindowProperties().getTabbedPanelProperties().getContentPanelProperties()
+          .getComponentProperties()
+          .setInsets(new Insets(insets.top, insets.top, insets.top, insets.top));
   }
 
   /**

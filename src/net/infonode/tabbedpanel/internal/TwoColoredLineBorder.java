@@ -20,9 +20,10 @@
  */
 
 
-// $Id: TwoColoredLineBorder.java,v 1.4 2005/02/16 11:28:14 jesper Exp $
+// $Id: TwoColoredLineBorder.java,v 1.7 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.tabbedpanel.internal;
 
+import net.infonode.gui.GraphicsUtil;
 import net.infonode.gui.colorprovider.ColorProvider;
 import net.infonode.gui.shaped.border.RoundedCornerBorder;
 import net.infonode.tabbedpanel.TabbedPanel;
@@ -38,7 +39,7 @@ import java.awt.*;
  * and right line.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.7 $
  * @see TitledTab
  * @see TabbedPanel
  * @since ITP 1.2.0
@@ -92,66 +93,114 @@ public class TwoColoredLineBorder extends RoundedCornerBorder {
       if (d == Direction.UP) {
         g.setColor(c1);
         while (i < (roundCorners ? 3 : 1)) {
-          g.drawLine(polygon.xpoints[i], polygon.ypoints[i], polygon.xpoints[i + 1], polygon.ypoints[i + 1]);
+          GraphicsUtil.drawOptimizedLine(g,
+                                         polygon.xpoints[i],
+                                         polygon.ypoints[i],
+                                         polygon.xpoints[i + 1],
+                                         polygon.ypoints[i + 1]);
           i++;
         }
 
         g.setColor(c2);
         while (i < polygon.npoints - 1) {
-          g.drawLine(polygon.xpoints[i], polygon.ypoints[i], polygon.xpoints[i + 1], polygon.ypoints[i + 1]);
+          GraphicsUtil.drawOptimizedLine(g,
+                                         polygon.xpoints[i],
+                                         polygon.ypoints[i],
+                                         polygon.xpoints[i + 1],
+                                         polygon.ypoints[i + 1]);
           i++;
         }
 
         g.setColor(c1);
-        g.drawLine(polygon.xpoints[i], polygon.ypoints[i], polygon.xpoints[0], polygon.ypoints[0]);
+        GraphicsUtil.drawOptimizedLine(g,
+                                       polygon.xpoints[i],
+                                       polygon.ypoints[i],
+                                       polygon.xpoints[0],
+                                       polygon.ypoints[0]);
 
       }
       else if (d == Direction.RIGHT) {
         g.setColor(c2);
         while (i < polygon.npoints - (open ? 2 : roundCorners ? 3 : 2)) {
-          g.drawLine(polygon.xpoints[i], polygon.ypoints[i], polygon.xpoints[i + 1], polygon.ypoints[i + 1]);
+          GraphicsUtil.drawOptimizedLine(g,
+                                         polygon.xpoints[i],
+                                         polygon.ypoints[i],
+                                         polygon.xpoints[i + 1],
+                                         polygon.ypoints[i + 1]);
           i++;
         }
 
         g.setColor(c1);
         for (int k = i - 1; k < polygon.npoints - 2; k++) {
-          g.drawLine(polygon.xpoints[i], polygon.ypoints[i], polygon.xpoints[i + 1], polygon.ypoints[i + 1]);
+          GraphicsUtil.drawOptimizedLine(g,
+                                         polygon.xpoints[i],
+                                         polygon.ypoints[i],
+                                         polygon.xpoints[i + 1],
+                                         polygon.ypoints[i + 1]);
           i++;
         }
-        g.drawLine(polygon.xpoints[i], polygon.ypoints[i], polygon.xpoints[0], polygon.ypoints[0]);
+        GraphicsUtil.drawOptimizedLine(g,
+                                       polygon.xpoints[i],
+                                       polygon.ypoints[i],
+                                       polygon.xpoints[0],
+                                       polygon.ypoints[0]);
 
       }
       else if (d == Direction.DOWN) {
         g.setColor(c2);
-        while (i < (roundCorners ? 5 : 1)) {
-          g.drawLine(polygon.xpoints[i], polygon.ypoints[i], polygon.xpoints[i + 1], polygon.ypoints[i + 1]);
+        while (i < (roundCorners ? 5 : 2)) {
+          GraphicsUtil.drawOptimizedLine(g,
+                                         polygon.xpoints[i],
+                                         polygon.ypoints[i],
+                                         polygon.xpoints[i + 1],
+                                         polygon.ypoints[i + 1]);
           i++;
         }
 
         g.setColor(c1);
         while (i < polygon.npoints - 1) {
-          g.drawLine(polygon.xpoints[i], polygon.ypoints[i], polygon.xpoints[i + 1], polygon.ypoints[i + 1]);
+          GraphicsUtil.drawOptimizedLine(g,
+                                         polygon.xpoints[i],
+                                         polygon.ypoints[i],
+                                         polygon.xpoints[i + 1],
+                                         polygon.ypoints[i + 1]);
           i++;
         }
 
-        g.drawLine(polygon.xpoints[i], polygon.ypoints[i], polygon.xpoints[0], polygon.ypoints[0]);
+        GraphicsUtil.drawOptimizedLine(g,
+                                       polygon.xpoints[i],
+                                       polygon.ypoints[i],
+                                       polygon.xpoints[0],
+                                       polygon.ypoints[0]);
       }
       else {
         g.setColor(c1);
         while (i < (roundCorners ? 3 : 1)) {
-          g.drawLine(polygon.xpoints[i], polygon.ypoints[i], polygon.xpoints[i + 1], polygon.ypoints[i + 1]);
+          GraphicsUtil.drawOptimizedLine(g,
+                                         polygon.xpoints[i],
+                                         polygon.ypoints[i],
+                                         polygon.xpoints[i + 1],
+                                         polygon.ypoints[i + 1]);
           i++;
         }
 
         g.setColor(c2);
         while (i < polygon.npoints - 1) {
-          g.drawLine(polygon.xpoints[i], polygon.ypoints[i], polygon.xpoints[i + 1], polygon.ypoints[i + 1]);
+          GraphicsUtil.drawOptimizedLine(g,
+                                         polygon.xpoints[i],
+                                         polygon.ypoints[i],
+                                         polygon.xpoints[i + 1],
+                                         polygon.ypoints[i + 1]);
           i++;
         }
 
         g.setColor(c1);
 
-        g.drawLine(polygon.xpoints[i], polygon.ypoints[i], polygon.xpoints[0], polygon.ypoints[0]);
+        GraphicsUtil.drawOptimizedLine(g,
+                                       polygon.xpoints[i],
+                                       polygon.ypoints[i],
+                                       polygon.xpoints[0],
+                                       polygon.ypoints[0]);
       }
     }
   }

@@ -20,9 +20,10 @@
  */
 
 
-// $Id: WindowBar.java,v 1.51 2005/02/16 11:28:14 jesper Exp $
+// $Id: WindowBar.java,v 1.66 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.docking;
 
+import net.infonode.docking.internal.HeavyWeightContainer;
 import net.infonode.docking.internal.ReadContext;
 import net.infonode.docking.internal.WriteContext;
 import net.infonode.docking.internalutil.DropAction;
@@ -32,13 +33,20 @@ import net.infonode.docking.model.WindowBarItem;
 import net.infonode.docking.properties.TabWindowProperties;
 import net.infonode.docking.properties.WindowBarProperties;
 import net.infonode.docking.util.DockingUtil;
+import net.infonode.gui.panel.BaseContainerUtil;
 import net.infonode.gui.panel.ResizablePanel;
+import net.infonode.properties.base.Property;
+import net.infonode.properties.gui.util.ShapedPanelProperties;
 import net.infonode.properties.propertymap.PropertyMap;
+import net.infonode.properties.propertymap.PropertyMapWeakListenerManager;
+import net.infonode.properties.util.PropertyChangeListener;
 import net.infonode.tabbedpanel.TabContentPanel;
 import net.infonode.tabbedpanel.TabbedPanelContentPanel;
 import net.infonode.util.Direction;
 
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -49,16 +57,25 @@ import java.io.ObjectOutputStream;
  * A window bar is enabled and disabled using the {@link Component#setEnabled} method.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.51 $
+ * @version $Revision: 1.66 $
  */
 public class WindowBar extends AbstractTabWindow {
   private RootWindow rootWindow;
   private Direction direction;
   private TabbedPanelContentPanel contentPanel;
   private ResizablePanel edgePanel;
+  private HeavyWeightContainer heavyWeightEdgePanel;
+
+  private PropertyChangeListener opaqueListener = new PropertyChangeListener() {
+    public void propertyChanged(Property property, Object valueContainer, Object oldValue, Object newValue) {
+      updateEdgePanelOpaque();
+    }
+  };
 
   WindowBar(RootWindow rootWindow, Direction direction) {
     super(false, new WindowBarItem());
+
+    initMouseListener();
 
     this.rootWindow = rootWindow;
     contentPanel = new TabbedPanelContentPanel(getTabbedPanel(), new TabContentPanel(getTabbedPanel()));
@@ -74,10 +91,30 @@ public class WindowBar extends AbstractTabWindow {
       getWindowBarProperties().addSuperObject(WindowBarProperties.createDefault(this.direction));
     }
 
-    edgePanel = new ResizablePanel(this.direction.getOpposite(), contentPanel);
+    edgePanel = new ResizablePanel(rootWindow.isHeavyweightSupported(), this.direction.getOpposite(), contentPanel);
     edgePanel.setPreferredSize(new Dimension(200, 200));
-    edgePanel.setVisible(false);
+    //edgePanel.setVisible(false);
     edgePanel.setComponent(contentPanel);
+    edgePanel.setLayeredPane(rootWindow.getLayeredPane());
+    edgePanel.setInnerArea(rootWindow.getWindowPanel());
+
+    updateEdgePanelOpaque();
+
+    PropertyMapWeakListenerManager.addWeakPropertyChangeListener(
+        contentPanel.getProperties().getShapedPanelProperties().getMap(),
+        ShapedPanelProperties.OPAQUE,
+        opaqueListener);
+
+    if (rootWindow.isHeavyweightSupported()) {
+      edgePanel.addComponentListener(new ComponentAdapter() {
+        public void componentResized(ComponentEvent e) {
+          if (edgePanel.getParent() != null)
+            edgePanel.getParent().repaint();
+        }
+      });
+    }
+
+    getEdgePanel().setVisible(false);
 
     setTabWindowProperties(getWindowBarProperties().getTabWindowProperties());
     init();
@@ -123,6 +160,16 @@ public class WindowBar extends AbstractTabWindow {
     return direction.isHorizontal() ? size.width : size.height;
   }
 
+  /**
+   * Returns the window bar direction in the root window it is a member of
+   *
+   * @return window bar direction in root window
+   * @since IDW 1.4.0
+   */
+  public Direction getDirection() {
+    return direction;
+  }
+
   public RootWindow getRootWindow() {
     return rootWindow;
   }
@@ -136,13 +183,33 @@ public class WindowBar extends AbstractTabWindow {
     super.showChildWindow(window);
   }
 
-  ResizablePanel getEdgePanel() {
-    return edgePanel;
+  Component getEdgePanel() {
+    if (!rootWindow.isHeavyweightSupported())
+      return edgePanel;
+
+    if (heavyWeightEdgePanel == null) {
+      //edgePanel.setOpaque(true);
+      heavyWeightEdgePanel = new HeavyWeightContainer(edgePanel);
+      heavyWeightEdgePanel.setVisible(false);
+    }
+
+    return heavyWeightEdgePanel;
   }
 
   protected void update() {
     edgePanel.setResizeWidth(getWindowBarProperties().getContentPanelEdgeResizeDistance());
+    edgePanel.setContinuousLayout(getWindowBarProperties().getContinuousLayoutEnabled());
+    edgePanel.setDragIndicatorColor(getWindowBarProperties().getDragIndicatorColor());
     getWindowBarProperties().getComponentProperties().applyTo(this, direction.getNextCW());
+  }
+
+  private void updateEdgePanelOpaque() {
+    if (edgePanel != null)
+      BaseContainerUtil.setForcedOpaque(edgePanel,
+                                        rootWindow.isHeavyweightSupported() || contentPanel.getProperties()
+                                                                               .getShapedPanelProperties()
+                                                                               .getOpaque());
+    //edgePanel.setForcedOpaque(rootWindow.isHeavyweightSupported() ? true : contentPanel.getProperties().getShapedPanelProperties().getOpaque());
   }
 
   public Dimension getPreferredSize() {
@@ -156,7 +223,8 @@ public class WindowBar extends AbstractTabWindow {
   }
 
   protected void tabSelected(WindowTab tab) {
-    edgePanel.setVisible(tab != null);
+    getEdgePanel().setVisible(tab != null);
+    //edgePanel.setVisible(tab != null);
     super.tabSelected(tab);
   }
 

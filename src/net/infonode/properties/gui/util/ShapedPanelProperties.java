@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ShapedPanelProperties.java,v 1.8 2005/02/16 11:28:15 jesper Exp $
+// $Id: ShapedPanelProperties.java,v 1.11 2005/12/04 13:46:05 jesper Exp $
 
 package net.infonode.properties.gui.util;
 
@@ -36,13 +36,25 @@ import net.infonode.util.Direction;
  * {@link net.infonode.gui.shaped.border.ShapedBorder} and a {@link ComponentPainter}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.11 $
  */
 public class ShapedPanelProperties extends PropertyMapContainer {
   /**
    * Property group for all shaped panel properties.
    */
   public static final PropertyMapGroup PROPERTIES = new PropertyMapGroup("Shaped Panel Properties", "");
+
+
+  /**
+   * If true the shaped panel is opaque.
+   *
+   * @since ITP 1.4.0
+   */
+  public static final BooleanProperty OPAQUE =
+      new BooleanProperty(PROPERTIES,
+                          "Opaque",
+                          "If true the shaped panel is opaque. If false the shaped panel is transparent",
+                          PropertyMapValueHandler.INSTANCE);
 
   /**
    * If true the shaped panel is flipped horizontally.
@@ -160,6 +172,28 @@ public class ShapedPanelProperties extends PropertyMapContainer {
   }
 
   /**
+   * Set to true if the shaped panel should be opaque.
+   *
+   * @param opaque true for opaque, otherwise false
+   * @since ITP 1.4.0
+   */
+  public ShapedPanelProperties setOpaque(boolean opaque) {
+    OPAQUE.set(getMap(), opaque);
+
+    return this;
+  }
+
+  /**
+   * Returns true if the shaped panel should be opaque.
+   *
+   * @return true for opaque, otherwise false
+   * @since ITP 1.4.0
+   */
+  public boolean getOpaque() {
+    return OPAQUE.get(getMap());
+  }
+
+  /**
    * Set to true if the shaped panel should be flipped horizontally.
    * Used by {@link ComponentPainter}'s, {@link net.infonode.gui.shaped.border.ShapedBorder}'s etc.
    *
@@ -268,5 +302,4 @@ public class ShapedPanelProperties extends PropertyMapContainer {
   public Direction getDirection() {
     return DIRECTION.get(getMap());
   }
-
 }

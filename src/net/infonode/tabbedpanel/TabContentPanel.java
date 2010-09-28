@@ -20,12 +20,13 @@
  */
 
 
-// $Id: TabContentPanel.java,v 1.15 2005/02/16 11:28:15 jesper Exp $
+// $Id: TabContentPanel.java,v 1.19 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.gui.layout.StackableLayout;
 
 import javax.swing.*;
+import java.awt.*;
 
 /**
  * A TabContentPanel is a container for tabs' content components. It listens to
@@ -33,12 +34,45 @@ import javax.swing.*;
  * the components based upon the selection of tabs in the tabbed panel.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.19 $
  * @see TabbedPanel
  * @see Tab
  */
 public class TabContentPanel extends JPanel {
   private TabbedPanel tabbedPanel;
+  private StackableLayout layout = new StackableLayout(this);
+  private TabListener listener = new TabAdapter() {
+    public void tabSelected(TabStateChangedEvent event) {
+      layout.showComponent(event.getTab() == null ? null : event.getTab().getContentComponent());
+    }
+
+    public void tabRemoved(TabRemovedEvent event) {
+      if (event.getTab().getContentComponent() != null)
+        remove(event.getTab().getContentComponent());
+    }
+
+    public void tabAdded(TabEvent event) {
+      if (event.getTab().getContentComponent() != null)
+        add(event.getTab().getContentComponent());
+    }
+  };
+
+  /**
+   * <p>
+   * Constructs a TabContentPanel
+   * </p>
+   *
+   * <p><strong>Note:</strong> setTabbedPanel(...) must be called before the tabs'
+   * content components can be shown on the screen.
+   * </p>
+   *
+   * @since ITP 1.4.0
+   */
+  public TabContentPanel() {
+    setLayout(layout);
+    setOpaque(false);
+    layout.setAutoShowFirstComponent(false);
+  }
 
   /**
    * Constructs a TabContentPanel
@@ -47,28 +81,8 @@ public class TabContentPanel extends JPanel {
    *                    component container
    */
   public TabContentPanel(TabbedPanel tabbedPanel) {
-    final StackableLayout layout = new StackableLayout(this);
-    setLayout(layout);
-    setOpaque(false);
-
-    this.tabbedPanel = tabbedPanel;
-    layout.setAutoShowFirstComponent(false);
-
-    tabbedPanel.addTabListener(new TabAdapter() {
-      public void tabSelected(TabStateChangedEvent event) {
-        layout.showComponent(event.getTab() == null ? null : event.getTab().getContentComponent());
-      }
-
-      public void tabRemoved(TabRemovedEvent event) {
-        if (event.getTab().getContentComponent() != null)
-          remove(event.getTab().getContentComponent());
-      }
-
-      public void tabAdded(TabEvent event) {
-        if (event.getTab().getContentComponent() != null)
-          add(event.getTab().getContentComponent());
-      }
-    });
+    this();
+    setTabbedPanel(tabbedPanel);
   }
 
   /**
@@ -79,5 +93,32 @@ public class TabContentPanel extends JPanel {
    */
   public TabbedPanel getTabbedPanel() {
     return tabbedPanel;
+  }
+
+  /**
+   * Sets the TabbedPanel
+   *
+   * @param tabbedPanel the TabbedPanel for whom this component is the tabs' content
+   *                    component container
+   * @since ITP 1.4.0
+   */
+  public void setTabbedPanel(TabbedPanel tabbedPanel) {
+    if (this.tabbedPanel != tabbedPanel) {
+      if (this.tabbedPanel != null) {
+        this.tabbedPanel.removeTabListener(listener);
+        removeAll();
+      }
+
+      this.tabbedPanel = tabbedPanel;
+
+      if (this.tabbedPanel != null) {
+        tabbedPanel.addTabListener(listener);
+        for (int i = 0; i < tabbedPanel.getTabCount(); i++) {
+          Component c = tabbedPanel.getTabAt(i).getContentComponent();
+          if (c != null)
+            add(tabbedPanel.getTabAt(i).getContentComponent());
+        }
+      }
+    }
   }
 }

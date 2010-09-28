@@ -20,9 +20,10 @@
  */
 
 
-// $Id: HighlightBorder.java,v 1.15 2005/02/16 11:28:10 jesper Exp $
+// $Id: HighlightBorder.java,v 1.17 2005/12/04 13:46:03 jesper Exp $
 package net.infonode.gui.border;
 
+import net.infonode.gui.GraphicsUtil;
 import net.infonode.gui.InsetsUtil;
 import net.infonode.gui.colorprovider.BackgroundPainterColorProvider;
 import net.infonode.gui.colorprovider.ColorMultiplier;
@@ -36,7 +37,7 @@ import java.io.Serializable;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.17 $
  */
 public class HighlightBorder implements Border, Serializable {
   private static final long serialVersionUID = 1;
@@ -83,12 +84,12 @@ public class HighlightBorder implements Border, Serializable {
     g.setColor(colorProvider.getColor(c));
 
     if (pressed) {
-      g.drawLine(x + (lowered ? 0 : 1), y + height - 1, x + width - 1, y + height - 1);
-      g.drawLine(x + width - 1, y + (lowered ? 0 : 1), x + width - 1, y + height - 2);
+      GraphicsUtil.drawOptimizedLine(g, x + (lowered ? 0 : 1), y + height - 1, x + width - 1, y + height - 1);
+      GraphicsUtil.drawOptimizedLine(g, x + width - 1, y + (lowered ? 0 : 1), x + width - 1, y + height - 2);
     }
     else {
-      g.drawLine(x, y, x + width - (lowered ? 1 : 2), y);
-      g.drawLine(x, y, x, y + height - (lowered ? 1 : 2));
+      GraphicsUtil.drawOptimizedLine(g, x, y, x + width - (lowered ? 1 : 2), y);
+      GraphicsUtil.drawOptimizedLine(g, x, y, x, y + height - (lowered ? 1 : 2));
     }
   }
 }

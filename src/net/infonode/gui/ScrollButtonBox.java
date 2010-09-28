@@ -20,11 +20,12 @@
  */
 
 
-// $Id: ScrollButtonBox.java,v 1.13 2005/02/16 11:28:13 jesper Exp $
+// $Id: ScrollButtonBox.java,v 1.17 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.gui;
 
 import net.infonode.gui.icon.button.ArrowIcon;
 import net.infonode.gui.layout.DirectionLayout;
+import net.infonode.gui.panel.SimplePanel;
 import net.infonode.util.Direction;
 
 import javax.swing.*;
@@ -34,7 +35,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 
-public class ScrollButtonBox extends JPanel {
+public class ScrollButtonBox extends SimplePanel {
   private AbstractButton upButton;
   private AbstractButton downButton;
   private AbstractButton leftButton;
@@ -227,9 +228,8 @@ public class ScrollButtonBox extends JPanel {
       button2.addActionListener(button2Listener);
     }
 
-    setOpaque(false);
     if (getParent() != null)
-      getParent().validate();
+      ComponentUtil.validate(getParent());
 
     //update();
   }

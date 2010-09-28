@@ -20,12 +20,11 @@
  */
 
 
-// $Id: WindowDragger.java,v 1.15 2005/02/16 11:28:14 jesper Exp $
+// $Id: WindowDragger.java,v 1.28 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.drag.DockingWindowDragger;
 import net.infonode.docking.internalutil.DropAction;
-import net.infonode.gui.CursorManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -34,7 +33,7 @@ import java.awt.event.MouseEvent;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.28 $
  */
 class WindowDragger implements DockingWindowDragger {
   private DockingWindow dragWindow;
@@ -48,6 +47,8 @@ class WindowDragger implements DockingWindowDragger {
   WindowDragger(DockingWindow dragWindow, RootWindow rootWindow) {
     this.dragWindow = dragWindow;
     this.rootWindow = rootWindow;
+
+    rootWindow.internalStartDrag(dragWindow);
   }
 
   public DockingWindow getDragWindow() {
@@ -66,9 +67,7 @@ class WindowDragger implements DockingWindowDragger {
   }
 
   private void stopDrag() {
-    CursorManager.resetGlobalCursor(dragWindow);
-    rootWindow.setDragText(null, null);
-    rootWindow.setDragRectangle(null);
+    rootWindow.stopDrag();
   }
 
   public void abortDrag() {
@@ -79,34 +78,72 @@ class WindowDragger implements DockingWindowDragger {
   public void dropWindow(MouseEvent mouseEvent) {
     stopDrag();
 
+    if (dropAction == null)
+      dropAction = dragWindow.getDefaultDropAction();
+
     if (dragWindow != null && dropAction != null) {
       dropAction.execute(dragWindow, mouseEvent);
+
+      Component c = dragWindow.getTopLevelAncestor();
+      if (c != null && c instanceof Window)
+        ((Window) c).toFront();
+
+      FocusManager.focusWindow(dragWindow);
     }
   }
 
   public void dragWindow(MouseEvent mouseEvent) {
-    rootWindow.setDragRectangle(null);
-    Point point = SwingUtilities.convertPoint((Component) mouseEvent.getSource(), mouseEvent.getPoint(), rootWindow);
-    DockingWindow dropWindow = getDeepestWindowAt(rootWindow, point.x, point.y);
+    //rootWindow.setDragRectangle(null);
+    JRootPane root = rootWindow.getCurrentDragRootPane();
+    Point point = SwingUtilities.convertPoint((Component) mouseEvent.getSource(),
+                                              mouseEvent.getPoint(),
+                                              root);
 
-    while (dropWindow != null && dropWindow.getWindowParent() != null) {
-      Point p2 = SwingUtilities.convertPoint(rootWindow, point, dropWindow.getWindowParent());
-
-      if (!dropWindow.getWindowParent().contains(p2))
-        break;
-
-      dropWindow = dropWindow.getWindowParent();
+    if (root != rootWindow.getRootPane() && !root.contains(point)) {
+      rootWindow.setCurrentDragRootPane(null);
+      root = rootWindow.getCurrentDragRootPane();
+      point = SwingUtilities.convertPoint((Component) mouseEvent.getSource(),
+                                          mouseEvent.getPoint(),
+                                          root);
     }
 
-    DropAction da = dropWindow != null ?
-                    dropWindow.acceptDrop(SwingUtilities.convertPoint(rootWindow, point, dropWindow), dragWindow) :
-                    null;
-    undoDrag(da);
+    DockingWindow dropWindow = getDeepestWindowAt(root, point.x, point.y);
 
-    CursorManager.setGlobalCursor(dragWindow,
-                                  da == null ? DragSource.DefaultMoveNoDrop : DragSource.DefaultMoveDrop);
-    rootWindow.setDragText(da == null || da.showTitle() ? point : null, dragWindow.getTitle());
-    dropAction = da;
+    if (root != rootWindow.getRootPane() || !rootWindow.floatingWindowsContainPoint(point)) {
+      while (dropWindow != null && dropWindow.getWindowParent() != null && !(dropWindow/*.getWindowParent()*/ instanceof FloatingWindow)) {
+        Point p2 = SwingUtilities.convertPoint(root, point, dropWindow.getWindowParent());
+
+        if (!dropWindow.getWindowParent().contains(p2))
+          break;
+
+        dropWindow = dropWindow.getWindowParent();
+      }
+
+      //System.out.println("W: " + dropWindow + "  " + point);
+
+      DropAction da = dropWindow != null ?
+                      dropWindow.acceptDrop(SwingUtilities.convertPoint(root, point, dropWindow), dragWindow) : null;
+
+      undoDrag(da);
+
+      Cursor cursor = DragSource.DefaultMoveDrop;
+      if (da == null)
+        cursor = DragSource.DefaultMoveNoDrop;
+
+      if (dropWindow == null && dragWindow.getWindowProperties().getUndockOnDropEnabled())
+        cursor = DragSource.DefaultMoveDrop;
+
+      rootWindow.setDragCursor(cursor);
+      rootWindow.setDragText(da == null || da.showTitle() ? point : null, dragWindow.getTitle());
+      dropAction = da;
+    }
+    else {
+      undoDrag(null);
+      rootWindow.setDragText(null, null);
+    }
+
+    if (dropAction == null)
+      rootWindow.setDragRectangle(null);
   }
 
   private DockingWindow getDeepestWindowAt(Component component, int x, int y) {

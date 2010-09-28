@@ -19,9 +19,10 @@
  * MA 02111-1307, USA.
  */
 
-// $Id: TitledTabProperties.java,v 1.27 2005/02/16 11:28:15 jesper Exp $
+// $Id: TitledTabProperties.java,v 1.38 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.tabbedpanel.titledtab;
 
+import net.infonode.gui.DimensionProvider;
 import net.infonode.gui.DynamicUIManager;
 import net.infonode.gui.DynamicUIManagerListener;
 import net.infonode.gui.hover.HoverListener;
@@ -30,6 +31,7 @@ import net.infonode.properties.gui.util.ComponentProperties;
 import net.infonode.properties.gui.util.ShapedPanelProperties;
 import net.infonode.properties.propertymap.*;
 import net.infonode.properties.types.BooleanProperty;
+import net.infonode.properties.types.DimensionProviderProperty;
 import net.infonode.properties.types.HoverListenerProperty;
 import net.infonode.properties.types.IntegerProperty;
 import net.infonode.tabbedpanel.TabbedUIDefaults;
@@ -69,7 +71,7 @@ import javax.swing.border.CompoundBorder;
  * </p>
  *
  * @author $Author: jesper $
- * @version $Revision: 1.27 $
+ * @version $Revision: 1.38 $
  * @see TitledTab
  * @see TitledTabStateProperties
  */
@@ -77,8 +79,8 @@ public class TitledTabProperties extends PropertyMapContainer {
   /**
    * A property group for all properties in TitledTabProperties
    */
-  public static final PropertyMapGroup PROPERTIES = new PropertyMapGroup("Tab Properties",
-                                                                         "Properties for the Tab class.");
+  public static final PropertyMapGroup PROPERTIES = new PropertyMapGroup("Titled Tab Properties",
+                                                                         "Properties for the TitledTab class.");
 
   /**
    * Focusabled property
@@ -88,6 +90,16 @@ public class TitledTabProperties extends PropertyMapContainer {
    */
   public static final BooleanProperty FOCUSABLE = new BooleanProperty(PROPERTIES, "Focusable", "Tab focusable",
                                                                       PropertyMapValueHandler.INSTANCE);
+
+  /**
+   * Focus Marker Enabled property
+   *
+   * @see #setFocusMarkerEnabled
+   * @see #getFocusMarkerEnabled
+   * @since ITP 1.4.0
+   */
+  public static final BooleanProperty FOCUS_MARKER_ENABLED = new BooleanProperty(PROPERTIES, "Focus Marker Enabled", "Enables or disables the focus marker when the tab has focus.",
+                                                                                 PropertyMapValueHandler.INSTANCE);
 
   /**
    * Normal state properties
@@ -143,6 +155,17 @@ public class TitledTabProperties extends PropertyMapContainer {
       PropertyMapValueHandler.INSTANCE);
 
   /**
+   * Tab minimum size property
+   *
+   * @see #setMinimumSizeProvider(DimensionProvider)
+   * @see #getMinimumSizeProvider()
+   */
+  public static final DimensionProviderProperty MINIMUM_SIZE_PROVIDER = new DimensionProviderProperty(PROPERTIES,
+                                                                                                      "Minimum Size",
+                                                                                                      "Tab minimum size.",
+                                                                                                      PropertyMapValueHandler.INSTANCE);
+
+  /**
    * Highlighted raised amount property
    *
    * @see #setHighlightedRaised
@@ -176,6 +199,12 @@ public class TitledTabProperties extends PropertyMapContainer {
 
       public void propertiesChanged() {
         updateVisualProperties();
+      }
+
+      public void propertiesChanging() {
+      }
+
+      public void lookAndFeelChanging() {
       }
     });
 
@@ -293,6 +322,19 @@ public class TitledTabProperties extends PropertyMapContainer {
   }
 
   /**
+   * Replaces the given super objects.
+   *
+   * @param oldSuperObject super object to replace
+   * @param newSuperObject new super object
+   * @return this
+   * @since ITP 1.4.0
+   */
+  public TitledTabProperties replaceSuperObject(TitledTabProperties oldSuperObject, TitledTabProperties newSuperObject) {
+    getMap().replaceSuperMap(oldSuperObject.getMap(), newSuperObject.getMap());
+    return this;
+  }
+
+  /**
    * Creates a properties object with default properties based on the current look and feel
    *
    * @return properties object
@@ -350,6 +392,43 @@ public class TitledTabProperties extends PropertyMapContainer {
   }
 
   /**
+   * <p>
+   * Sets if this TitledTab should show its built-in focus marker when this tab has focus.
+   * </p>
+   *
+   * <p>
+   * <strong>Note:</strong> Disabling the focus marker is useful when for example creating a
+   * theme that draws its own focus marker.
+   * </p>
+   *
+   * @param value true for enabled, otherwise false
+   * @return this TitledTabProperties
+   * @since ITP 1.4.0
+   */
+  public TitledTabProperties setFocusMarkerEnabled(boolean value) {
+    FOCUS_MARKER_ENABLED.set(getMap(), value);
+
+    return this;
+  }
+
+  /**
+   * <p>
+   * Gets if this TitledTab should show its built-in focus marker when this tab has focus.
+   * </p>
+   *
+   * <p>
+   * <strong>Note:</strong> Disabling the focus marker is useful when for example creating a
+   * theme that draws its own focus marker.
+   * </p>
+   *
+   * @return true for enabled, otherwise false
+   * @since ITP 1.4.0
+   */
+  public boolean getFocusMarkerEnabled() {
+    return FOCUS_MARKER_ENABLED.get(getMap());
+  }
+
+  /**
    * Sets the size policy for this TitledTab
    *
    * @param sizePolicy the size policy
@@ -389,6 +468,27 @@ public class TitledTabProperties extends PropertyMapContainer {
    */
   public TitledTabBorderSizePolicy getBorderSizePolicy() {
     return BORDER_SIZE_POLICY.get(getMap());
+  }
+
+  /**
+   * Sets the tab's minimum size dimension provider
+   *
+   * @param size the minimum size dimension provider or null if tab's default minimum size should be used instead
+   * @return this TitledTabProperties
+   */
+  public TitledTabProperties setMinimumSizeProvider(DimensionProvider size) {
+    MINIMUM_SIZE_PROVIDER.set(getMap(), size);
+
+    return this;
+  }
+
+  /**
+   * Gets the dimension provider for the tab's minimum size
+   *
+   * @return the minimum size provider or null if default tab minimum size is to be used instead
+   */
+  public DimensionProvider getMinimumSizeProvider() {
+    return MINIMUM_SIZE_PROVIDER.get(getMap());
   }
 
   /**
@@ -445,6 +545,8 @@ public class TitledTabProperties extends PropertyMapContainer {
       public void run() {
         int gap = TabbedUIDefaults.getIconTextGap();
 
+        DEFAULT_VALUES.getNormalProperties().getShapedPanelProperties().setOpaque(true);
+
         DEFAULT_VALUES.getNormalProperties().setIconTextGap(gap).setTextTitleComponentGap(gap)
             .setIconVisible(true).setTextVisible(true).setTitleComponentVisible(true).getComponentProperties()
             .setFont(TabbedUIDefaults.getFont())
@@ -466,7 +568,7 @@ public class TitledTabProperties extends PropertyMapContainer {
   }
 
   private static void updateFunctionalProperties() {
-    DEFAULT_VALUES.setFocusable(true).setSizePolicy(TitledTabSizePolicy.EQUAL_SIZE)
+    DEFAULT_VALUES.setFocusable(true).setFocusMarkerEnabled(true).setSizePolicy(TitledTabSizePolicy.EQUAL_SIZE)
         .setBorderSizePolicy(TitledTabBorderSizePolicy.EQUAL_SIZE).setHighlightedRaised(2);
 
     DEFAULT_VALUES.getNormalProperties().setHorizontalAlignment(Alignment.LEFT).setVerticalAlignment(Alignment.CENTER)

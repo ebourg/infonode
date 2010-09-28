@@ -20,7 +20,7 @@
  */
 
 
-// $Id: DraggableComponent.java,v 1.19 2005/02/16 11:28:11 jesper Exp $
+// $Id: DraggableComponent.java,v 1.31 2005/12/04 13:46:03 jesper Exp $
 
 package net.infonode.gui.draggable;
 
@@ -38,6 +38,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 public class DraggableComponent {
+  private static long MAX_EVENT_DELAY = 50;
   private JComponent component;
   private JComponent[] eventComponents;
 
@@ -51,6 +52,8 @@ public class DraggableComponent {
   private boolean mousePressed;
   private boolean dragEventFired;
   private boolean dragStarted;
+
+  private boolean ignoreAddNotify = false;
 
   private int dragIndex;
   private int dragFromIndex;
@@ -74,14 +77,17 @@ public class DraggableComponent {
 
   private MouseInputListener mouseInputListener = new MouseInputAdapter() {
     public void mousePressed(MouseEvent e) {
+      //if (MouseEventCoalesceManager.getInstance().isPressedAllowed(e))
       pressed(e);
     }
 
     public void mouseReleased(MouseEvent e) {
+      //if (MouseEventCoalesceManager.getInstance().isReleasedAllowed(e))
       released(e);
     }
 
     public void mouseDragged(MouseEvent e) {
+      //if (MouseEventCoalesceManager.getInstance().isDraggedAllowed(e))
       dragged(e);
     }
   };
@@ -97,9 +103,14 @@ public class DraggableComponent {
   public DraggableComponent(JComponent component, JComponent[] eventComponents) {
     this.component = component;
     component.addComponentListener(new ComponentAdapter() {
+
       public void componentResized(ComponentEvent e) {
         fireChangedEvent(DraggableComponentEvent.TYPE_UNDEFINED);
       }
+
+      /*public void componentMoved(ComponentEvent e) {
+        fireChangedEvent(DraggableComponentEvent.TYPE_MOVED);
+      }*/
     });
     setEventComponents(eventComponents);
   }
@@ -231,6 +242,14 @@ public class DraggableComponent {
     this.outerParentArea = outerParentArea;
   }
 
+  public boolean isIgnoreAddNotify() {
+    return ignoreAddNotify;
+  }
+
+  public void setIgnoreAddNotify(boolean ignoreAddNotify) {
+    this.ignoreAddNotify = ignoreAddNotify;
+  }
+
   private void pressed(MouseEvent e) {
     if (enabled && e.getButton() == MouseEvent.BUTTON1) {
       if (selectOnMousePress && !e.isShiftDown())
@@ -297,7 +316,7 @@ public class DraggableComponent {
 
   private void updateParent() {
     if (component.getParent() != null) {
-      ((JComponent) component.getParent()).revalidate();
+      ComponentUtil.validate(component.getParent());
       //component.getParent().repaint();
     }
   }
@@ -334,7 +353,7 @@ public class DraggableComponent {
         return;
 
       if (dragIndex != -1 && dragIndex != toIndex) {
-        removeComponent(parent, null, dragIndex);
+        removeComponent(parent, fromComponent, dragIndex);
         addComponent(parent, fromComponent, toIndex);
         fireChangedEvent(DraggableComponentEvent.TYPE_MOVED);
       }
@@ -424,9 +443,13 @@ public class DraggableComponent {
     }
     else
       parent.add(c, index);
+
+    revalidateComponentTree((JComponent) c);
   }
 
   private void removeComponent(Container parent, Component c, int index) {
+    revalidateComponentTree((JComponent) c);
+
     if (layoutOrderList != null)
       if (index < 0) {
         layoutOrderList.remove(c);
@@ -441,6 +464,23 @@ public class DraggableComponent {
       parent.remove(c);
     else
       parent.remove(index);
+  }
+
+  private void revalidateComponentTree(JComponent c) {
+    Container parent = c.getParent();
+    int index = ComponentUtil.getComponentIndex(c);
+    if (index > 0)
+      doRevalidateComponentTree((JComponent) parent.getComponent(index - 1));
+    doRevalidateComponentTree(c);
+    if (index < parent.getComponentCount() - 1)
+      doRevalidateComponentTree((JComponent) parent.getComponent(index + 1));
+  }
+
+  private void doRevalidateComponentTree(JComponent c) {
+    c.revalidate();
+    int count = c.getComponentCount();
+    for (int i = 0; i < count; i++)
+      doRevalidateComponentTree(((JComponent) c.getComponent(i)));
   }
 
   private void restoreComponentOrder() {

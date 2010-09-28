@@ -20,10 +20,11 @@
  */
 
 
-// $Id: AbstractPolygonBorder.java,v 1.16 2005/02/16 11:28:13 jesper Exp $
+// $Id: AbstractPolygonBorder.java,v 1.18 2005/12/04 13:46:04 jesper Exp $
 
 package net.infonode.gui.shaped.border;
 
+import net.infonode.gui.GraphicsUtil;
 import net.infonode.gui.HighlightPainter;
 import net.infonode.gui.InsetsUtil;
 import net.infonode.gui.colorprovider.BackgroundPainterColorProvider;
@@ -130,10 +131,10 @@ abstract public class AbstractPolygonBorder extends AbstractShapedBorder {
     while (i < polygon.npoints) {
       if (lineIsDrawn(i, polygon)) {
         int ni = (i + 1) % polygon.npoints;
-        g.drawLine(polygon.xpoints[i],
-                   polygon.ypoints[i],
-                   polygon.xpoints[ni],
-                   polygon.ypoints[ni]);
+        GraphicsUtil.drawOptimizedLine(g, polygon.xpoints[i],
+                                       polygon.ypoints[i],
+                                       polygon.xpoints[ni],
+                                       polygon.ypoints[ni]);
       }
 
       i++;

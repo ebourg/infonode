@@ -20,12 +20,12 @@
  */
 
 
-// $Id: WindowIds.java,v 1.4 2004/08/27 18:53:37 jesper Exp $
+// $Id: WindowIds.java,v 1.6 2005/06/19 20:57:19 jesper Exp $
 package net.infonode.docking;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.6 $
  */
 class WindowIds {
   static final int VIEW = 1;

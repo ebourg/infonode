@@ -20,14 +20,16 @@
  */
 
 
-//$Id: MaximizeIcon.java,v 1.8 2005/02/16 11:28:11 jesper Exp $
+//$Id: MaximizeIcon.java,v 1.10 2005/12/04 13:46:03 jesper Exp $
 package net.infonode.gui.icon.button;
+
+import net.infonode.gui.GraphicsUtil;
 
 import java.awt.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.10 $
  */
 public class MaximizeIcon extends AbstractButtonIcon {
   private static final long serialVersionUID = -5926578998259734919L;
@@ -49,10 +51,10 @@ public class MaximizeIcon extends AbstractButtonIcon {
   }
 
   protected void paintIcon(Component c, Graphics g, int x1, int y1, int x2, int y2) {
-    g.drawLine(x1, y1, x2, y1);
-    g.drawLine(x1, y1 + 1, x2, y1 + 1);
-    g.drawLine(x1, y1 + 2, x1, y2);
-    g.drawLine(x2, y1 + 2, x2, y2);
-    g.drawLine(x1 + 1, y2, x2 - 1, y2);
+    GraphicsUtil.drawOptimizedLine(g, x1, y1, x2, y1);
+    GraphicsUtil.drawOptimizedLine(g, x1, y1 + 1, x2, y1 + 1);
+    GraphicsUtil.drawOptimizedLine(g, x1, y1 + 2, x1, y2);
+    GraphicsUtil.drawOptimizedLine(g, x2, y1 + 2, x2, y2);
+    GraphicsUtil.drawOptimizedLine(g, x1 + 1, y2, x2 - 1, y2);
   }
 }

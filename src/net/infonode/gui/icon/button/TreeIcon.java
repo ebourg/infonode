@@ -20,16 +20,18 @@
  */
 
 
-// $Id: TreeIcon.java,v 1.4 2005/02/16 11:28:11 jesper Exp $
+// $Id: TreeIcon.java,v 1.6 2005/12/04 13:46:03 jesper Exp $
 
 package net.infonode.gui.icon.button;
+
+import net.infonode.gui.GraphicsUtil;
 
 import javax.swing.*;
 import java.awt.*;
 
 /**
  * @author Jesper Nordenberg
- * @version $Revision: 1.4 $ $Date: 2005/02/16 11:28:11 $
+ * @version $Revision: 1.6 $ $Date: 2005/12/04 13:46:03 $
  */
 public class TreeIcon implements Icon {
   public static final int PLUS = 1;
@@ -67,10 +69,10 @@ public class TreeIcon implements Icon {
       g.drawRect(x + 1, y + 1, width - 2, height - 2);
     }
 
-    g.drawLine(x + 3, y + height / 2, x + width - 3, y + height / 2);
+    GraphicsUtil.drawOptimizedLine(g, x + 3, y + height / 2, x + width - 3, y + height / 2);
 
     if (type == PLUS)
-      g.drawLine(x + width / 2, y + 3, x + width / 2, y + height - 3);
+      GraphicsUtil.drawOptimizedLine(g, x + width / 2, y + 3, x + width / 2, y + height - 3);
   }
 
   public int getIconWidth() {

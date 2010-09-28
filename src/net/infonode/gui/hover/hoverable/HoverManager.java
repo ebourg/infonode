@@ -20,11 +20,12 @@
  */
 
 
-// $Id: HoverManager.java,v 1.10 2005/02/16 11:28:11 jesper Exp $
+// $Id: HoverManager.java,v 1.14 2005/12/04 13:46:03 jesper Exp $
 
 package net.infonode.gui.hover.hoverable;
 
 import net.infonode.gui.ComponentUtil;
+import net.infonode.util.ArrayUtil;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputAdapter;
@@ -48,10 +49,10 @@ public class HoverManager {
         public void run() {
           if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) {
             if (((Component) e.getSource()).isShowing()) {
-              addHoverable((Hoverable) e.getSource());
+              addHoverListeners((Hoverable) e.getSource());
             }
             else {
-              removeHoverable((Hoverable) e.getSource());
+              removeHoverListeners((Hoverable) e.getSource());
             }
           }
         }
@@ -66,7 +67,7 @@ public class HoverManager {
   private ArrayList enteredComponents = new ArrayList();
 
   private boolean enabled = true;
-  private boolean hasPermission = false;
+  private boolean hasPermission = true;
 
   private boolean active = true;
 
@@ -187,6 +188,14 @@ public class HoverManager {
   }
 
   private HoverManager() {
+    try {
+      SecurityManager sm = System.getSecurityManager();
+      if (sm != null)
+        sm.checkPermission(new AWTPermission("listenToAllAWTEvents"));
+    }
+    catch (SecurityException e) {
+      hasPermission = false;
+    }
   }
 
   private void exitAll() {
@@ -211,9 +220,13 @@ public class HoverManager {
     eventDispatched(event);
   }
 
-  public void addHoverable(Hoverable hoverable) {
-    if (hoverable instanceof Component && !hoverableComponents.contains(hoverable)) {
-      if (active && hoverableComponents.size() == 0) {
+  private void addHoverListeners(Hoverable hoverable) {
+    if (hoverableComponents.add(hoverable)) {
+      Component c = (Component) hoverable;
+      c.addMouseListener(mouseAdapter);
+      c.addMouseMotionListener(mouseAdapter);
+
+      if (active && hoverableComponents.size() == 1) {
         try {
           Toolkit.getDefaultToolkit().addAWTEventListener(eventListener,
                                                           AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK);
@@ -223,29 +236,39 @@ public class HoverManager {
           hasPermission = false;
         }
       }
-
-      addHierarchyListener((Component) hoverable);
-
-      ((Component) hoverable).addMouseListener(mouseAdapter);
-      ((Component) hoverable).addMouseMotionListener(mouseAdapter);
-      hoverableComponents.add(hoverable);
     }
   }
 
-  public void removeHoverable(Hoverable hoverable) {
-    if (hoverableComponents.contains(hoverable)) {
+  private void removeHoverListeners(Hoverable hoverable) {
+    if (hoverableComponents.remove(hoverable)) {
       ((Component) hoverable).removeMouseListener(mouseAdapter);
       ((Component) hoverable).removeMouseMotionListener(mouseAdapter);
-      hoverableComponents.remove(hoverable);
-      if (enteredComponents.contains(hoverable)) {
-        enteredComponents.remove(hoverable);
-        ((Hoverable) hoverable).hoverExit();
-      }
+      dispatchExit(hoverable);
 
       if (hasPermission && hoverableComponents.size() == 0) {
         Toolkit.getDefaultToolkit().removeAWTEventListener(eventListener);
       }
     }
+  }
+
+  public void addHoverable(Hoverable hoverable) {
+    if (hoverable instanceof Component) {
+      Component c = (Component) hoverable;
+
+      if (ArrayUtil.contains(c.getHierarchyListeners(), hierarchyListener))
+        return;
+
+      c.addHierarchyListener(hierarchyListener);
+
+      if (c.isShowing())
+        addHoverListeners(hoverable);
+    }
+  }
+
+  public void removeHoverable(Hoverable hoverable) {
+    Component c = (Component) hoverable;
+    c.removeHierarchyListener(hierarchyListener);
+    removeHoverListeners(hoverable);
   }
 
   public boolean isHovered(Hoverable c) {
@@ -256,34 +279,15 @@ public class HoverManager {
     return active && hasPermission;
   }
 
-  private void addHierarchyListener(Component c) {
-    HierarchyListener listeners[] = c.getHierarchyListeners();
-    if (listeners.length == 0) {
-      c.addHierarchyListener(hierarchyListener);
-    }
-    else {
-      for (int i = 0; i < listeners.length; i++) {
-        if (listeners[i] == hierarchyListener) {
-          break;
-        }
-        else if (i == listeners.length - 1) {
-          c.addHierarchyListener(hierarchyListener);
-        }
-      }
-    }
-  }
-
   private void dispatchEnter(Hoverable hoverable) {
     if (enabled && !enteredComponents.contains(hoverable)) {
       enteredComponents.add(hoverable);
-      ((Hoverable) hoverable).hoverEnter();
+      hoverable.hoverEnter();
     }
   }
 
   private void dispatchExit(Hoverable hoverable) {
-    if (enabled) {
-      enteredComponents.remove(hoverable);
-      ((Hoverable) hoverable).hoverExit();
-    }
+    if (enabled && enteredComponents.remove(hoverable))
+      hoverable.hoverExit();
   }
 }

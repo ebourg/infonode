@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyRefValue.java,v 1.15 2005/02/16 11:28:15 jesper Exp $
+// $Id: PropertyRefValue.java,v 1.17 2005/12/04 13:46:06 jesper Exp $
 package net.infonode.properties.propertymap.value;
 
 import net.infonode.properties.base.Property;
@@ -31,7 +31,8 @@ import net.infonode.properties.propertymap.ref.PropertyMapRefDecoder;
 import net.infonode.util.Printer;
 import net.infonode.util.ValueChange;
 import net.infonode.util.collection.map.base.ConstMap;
-import net.infonode.util.collection.notifymap.ChangeNotifyMapListener;
+import net.infonode.util.signal.Signal;
+import net.infonode.util.signal.SignalListener;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -39,9 +40,9 @@ import java.io.ObjectOutputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.17 $
  */
-public class PropertyRefValue implements PropertyValue, ChangeNotifyMapListener {
+public class PropertyRefValue implements PropertyValue, SignalListener {
   private PropertyMapImpl map;
   private Property property;
   private PropertyMapRef propertyObjectRef;
@@ -64,11 +65,19 @@ public class PropertyRefValue implements PropertyValue, ChangeNotifyMapListener 
     this.parentRef = parentRef;
   }
 
+  public Property getProperty() {
+    return property;
+  }
+
+  public PropertyMapImpl getMap() {
+    return map;
+  }
+
   public void updateListener(boolean enable) {
     if (enable)
-      propertyObjectRef.getMap(map).getMap().addListener(this);
+      propertyObjectRef.getMap(map).getMap().getChangeSignal().add(this);
     else
-      propertyObjectRef.getMap(map).getMap().removeListener(this);
+      propertyObjectRef.getMap(map).getMap().getChangeSignal().remove(this);
   }
 
   public PropertyValue getParent() {
@@ -100,10 +109,11 @@ public class PropertyRefValue implements PropertyValue, ChangeNotifyMapListener 
   }
 
   public void unset() {
-    propertyObjectRef.getMap(map).getMap().removeListener(this);
+    propertyObjectRef.getMap(map).getMap().getChangeSignal().remove(this);
   }
 
-  public void entriesChanged(ConstMap changes) {
+  public void signalEmitted(Signal signal, Object object) {
+    ConstMap changes = (ConstMap) object;
     ValueChange vc = (ValueChange) changes.get(propertyRef);
 
     if (vc != null)

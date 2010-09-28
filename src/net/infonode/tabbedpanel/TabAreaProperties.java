@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabAreaProperties.java,v 1.25 2005/02/16 11:28:15 jesper Exp $
+// $Id: TabAreaProperties.java,v 1.28 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.gui.hover.HoverListener;
@@ -34,7 +34,7 @@ import net.infonode.properties.types.HoverListenerProperty;
  * TabbedPanelProperties contains TabAreaProperties.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.25 $
+ * @version $Revision: 1.28 $
  * @see TabbedPanel
  * @see TabbedPanelProperties
  */
@@ -77,6 +77,18 @@ public class TabAreaProperties extends PropertyMapContainer {
                                                                                        "Hover Listener",
                                                                                        "Hover Listener to be used for tracking mouse hovering over the tab area components area.",
                                                                                        PropertyMapValueHandler.INSTANCE);
+  /**
+   * Tab area visible property
+   *
+   * @see #setTabAreaVisiblePolicy(TabAreaVisiblePolicy)
+   * @see #getTabAreaVisiblePolicy()
+   * @since ITP 1.4.0
+   */
+  public static final TabAreaVisiblePolicyProperty TAB_AREA_VISIBLE_POLICY = new TabAreaVisiblePolicyProperty(
+      PROPERTIES,
+      "Visible Policy",
+      "Visiblity for the tab area.",
+      PropertyMapValueHandler.INSTANCE);
 
   /**
    * Constructs an empty TabAreaProperties object
@@ -183,5 +195,27 @@ public class TabAreaProperties extends PropertyMapContainer {
    */
   public HoverListener getHoverListener() {
     return HOVER_LISTENER.get(getMap());
+  }
+
+  /**
+   * Sets the tab area visible policy for the tab area, i.e. when the tab area is to be visible
+   *
+   * @param policy the tab area visible policy
+   * @return this TabAreaProperties
+   * @since ITP 1.4.0
+   */
+  public TabAreaProperties setTabAreaVisiblePolicy(TabAreaVisiblePolicy policy) {
+    TAB_AREA_VISIBLE_POLICY.set(getMap(), policy);
+    return this;
+  }
+
+  /**
+   * Gets the tab area visible policy for the tab area, i.e. when the tab area is to be visible
+   *
+   * @return the tab area visible policy
+   * @since ITP 1.4.0
+   */
+  public TabAreaVisiblePolicy getTabAreaVisiblePolicy() {
+    return TAB_AREA_VISIBLE_POLICY.get(getMap());
   }
 }

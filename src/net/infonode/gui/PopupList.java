@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PopupList.java,v 1.12 2005/02/16 11:28:13 jesper Exp $
+// $Id: PopupList.java,v 1.13 2005/06/29 11:57:40 johan Exp $
 package net.infonode.gui;
 
 import net.infonode.gui.panel.SimplePanel;
@@ -147,12 +147,12 @@ public class PopupList extends SimplePanel {
     }
 
     private void update() {
-      list.setFont(UIManager.getFont("ComboBox.font"));
+      /*list.setFont(UIManager.getFont("ComboBox.font"));
       list.setForeground(UIManagerUtil.getColor("ComboBox.foreground"));
       list.setBackground(UIManagerUtil.getColor("ComboBox.background", "control"));
       list.setSelectionForeground(UIManagerUtil.getColor("ComboBox.selectionForeground"));
       list.setSelectionBackground(UIManagerUtil.getColor("ComboBox.selectionBackground"));
-      list.setBorder(null);
+      list.setBorder(null);*/
       scrollPane.getViewport().setOpaque(false);
       scrollPane.setBorder(null);
     }

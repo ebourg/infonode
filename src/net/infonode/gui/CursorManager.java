@@ -20,72 +20,119 @@
  */
 
 
-// $Id: CursorManager.java,v 1.9 2005/02/16 11:28:13 jesper Exp $
+// $Id: CursorManager.java,v 1.17 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.gui;
-
-import net.infonode.util.Utils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.HashMap;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.util.WeakHashMap;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.17 $
  */
 public class CursorManager {
-  private static HashMap oldCursors = new HashMap();
-  private static boolean toggleVisibility = true;
+  private static class RootCursorInfo {
+    private Cursor savedCursor;
+    private Cursor cursor;
+    private JComponent panel;
+
+    private boolean cursorSet = false;
+
+    RootCursorInfo(JComponent panel) {
+      this.panel = panel;
+    }
+
+    public JComponent getComponent() {
+      return panel;
+    }
+
+    public void pushCursor(Cursor cursor) {
+      if (savedCursor == null)
+        savedCursor = cursor;
+
+      cursorSet = true;
+    }
+
+    public Cursor popCursor() {
+      Cursor c = savedCursor;
+      savedCursor = null;
+
+      cursorSet = false;
+      return c;
+    }
+
+    public boolean isCursorSet() {
+      return cursorSet;
+    }
+
+    public Cursor getCursor() {
+      return cursor;
+    }
+
+    public void setCursor(Cursor cursor) {
+      this.cursor = cursor;
+    }
+
+  }
+
   private static boolean enabled = true;
-  private static Cursor currentCursor = Cursor.getDefaultCursor();
+  private static WeakHashMap windowPanels = new WeakHashMap();
 
   private CursorManager() {
   }
 
-  public static void setGlobalCursor(JComponent component, Cursor cursor) {
-    Container root = component.getTopLevelAncestor();
-
+  public static void setGlobalCursor(final JRootPane root, Cursor cursor) {
     if (root == null)
       return;
 
-    if (!oldCursors.containsKey(root)) {
-      oldCursors.put(root, root.getCursor());
-      if (toggleVisibility)
-        component.getRootPane().getGlassPane().setVisible(true);
+    RootCursorInfo rci = (RootCursorInfo) windowPanels.get(root);
+
+    if (rci == null) {
+      rci = new RootCursorInfo(new JComponent() {
+      });
+      windowPanels.put(root, rci);
+      root.getLayeredPane().add(rci.getComponent());
+      root.getLayeredPane().setLayer(rci.getComponent(), JLayeredPane.DRAG_LAYER.intValue() + 10);
+      rci.getComponent().setBounds(0, 0, root.getWidth(), root.getHeight());
+      root.getLayeredPane().addComponentListener(new ComponentAdapter() {
+        public void componentResized(ComponentEvent e) {
+          ((RootCursorInfo) windowPanels.get(root)).getComponent().setSize(root.getSize());
+        }
+      });
     }
 
-    if (!Utils.equals(root.getCursor(), cursor)) {
-      currentCursor = cursor;
-
-      if (enabled)
-        root.setCursor(cursor);
+    if (!rci.isCursorSet()) {
+      rci.setCursor(cursor);
+      rci.pushCursor(root.isCursorSet() ? root.getCursor() : null);
     }
-  }
 
-  public static Cursor getCurrentGlobalCursor() {
-    return currentCursor;
-  }
-
-  public static void resetGlobalCursor(JComponent component) {
-    Container root = component.getTopLevelAncestor();
-
-    if (root != null && oldCursors.containsKey(root)) {
-      currentCursor = (Cursor) oldCursors.remove(root);
-
-      if (enabled)
-        root.setCursor(currentCursor);
-
-      if (toggleVisibility)
-        component.getRootPane().getGlassPane().setVisible(false);
+    if (enabled) {
+      root.setCursor(cursor);
+      rci.getComponent().setVisible(true);
     }
   }
 
-  public static void setToggleGlassPaneVisibility(boolean toggleVisibility) {
-    CursorManager.toggleVisibility = toggleVisibility;
+  public static Cursor getCurrentGlobalCursor(JRootPane root) {
+    if (root == null)
+      return Cursor.getDefaultCursor();
+
+    RootCursorInfo rci = (RootCursorInfo) windowPanels.get(root);
+    return rci == null || !rci.isCursorSet() ? Cursor.getDefaultCursor() : rci.getCursor();
   }
 
-  public static boolean isToggleGlassPaneVisibility() {
-    return toggleVisibility;
+  public static void resetGlobalCursor(JRootPane root) {
+    if (root == null)
+      return;
+
+    RootCursorInfo rci = (RootCursorInfo) windowPanels.get(root);
+
+    if (rci != null && rci.isCursorSet()) {
+      root.setCursor(rci.popCursor());
+      rci.getComponent().setVisible(false);
+    }
   }
 
   public static void setEnabled(boolean enabled) {
@@ -96,8 +143,19 @@ public class CursorManager {
     return enabled;
   }
 
-  public static boolean isGlobalCursorSet(JComponent c) {
-    Container root = c.getTopLevelAncestor();
-    return root != null && oldCursors.containsKey(root);
+  public static JComponent getCursorLayerComponent(JRootPane root) {
+    if (root == null)
+      return null;
+
+    RootCursorInfo rci = (RootCursorInfo) windowPanels.get(root);
+    return rci == null ? null : rci.getComponent();
+  }
+
+  public static boolean isGlobalCursorSet(JRootPane root) {
+    if (root == null)
+      return false;
+
+    RootCursorInfo rci = (RootCursorInfo) windowPanels.get(root);
+    return rci != null && rci.isCursorSet();
   }
 }

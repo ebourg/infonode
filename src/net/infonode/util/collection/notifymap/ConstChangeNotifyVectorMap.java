@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ConstChangeNotifyVectorMap.java,v 1.9 2005/02/16 11:28:13 jesper Exp $
+// $Id: ConstChangeNotifyVectorMap.java,v 1.11 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.util.collection.notifymap;
 
 import net.infonode.util.ValueChange;
@@ -28,6 +28,8 @@ import net.infonode.util.collection.map.ConstVectorMap;
 import net.infonode.util.collection.map.MapAdapter;
 import net.infonode.util.collection.map.base.ConstMap;
 import net.infonode.util.collection.map.base.ConstMapIterator;
+import net.infonode.util.signal.Signal;
+import net.infonode.util.signal.SignalListener;
 
 import java.util.ArrayList;
 
@@ -35,42 +37,20 @@ public class ConstChangeNotifyVectorMap extends AbstractConstChangeNotifyMap {
   private ConstVectorMap vectorMap = new ConstVectorMap();
   private ArrayList mapListeners;
 
-  public void addListener(ChangeNotifyMapListener listener) {
-    if (!hasListeners()) {
-      mapListeners = new ArrayList(vectorMap.getMapCount() + 2);
+  protected void firstListenerAdded() {
+    mapListeners = new ArrayList(vectorMap.getMapCount() + 2);
 
-      for (int i = 0; i < vectorMap.getMapCount(); i++) {
-        addMapListener(i);
-      }
+    for (int i = 0; i < vectorMap.getMapCount(); i++) {
+      addMapListener(i);
     }
-
-    super.addListener(listener);
   }
 
-/*  public void addWeakListener(ChangeNotifyMapListener listener) {
-    if (!hasListeners()) {
-      mapListeners = new ArrayList(vectorMap.getMapCount() + 2);
-
-      for (int i = 0; i < vectorMap.getMapCount(); i++) {
-        addMapListener(i);
-      }
+  protected void lastListenerRemoved() {
+    for (int i = vectorMap.getMapCount() - 1; i >= 0; i--) {
+      removeMapListener(i);
     }
 
-    super.addWeakListener(listener);
-  }
-*/
-  public boolean removeListener(ChangeNotifyMapListener listener) {
-    boolean result = super.removeListener(listener);
-
-    if (result && !hasListeners() && mapListeners != null) {
-      for (int i = vectorMap.getMapCount() - 1; i >= 0; i--) {
-        removeMapListener(i);
-      }
-
-      mapListeners = null;
-    }
-
-    return result;
+    mapListeners = null;
   }
 
   private Object getValue(Object key, int fromIndex, int toIndex) {
@@ -89,13 +69,13 @@ public class ConstChangeNotifyVectorMap extends AbstractConstChangeNotifyMap {
   }
 
   public void addMap(ConstChangeNotifyMap map) {
-    vectorMap.addMap(map);
+    addMap(vectorMap.getMapCount(), map);
   }
 
   public void addMap(int index, ConstChangeNotifyMap map) {
     vectorMap.addMap(index, map);
 
-    if (hasListeners()) {
+    if (getChangeSignalInternal().hasListeners()) {
       addMapListener(index);
       MapAdapter changes = new MapAdapter();
 
@@ -119,8 +99,9 @@ public class ConstChangeNotifyVectorMap extends AbstractConstChangeNotifyMap {
 
     final ConstChangeNotifyMap map = getMap(index);
 
-    ChangeNotifyMapListener mapListener = new ChangeNotifyMapListener() {
-      public void entriesChanged(ConstMap changes) {
+    SignalListener mapListener = new SignalListener() {
+      public void signalEmitted(Signal signal, Object object) {
+        ConstMap changes = (ConstMap) object;
         MapAdapter changes2 = new MapAdapter();
         int index = getMapIndex(map);
 
@@ -144,12 +125,12 @@ public class ConstChangeNotifyVectorMap extends AbstractConstChangeNotifyMap {
     };
 
     mapListeners.add(index, mapListener);
-    map.addListener(mapListener);
+    map.getChangeSignal().add(mapListener);
   }
 
   private void removeMapListener(int index) {
     ConstChangeNotifyMap map = getMap(index);
-    map.removeListener((ChangeNotifyMapListener) mapListeners.get(index));
+    map.getChangeSignal().remove((SignalListener) mapListeners.get(index));
     mapListeners.remove(index);
   }
 
@@ -158,13 +139,12 @@ public class ConstChangeNotifyVectorMap extends AbstractConstChangeNotifyMap {
   }
 
   public void removeMap(int index) {
-    if (hasListeners())
+    if (getChangeSignalInternal().hasListeners())
       removeMapListener(index);
 
-    ConstChangeNotifyMap map = getMap(index);
-    vectorMap.removeMap(index);
+    ConstMap map = vectorMap.removeMap(index);
 
-    if (hasListeners()) {
+    if (getChangeSignalInternal().hasListeners()) {
       MapAdapter changes = new MapAdapter();
 
       for (ConstMapIterator iterator = map.constIterator(); iterator.atEntry(); iterator.next()) {

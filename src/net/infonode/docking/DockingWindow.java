@@ -20,16 +20,18 @@
  */
 
 
-// $Id: DockingWindow.java,v 1.81 2005/02/16 11:28:14 jesper Exp $
+// $Id: DockingWindow.java,v 1.116 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.drag.DockingWindowDragger;
+import net.infonode.docking.drop.ChildDropInfo;
+import net.infonode.docking.drop.DropFilter;
+import net.infonode.docking.drop.SplitDropInfo;
 import net.infonode.docking.internal.ReadContext;
+import net.infonode.docking.internal.WindowAncestors;
 import net.infonode.docking.internal.WriteContext;
 import net.infonode.docking.internalutil.DropAction;
 import net.infonode.docking.location.LocationDecoder;
-import net.infonode.docking.location.NullLocation;
-import net.infonode.docking.location.WindowLocation;
 import net.infonode.docking.model.SplitWindowItem;
 import net.infonode.docking.model.TabWindowItem;
 import net.infonode.docking.model.ViewWriter;
@@ -37,6 +39,7 @@ import net.infonode.docking.model.WindowItem;
 import net.infonode.docking.properties.DockingWindowProperties;
 import net.infonode.docking.title.DockingWindowTitleProvider;
 import net.infonode.docking.title.SimpleDockingWindowTitleProvider;
+import net.infonode.docking.util.DockingUtil;
 import net.infonode.gui.ComponentUtil;
 import net.infonode.gui.EventUtil;
 import net.infonode.gui.mouse.MouseButtonListener;
@@ -65,9 +68,11 @@ import java.util.Map;
  * <b>Warning: </b> the non-public methods in this class can be changed in non-compatible ways in future versions.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.81 $
+ * @version $Revision: 1.116 $
  */
 abstract public class DockingWindow extends BasePanel {
+  private static int DROP_FLOATING_YOFFSET = 10;
+
   /**
    * Returns the icon for this window.
    *
@@ -89,11 +94,6 @@ abstract public class DockingWindow extends BasePanel {
    * @return the number of child windows
    */
   abstract public int getChildWindowCount();
-
-  /**
- *
-   */
-  abstract protected WindowLocation getWindowLocation(DockingWindow window);
 
   /**
  *
@@ -124,6 +124,8 @@ abstract public class DockingWindow extends BasePanel {
   private PropertyMapListener propertiesListener = new PropertyMapListener() {
     public void propertyValuesChanged(PropertyMap propertyMap, Map changes) {
       doUpdate();
+
+      updateButtonVisibility();
     }
   };
 
@@ -189,6 +191,26 @@ abstract public class DockingWindow extends BasePanel {
       windowParent.doUpdate();
   }
 
+  protected void addWindowItem(DockingWindow w, int index) {
+    boolean isRestore = w.getWindowItem().isRestoreWindow();
+    windowItem.addWindow(w.getWindowItem(), index);
+
+    if (!isRestore)
+      w.updateWindowItems();
+  }
+
+  protected final void updateWindowItems() {
+    windowItem.removeAll();
+
+    for (int i = 0; i < getChildWindowCount(); i++) {
+      boolean isRestore = getChildWindow(i).windowItem.isRestoreWindow();
+      windowItem.addWindow(getChildWindow(i).windowItem);
+
+      if (!isRestore)
+        getChildWindow(i).updateWindowItems();
+    }
+  }
+
   /**
    * <p>
    * Sets the preferred minimize direction of this window. If the {@link WindowBar} in this direction is enabled this
@@ -237,21 +259,28 @@ abstract public class DockingWindow extends BasePanel {
     this.listeners = listeners;
   }
 
+  public boolean isUndocked() {
+    return windowParent != null && windowParent.isUndocked();
+  }
+
   /**
    * <p>
-   * Adds a listener that receives mouse button events for window tabs. The listener will be called when a mouse
-   * button is pressed, clicked or released on a window tab of this window or a descendant of this window.
+   * Adds a listener that receives mouse button events for window tabs. The
+   * listener will be called when a mouse button is pressed, clicked or released
+   * on a window tab of this window or a descendant of this window.
    * </p>
    *
    * <p>
-   * The listeners are called in the reverse order they were added, so the last added listener will be called first.
-   * When all the listeners of this window has been called, the event is propagated up to the window parent of this
+   * The listeners are called in the reverse order they were added, so the last
+   * added listener will be called first. When all the listeners of this window
+   * has been called, the event is propagated up to the window parent of this
    * window, if there is one.
    * </p>
    *
    * <p>
-   * The {@link MouseEvent} source is the docking window connected to the tab in which the mouse event occured. The
-   * event point is the mouse coordinate where the event occured relative to the window.
+   * The {@link MouseEvent}source is the docking window connected to the tab in
+   * which the mouse event occured. The event point is the mouse coordinate
+   * where the event occured relative to the window.
    * </p>
    *
    * @param listenerDocking the listener
@@ -390,21 +419,83 @@ abstract public class DockingWindow extends BasePanel {
   }
 
   /**
+   * Same as {@link #restore()}, but the {@link DockingWindowListener#windowRestoring(DockingWindow)} method of
+   * the window listeners will be called before restoring the window, giving them the possibility to abort the restore
+   * operation.
+   *
+   * @throws OperationAbortedException if the restore operation was aborted by a window listener
+   * @see #restore()
+   * @see DockingWindowListener#windowMinimizing(DockingWindow)
+   * @since IDW 1.4.0
+   */
+  public void restoreWithAbort() throws OperationAbortedException {
+    fireWindowRestoring(this);
+    restore();
+  }
+
+  /**
    * Restores this window to the location before it was minimized, maximized or closed.
    * If the window can't be restored to the exact same location, a good approximation is performed. It's not guaranteed
    * that the window is shown anywhere after this method has returned.
    */
   public void restore() {
     if (isMaximized())
-      getRootWindow().setMaximizedWindow(null);
+      doRestoreFromMaximize();
     else if (isMinimized() || getRootWindow() == null) {
+//    	DockingWindow lastFocused = getLastFocusedChildWindow();
       ArrayList views = new ArrayList();
       findViews(views);
+      ArrayList ancestors = new ArrayList();
+
+      for (int i = 0; i < views.size(); i++)
+        ancestors.add(((DockingWindow) views.get(i)).getAncestors());
+
       restoreViews(views);
+
+      for (int i = 0; i < views.size(); i++) {
+        DockingWindow window = (DockingWindow) views.get(i);
+        window.doFireWindowRestored(window);
+
+        DockingWindow[] a = (DockingWindow[]) ancestors.get(i);
+
+        for (int k = 0; k < a.length; k++)
+          a[k].doFireWindowRestored(window);
+      }
+
+//			if (getRootWindow() != null && lastFocused != null)
+      restoreFocus(); //FocusManager.focusWindow(lastFocused);
     }
 
-    if (getRootWindow() != null)
-      FocusManager.focusWindow(this);
+    updateButtonVisibility();
+  }
+
+  private DockingWindow doRestoreFromMaximize() {
+    DockingWindow restoredInWindow = null;
+
+    if (isUndocked()) {
+      FloatingWindow w = DockingUtil.getFloatingWindowFor(this);
+      if (w != null) {
+        w.setMaximizedWindow(null);
+        restoredInWindow = w;
+      }
+    }
+    else {
+      RootWindow w = getRootWindow();
+      if (w != null) {
+        w.setMaximizedWindow(null);
+        restoredInWindow = w;
+      }
+    }
+
+    return restoredInWindow;
+  }
+
+  private ArrayList doRestore() {
+    ArrayList views = new ArrayList();
+    findViews(views);
+    restoreViews(views);
+
+    return views;
   }
 
   /**
@@ -445,6 +536,85 @@ abstract public class DockingWindow extends BasePanel {
   public void closeWithAbort() throws OperationAbortedException {
     fireWindowClosing(this);
     close();
+  }
+
+  /**
+   * <p>Undocks this window from it's window parent i.e. creates a {@link FloatingWindow} containing this window.</p>
+   *
+   * <p>The window can be docked again by calling {@link #dock()}.</p>
+   *
+   * <p>This method will call the {@link DockingWindowListener#windowUndocked(DockingWindow)} method of all the listeners
+   * of this window and all window ancestors. The listeners of child windows will not be notified, for example undocking
+   * a tab window containing views will not notify the listeners of views in that tab window.</p>
+   *
+   * @param location floating window location in screen coordinates
+   * @return the floating window containing the undocked window
+   * @since IDW 1.4.0
+   */
+  public FloatingWindow undock(Point location) {
+    FloatingWindow fw = getRootWindow().createFloatingWindow(this, location);
+    return fw;
+  }
+
+  /**
+   * Same as {@link #undock(Point)}, but the {@link DockingWindowListener#windowUndocking(DockingWindow)} method of
+   * the window listeners will be called before undocking the window, giving them the possibility to abort the undock
+   * operation.
+   *
+   * @param location floating window location in screen coordinates
+   * @return the floating window containing the undocked window
+   * @throws OperationAbortedException if the undock operation was aborted by a window listener
+   * @see #undock(Point)
+   * @see DockingWindowListener#windowClosing(DockingWindow)
+   * @since IDW 1.4.0
+   */
+  public FloatingWindow undockWithAbort(Point location) throws OperationAbortedException {
+    fireWindowUndocking(this);
+    return undock(location);
+  }
+
+
+  /**
+   * <p>Docks the window to the RootWindow to the location it had before it was undocked.</p>
+   *
+   * <p>If the window can't be docked to the exact same location, a good approximation is performed. It's not
+   * guaranteed that the window is shown anywhere after this method has returned.
+   * </p>
+   *
+   * <p>This method will call the {@link DockingWindowListener#windowDocked(DockingWindow)} method of all the listeners
+   * of this window and all window ancestors. The listeners of child windows will not be notified, for example docking
+   * a tab window containing views will not notify the listeners of views in that tab window.</p>
+   *
+   * @since IDW 1.4.0
+   */
+  public void dock() {
+    if (isUndocked()) {
+      ArrayList dockedViews = doRestore();
+
+      updateButtonVisibility();
+
+      fireWindowDocked(dockedViews);
+
+      if (dockedViews.size() > 0 && ((DockingWindow) dockedViews.get(0)).getRootWindow() != null)
+        FocusManager.focusWindow((DockingWindow) dockedViews.get(0));
+    }
+  }
+
+  /**
+   * Same as {@link #dock()}, but the {@link DockingWindowListener#windowDocking(DockingWindow)} method of
+   * the window listeners will be called before docking the window, giving them the possibility to abort the dock
+   * operation.
+   *
+   * @throws OperationAbortedException if the dock operation was aborted by a window listener
+   * @see #dock()
+   * @see DockingWindowListener#windowDocking(DockingWindow)
+   * @since IDW 1.4.0
+   */
+  public void dockWithAbort() throws OperationAbortedException {
+    if (isUndocked()) {
+      fireWindowDocking(this);
+      dock();
+    }
   }
 
   /**
@@ -501,9 +671,9 @@ abstract public class DockingWindow extends BasePanel {
   }
 
   /**
-   * Maximizes this window in it's root window. If this window has no root window nothing happens.
-   * This method takes the window component and displays it at the top in the root window. It does NOT modify the
-   * window tree structure, ie the window parent remains the unchanged.
+   * Maximizes this window in its root window or in its floating window. If this window has no root window nothing
+   * happens. This method takes the window component and displays it at the top in the root window or in the floating
+   * window. It does NOT modify the window tree structure, ie the window parent remains the unchanged.
    *
    * <p>The location of this window is saved and the window can be restored to that location using the
    * {@link #restore()} method.</p>
@@ -511,21 +681,56 @@ abstract public class DockingWindow extends BasePanel {
    * @since IDW 1.1.0
    */
   public final void maximize() {
-    RootWindow rootWindow = getRootWindow();
+    if (isUndocked()) {
+      FloatingWindow w = DockingUtil.getFloatingWindowFor(this);
 
-    if (rootWindow != null)
-      rootWindow.setMaximizedWindow(this);
+      if (w != null)
+        w.setMaximizedWindow(this);
+    }
+    else {
+      RootWindow rootWindow = getRootWindow();
+
+      if (rootWindow != null)
+        rootWindow.setMaximizedWindow(this);
+    }
+
+    updateButtonVisibility();
   }
 
   /**
-   * Returns true if this window has a root window and is maximized in that root window.
+   * Same as {@link #maximize()}, but the {@link DockingWindowListener#windowMaximized(DockingWindow)} method of
+   * the window listeners will be called before maximizing the window, giving them the possibility to abort the maximize
+   * operation.
    *
-   * @return true if this window has a root window and is maximized in that root window
+   * @throws OperationAbortedException if the maximize operation was aborted by a window listener
+   * @see #maximize()
+   * @see DockingWindowListener#windowMinimizing(DockingWindow)
+   * @since IDW 1.4.0
+   */
+  public void maximizeWithAbort() throws OperationAbortedException {
+    if (!isMaximized()) {
+      fireWindowMaximizing(this);
+      maximize();
+    }
+  }
+
+  /**
+   * Returns true if this window has a root window and is maximized in that root window or in a floating window.
+   *
+   * @return true if this window has a root window and is maximized in that root window or in a floating window
    * @since IDW 1.1.0
    */
   public boolean isMaximized() {
-    RootWindow rootWindow = getRootWindow();
-    return rootWindow != null && rootWindow.getMaximizedWindow() == this;
+    DockingWindow w;
+    if (isUndocked()) {
+      FloatingWindow floatingWindow = DockingUtil.getFloatingWindowFor(this);
+      w = floatingWindow != null ? floatingWindow.getMaximizedWindow() : null;
+    }
+    else {
+      RootWindow rootWindow = getRootWindow();
+      w = rootWindow != null ? rootWindow.getMaximizedWindow() : null;
+    }
+    return w == this;
   }
 
   /**
@@ -542,13 +747,6 @@ abstract public class DockingWindow extends BasePanel {
     getOptimizedWindow().doMinimize();
   }
 
-  private void doMinimize() {
-    doMinimize(windowItem.getLastMinimizedDirection() != null &&
-               getRootWindow().getWindowBar(windowItem.getLastMinimizedDirection()).isEnabled() ?
-               windowItem.getLastMinimizedDirection() :
-               getRootWindow().getClosestWindowBar(this));
-  }
-
   /**
    * Minimizes this window to a {@link WindowBar}located in <tt>direction</tt>. If no suitable {@link WindowBar}was
    * found or this window already is minimized, no action is performed.
@@ -556,20 +754,64 @@ abstract public class DockingWindow extends BasePanel {
    * <p>The location of this window is saved and the window can be restored to that location using the
    * {@link #restore()} method.</p>
    *
-   * @param direction the direction in which the window bar is located
+   * @param direction the direction in which the window bar to be minimized to is located
    */
   public void minimize(Direction direction) {
-    getOptimizedWindow().doMinimize(direction);
+    doMinimize(direction);
+  }
+
+  /**
+   * Same as {@link #minimize()}, but the {@link DockingWindowListener#windowMinimizing(DockingWindow)} method of
+   * the window listeners will be called before minimizing the window, giving them the possibility to abort the minimize
+   * operation.
+   *
+   * @throws OperationAbortedException if the minimize operation was aborted by a window listener
+   * @see #minimize()
+   * @see DockingWindowListener#windowMinimizing(DockingWindow)
+   * @since IDW 1.4.0
+   */
+  public void minimizeWithAbort() throws OperationAbortedException {
+    if (!isMinimized() && getRootWindow().getClosestWindowBar(this) != null) {
+      fireWindowMinimizing(this);
+      minimize();
+    }
+  }
+
+  /**
+   * Same as {@link #minimize(Direction)}, but the {@link DockingWindowListener#windowMinimizing(DockingWindow)} method of
+   * the window listeners will be called before minimizing the window, giving them the possibility to abort the minimize
+   * operation.
+   *
+   * @throws OperationAbortedException if the minimize operation was aborted by a window listener
+   * @see #minimize(Direction)
+   * @see DockingWindowListener#windowMinimizing(DockingWindow)
+   * @since IDW 1.4.0
+   */
+  public void minimizeWithAbort(Direction direction) throws OperationAbortedException {
+    if (!isMinimized() && getRootWindow().getWindowBar(direction) != null) {
+      fireWindowMinimizing(this);
+      minimize(direction);
+    }
+  }
+
+  private void doMinimize() {
+    doMinimize(windowItem.getLastMinimizedDirection() != null &&
+               getRootWindow().getWindowBar(windowItem.getLastMinimizedDirection()).isEnabled() ?
+               windowItem.getLastMinimizedDirection() :
+               getRootWindow().getClosestWindowBar(this));
   }
 
   private void doMinimize(Direction direction) {
-    if (direction == null || isMinimized())
+    DockingWindow w = getOptimizedWindow();
+
+    if (direction == null || w.isMinimized())
       return;
 
     WindowBar bar = getRootWindow().getWindowBar(direction);
 
     if (bar != null) {
-      bar.addTab(this);
+      bar.addTab(w);
+      updateButtonVisibility();
     }
   }
 
@@ -581,6 +823,7 @@ abstract public class DockingWindow extends BasePanel {
    */
   public boolean isMinimizable() {
     return getOptimizedWindow().getWindowProperties().getMinimizeEnabled() &&
+           !isUndocked() &&
            getRootWindow() != null &&
            getRootWindow().windowBarEnabled();
   }
@@ -593,7 +836,7 @@ abstract public class DockingWindow extends BasePanel {
    * @since IDW 1.2.0
    */
   public boolean isMaximizable() {
-    return !isMinimized() && getOptimizedWindow().getWindowProperties().getMaximizeEnabled();
+    return !isMinimized() && /*!isUndocked() &&*/ getOptimizedWindow().getWindowProperties().getMaximizeEnabled();
   }
 
   /**
@@ -620,6 +863,28 @@ abstract public class DockingWindow extends BasePanel {
   }
 
   /**
+   * Returns true if this window can be undocked to a floating window.
+   *
+   * @return true if this window can be undocked
+   * @see #undock(Point)
+   * @since IDW 1.4.0
+   */
+  public boolean isUndockable() {
+    return getOptimizedWindow().getWindowProperties().getUndockEnabled();
+  }
+
+  /**
+   * Returns true if this window can be docked to the root window from a floating window.
+   *
+   * @return true if this window can be docked
+   * @see #dock()
+   * @since IDW 1.4.0
+   */
+  public boolean isDockable() {
+    return getOptimizedWindow().getWindowProperties().getDockEnabled();
+  }
+
+  /**
    * Replaces a child window with another window.
    *
    * @param oldWindow the child window to replaceChildWindow
@@ -639,7 +904,8 @@ abstract public class DockingWindow extends BasePanel {
   }
 
   protected DockingWindow internalReplaceChildWindow(final DockingWindow oldWindow,
-                                                     DockingWindow newWindow) {
+                                                     final DockingWindow newWindow) {
+    final WindowAncestors oldAncestors = newWindow.storeAncestors();
     final DockingWindow nw = newWindow.getContentWindow(DockingWindow.this);
 
     optimizeAfter(newWindow, new Runnable() {
@@ -670,6 +936,8 @@ abstract public class DockingWindow extends BasePanel {
 
         if (nw.isShowingInRootWindow())
           nw.fireWindowShown(nw);
+
+        newWindow.notifyListeners(oldAncestors);
       }
     });
 
@@ -688,6 +956,21 @@ abstract public class DockingWindow extends BasePanel {
 
   public String toString() {
     return getTitle();
+  }
+
+  protected WindowAncestors storeAncestors() {
+    return new WindowAncestors(getAncestors(), isMinimized(), isUndocked());
+  }
+
+  protected void notifyListeners(WindowAncestors ancestors) {
+    if (isMinimized() && !ancestors.isMinimized())
+      fireWindowMinimized(this, ancestors.getAncestors());
+
+    if (isUndocked() && !ancestors.isUndocked())
+      fireWindowUndocked(this, ancestors.getAncestors());
+
+    if (!isUndocked() && ancestors.isUndocked())
+      fireWindowDocked(this, ancestors.getAncestors());
   }
 
   protected boolean isShowingInRootWindow() {
@@ -772,7 +1055,7 @@ abstract public class DockingWindow extends BasePanel {
     return windowParent == null ? false : windowParent.childInsideTab();
   }
 
-  private DockingWindow[] getAncestors() {
+  protected DockingWindow[] getAncestors() {
     DockingWindow w = this;
     int count = 0;
 
@@ -792,70 +1075,6 @@ abstract public class DockingWindow extends BasePanel {
     return windows;
   }
 
-  private void fireWindowClosing(DockingWindow window) throws OperationAbortedException {
-    if (getListeners() != null) {
-      DockingWindowListener[] l = (DockingWindowListener[]) getListeners().toArray(
-          new DockingWindowListener[getListeners().size()]);
-
-      for (int i = 0; i < l.length; i++)
-        l[i].windowClosing(window);
-    }
-
-    if (windowParent != null)
-      windowParent.fireWindowClosing(window);
-  }
-
-  private void fireWindowClosed(DockingWindow window) {
-    if (getListeners() != null) {
-      DockingWindowListener[] l = (DockingWindowListener[]) getListeners().toArray(
-          new DockingWindowListener[getListeners().size()]);
-
-      for (int i = 0; i < l.length; i++)
-        l[i].windowClosed(window);
-    }
-  }
-
-  protected void setLastMinimizedDirection(Direction direction) {
-    windowItem.setLastMinimizedDirection(direction);
-  }
-
-  protected void maximized(boolean maximized) {
-  }
-
-  /**
- *
-   */
-  protected void clearChildrenFocus(DockingWindow child, View view) {
-    for (int i = 0; i < getChildWindowCount(); i++)
-      if (child != getChildWindow(i))
-        getChildWindow(i).clearFocus(view);
-  }
-
-  void childGainedFocus(DockingWindow child, View view) {
-    if (child != null)
-      lastFocusedChildWindow = child;
-
-    clearChildrenFocus(child, view);
-
-    if (windowParent != null)
-      windowParent.childGainedFocus(this, view);
-  }
-
-  WindowTab getTab() {
-    if (tab == null) {
-      tab = new WindowTab(this, false);
-    }
-
-    return tab;
-  }
-
-  /**
- *
-   */
-  protected void childRemoved(DockingWindow child) {
-    if (lastFocusedChildWindow == child)
-      lastFocusedChildWindow = null;
-  }
 
   private void fireWindowRemoved(DockingWindow removedFromWindow, DockingWindow removedWindow) {
     if (getListeners() != null) {
@@ -919,23 +1138,241 @@ abstract public class DockingWindow extends BasePanel {
       windowParent.fireWindowAdded(addedToWindow, addedWindow);
   }
 
-  /**
- *
-   */
-  protected WindowLocation getWindowLocation() {
-    return windowParent == null ? NullLocation.INSTANCE
-           : windowParent.getWindowLocation(this);
+
+  private void fireWindowClosing(DockingWindow window) throws OperationAbortedException {
+    if (getListeners() != null) {
+      DockingWindowListener[] l = (DockingWindowListener[]) getListeners().toArray(
+          new DockingWindowListener[getListeners().size()]);
+
+      for (int i = 0; i < l.length; i++)
+        l[i].windowClosing(window);
+    }
+
+    if (windowParent != null)
+      windowParent.fireWindowClosing(window);
+  }
+
+  private void fireWindowClosed(DockingWindow window) {
+    if (getListeners() != null) {
+      DockingWindowListener[] l = (DockingWindowListener[]) getListeners().toArray(
+          new DockingWindowListener[getListeners().size()]);
+
+      for (int i = 0; i < l.length; i++)
+        l[i].windowClosed(window);
+    }
+  }
+
+  void fireWindowUndocking(DockingWindow window) throws OperationAbortedException {
+    if (getListeners() != null) {
+      DockingWindowListener[] l = (DockingWindowListener[]) getListeners().toArray(
+          new DockingWindowListener[getListeners().size()]);
+
+      for (int i = 0; i < l.length; i++)
+        l[i].windowUndocking(window);
+    }
+
+    if (windowParent != null)
+      windowParent.fireWindowUndocking(window);
+  }
+
+  void fireWindowUndocked(DockingWindow window, DockingWindow[] oldAncestors) {
+    doFireWindowUndocked(window);
+
+    for (int i = oldAncestors.length - 1; i >= 0; i--)
+      oldAncestors[i].doFireWindowUndocked(this);
+  }
+
+  private void doFireWindowUndocked(DockingWindow window) {
+    if (getListeners() != null) {
+      DockingWindowListener[] l = (DockingWindowListener[]) getListeners().toArray(
+          new DockingWindowListener[getListeners().size()]);
+
+      for (int i = 0; i < l.length; i++)
+        l[i].windowUndocked(window);
+    }
+  }
+
+  void fireWindowMinimizing(DockingWindow window) throws OperationAbortedException {
+    if (getListeners() != null) {
+      DockingWindowListener[] l = (DockingWindowListener[]) getListeners().toArray(
+          new DockingWindowListener[getListeners().size()]);
+
+      for (int i = 0; i < l.length; i++)
+        l[i].windowMinimizing(window);
+    }
+
+    if (windowParent != null)
+      windowParent.fireWindowMinimizing(window);
+  }
+
+  void fireWindowMaximizing(DockingWindow window) throws OperationAbortedException {
+    if (getListeners() != null) {
+      DockingWindowListener[] l = (DockingWindowListener[]) getListeners().toArray(
+          new DockingWindowListener[getListeners().size()]);
+
+      for (int i = 0; i < l.length; i++)
+        l[i].windowMaximizing(window);
+    }
+
+    if (windowParent != null)
+      windowParent.fireWindowMaximizing(window);
+  }
+
+  void fireWindowRestoring(DockingWindow window) throws OperationAbortedException {
+    if (getListeners() != null) {
+      DockingWindowListener[] l = (DockingWindowListener[]) getListeners().toArray(
+          new DockingWindowListener[getListeners().size()]);
+
+      for (int i = 0; i < l.length; i++)
+        l[i].windowRestoring(window);
+    }
+
+    if (windowParent != null)
+      windowParent.fireWindowRestoring(window);
+  }
+
+  void fireWindowDocking(DockingWindow window) throws OperationAbortedException {
+    if (getListeners() != null) {
+      DockingWindowListener[] l = (DockingWindowListener[]) getListeners().toArray(
+          new DockingWindowListener[getListeners().size()]);
+
+      for (int i = 0; i < l.length; i++)
+        l[i].windowDocking(window);
+    }
+
+    if (windowParent != null)
+      windowParent.fireWindowDocking(window);
+  }
+
+  void fireWindowDocked(DockingWindow window, DockingWindow[] oldAncestors) {
+    doFireWindowDocked(window);
+
+    for (int i = oldAncestors.length - 1; i >= 0; i--)
+      oldAncestors[i].doFireWindowDocked(this);
+  }
+
+  void fireWindowDocked(ArrayList dockedViews) {
+    for (int i = 0; i < dockedViews.size(); i++) {
+      DockingWindow window = (DockingWindow) dockedViews.get(i);
+      window.doFireWindowDocked(window);
+
+      DockingWindow[] ancestors = window.getAncestors();
+      for (int k = 0; k < ancestors.length; k++)
+        ancestors[k].doFireWindowDocked(window);
+    }
+  }
+
+  private void doFireWindowDocked(DockingWindow window) {
+    if (getListeners() != null) {
+      DockingWindowListener[] l = (DockingWindowListener[]) getListeners().toArray(
+          new DockingWindowListener[getListeners().size()]);
+
+      for (int i = 0; i < l.length; i++)
+        l[i].windowDocked(window);
+    }
+  }
+
+  private void doFireWindowRestored(DockingWindow window) {
+    if (getListeners() != null) {
+      DockingWindowListener[] l = (DockingWindowListener[]) getListeners().toArray(
+          new DockingWindowListener[getListeners().size()]);
+
+      for (int i = 0; i < l.length; i++)
+        l[i].windowRestored(window);
+    }
+  }
+
+  void fireWindowMaximized(DockingWindow window) {
+    if (getListeners() != null) {
+      DockingWindowListener[] l = (DockingWindowListener[]) getListeners().toArray(
+          new DockingWindowListener[getListeners().size()]);
+
+      for (int i = 0; i < l.length; i++)
+        l[i].windowMaximized(window);
+    }
+
+    if (windowParent != null)
+      windowParent.fireWindowMaximized(window);
+  }
+
+  void fireWindowMinimized(DockingWindow window, DockingWindow[] oldAncestors) {
+    doFireWindowMinimized(window);
+
+    for (int i = oldAncestors.length - 1; i >= 0; i--)
+      oldAncestors[i].doFireWindowMinimized(window);
+  }
+
+  private void doFireWindowMinimized(DockingWindow window) {
+    if (getListeners() != null) {
+      DockingWindowListener[] l = (DockingWindowListener[]) getListeners().toArray(
+          new DockingWindowListener[getListeners().size()]);
+
+      for (int i = 0; i < l.length; i++)
+        l[i].windowMinimized(window);
+    }
+  }
+
+  void fireWindowRestored(DockingWindow window) {
+    if (getListeners() != null) {
+      DockingWindowListener[] l = (DockingWindowListener[]) getListeners().toArray(
+          new DockingWindowListener[getListeners().size()]);
+
+      for (int i = 0; i < l.length; i++)
+        l[i].windowRestored(window);
+    }
+
+    if (windowParent != null)
+      windowParent.fireWindowRestored(window);
+  }
+
+  protected void setLastMinimizedDirection(Direction direction) {
+    windowItem.setLastMinimizedDirection(direction);
   }
 
   /**
  *
    */
-  protected void updateMinimizable() {
+  protected void clearChildrenFocus(DockingWindow child, View view) {
+    for (int i = 0; i < getChildWindowCount(); i++)
+      if (child != getChildWindow(i))
+        getChildWindow(i).clearFocus(view);
+  }
+
+  void childGainedFocus(DockingWindow child, View view) {
+    if (child != null)
+      lastFocusedChildWindow = child;
+
+    clearChildrenFocus(child, view);
+
+    if (windowParent != null)
+      windowParent.childGainedFocus(this, view);
+  }
+
+  WindowTab getTab() {
+    if (tab == null) {
+      tab = new WindowTab(this, false);
+    }
+
+    return tab;
+  }
+
+  /**
+ *
+   */
+  protected void childRemoved(DockingWindow child) {
+    if (lastFocusedChildWindow == child)
+      lastFocusedChildWindow = null;
+  }
+
+  /**
+ *
+   */
+  protected void updateButtonVisibility() {
     if (tab != null)
-      tab.updateButtons();
+      tab.updateTabButtons(null);
 
     for (int i = 0; i < getChildWindowCount(); i++)
-      getChildWindow(i).updateMinimizable();
+      getChildWindow(i).updateButtonVisibility();
   }
 
   /**
@@ -1071,6 +1508,7 @@ abstract public class DockingWindow extends BasePanel {
         fireTitleChanged();
         window.fireWindowRemoved(DockingWindow.this, window);
         fireWindowRemoved(DockingWindow.this, window);
+        afterWindowRemoved(window);
       }
     });
   }
@@ -1111,14 +1549,14 @@ abstract public class DockingWindow extends BasePanel {
  *
    */
   protected void rootChanged(RootWindow oldRoot, RootWindow newRoot) {
-    updateWindowItem(newRoot);
-
     if (newRoot != null)
       lastRootWindow = new WeakReference(newRoot);
 
     for (int i = 0; i < getChildWindowCount(); i++)
       if (getChildWindow(i) != null)
         getChildWindow(i).rootChanged(oldRoot, newRoot);
+
+    updateWindowItem(newRoot);
   }
 
   /**
@@ -1136,8 +1574,12 @@ abstract public class DockingWindow extends BasePanel {
     final RootWindow oldRoot = getRootWindow();
 
     if (windowParent != null) {
-      if (isMaximized())
-        getRootWindow().setMaximizedWindow(null);
+      if (isMaximized()) {
+        if (isUndocked())
+          DockingUtil.getFloatingWindowFor(this).setMaximizedWindow(null);
+        else
+          getRootWindow().setMaximizedWindow(null);
+      }
 
       windowParent.childRemoved(this);
       clearFocus(null);
@@ -1170,11 +1612,54 @@ abstract public class DockingWindow extends BasePanel {
   }
 
   DropAction acceptDrop(Point p, DockingWindow window) {
-    return !isShowing() ||
-           !contains(p) ||
-           hasParent(window) ||
-           (!getRootWindow().getRootWindowProperties().getRecursiveTabsEnabled() && insideTab()) ? null :
-           doAcceptDrop(p, window);
+    DropAction da = null;
+    DockingWindow fw = DockingUtil.getFloatingWindowFor(window);
+    DockingWindow fw2 = DockingUtil.getFloatingWindowFor(this);
+
+    // Check getRootWindow() != window.getRootWindow() so that a view not insidedrop window's root window can be dragged to a floating window
+    if (getRootWindow() != window.getRootWindow() || ((window.getWindowProperties().getDockEnabled() || fw == null || fw2 != null) &&
+                                                      (window.getWindowProperties().getUndockEnabled() || (fw == fw2)))) {
+      da = !isShowing() || !contains(p) || hasParent(window) || (!getRootWindow().getRootWindowProperties()
+          .getRecursiveTabsEnabled() && insideTab()) ?
+           null : doAcceptDrop(p, window);
+    }
+    //System.out.println(!isShowing() + "  " + !contains(p) + "  " + hasParent(window) + "  " + (!getRootWindow().getRootWindowProperties().getRecursiveTabsEnabled() && insideTab()));
+    //System.out.println(" \n ----- Accept drop: " + (this instanceof
+    // SplitWindow));
+    //System.out.println("isSho " + !isShowing() + " contan " +
+    // !contains(p) + " parent " + hasParent(window) + " bla " +
+    // (!getRootWindow().getRootWindowProperties().getRecursiveTabsEnabled()
+    // && insideTab()));
+    //}
+
+    return da;
+  }
+
+  DropAction getDefaultDropAction() {
+    return new DropAction() {
+      public void execute(DockingWindow window, MouseEvent mouseEvent) {
+        if (getWindowProperties().getUndockEnabled() && getWindowProperties().getUndockOnDropEnabled()) {
+          Point p = mouseEvent.getPoint();
+          Point p2 = SwingUtilities.convertPoint((Component) mouseEvent.getSource(), p, getRootWindow());
+          Point p3 = SwingUtilities.convertPoint((Component) mouseEvent.getSource(), p, getRootWindow().getRootPane());
+          if (!getRootWindow().contains(p2) && !getRootWindow().floatingWindowsContainPoint(p3)) {
+            FloatingWindow fw = DockingUtil.getFloatingWindowFor(window);
+
+            if (fw == null || (fw.getChildWindowCount() > 0 && fw.getChildWindow(0).getChildWindowCount() > 1)) {
+              SwingUtilities.convertPointToScreen(p, (Component) mouseEvent.getSource());
+              p.x = p.x - window.getWidth() / 2;
+              p.y = p.y - Math.min(DROP_FLOATING_YOFFSET, window.getHeight() / 2);
+              try {
+                window.undockWithAbort(p);
+              }
+              catch (OperationAbortedException e) {
+                // Ignore
+              }
+            }
+          }
+        }
+      }
+    };
   }
 
   protected boolean acceptsSplitWith(DockingWindow window) {
@@ -1210,7 +1695,10 @@ abstract public class DockingWindow extends BasePanel {
     if (splitDistance != -1 && dist > splitDistance * getEdgeDepth(splitDir))
       return null;
 
-    return split(window, splitDir);
+    if (getSplitDropFilter().acceptDrop(new SplitDropInfo(window, this, p, splitDir)))
+      return split(window, splitDir);
+
+    return null;
   }
 
   protected DropAction split(DockingWindow window, final Direction splitDir) {
@@ -1224,10 +1712,24 @@ abstract public class DockingWindow extends BasePanel {
 
     return new DropAction() {
       public void execute(DockingWindow window, MouseEvent mouseEvent) {
-        split(window, splitDir, splitDir == Direction.UP || splitDir == Direction.LEFT ? 0.33f : 0.66f);
-        window.restoreFocus();
+        try {
+          window.beforeDrop(DockingWindow.this);
+          split(window, splitDir, splitDir == Direction.UP || splitDir == Direction.LEFT ? 0.33f : 0.66f);
+          window.restoreFocus();
+        }
+        catch (OperationAbortedException e) {
+          // Ignore
+        }
       }
     };
+  }
+
+  protected void beforeDrop(DockingWindow target) throws OperationAbortedException {
+    if (!isMinimized() && target.isMinimized())
+      fireWindowMinimizing(this);
+
+    if (!isUndocked() && target.isUndocked())
+      fireWindowUndocking(this);
   }
 
   protected DropAction createTabWindow(DockingWindow window) {
@@ -1237,10 +1739,16 @@ abstract public class DockingWindow extends BasePanel {
       public void execute(final DockingWindow window, MouseEvent mouseEvent) {
         optimizeAfter(window.getWindowParent(), new Runnable() {
           public void run() {
-            TabWindow tabWindow = new TabWindow();
-            windowParent.replaceChildWindow(DockingWindow.this, tabWindow);
-            tabWindow.addTab(DockingWindow.this);
-            tabWindow.addTab(window);
+            try {
+              window.beforeDrop(DockingWindow.this);
+              TabWindow tabWindow = new TabWindow();
+              windowParent.replaceChildWindow(DockingWindow.this, tabWindow);
+              tabWindow.addTab(DockingWindow.this);
+              tabWindow.addTab(window);
+            }
+            catch (OperationAbortedException e) {
+              // Ignore
+            }
           }
         });
       }
@@ -1310,11 +1818,15 @@ abstract public class DockingWindow extends BasePanel {
 
   protected DropAction acceptChildDrop(Point p, DockingWindow window) {
     for (int i = 0; i < getChildWindowCount(); i++) {
-      Point p2 = SwingUtilities.convertPoint(this, p, getChildWindow(i));
-      DropAction da = getChildWindow(i).acceptDrop(p2, window);
+      DockingWindow childWindow = getChildWindow(i);
+      Point p2 = SwingUtilities.convertPoint(this, p, childWindow);
 
-      if (da != null)
-        return da;
+      if (getChildDropFilter().acceptDrop(new ChildDropInfo(window, this, p, childWindow))) {
+        DropAction da = childWindow.acceptDrop(p2, window);
+
+        if (da != null)
+          return da;
+      }
     }
 
     return null;
@@ -1324,8 +1836,8 @@ abstract public class DockingWindow extends BasePanel {
     return windowItem;
   }
 
-  protected static boolean getUpdateModel() {
-    return updateModelDepth == 0;
+  protected boolean getUpdateModel() {
+    return updateModelDepth == 0 && windowItem.isRestoreWindow();
   }
 
   private void findViews(ArrayList views) {
@@ -1359,7 +1871,7 @@ abstract public class DockingWindow extends BasePanel {
         while (item.getParent() != null) {
           DockingWindow parentWindow = item.getParent().getConnectedWindow();
 
-          if (parentWindow != null && parentWindow.getRootWindow() != null && !parentWindow.isMinimized()) {
+          if (parentWindow != null && parentWindow.getRootWindow() != null && !parentWindow.isMinimized() && !parentWindow.isUndocked()) {
             if (parentWindow instanceof TabWindow)
               insertTab((TabWindow) parentWindow, this);
             else if (parentWindow instanceof RootWindow) {
@@ -1514,6 +2026,9 @@ abstract public class DockingWindow extends BasePanel {
                                                 rootWindow.getRootWindowProperties().getDockingWindowProperties());
   }
 
+  protected void afterWindowRemoved(DockingWindow window) {
+  }
+
   protected void write(ObjectOutputStream out, WriteContext context, ViewWriter viewWriter) throws IOException {
   }
 
@@ -1521,5 +2036,29 @@ abstract public class DockingWindow extends BasePanel {
     if (windowParent != null)
       windowParent.cleanUpModel();
   }
+/*  static int cc = 0;
+  protected void finalize() {
+		try {
+			System.out.println("\n\ndocking window finalized " + cc++ + "  " + hashCode() + "\n");
+			super.finalize();
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		}
+	}*/
+  
+  DropFilter getSplitDropFilter() {
+    return getWindowProperties().getDropFilterProperties().getSplitDropFilter();
+  }
 
+  DropFilter getChildDropFilter() {
+    return getWindowProperties().getDropFilterProperties().getChildDropFilter();
+  }
+
+  DropFilter getInteriorDropFilter() {
+    return getWindowProperties().getDropFilterProperties().getInteriorDropFilter();
+  }
+
+  DropFilter getInsertTabDropFilter() {
+    return getWindowProperties().getDropFilterProperties().getInsertTabDropFilter();
+  }
 }

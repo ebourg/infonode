@@ -20,14 +20,16 @@
  */
 
 
-//$Id: RestoreIcon.java,v 1.8 2005/02/16 11:28:11 jesper Exp $
+//$Id: RestoreIcon.java,v 1.10 2005/12/04 13:46:03 jesper Exp $
 package net.infonode.gui.icon.button;
+
+import net.infonode.gui.GraphicsUtil;
 
 import java.awt.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.10 $
  */
 public class RestoreIcon extends AbstractButtonIcon {
   private static final long serialVersionUID = 4019344427358669254L;
@@ -53,15 +55,15 @@ public class RestoreIcon extends AbstractButtonIcon {
     int boxWidth = (5 * (x2 - x1 + 1)) / 6 - 1;
 
     // Upper box
-    g.drawLine(x2 - boxWidth, y1, x2, y1);
-    g.drawLine(x2, y1, x2, y1 + boxHeight);
-    g.drawLine(x2 - boxWidth, y1 + 1, x2 - boxWidth, y2 - boxHeight);
-    g.drawLine(x1 + boxWidth + 1, y1 + boxHeight, x2 - 1, y1 + boxHeight);
+    GraphicsUtil.drawOptimizedLine(g, x2 - boxWidth, y1, x2, y1);
+    GraphicsUtil.drawOptimizedLine(g, x2, y1, x2, y1 + boxHeight);
+    GraphicsUtil.drawOptimizedLine(g, x2 - boxWidth, y1 + 1, x2 - boxWidth, y2 - boxHeight);
+    GraphicsUtil.drawOptimizedLine(g, x1 + boxWidth + 1, y1 + boxHeight, x2 - 1, y1 + boxHeight);
 
     // Lower box
-    g.drawLine(x1, y2 - boxHeight, x1, y2);
-    g.drawLine(x1 + 1, y2, x1 + boxWidth, y2);
-    g.drawLine(x1 + boxWidth, y2 - 1, x1 + boxWidth, y2 - boxHeight + 1);
-    g.drawLine(x1 + 1, y2 - boxHeight, x1 + boxWidth, y2 - boxHeight);
+    GraphicsUtil.drawOptimizedLine(g, x1, y2 - boxHeight, x1, y2);
+    GraphicsUtil.drawOptimizedLine(g, x1 + 1, y2, x1 + boxWidth, y2);
+    GraphicsUtil.drawOptimizedLine(g, x1 + boxWidth, y2 - 1, x1 + boxWidth, y2 - boxHeight + 1);
+    GraphicsUtil.drawOptimizedLine(g, x1 + 1, y2 - boxHeight, x1 + boxWidth, y2 - boxHeight);
   }
 }

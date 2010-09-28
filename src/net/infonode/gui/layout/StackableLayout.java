@@ -20,7 +20,7 @@
  */
 
 
-// $Id: StackableLayout.java,v 1.18 2005/02/16 11:28:12 jesper Exp $
+// $Id: StackableLayout.java,v 1.23 2005/12/04 13:46:03 jesper Exp $
 package net.infonode.gui.layout;
 
 import net.infonode.gui.ComponentUtil;
@@ -28,13 +28,13 @@ import net.infonode.gui.ComponentUtil;
 import java.awt.*;
 
 public class StackableLayout implements LayoutManager2 {
-//  private Container container;
+  private Container container;
   private Component component;
   private boolean autoShowFirstComponent = true;
   private boolean useSelectedComponentSize;
 
   public StackableLayout(Container container) {
-//    this.container = container;
+    this.container = container;
   }
 
   public boolean usesSelectedComponentSize() {
@@ -50,7 +50,14 @@ public class StackableLayout implements LayoutManager2 {
   }
 
   public void setUseSelectedComponentSize(boolean useSelectedComponentSize) {
-    this.useSelectedComponentSize = useSelectedComponentSize;
+    if (this.useSelectedComponentSize != useSelectedComponentSize) {
+      this.useSelectedComponentSize = useSelectedComponentSize;
+      ComponentUtil.validate(container);
+      /*if (container instanceof JComponent)
+        ((JComponent)container).revalidate();
+      else
+        container.validate();*/
+    }
   }
 
   public Dimension maximumLayoutSize(Container target) {
@@ -124,16 +131,18 @@ public class StackableLayout implements LayoutManager2 {
                            KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(),
                            oldComponent);
 
+    if (oldComponent != null)
+      oldComponent.setVisible(false);
+
     if (component != null) {
       component.setVisible(true);
 
       if (hasFocus)
+      //component.requestFocusInWindow();
         ComponentUtil.smartRequestFocus(component);
     }
 
-    if (oldComponent != null)
-      oldComponent.setVisible(false);
-
+    
 /*    if (oldComponent != null) {
 //      oldComponent.setVisible(false);
       SwingUtilities.invokeLater(new Runnable() {

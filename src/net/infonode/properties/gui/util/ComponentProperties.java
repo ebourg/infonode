@@ -20,10 +20,12 @@
  */
 
 
-// $Id: ComponentProperties.java,v 1.14 2005/02/16 11:28:15 jesper Exp $
+// $Id: ComponentProperties.java,v 1.17 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.properties.gui.util;
 
 import net.infonode.gui.InsetsUtil;
+import net.infonode.gui.panel.BaseContainer;
+import net.infonode.gui.panel.BaseContainerUtil;
 import net.infonode.properties.propertymap.*;
 import net.infonode.properties.types.BorderProperty;
 import net.infonode.properties.types.ColorProperty;
@@ -41,7 +43,7 @@ import java.awt.*;
  * Properties and property values for a {@link JComponent}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.14 $
+ * @version $Revision: 1.17 $
  */
 public class ComponentProperties extends PropertyMapContainer {
   /**
@@ -271,9 +273,18 @@ public class ComponentProperties extends PropertyMapContainer {
     component.setBorder((getBorder() == null) ? innerBorder
                         : ((innerBorder == null) ? getBorder()
                            : new CompoundBorder(getBorder(), innerBorder)));
-    component.setOpaque(getBackgroundColor() != null);
-    component.setBackground(getBackgroundColor());
-    component.setFont(getFont());
-    component.setForeground(getForegroundColor());
+    //component.setOpaque(getBackgroundColor() != null);
+    
+    if (component instanceof BaseContainer) {
+      BaseContainer c = (BaseContainer) component;
+      BaseContainerUtil.setOverridedBackground(c, getBackgroundColor());
+      BaseContainerUtil.setOverridedForeground(c, getForegroundColor());
+      BaseContainerUtil.setOverridedFont(c, getFont());
+    }
+    else {
+      component.setBackground(getBackgroundColor());
+      component.setFont(getFont());
+      component.setForeground(getForegroundColor());
+    }
   }
 }

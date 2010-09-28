@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowBarItem.java,v 1.8 2005/02/16 11:28:14 jesper Exp $
+// $Id: WindowBarItem.java,v 1.10 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.docking.model;
 
 import net.infonode.docking.DockingWindow;
@@ -31,7 +31,7 @@ import java.util.ArrayList;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.10 $
  */
 public class WindowBarItem extends AbstractTabWindowItem {
   private WindowBarProperties windowBarProperties;
@@ -61,6 +61,10 @@ public class WindowBarItem extends AbstractTabWindowItem {
 
   public void setWindowBarProperties(WindowBarProperties windowBarProperties) {
     this.windowBarProperties = windowBarProperties;
+  }
+
+  public boolean isRestoreWindow() {
+    return false;
   }
 
 }

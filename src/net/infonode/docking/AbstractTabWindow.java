@@ -20,14 +20,14 @@
  */
 
 
-// $Id: AbstractTabWindow.java,v 1.57 2005/02/16 11:28:14 jesper Exp $
+// $Id: AbstractTabWindow.java,v 1.70 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.docking;
 
+import net.infonode.docking.drop.InsertTabDropInfo;
 import net.infonode.docking.internal.ReadContext;
+import net.infonode.docking.internal.WindowAncestors;
 import net.infonode.docking.internal.WriteContext;
 import net.infonode.docking.internalutil.DropAction;
-import net.infonode.docking.location.WindowLocation;
-import net.infonode.docking.location.WindowTabLocation;
 import net.infonode.docking.model.AbstractTabWindowItem;
 import net.infonode.docking.model.ViewReader;
 import net.infonode.docking.model.ViewWriter;
@@ -50,9 +50,11 @@ import java.io.ObjectOutputStream;
  * Abstract base class for windows containing a tabbed panel.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.57 $
+ * @version $Revision: 1.70 $
  */
 abstract public class AbstractTabWindow extends DockingWindow {
+  private static int MINIMUM_SIZE = 7;
+
   private DropAction dropAction = new DropAction() {
     public boolean showTitle() {
       return false;
@@ -63,10 +65,17 @@ abstract public class AbstractTabWindow extends DockingWindow {
         int index = tabbedPanel.getTabIndex(dragTab);
         stopDrag();
 
-        if (mouseEvent.isShiftDown())
-          addTabNoSelect(window, index);
-        else
-          addTab(window, index);
+        try {
+          window.beforeDrop(AbstractTabWindow.this);
+
+          if (mouseEvent.isShiftDown())
+            addTabNoSelect(window, index);
+          else
+            addTab(window, index);
+        }
+        catch (OperationAbortedException e) {
+          // Ignore
+        }
       }
     }
 
@@ -107,11 +116,46 @@ abstract public class AbstractTabWindow extends DockingWindow {
 
   protected AbstractTabWindow(boolean showContent, WindowItem windowItem) {
     super(windowItem);
-    tabbedPanel = showContent ? new TabbedPanel() : new TabbedPanel(null);
+    if (showContent) {
+      TabContentPanel contentPanel = new TabContentPanel() {
+        public Dimension getMinimumSize() {
+          return new Dimension(0, 0);
+        }
+      };
+      tabbedPanel = new TabbedPanel(contentPanel, true) {
+        public Dimension getMinimumSize() {
+          return getTabbedPanelMinimumSize(super.getMinimumSize());
+        }
+      };
+      contentPanel.setTabbedPanel(tabbedPanel);
+    }
+    else
+      tabbedPanel = new TabbedPanel(null) {
+        public Dimension getMinimumSize() {
+          return getTabbedPanelMinimumSize(super.getMinimumSize());
+        }
+      };
+
     tabbedPanel.addTabListener(new TabWindowMover(this, tabbedPanel));
     setComponent(tabbedPanel);
 
     getTabbedPanel().addTabListener(new TabAdapter() {
+      public void tabAdded(final TabEvent event) {
+        SwingUtilities.invokeLater(new Runnable() {
+          public void run() {
+            updateButtonVisibility();
+          }
+        });
+      }
+
+      public void tabRemoved(final TabEvent event) {
+        SwingUtilities.invokeLater(new Runnable() {
+          public void run() {
+            updateButtonVisibility();
+          }
+        });
+      }
+
       public void tabSelected(TabStateChangedEvent event) {
         AbstractTabWindow.this.tabSelected((WindowTab) event.getTab());
         DockingWindow selectedWindow = getSelectedWindow();
@@ -132,7 +176,9 @@ abstract public class AbstractTabWindow extends DockingWindow {
           fireTitleChanged();
       }
     });
+  }
 
+  protected void initMouseListener() {
     getTabbedPanel().addMouseListener(new MouseAdapter() {
       public void mousePressed(MouseEvent e) {
         if (e.isPopupTrigger()) {
@@ -144,6 +190,13 @@ abstract public class AbstractTabWindow extends DockingWindow {
         mousePressed(e);
       }
     });
+  }
+
+  private Dimension getTabbedPanelMinimumSize(Dimension d) {
+    if (tabbedPanel.getProperties().getTabAreaOrientation().isHorizontal())
+      return new Dimension(d.width, MINIMUM_SIZE);
+    else
+      return new Dimension(MINIMUM_SIZE, d.height);
   }
 
   /**
@@ -244,6 +297,7 @@ abstract public class AbstractTabWindow extends DockingWindow {
   }
 
   protected int addTabNoSelect(DockingWindow window, int index) {
+    WindowAncestors ancestors = window.storeAncestors();
     beginOptimize(window.getWindowParent());
     beginIgnoreSelected();
 
@@ -256,6 +310,7 @@ abstract public class AbstractTabWindow extends DockingWindow {
       int actualIndex = beforeTab == null ? tabbedPanel.getTabCount() : tabbedPanel.getTabIndex(beforeTab);
       tabbedPanel.insertTab(tab, actualIndex);
       addWindow(w);
+      window.notifyListeners(ancestors);
       return actualIndex;
     }
     finally {
@@ -350,13 +405,6 @@ abstract public class AbstractTabWindow extends DockingWindow {
     return tabbedPanel.getTabCount();
   }
 
-  protected WindowLocation getWindowLocation(DockingWindow window) {
-    return tabbedPanel.getTabCount() < 2 ? getWindowLocation()
-           : new WindowTabLocation(this,
-                                   getWindowLocation(),
-                                   getChildWindowIndex(window));
-  }
-
   public Icon getIcon() {
     DockingWindow window = getSelectedWindow();
     return window != null ? window.getIcon() : getChildWindowCount() > 0 ? getChildWindow(0).getIcon() : null;
@@ -424,26 +472,36 @@ abstract public class AbstractTabWindow extends DockingWindow {
 
     Point p2 = SwingUtilities.convertPoint(this, p, tabbedPanel);
 
-    if ((getRootWindow().getRootWindowProperties().getRecursiveTabsEnabled() || window.getChildWindowCount() <= 1) &&
-        isInsideTabArea(p2)) {
+    if ((getRootWindow().getRootWindowProperties().getRecursiveTabsEnabled() || window.getChildWindowCount() <= 1) && isInsideTabArea(
+        p2)) {
       getRootWindow().setDragRectangle(null);
 
       if (window.getWindowParent() == this) {
         tabbedPanel.moveTab(window.getTab(), p2);
       }
-      else if (dragTab == null) {
-        dragTab = new WindowTab(window, true);
-        dragTab.setProperties(getTabProperties(window));
-        tabbedPanel.insertTab(dragTab, p2);
-      }
       else {
-        tabbedPanel.moveTab(dragTab, p2);
+        if (!getInsertTabDropFilter().acceptDrop(new InsertTabDropInfo(window, this, p)))
+          return null;
+
+        if (dragTab == null) {
+          dragTab = createGhostTab(window);
+          tabbedPanel.insertTab(dragTab, p2);
+        }
+        else {
+          tabbedPanel.moveTab(dragTab, p2);
+        }
       }
 
       return dropAction;
     }
 
     return null;
+  }
+
+  WindowTab createGhostTab(DockingWindow window) {
+    WindowTab tab = new WindowTab(window, true);
+    tab.setProperties(getTabProperties(window));
+    return tab;
   }
 
   private void stopDrag() {

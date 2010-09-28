@@ -20,7 +20,7 @@
  */
 
 
-// $Id: DockingWindowListener.java,v 1.10 2005/02/16 11:28:14 jesper Exp $
+// $Id: DockingWindowListener.java,v 1.19 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.docking;
 
 /**
@@ -35,7 +35,7 @@ package net.infonode.docking;
  * </p>
  *
  * @author $Author: jesper $
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.19 $
  * @since IDW 1.1.0
  */
 public interface DockingWindowListener {
@@ -66,9 +66,9 @@ public interface DockingWindowListener {
   void windowShown(DockingWindow window);
 
   /**
-   * Called when a is hidden, for example when it is deselected in a TabWindow.
+   * Called when a window is hidden, for example when it is deselected in a TabWindow.
    *
-   * @param window the window that was shown
+   * @param window the window that was hidden
    * @since IDW 1.3.0
    */
   void windowHidden(DockingWindow window);
@@ -111,4 +111,151 @@ public interface DockingWindowListener {
    * @param window the window that has been closed
    */
   void windowClosed(DockingWindow window);
+
+  /**
+   * <p>
+   * Called before the window that this listener is added to, or a child window of that window, is undocked.
+   * </p>
+   *
+   * <p>
+   * Note that this method is only called when {@link DockingWindow#undockWithAbort(java.awt.Point)} is called explicitly, not
+   * when a window is implicitly undocked as a result of another method call. Throwing an {@link OperationAbortedException}
+   * will cause the undock operation to be aborted.
+   * </p>
+   *
+   * @param window the window that is undocking
+   * @throws OperationAbortedException if this exception is thrown the undock operation will be aborted
+   * @since IDW 1.4.0
+   */
+  void windowUndocking(DockingWindow window) throws OperationAbortedException;
+
+  /**
+   * <p>
+   * Called after the window that this listener is added to, or a child window of that window, has been undocked.
+   * </p>
+   *
+   * <p>
+   * This method is called when a window is undocked using {@link DockingWindow#undock(java.awt.Point)},
+   * {@link DockingWindow#undockWithAbort(java.awt.Point)} or is added to a window that is undocked.
+   * </p>
+   *
+   * @param window the window that has been undocked
+   * @since IDW 1.4.0
+   */
+  void windowUndocked(DockingWindow window);
+
+  /**
+   * <p>
+   * Called before the window that this listener is added to, or a child window of that window, is docked.
+   * </p>
+   *
+   * <p>
+   * <strong>Note:</strong> that this method is only called when {@link DockingWindow#dockWithAbort()} is called explicitly, not
+   * when a window is implicitly docked as a result of another method call. Throwing an {@link OperationAbortedException}
+   * will cause the dock operation to be aborted.
+   * </p>
+   *
+   * @param window the window that is docking
+   * @throws OperationAbortedException if this exception is thrown the dock operation will be aborted i.e. no views in the
+   *                                   window will be docked
+   * @since IDW 1.4.0
+   */
+  void windowDocking(DockingWindow window) throws OperationAbortedException;
+
+  /**
+   * <p>
+   * Called when a view has been docked in the root window.
+   * </p>
+   *
+   * <p>
+   * <strong>Note:</strong> If a window containing more than one view was docked then this method will be called for each
+   * view after all views have been docked.
+   * </p>
+   *
+   * @param window the view that has been docked
+   * @since IDW 1.4.0
+   */
+  void windowDocked(DockingWindow window);
+
+  /**
+   * <p>
+   * Called before the window that this listener is added to, or a child window of that window, is minimized.
+   * </p>
+   *
+   * <p>
+   * <strong>Note:</strong> that this method is only called when {@link DockingWindow#minimizeWithAbort()} is called
+   * explicitly, not when a window is implicitly docked as a result of another method call. Throwing an
+   * {@link OperationAbortedException} will cause the minimize operation to be aborted.
+   * </p>
+   *
+   * @param window the window that is minimizing
+   * @throws OperationAbortedException if this exception is thrown the minimize operation will be aborted
+   * @since IDW 1.4.0
+   */
+  void windowMinimizing(DockingWindow window) throws OperationAbortedException;
+
+  /**
+   * Called after the window that this listener is added to, or a child window of that window, has been minimized.
+   *
+   * @param window the window that has been minimized
+   * @since IDW 1.4.0
+   */
+  void windowMinimized(DockingWindow window);
+
+  /**
+   * <p>
+   * Called before the window that this listener is added to, or a child window of that window, is maximized.
+   * </p>
+   *
+   * <p>
+   * <strong>Note:</strong> that this method is only called when {@link DockingWindow#maximizeWithAbort()} is called
+   * explicitly, not when a window is implicitly docked as a result of another method call. Throwing an
+   * {@link OperationAbortedException} will cause the maximize operation to be aborted.
+   * </p>
+   *
+   * @param window the window that is maximizing
+   * @throws OperationAbortedException if this exception is thrown the maximize operation will be aborted
+   * @since IDW 1.4.0
+   */
+  void windowMaximizing(DockingWindow window) throws OperationAbortedException;
+
+  /**
+   * Called after the window that this listener is added to, or a child window of that window, has been maximized.
+   *
+   * @param window the window that has been maximized
+   * @since IDW 1.4.0
+   */
+  void windowMaximized(DockingWindow window);
+
+  /**
+   * <p>
+   * Called before the window that this listener is added to, or a child window of that window, is restored.
+   * </p>
+   *
+   * <p>
+   * <strong>Note:</strong> that this method is only called when {@link DockingWindow#restoreWithAbort()} is called
+   * explicitly, not when a window is implicitly restored as a result of another method call. Throwing an
+   * {@link OperationAbortedException} will cause the restore operation to be aborted.
+   * </p>
+   *
+   * @param window the window that is restoring
+   * @throws OperationAbortedException if this exception is thrown the restore operation will be aborted
+   * @since IDW 1.4.0
+   */
+  void windowRestoring(DockingWindow window) throws OperationAbortedException;
+
+  /**
+   * <p>
+   * Called after the window that this listener is added to, or a child window of that window, has been restored.
+   * </p>
+   *
+   * <p>
+   * Note that this method is only called when {@link DockingWindow#restore()}
+   * is called explicitly, not when a window is implicitly restored as a result of another method call.
+   * </p>
+   *
+   * @param window the window that has been restored
+   * @since IDW 1.4.0
+   */
+  void windowRestored(DockingWindow window);
 }

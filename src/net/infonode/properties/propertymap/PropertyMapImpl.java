@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyMapImpl.java,v 1.23 2005/02/16 11:28:15 jesper Exp $
+// $Id: PropertyMapImpl.java,v 1.28 2005/12/04 13:46:06 jesper Exp $
 package net.infonode.properties.propertymap;
 
 import net.infonode.properties.base.Property;
@@ -40,7 +40,12 @@ import net.infonode.util.collection.map.SingleValueMap;
 import net.infonode.util.collection.map.base.ConstMap;
 import net.infonode.util.collection.map.base.ConstMapIterator;
 import net.infonode.util.collection.map.base.MapIterator;
-import net.infonode.util.collection.notifymap.*;
+import net.infonode.util.collection.notifymap.AbstractConstChangeNotifyMap;
+import net.infonode.util.collection.notifymap.ChangeNotifyMapWrapper;
+import net.infonode.util.collection.notifymap.ConstChangeNotifyMap;
+import net.infonode.util.collection.notifymap.ConstChangeNotifyVectorMap;
+import net.infonode.util.signal.Signal;
+import net.infonode.util.signal.SignalListener;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -49,49 +54,93 @@ import java.util.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.23 $
+ * @version $Revision: 1.28 $
  */
 public class PropertyMapImpl implements PropertyMap {
   private static final int SERIALIZE_VERSION = 1;
 
-  private class PropertyObjectMap extends AbstractConstChangeNotifyMap {
-    private ChangeNotifyMapListener superListener = new ChangeNotifyMapListener() {
-      public void entriesChanged(ConstMap changes) {
-        MapAdapter m = new MapAdapter();
-
-        for (ConstMapIterator iterator = changes.constIterator(); iterator.atEntry(); iterator.next()) {
-          Property property = (Property) iterator.getKey();
-
-          if (propertyGroup.hasProperty(property)) {
-            PropertyValue currentValue = (PropertyValue) values.get(property);
-
-            if (currentValue == null || currentValue.getParent() != null) {
-              ValueChange vc = (ValueChange) iterator.getValue();
-              PropertyValue superValue = (PropertyValue) vc.getNewValue();
-              PropertyValue newValue = superValue == null ? null : superValue.getSubValue(PropertyMapImpl.this);
-              internalSetValue(property, newValue);
-              m.put(property, new ValueChange(currentValue != null ? currentValue : vc.getOldValue(),
-                                              newValue != null ? newValue : vc.getNewValue()));
-            }
-          }
-        }
-
-        fireEntriesChanged(m);
-      }
-    };
+  private class PropertyObjectMap extends AbstractConstChangeNotifyMap implements SignalListener {
+    private boolean listenerActive;
 
     PropertyObjectMap() {
     }
 
-    public void addListener(ChangeNotifyMapListener listener) {
-      boolean hasListeners = hasListeners();
-
-      super.addListener(listener);
-
-      if (!hasListeners) {
+    protected void listenerAdded() {
+      if (!listenerActive) {
+        listenerActive = true;
         addInheritedReferences();
-        superMap.addListener(superListener);
+        superMap.getChangeSignal().add(this);
       }
+    }
+
+    public void signalEmitted(Signal signal, Object object) {
+      ConstMap changes = (ConstMap) object;
+      MapAdapter m = new MapAdapter();
+
+      for (ConstMapIterator iterator = changes.constIterator(); iterator.atEntry(); iterator.next()) {
+        Property property = (Property) iterator.getKey();
+
+        if (propertyGroup.hasProperty(property)) {
+          PropertyValue currentValue = (PropertyValue) values.get(property);
+
+          if (currentValue == null || currentValue.getParent() != null) {
+            ValueChange vc = (ValueChange) iterator.getValue();
+            PropertyValue superValue = (PropertyValue) vc.getNewValue();
+            PropertyValue newValue = superValue == null ? null : superValue.getSubValue(PropertyMapImpl.this);
+            internalSetValue(property, newValue);
+            m.put(property, new ValueChange(currentValue != null ? currentValue : vc.getOldValue(),
+                                            newValue != null ? newValue : vc.getNewValue()));
+          }
+        }
+      }
+
+      if (!m.isEmpty())
+        fireEntriesChanged(m);
+    }
+
+    protected void lastListenerRemoved() {
+      if (listenerActive) {
+        listenerActive = false;
+        superMap.getChangeSignal().remove(this);
+        removeInheritedReferences();
+      }
+    }
+
+    public boolean checkListeners(Set visited) {
+      for (Iterator it = getChangeSignalInternal().iterator(); it.hasNext();) {
+        Object l = it.next();
+
+        if (l instanceof PropertyRefValue) {
+          PropertyRefValue v = (PropertyRefValue) l;
+
+          if (v.getMap().checkListeners(visited))
+            return true;
+        }
+      }
+
+      return false;
+    }
+
+    public void updateListeners() {
+      for (Iterator it = getChangeSignalInternal().iterator(); it.hasNext();) {
+        if (!(it.next() instanceof PropertyRefValue)) {
+          return;
+        }
+      }
+
+      for (Iterator it = getChangeSignalInternal().iterator(); it.hasNext();) {
+        Object l = it.next();
+
+        if (l instanceof PropertyRefValue) {
+          PropertyRefValue v = (PropertyRefValue) l;
+
+          if (v.getMap().checkListeners(new HashSet())) {
+            return;
+          }
+        }
+      }
+
+      lastListenerRemoved();
     }
 
     private void addInheritedReferences() {
@@ -137,24 +186,6 @@ public class PropertyMapImpl implements PropertyMap {
       }
     }
 
-/*    public void addWeakListener(ChangeNotifyMapListener listener) {
-      if (!hasListeners())
-        superMap.addListener(superListener);
-
-      super.addWeakListener(listener);
-    }
-*/
-    public boolean removeListener(ChangeNotifyMapListener listener) {
-      boolean result = super.removeListener(listener);
-
-      if (result && !hasListeners()) {
-        superMap.removeListener(superListener);
-        removeInheritedReferences();
-      }
-
-      return result;
-    }
-
     public Object get(Object key) {
       return vectorMap.get(key);
     }
@@ -196,7 +227,7 @@ public class PropertyMapImpl implements PropertyMap {
   private ArrayList listeners;
   private ArrayList treeListeners;
 
-  private ChangeNotifyMapListener mapListener;
+  private SignalListener mapListener;
 
   public PropertyMapImpl(PropertyMapGroup propertyGroup) {
     this(propertyGroup, null);
@@ -256,21 +287,30 @@ public class PropertyMapImpl implements PropertyMap {
   private void updateListener() {
     if (hasListener()) {
       if (mapListener == null) {
-        mapListener = new ChangeNotifyMapListener() {
-          public void entriesChanged(ConstMap changes) {
-            PropertyMapManager.getInstance().addMapChanges(PropertyMapImpl.this, changes);
+        mapListener = new SignalListener() {
+          public void signalEmitted(Signal signal, Object object) {
+            PropertyMapManager.getInstance().addMapChanges(PropertyMapImpl.this, (ConstMap) object);
           }
         };
 
-        map.addListener(mapListener);
+        map.getChangeSignal().add(mapListener);
       }
     }
     else {
       if (mapListener != null) {
-        map.removeListener(mapListener);
+        map.getChangeSignal().remove(mapListener);
         mapListener = null;
+        map.updateListeners();
       }
     }
+  }
+
+  private boolean checkListeners(Set visited) {
+    if (visited.contains(this))
+      return false;
+
+    visited.add(this);
+    return hasListener() || map.checkListeners(visited);
   }
 
   public ConstChangeNotifyMap getMap() {
@@ -378,7 +418,7 @@ public class PropertyMapImpl implements PropertyMap {
   }
 
   public boolean replaceSuperMap(PropertyMap oldSuperMap, PropertyMap newSuperMap) {
-    if (superMaps.size() > (parent == null ? 0 : parent.superMaps.size())) {
+    if (oldSuperMap != newSuperMap && superMaps.size() > (parent == null ? 0 : parent.superMaps.size())) {
       int index = superMaps.indexOf(oldSuperMap);
 
       if (index == -1)
@@ -581,7 +621,8 @@ public class PropertyMapImpl implements PropertyMap {
 
   public PropertyValue setValue(Property property, PropertyValue value) {
     checkProperty(property);
-    PropertyValue oldValue = internalSetValue(property, value);
+    PropertyValue oldValue = getValue(property);
+    internalSetValue(property, value);
 
     if (!Utils.equals(value, oldValue)) {
       PropertyMapManager.getInstance().beginBatch();
@@ -678,8 +719,8 @@ public class PropertyMapImpl implements PropertyMap {
     printer.println(System.identityHashCode(this) + ":" + this);
 
     for (int i = 0; i < superMaps.size(); i++) {
-      if (superMap.getMap(i) != ((PropertyMapImpl) superMaps.get(i)).map)
-        System.out.println("Error!");
+//      if (superMap.getMap(i) != ((PropertyMapImpl) superMaps.get(i)).map)
+//        System.out.println("Error!");
 
       printer.beginSection();
       ((PropertyMapImpl) superMaps.get(i)).dumpSuperMaps(printer);

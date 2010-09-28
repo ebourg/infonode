@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowTab.java,v 1.48 2005/02/16 11:28:14 jesper Exp $
+// $Id: WindowTab.java,v 1.56 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.internalutil.*;
@@ -45,13 +45,15 @@ import java.util.Map;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.48 $
+ * @version $Revision: 1.56 $
  */
 class WindowTab extends TitledTab {
   private static final TitledTabStateProperties EMPTY_PROPERTIES = new TitledTabStateProperties();
   private static final WindowTabProperties EMPTY_TAB_PROPERTIES = new WindowTabProperties();
 
   private static final ButtonInfo[] buttonInfos = {
+    new UndockButtonInfo(WindowTabStateProperties.UNDOCK_BUTTON_PROPERTIES),
+    new DockButtonInfo(WindowTabStateProperties.DOCK_BUTTON_PROPERTIES),
     new MinimizeButtonInfo(WindowTabStateProperties.MINIMIZE_BUTTON_PROPERTIES),
     new RestoreButtonInfo(WindowTabStateProperties.RESTORE_BUTTON_PROPERTIES),
     new CloseButtonInfo(WindowTabStateProperties.CLOSE_BUTTON_PROPERTIES)};
@@ -60,20 +62,24 @@ class WindowTab extends TitledTab {
   private AbstractButton[][] buttons = new AbstractButton[WindowTabState.getStateCount()][];
   private DirectionPanel[] buttonBoxes = new DirectionPanel[WindowTabState.getStateCount()];
   private DirectionPanel customComponents = new DirectionPanel();
-  private DirectionPanel highlightedFocusedPanel = new DirectionPanel();
+  private DirectionPanel highlightedFocusedPanel = new DirectionPanel() {
+    public Dimension getMinimumsize() {
+      return new Dimension(0, 0);
+    }
+  };
   private WindowTabProperties windowTabProperties = new WindowTabProperties(EMPTY_TAB_PROPERTIES);
   private ContainerList tabComponentsList;
   private boolean isFocused;
 
   private PropertyMapListener windowPropertiesListener = new PropertyMapListener() {
     public void propertyValuesChanged(PropertyMap propertyObject, Map changes) {
-      updateButtons();
+      updateTabButtons(null);
     }
   };
 
   private PropertyMapTreeListener windowTabPropertiesListener = new PropertyMapTreeListener() {
     public void propertyValuesChanged(Map changes) {
-      updateButtons();
+      updateTabButtons(changes);
     }
   };
 
@@ -82,7 +88,11 @@ class WindowTab extends TitledTab {
     this.window = window;
 
     for (int i = 0; i < WindowTabState.getStateCount(); i++) {
-      buttonBoxes[i] = new DirectionPanel();
+      buttonBoxes[i] = new DirectionPanel() {
+        public Dimension getMinimumSize() {
+          return new Dimension(0, 0);
+        }
+      };
       buttons[i] = new AbstractButton[buttonInfos.length];
     }
 
@@ -156,7 +166,7 @@ class WindowTab extends TitledTab {
     setProperties(EMPTY_TAB_PROPERTIES);
   }
 
-  void updateButtons() {
+  void updateTabButtons(Map changes) {
     WindowTabState[] states = WindowTabState.getStates();
 
     for (int i = 0; i < states.length; i++) {
@@ -166,7 +176,13 @@ class WindowTab extends TitledTab {
           state == WindowTabState.HIGHLIGHTED ? windowTabProperties.getHighlightedButtonProperties() :
           windowTabProperties.getNormalButtonProperties();
 
-      InternalDockingUtil.updateButtons(buttonInfos, buttons[i], buttonBoxes[i], window, buttonProperties.getMap());
+      InternalDockingUtil.updateButtons(buttonInfos,
+                                        buttons[i],
+                                        buttonBoxes[i],
+                                        window,
+                                        buttonProperties.getMap(),
+                                        changes);
+
       buttonBoxes[i].setDirection((state == WindowTabState.NORMAL ?
                                    getProperties().getNormalProperties() :
                                    getProperties().getHighlightedProperties()).getDirection());
@@ -187,7 +203,7 @@ class WindowTab extends TitledTab {
   }
 
   public String toString() {
-    return window.toString();
+    return window != null ? window.toString() : null;
   }
 
   void setContentComponent(Component component) {

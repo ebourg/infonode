@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabLineBorder.java,v 1.26 2005/02/16 11:28:14 jesper Exp $
+// $Id: TabLineBorder.java,v 1.27 2005/07/19 14:17:31 johan Exp $
 package net.infonode.tabbedpanel.border;
 
 import net.infonode.gui.colorprovider.ColorProvider;
@@ -40,8 +40,8 @@ import java.io.Serializable;
  * TabLineBorder draws a 1 pixel wide line around a {@link Tab}. If tab spacing in the
  * tabbed panel is 0 then the border will only draw a single line between two adjacent tabs.
  *
- * @author $Author: jesper $
- * @version $Revision: 1.26 $
+ * @author $Author: johan $
+ * @version $Revision: 1.27 $
  * @see Tab
  * @see TabbedPanel
  * @deprecated As of ITP 1.2.0 use {@link TabAreaLineBorder} instead with
@@ -127,7 +127,7 @@ public class TabLineBorder implements Border, Serializable {
     }
 
     public boolean isBorderOpaque() {
-      return false;
+      return true;
     }
 
     private void paintUpBorder(Graphics g, int x, int y, int width, int height, Color color) {

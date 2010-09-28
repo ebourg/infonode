@@ -20,7 +20,7 @@
  */
 
 
-// $Id: FocusManager.java,v 1.8 2005/02/16 11:28:14 jesper Exp $
+// $Id: FocusManager.java,v 1.12 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.docking;
 
 import javax.swing.*;
@@ -29,18 +29,25 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.lang.ref.SoftReference;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.12 $
  */
 class FocusManager {
   private static final FocusManager INSTANCE = new FocusManager();
 
   private int ignoreFocusChanges;
-  private Timer focusTimer;
+  private Timer focusTimer = new Timer(20, new ActionListener() {
+    public void actionPerformed(ActionEvent e) {
+      updateFocus();
+      focusUpdateTriggered = false;
+    }
+  });
+  private boolean focusUpdateTriggered;
   private ArrayList lastFocusedWindows = new ArrayList();
   private Component focusedComponent;
   private PropertyChangeListener focusListener = new PropertyChangeListener() {
@@ -57,12 +64,21 @@ class FocusManager {
         ignoreFocusChanges--;
       }
     }
+
+    private void triggerFocusUpdate() {
+      if (focusUpdateTriggered)
+        return;
+
+      focusUpdateTriggered = true;
+      focusTimer.setRepeats(false);
+      focusTimer.start();
+    }
+
   };
 
   private FocusManager() {
     KeyboardFocusManager.getCurrentKeyboardFocusManager().addPropertyChangeListener("focusOwner", focusListener);
     updateFocus();
-
   }
 
   static FocusManager getInstance() {
@@ -77,7 +93,7 @@ class FocusManager {
     updateWindows(focusedComponent, focusedComponent, oldFocusedWindows);
 
     for (int i = 0; i < oldFocusedWindows.size(); i++) {
-      RootWindow w = (RootWindow) ((SoftReference) oldFocusedWindows.get(i)).get();
+      RootWindow w = (RootWindow) ((Reference) oldFocusedWindows.get(i)).get();
 
       if (w != null)
         w.setFocusedView(null);
@@ -138,7 +154,7 @@ class FocusManager {
     });
   }
 
-  private View getViewContaining(Component component) {
+  private static View getViewContaining(Component component) {
     return component == null ?
            null : component instanceof View ? (View) component : getViewContaining(component.getParent());
   }
@@ -157,28 +173,14 @@ class FocusManager {
         break;
 
       rw.setFocusedView(view);
-      lastFocusedWindows.add(new SoftReference(rw));
+      lastFocusedWindows.add(new WeakReference(rw));
       component = rw;
 
       for (int i = 0; i < oldFocusedWindows.size(); i++) {
-        if (((SoftReference) oldFocusedWindows.get(i)).get() == component)
+        if (((Reference) oldFocusedWindows.get(i)).get() == component)
           oldFocusedWindows.remove(i);
       }
     }
-  }
-
-  private void triggerFocusUpdate() {
-    if (focusTimer != null)
-      return;
-
-    focusTimer = new Timer(20, new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        updateFocus();
-        focusTimer = null;
-      }
-    });
-    focusTimer.setRepeats(false);
-    focusTimer.start();
   }
 
 }

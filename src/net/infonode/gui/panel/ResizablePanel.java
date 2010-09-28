@@ -20,12 +20,13 @@
  */
 
 
-// $Id: ResizablePanel.java,v 1.10 2005/02/16 11:28:13 jesper Exp $
+// $Id: ResizablePanel.java,v 1.19 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.gui.panel;
 
 import net.infonode.gui.CursorManager;
 import net.infonode.util.Direction;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -33,21 +34,39 @@ import java.awt.event.MouseMotionAdapter;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.19 $
  */
-public class ResizablePanel extends SimplePanel {
+public class ResizablePanel extends BaseContainer {
   private Direction direction;
   private int resizeWidth = 4;
   private boolean cursorChanged;
   private int offset = -1;
   private boolean mouseInside;
+  private boolean heavyWeight = true;
+  private boolean continuousLayout = false;
+  private Component dragIndicator;
+  private JComponent layeredPane;
+  private JComponent innerArea;
+  private Dimension lastSize;
+  private int dragIndicatorThickness = 4;
+  private Component comp;
 
   public ResizablePanel(Direction _direction) {
-    this(_direction, null);
+    this(false, _direction, null);
   }
 
-  public ResizablePanel(Direction _direction, Component mouseListenComponent) {
+  public ResizablePanel(boolean useHeavyWeightDragIndicator, Direction _direction, Component mouseListenComponent) {
+    super(new BorderLayout());
+    this.heavyWeight = useHeavyWeightDragIndicator;
     this.direction = _direction;
+
+    if (heavyWeight) {
+      dragIndicator = new Canvas();
+    }
+    else {
+      dragIndicator = new BaseContainer();
+    }
+    setDragIndicatorColor(null);
     if (mouseListenComponent == null)
       mouseListenComponent = this;
 
@@ -64,17 +83,40 @@ public class ResizablePanel extends SimplePanel {
       }
 
       public void mousePressed(MouseEvent e) {
-        if (cursorChanged) {
-          offset = direction == Direction.LEFT ? e.getPoint().x :
-                   direction == Direction.RIGHT ? getWidth() - e.getPoint().x :
-                   direction == Direction.UP ? e.getPoint().y :
-                   getHeight() - e.getPoint().y;
+        //if (MouseEventCoalesceManager.getInstance().isPressedAllowed(e)) {
+        if (!continuousLayout && layeredPane != null) {
+          if (layeredPane instanceof JLayeredPane)
+            layeredPane.add(dragIndicator, JLayeredPane.DRAG_LAYER);
+          else
+            layeredPane.add(dragIndicator, 0);
+
+          layeredPane.repaint();
+          updateDragIndicator(e);
         }
+        if (cursorChanged) {
+          offset = direction == Direction.LEFT ? e.getPoint().x : direction == Direction.RIGHT ? getWidth() - e.getPoint()
+              .x : direction == Direction.UP ? e.getPoint().y : getHeight()
+                                                                - e.getPoint().y;
+        }
+        //}
       }
 
       public void mouseReleased(MouseEvent e) {
+        //if (MouseEventCoalesceManager.getInstance().isReleasedAllowed(e)) {
+        if (!continuousLayout && layeredPane != null) {
+          layeredPane.remove(dragIndicator);
+          layeredPane.repaint();
+        }
         offset = -1;
         checkCursor(e.getPoint());
+
+        if (!continuousLayout && lastSize != null) {
+          setPreferredSize(lastSize);
+          revalidate();
+        }
+
+        lastSize = null;
+        //}
       }
     });
 
@@ -84,20 +126,94 @@ public class ResizablePanel extends SimplePanel {
       }
 
       public void mouseDragged(MouseEvent e) {
-        if (offset != -1) {
+        if (offset != -1) {// && MouseEventCoalesceManager.getInstance().isDraggedAllowed(e)) {
           int size = direction.isHorizontal() ?
                      (direction == Direction.LEFT ? getWidth() - e.getPoint().x + offset : e.getPoint().x + offset) :
                      (direction == Direction.UP ? getHeight() - e.getPoint().y + offset : e.getPoint().y + offset);
-          setPreferredSize(getBoundedSize(size));
-          revalidate();
+          lastSize = getBoundedSize(size);
+
+          if (continuousLayout) {
+            setPreferredSize(lastSize);
+            revalidate();
+          }
+          else {
+            updateDragIndicator(e);
+          }
         }
       }
     });
   }
 
+  public void setComponent(Component c) {
+    if (comp != null)
+      remove(comp);
+
+    if (c != null) {
+      add(c, BorderLayout.CENTER);
+      //c.repaint();
+      revalidate();
+    }
+
+    comp = c;
+  }
+
+  public void setDragIndicatorColor(Color color) {
+    dragIndicator.setBackground(color == null ? Color.DARK_GRAY : color);
+  }
+
+  public void setLayeredPane(JComponent layeredPane) {
+    this.layeredPane = layeredPane;
+    if (innerArea == null)
+      innerArea = layeredPane;
+  }
+
+  public void setInnerArea(JComponent innerArea) {
+    if (innerArea == null)
+      innerArea = layeredPane;
+    else
+      this.innerArea = innerArea;
+  }
+
+  public boolean isContinuousLayout() {
+    return continuousLayout;
+  }
+
+  public void setContinuousLayout(boolean continuousLayout) {
+    this.continuousLayout = continuousLayout;
+  }
+
   public Dimension getPreferredSize() {
     Dimension d = super.getPreferredSize();
     return getBoundedSize(direction.isHorizontal() ? d.width : d.height);
+  }
+
+  private void updateDragIndicator(MouseEvent e) {
+    if (layeredPane != null) {
+      Point p = SwingUtilities.convertPoint((Component) e.getSource(), e.getPoint(), layeredPane);
+      Point p2 = SwingUtilities.convertPoint(this.getParent(), getLocation(), layeredPane);
+      Dimension size = innerArea.getSize();
+      Dimension minimumSize = getMinimumSize();
+      Point offset = SwingUtilities.convertPoint(innerArea, 0, 0, layeredPane);
+
+      if (direction.isHorizontal()) {
+        int x = 0;
+        if (direction == Direction.LEFT)
+          x = Math.min(Math.max(offset.x, p.x), offset.x + size.width - minimumSize.width);
+        else
+          x = Math.min(Math.max(offset.x + minimumSize.width, p.x), offset.x + size.width) - dragIndicatorThickness;
+
+        dragIndicator.setBounds(x, p2.y, dragIndicatorThickness, getHeight());
+      }
+      else {
+        int y = 0;
+        if (direction == Direction.UP)
+          y = Math.min(Math.max(offset.y, p.y), offset.y + size.height - minimumSize.height);
+        else
+          y = Math.min(Math.max(offset.y + minimumSize.height, p.y), offset.y + size.height) - dragIndicatorThickness;
+
+        dragIndicator.setBounds(p2.x, y, getWidth(), dragIndicatorThickness);
+      }
+    }
   }
 
   private Dimension getBoundedSize(int size) {
@@ -129,10 +245,11 @@ public class ResizablePanel extends SimplePanel {
     if (dist >= 0 && dist < resizeWidth && mouseInside) {
       if (!cursorChanged) {
         cursorChanged = true;
-        CursorManager.setGlobalCursor(this, new Cursor(direction == Direction.LEFT ? Cursor.W_RESIZE_CURSOR :
-                                                       direction == Direction.RIGHT ? Cursor.E_RESIZE_CURSOR :
-                                                       direction == Direction.UP ? Cursor.N_RESIZE_CURSOR :
-                                                       Cursor.S_RESIZE_CURSOR));
+        CursorManager.setGlobalCursor(getRootPane(),
+                                      new Cursor(direction == Direction.LEFT ? Cursor.W_RESIZE_CURSOR :
+                                                 direction == Direction.RIGHT ? Cursor.E_RESIZE_CURSOR :
+                                                 direction == Direction.UP ? Cursor.N_RESIZE_CURSOR :
+                                                 Cursor.S_RESIZE_CURSOR));
       }
     }
     else
@@ -140,7 +257,7 @@ public class ResizablePanel extends SimplePanel {
   }
 
   private void resetCursor() {
-    CursorManager.resetGlobalCursor(this);
+    CursorManager.resetGlobalCursor(getRootPane());
     cursorChanged = false;
   }
 

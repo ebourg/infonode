@@ -20,17 +20,23 @@
  */
 
 
-// $Id: RootWindow.java,v 1.68 2005/02/16 11:28:14 jesper Exp $
+// $Id: RootWindow.java,v 1.125 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.action.*;
+import net.infonode.docking.drop.ChildDropInfo;
+import net.infonode.docking.drop.InteriorDropInfo;
+import net.infonode.docking.internal.HeavyWeightContainer;
+import net.infonode.docking.internal.HeavyWeightDragRectangle;
 import net.infonode.docking.internal.ReadContext;
 import net.infonode.docking.internal.WriteContext;
 import net.infonode.docking.internalutil.DropAction;
-import net.infonode.docking.location.WindowLocation;
-import net.infonode.docking.location.WindowRootLocation;
 import net.infonode.docking.model.*;
 import net.infonode.docking.properties.RootWindowProperties;
+import net.infonode.docking.util.DockingUtil;
+import net.infonode.gui.CursorManager;
+import net.infonode.gui.DragLabelWindow;
+import net.infonode.gui.componentpainter.ComponentPainter;
 import net.infonode.gui.componentpainter.RectangleComponentPainter;
 import net.infonode.gui.layout.BorderLayout2;
 import net.infonode.gui.layout.LayoutUtil;
@@ -47,15 +53,12 @@ import net.infonode.util.ReadWritable;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.HierarchyEvent;
-import java.awt.event.HierarchyListener;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
@@ -64,10 +67,15 @@ import java.util.ArrayList;
  * window. The property values of a root window is inherited to the docking windows inside it.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.68 $
+ * @version $Revision: 1.125 $
  */
 public class RootWindow extends DockingWindow implements ReadWritable {
-  private static final int SERIALIZE_VERSION = 3;
+  private static final int SERIALIZE_VERSION = 4;
+
+  private static final int FLOATING_WINDOW_MIN_WIDTH = 400;
+  private static final int FLOATING_WINDOW_MIN_HEIGHT = 300;
+
+  private boolean heavyweightSupport = false;
 
   private class SingleComponentLayout implements LayoutManager {
     public void addLayoutComponent(String name, Component comp) {
@@ -134,20 +142,23 @@ public class RootWindow extends DockingWindow implements ReadWritable {
 
   }
 
-  private SimplePanel layeredPane = new SimplePanel() {
+  private ShapedPanel layeredPane = new ShapedPanel() {
     public boolean isOptimizedDrawingEnabled() {
       return false;
     }
   };
-  private ShapedPanel shapedPanel = new ShapedPanel(layeredPane);
-  private SimplePanel mainPanel = new SimplePanel();
+
   private ShapedPanel windowPanel = new ShapedPanel(new StretchLayout(true, true));
+
+  private SimplePanel mainPanel = new SimplePanel();
+
+  private JFrame dummyFrame;
+
   private ViewSerializer viewSerializer;
   private DockingWindow window;
-  private JLabel textComponent = new JLabel();
-  private ShapedPanel rectangleComponent = new ShapedPanel();
 //  private View lastFocusedView;
   private WindowBar[] windowBars = new WindowBar[Direction.getDirections().length];
+  private ArrayList floatingWindows = new ArrayList();
   private DockingWindow maximizedWindow;
   private View focusedView;
   private ArrayList lastFocusedWindows = new ArrayList(4);
@@ -163,6 +174,14 @@ public class RootWindow extends DockingWindow implements ReadWritable {
     }
   };
 
+  private JLabel dragTextLabel = new JLabel();
+  private Container dragTextContainer;
+
+  private DragLabelWindow dragTextWindow;
+
+  private Component dragRectangle;
+  private JRootPane currentDragRootPane;
+
   /**
    * Creates an empty root window.
    *
@@ -170,7 +189,22 @@ public class RootWindow extends DockingWindow implements ReadWritable {
    * @since IDW 1.1.0
    */
   public RootWindow(ViewSerializer viewSerializer) {
+    this(false, viewSerializer);
+  }
+
+  /**
+   * Creates an empty root window with support for heavyweight components inside the
+   * views.
+   *
+   * @param heavyweightSupport true for heavy weight component support, otherwise false
+   * @param viewSerializer     used when reading and writing views
+   * @since IDW 1.4.0
+   */
+  public RootWindow(boolean heavyweightSupport, ViewSerializer viewSerializer) {
     super(new RootWindowItem());
+    this.heavyweightSupport = heavyweightSupport;
+
+    dragRectangle = heavyweightSupport ? new HeavyWeightDragRectangle() : (Component) new ShapedPanel();
 
     getWindowProperties().addSuperObject(getRootWindowProperties().getDockingWindowProperties());
 
@@ -181,19 +215,18 @@ public class RootWindow extends DockingWindow implements ReadWritable {
 
     layeredPane.add(mainPanel);
     layeredPane.setLayout(new SingleComponentLayout());
-    setComponent(shapedPanel);
+    setComponent(layeredPane);
 
     this.viewSerializer = viewSerializer;
 
-    textComponent.setOpaque(true);
+    dragTextLabel.setOpaque(true);
 
-    addHierarchyListener(new HierarchyListener() {
-      public void hierarchyChanged(HierarchyEvent e) {
-        if (getRootPane() != null)
-          if (getRootPane().getLayeredPane() != textComponent.getParent())
-            addComponents();
-      }
-    });
+    if (heavyweightSupport) {
+      dragTextContainer = new HeavyWeightContainer(dragTextLabel, true);
+      dragTextContainer.validate();
+    }
+    else
+      dragTextContainer = dragTextLabel;
 
     init();
     FocusManager.getInstance();
@@ -213,13 +246,13 @@ public class RootWindow extends DockingWindow implements ReadWritable {
         }
         else if (event.getID() == MouseEvent.MOUSE_CLICKED && event.getButton() == MouseEvent.BUTTON1) {
           if (event.getClickCount() == 2) {
-            if ((window.getWindowParent() instanceof WindowBar) &&
-                getRootWindowProperties().getDoubleClickRestoresWindow())
-              RestoreWindowAction.INSTANCE.perform(window);
+            if ((window.getWindowParent() instanceof WindowBar) && getRootWindowProperties()
+                .getDoubleClickRestoresWindow())
+              RestoreWithAbortWindowAction.INSTANCE.perform(window);
             else {
-              new StateDependentWindowAction(MaximizeWindowAction.INSTANCE,
+              new StateDependentWindowAction(MaximizeWithAbortWindowAction.INSTANCE,
                                              NullWindowAction.INSTANCE,
-                                             RestoreParentWindowAction.INSTANCE).perform(window);
+                                             RestoreParentWithAbortWindowAction.INSTANCE).perform(window);
             }
           }
         }
@@ -228,13 +261,26 @@ public class RootWindow extends DockingWindow implements ReadWritable {
   }
 
   /**
-   * Constructor.
+   * Creates a root window with the given window as window inside this root window.
    *
    * @param viewSerializer used when reading and writing views
    * @param window         the window that is placed inside the root window
    */
   public RootWindow(ViewSerializer viewSerializer, DockingWindow window) {
-    this(viewSerializer);
+    this(false, viewSerializer, window);
+  }
+
+  /**
+   * Creates a root window with support for heavyweight components inside the views and the
+   * given window inside as window inside this root window.
+   *
+   * @param heavyweightSupport true for heavy weight component support, otherwise false
+   * @param viewSerializer     used when reading and writing views
+   * @param window             the window that is placed inside the root window
+   * @since IDW 1.4.0
+   */
+  public RootWindow(boolean heavyweightSupport, ViewSerializer viewSerializer, DockingWindow window) {
+    this(heavyweightSupport, viewSerializer);
     setWindow(window);
   }
 
@@ -249,11 +295,11 @@ public class RootWindow extends DockingWindow implements ReadWritable {
 
   void addFocusedWindow(DockingWindow window) {
     for (int i = 0; i < lastFocusedWindows.size(); i++) {
-      if (((SoftReference) lastFocusedWindows.get(i)).get() == window)
+      if (((WeakReference) lastFocusedWindows.get(i)).get() == window)
         return;
     }
 
-    lastFocusedWindows.add(new SoftReference(window));
+    lastFocusedWindows.add(new WeakReference(window));
   }
 
   void setFocusedView(View view) {
@@ -266,10 +312,10 @@ public class RootWindow extends DockingWindow implements ReadWritable {
     focusedView = view;
 
     for (DockingWindow w = view; w != null; w = w.getWindowParent()) {
-      focusedWindows.add(new SoftReference(w));
+      focusedWindows.add(new WeakReference(w));
 
       for (int i = 0; i < lastFocusedWindows.size(); i++) {
-        if (((SoftReference) lastFocusedWindows.get(i)).get() == w) {
+        if (((WeakReference) lastFocusedWindows.get(i)).get() == w) {
           lastFocusedWindows.remove(i);
           break;
         }
@@ -277,7 +323,7 @@ public class RootWindow extends DockingWindow implements ReadWritable {
     }
 
     for (int i = 0; i < lastFocusedWindows.size(); i++) {
-      DockingWindow w = (DockingWindow) ((SoftReference) lastFocusedWindows.get(i)).get();
+      DockingWindow w = (DockingWindow) ((WeakReference) lastFocusedWindows.get(i)).get();
 
       if (w != null) {
         w.setFocused(false);
@@ -289,7 +335,7 @@ public class RootWindow extends DockingWindow implements ReadWritable {
     focusedWindows = temp;
 
     for (int i = 0; i < lastFocusedWindows.size(); i++) {
-      DockingWindow w = (DockingWindow) ((SoftReference) lastFocusedWindows.get(i)).get();
+      DockingWindow w = (DockingWindow) ((WeakReference) lastFocusedWindows.get(i)).get();
 
       if (w != null)
         w.setFocused(true);
@@ -304,7 +350,7 @@ public class RootWindow extends DockingWindow implements ReadWritable {
 
     // Notify windows that are not ancestors of the new focused view
     for (int i = 0; i < focusedWindows.size(); i++) {
-      DockingWindow w = (DockingWindow) ((SoftReference) focusedWindows.get(i)).get();
+      DockingWindow w = (DockingWindow) ((WeakReference) focusedWindows.get(i)).get();
 
       if (w != null) {
         w.fireViewFocusChanged(previouslyFocusedView, focusedView);
@@ -313,7 +359,7 @@ public class RootWindow extends DockingWindow implements ReadWritable {
 
     // Notify windows that are ancestors of the new focused view
     for (int i = 0; i < lastFocusedWindows.size(); i++) {
-      DockingWindow w = (DockingWindow) ((SoftReference) lastFocusedWindows.get(i)).get();
+      DockingWindow w = (DockingWindow) ((WeakReference) lastFocusedWindows.get(i)).get();
 
       if (w != null) {
         w.fireViewFocusChanged(previouslyFocusedView, focusedView);
@@ -379,7 +425,7 @@ public class RootWindow extends DockingWindow implements ReadWritable {
 
       if (getUpdateModel() && actualWindow.getWindowItem().getRootItem() != getWindowItem()) {
         getWindowItem().removeAll();
-        getWindowItem().addWindow(actualWindow.getWindowItem());
+        addWindowItem(actualWindow, -1);
       }
     }
     else if (newWindow == null) {
@@ -400,6 +446,66 @@ public class RootWindow extends DockingWindow implements ReadWritable {
   }
 
   /**
+   * <p>
+   * Creates and shows a floating window with the given window as top-level window in the floating window or without
+   * any top-level window i.e. empty floating window.
+   * </p>
+   *
+   * <p>
+   * <strong>Note 1:</strong> The created floating window is not visible per default. To make it visible, call
+   * {@link FloatingWindow}.getTopLevelAncestor().setVisible(true);
+   * </p>
+   *
+   * <p>
+   * <strong>Note 2:</strong> Floating windows are dynamically created when a window is undocked and closed/removed
+   * when all windows inside the floating window has been removed (i.e. cloased/docked/undocked to another floating
+   * window) from the floating window. The root window has a refernce to the floating window as long as the floating
+   * window has windows inside it i.e. it is not necessary to keep references to the floating window because the root
+   * window will handle this.
+   * </p>
+   *
+   * @param location  the floating window's location on the screen
+   * @param innerSize the inner dimension of the floating window's top level container i.e.the size of the root pane
+   * @param window    the docking window that is the top level window in this floating window or null for no top-level
+   *                  window i.e. empty floating window
+   * @return the floating window
+   * @since IDW 1.4.0
+   */
+  public FloatingWindow createFloatingWindow(Point location, Dimension innerSize, DockingWindow window) {
+    FloatingWindow fw = new FloatingWindow(this, window, location, innerSize);
+    floatingWindows.add(fw);
+    addWindow(fw);
+    return fw;
+  }
+
+  FloatingWindow createFloatingWindow() {
+    FloatingWindow fw = new FloatingWindow(this);
+    floatingWindows.add(fw);
+    addWindow(fw);
+    return fw;
+  }
+
+  FloatingWindow createFloatingWindow(DockingWindow window, Point p) {
+    Dimension size = window.getSize();
+    if (size.width <= 0 || size.height <= 0) {
+      Dimension preferred = window.getPreferredSize();
+      size =
+      new Dimension(Math.max(FLOATING_WINDOW_MIN_WIDTH, preferred.width),
+                    Math.max(FLOATING_WINDOW_MIN_HEIGHT, preferred.height));
+    }
+
+    FloatingWindow fw = createFloatingWindow(p, size, window);
+    fw.getTopLevelAncestor().setVisible(true);
+
+    return fw;
+  }
+
+  void removeFloatingWindow(FloatingWindow fw) {
+    floatingWindows.remove(fw);
+    removeWindow(fw);
+  }
+
+  /**
    * Returns the view serializer object for the views inside this root window.
    *
    * @return the view serializer object for the views inside this root window
@@ -409,11 +515,13 @@ public class RootWindow extends DockingWindow implements ReadWritable {
   }
 
   public DockingWindow getChildWindow(int index) {
-    return index < 4 ? windowBars[index] : window;
+    return index < 4 ? windowBars[index] :
+           window != null ? (index == 4 ? window : (DockingWindow) floatingWindows.get(index - 5)) :
+           (DockingWindow) floatingWindows.get(index - 4);
   }
 
   public int getChildWindowCount() {
-    return 4 + (window == null ? 0 : 1);
+    return 4 + (window == null ? 0 : 1) + floatingWindows.size();
   }
 
   public Icon getIcon() {
@@ -482,6 +590,11 @@ public class RootWindow extends DockingWindow implements ReadWritable {
     for (int i = 0; i < 4; i++)
       windowBars[i].write(out, context, viewWriter);
 
+    out.writeInt(floatingWindows.size());
+
+    for (int i = 0; i < floatingWindows.size(); i++)
+      ((FloatingWindow) floatingWindows.get(i)).write(out, context, viewWriter);
+
     writeLocations(out);
 
     if (maximizedWindow != null)
@@ -508,7 +621,7 @@ public class RootWindow extends DockingWindow implements ReadWritable {
     }
   }
 
-  private void writeViews(ArrayList views, ObjectOutputStream out, WriteContext context) throws IOException {
+  private static void writeViews(ArrayList views, ObjectOutputStream out, WriteContext context) throws IOException {
     out.writeInt(views.size());
 
     for (int i = 0; i < views.size(); i++)
@@ -608,6 +721,16 @@ public class RootWindow extends DockingWindow implements ReadWritable {
       for (int i = 0; i < 4; i++)
         windowBars[i].newRead(in, context, viewReader);
 
+      if (context.getVersion() >= 4) {
+        int count = in.readInt();
+
+        for (int i = 0; i < count; i++) {
+          FloatingWindow w = createFloatingWindow();
+          w.read(in, context, viewReader);
+        }
+
+      }
+
       readLocations(in, this, context.getVersion());
     }
     finally {
@@ -630,13 +753,18 @@ public class RootWindow extends DockingWindow implements ReadWritable {
 
     try {
       setWindow(null);
+
+      while (floatingWindows.size() > 0) {
+        ((FloatingWindow) floatingWindows.get(0)).close();
+      }
+
       int serializeVersion = in.readInt();
 
       if (serializeVersion > SERIALIZE_VERSION)
         throw new IOException(
             "Can't read serialized data because it was written by a later version of InfoNode Docking Windows!");
 
-      ReadContext context = new ReadContext(viewSerializer, serializeVersion, in.readBoolean(), readProperties);
+      ReadContext context = new ReadContext(this, serializeVersion, in.readBoolean(), readProperties);
 
       if (context.getVersion() < 3)
         oldInternalRead(in, context);
@@ -694,16 +822,13 @@ public class RootWindow extends DockingWindow implements ReadWritable {
    * @since IDW 1.1.0
    */
   public void setMaximizedWindow(DockingWindow window) {
-    if (window == maximizedWindow)
-      return;
+    /*if (window == maximizedWindow)
+      return;*/
 
-    if (window != null && window.isMinimized())
+    if (window != null && (window.isMinimized() || window.isUndocked()))
       return;
 
     internalSetMaximizedWindow(window);
-
-    if (window != null)
-      FocusManager.focusWindow(window);
   }
 
   void addView(View view) {
@@ -722,20 +847,36 @@ public class RootWindow extends DockingWindow implements ReadWritable {
     views.add(freeIndex, new WeakReference(view));
   }
 
-  void removeView(View view) {
+  /**
+   * Removes all internal references to a view. It's not possible to restore the view to the previous location
+   * after this method has been called.
+   *
+   * If the view is located in the window tree where this is the root nothing happens.
+   *
+   * @param view all internal references to this view are removed
+   * @since IDW 1.4.0
+   */
+  public void removeView(View view) {
+    if (view.getRootWindow() == this)
+      return;
+
     for (int i = 0; i < views.size(); i++) {
       View v = (View) ((WeakReference) views.get(i)).get();
 
       if (v == view) {
         views.remove(i);
-        return;
+        break;
       }
     }
+
+    getWindowItem().removeWindowRefs(view);
   }
 
   private void internalSetMaximizedWindow(DockingWindow window) {
     if (window == maximizedWindow)
       return;
+
+    DockingWindow focusWindow = null;
 
     if (maximizedWindow != null) {
       DockingWindow oldMaximized = maximizedWindow;
@@ -744,10 +885,11 @@ public class RootWindow extends DockingWindow implements ReadWritable {
       if (oldMaximized.getWindowParent() != null)
         oldMaximized.getWindowParent().restoreWindowComponent(oldMaximized);
 
-      oldMaximized.maximized(false);
-
       if (oldMaximized != this.window)
         windowPanel.remove(oldMaximized);
+
+      focusWindow = oldMaximized;
+      fireWindowRestored(oldMaximized);
     }
 
     maximizedWindow = window;
@@ -763,44 +905,17 @@ public class RootWindow extends DockingWindow implements ReadWritable {
           this.window.setVisible(false);
       }
 
-      maximizedWindow.maximized(true);
       maximizedWindow.setVisible(true);
+
+      focusWindow = maximizedWindow;
+      fireWindowMaximized(maximizedWindow);
     }
     else if (this.window != null) {
       this.window.setVisible(true);
     }
-  }
 
-  void setDragText(Point textPoint, String text) {
-    if (textPoint != null) {
-      if (textComponent.getParent() == null) {
-        addComponents();
-      }
-
-      textComponent.setVisible(true);
-      textComponent.setText(text);
-      textComponent.setSize(textComponent.getPreferredSize());
-      Point p2 = SwingUtilities.convertPoint(this, textPoint, textComponent.getParent());
-      textComponent.setLocation((int) (p2.getX() - textComponent.getWidth() / 2),
-                                (int) (p2.getY() - textComponent.getHeight()));
-    }
-    else {
-      textComponent.setVisible(false);
-    }
-  }
-
-  void setDragRectangle(Rectangle rect) {
-    if (rect != null) {
-      if (textComponent.getParent() == null) {
-        addComponents();
-      }
-
-      rectangleComponent.setVisible(true);
-      rectangleComponent.setBounds(SwingUtilities.convertRectangle(this, rect, rectangleComponent.getParent()));
-    }
-    else {
-      rectangleComponent.setVisible(false);
-    }
+    if (focusWindow != null)
+      FocusManager.focusWindow(focusWindow);
   }
 
   private void createWindowBars() {
@@ -822,10 +937,18 @@ public class RootWindow extends DockingWindow implements ReadWritable {
 
       windowBars[i].addPropertyChangeListener("enabled", new PropertyChangeListener() {
         public void propertyChange(PropertyChangeEvent evt) {
-          updateMinimizable();
+          updateButtonVisibility();
         }
       });
     }
+  }
+
+  JComponent getLayeredPane() {
+    return layeredPane;
+  }
+
+  JComponent getWindowPanel() {
+    return windowPanel;
   }
 
   protected void showChildWindow(DockingWindow window) {
@@ -837,25 +960,213 @@ public class RootWindow extends DockingWindow implements ReadWritable {
 
   protected void update() {
     RootWindowProperties properties = getRootWindowProperties();
-    properties.getComponentProperties().applyTo(shapedPanel);
-    InternalPropertiesUtil.applyTo(properties.getShapedPanelProperties(), shapedPanel);
+    properties.getComponentProperties().applyTo(layeredPane);
+    InternalPropertiesUtil.applyTo(properties.getShapedPanelProperties(), layeredPane);
+
     properties.getWindowAreaProperties().applyTo(windowPanel);
     InternalPropertiesUtil.applyTo(properties.getWindowAreaShapedPanelProperties(), windowPanel);
-    properties.getDragLabelProperties().applyTo(textComponent);
 
-    InternalPropertiesUtil.applyTo(properties.getDragRectangleShapedPanelProperties(), rectangleComponent);
+    properties.getDragLabelProperties().applyTo(dragTextLabel);
 
-    if (rectangleComponent.getComponentPainter() == null)
-      rectangleComponent.setComponentPainter(new RectangleComponentPainter(Color.BLACK,
-                                                                           Color.WHITE,
-                                                                           properties.getDragRectangleBorderWidth()));
+    if (!heavyweightSupport) {
+      ShapedPanel dragRectangle = (ShapedPanel) this.dragRectangle;
+      InternalPropertiesUtil.applyTo(properties.getDragRectangleShapedPanelProperties(), dragRectangle);
+
+      if (dragRectangle.getComponentPainter() == null)
+        dragRectangle.setComponentPainter(
+            new RectangleComponentPainter(Color.BLACK, Color.WHITE, properties.getDragRectangleBorderWidth()));
+    }
+    else {
+      HeavyWeightDragRectangle rectangle = (HeavyWeightDragRectangle) dragRectangle;
+      ComponentPainter painter = properties.getDragRectangleShapedPanelProperties().getComponentPainter();
+      Color color = painter != null ? painter.getColor(this) : null;
+      rectangle.setColor(color != null ? color : Color.BLACK);
+      rectangle.setBorderWidth(properties.getDragRectangleBorderWidth());
+    }
   }
 
-  private void addComponents() {
-    getRootPane().getLayeredPane().add(rectangleComponent);
-    getRootPane().getLayeredPane().setPosition(rectangleComponent, 1);
-    getRootPane().getLayeredPane().add(textComponent);
-    getRootPane().getLayeredPane().setPosition(textComponent, 0);
+  void internalStartDrag(JComponent component) {
+    currentDragRootPane = getRootPane();
+
+    FloatingWindow fwStartedDrag = DockingUtil.getFloatingWindowFor((DockingWindow) component);
+
+    for (int i = 0; i < floatingWindows.size(); i++) {
+      FloatingWindow fw = (FloatingWindow) floatingWindows.get(i);
+      fw.startDrag();
+      if (dummyFrame != null && fw != fwStartedDrag)
+        ((JDialog) (fw.getTopLevelAncestor())).toFront();
+    }
+
+    if (dummyFrame != null && fwStartedDrag != null)
+      ((JDialog) (fwStartedDrag.getTopLevelAncestor())).toFront();
+  }
+
+  void stopDrag() {
+    if (dragTextContainer.getParent() != null) {
+      if (!heavyweightSupport)
+        dragTextContainer.getParent().repaint(dragTextContainer.getX(),
+                                              dragTextContainer.getY(),
+                                              dragTextContainer.getWidth(),
+                                              dragTextContainer.getHeight());
+      dragTextContainer.getParent().remove(dragTextContainer);
+      //dragTextContainer.setVisible(false);
+    }
+
+    if (dragTextWindow != null) {
+      dragTextWindow.setVisible(false);
+      dragTextWindow.dispose();
+      dragTextWindow = null;
+    }
+
+    if (dragRectangle.getParent() != null) {
+      if (!heavyweightSupport)
+        dragRectangle.getParent().repaint(dragRectangle.getX(),
+                                          dragRectangle.getY(),
+                                          dragRectangle.getWidth(),
+                                          dragRectangle.getHeight());
+      dragRectangle.getParent().remove(dragRectangle);
+    }
+
+    CursorManager.resetGlobalCursor(getCurrentDragRootPane());
+    currentDragRootPane = null;
+
+    for (int i = 0; i < floatingWindows.size(); i++) {
+      ((FloatingWindow) floatingWindows.get(i)).stopDrag();
+    }
+  }
+
+  boolean floatingWindowsContainPoint(Point p) {
+    for (int i = 0; i < floatingWindows.size(); i++) {
+      FloatingWindow c = ((FloatingWindow) floatingWindows.get(i));
+      if (c.isShowing() && c.windowContainsPoint(SwingUtilities.convertPoint(getRootPane(), p, c)))
+        return true;
+    }
+
+    return false;
+  }
+
+  void setCurrentDragRootPane(JRootPane rootPane) {
+    //if (rootPane != currentDragRootPane) {
+    CursorManager.resetGlobalCursor(getCurrentDragRootPane());
+    currentDragRootPane = rootPane;
+    //}
+  }
+
+  JRootPane getCurrentDragRootPane() {
+    return currentDragRootPane == null ? getRootPane() : currentDragRootPane;
+  }
+
+  Component getTopLevelComponent() {
+    Component c = getTopLevelAncestor();
+
+    if (c instanceof JFrame || c instanceof JDialog)
+      return c;
+
+    if (dummyFrame == null) {
+      dummyFrame = new JFrame("");
+      dummyFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    }
+
+    return dummyFrame;
+  }
+
+  boolean isHeavyweightSupported() {
+    return heavyweightSupport;
+  }
+
+  private static boolean reparent(Container parent, Component c) {
+    if (c.getParent() != parent) {
+      if (c.getParent() != null)
+        c.getParent().remove(c);
+
+      parent.add(c);
+      return true;
+    }
+
+    return false;
+  }
+
+  void setDragCursor(Cursor cursor) {
+    CursorManager.setGlobalCursor(getCurrentDragRootPane(), cursor);
+
+    if (dragTextWindow != null)
+      dragTextWindow.setCursor(cursor);
+  }
+
+  void setDragText(Point textPoint, String text) {
+    if (textPoint != null) {
+      JRootPane currentDragRootPane = getCurrentDragRootPane();
+
+      if (reparent(currentDragRootPane.getLayeredPane(), dragTextContainer))
+        currentDragRootPane.getLayeredPane().setLayer(dragTextContainer,
+                                                      JLayeredPane.DRAG_LAYER.intValue() +
+                                                      (heavyweightSupport ? -1 : 1));
+
+      dragTextLabel.setText(text);
+      dragTextContainer.setSize(dragTextContainer.getPreferredSize());
+      Point p2 = SwingUtilities.convertPoint(currentDragRootPane, textPoint, dragTextContainer.getParent());
+      int yLocationOffs = dragTextLabel.getInsets().bottom;
+      dragTextContainer.setLocation((int) (p2.getX() - dragTextContainer.getWidth() / 2),
+                                    (int) (p2.getY() - dragTextContainer.getHeight() + yLocationOffs));
+
+      // Drag text window
+      if (!getTopLevelAncestor().contains(
+          SwingUtilities.convertPoint(currentDragRootPane, textPoint, getTopLevelAncestor())) &&
+          !floatingWindowsContainPoint(SwingUtilities.convertPoint(currentDragRootPane, textPoint, getRootPane()))) {
+        dragTextContainer.setVisible(false);
+
+        if (dragTextWindow == null) {
+          Component c = getTopLevelComponent();
+          if (c instanceof Frame)
+            dragTextWindow = new DragLabelWindow((Frame) c);
+          else if (c instanceof Dialog)
+            dragTextWindow = new DragLabelWindow((Dialog) c);
+
+          if (dragTextWindow != null) {
+            dragTextWindow.setFocusableWindowState(false);
+            dragTextWindow.setFocusable(false);
+            getRootWindowProperties().getDragLabelProperties().applyTo(dragTextWindow.getLabel());
+            //dragTextWindow.setSize(dragText.getSize());
+          }
+        }
+
+        if (dragTextWindow != null) {
+          dragTextWindow.getLabel().setText(text);
+          SwingUtilities.convertPointToScreen(textPoint, currentDragRootPane);
+          dragTextWindow.setLocation(textPoint.x - dragTextContainer.getWidth() / 2,
+                                     (int) (textPoint.y - dragTextContainer.getHeight() + yLocationOffs));
+          dragTextWindow.setVisible(true);
+        }
+      }
+      else {
+        dragTextContainer.setVisible(true);
+        if (heavyweightSupport)
+          dragTextContainer.repaint();
+
+        if (dragTextWindow != null)
+          dragTextWindow.setVisible(false);
+      }
+    }
+    else if (dragTextContainer.getParent() != null) {
+      dragTextContainer.setVisible(false);
+
+      if (dragTextWindow != null)
+        dragTextWindow.setVisible(false);
+    }
+  }
+
+  void setDragRectangle(Rectangle rect) {
+    if (rect != null) {
+      if (reparent(getCurrentDragRootPane().getLayeredPane(), dragRectangle))
+        getCurrentDragRootPane().getLayeredPane().setLayer(dragRectangle,
+                                                           JLayeredPane.DRAG_LAYER.intValue() +
+                                                           (heavyweightSupport ? -1 : 0));
+
+      dragRectangle.setBounds(SwingUtilities.convertRectangle(this, rect, dragRectangle.getParent()));
+      dragRectangle.setVisible(true);
+    }
+    else if (dragRectangle.getParent() != null)
+      dragRectangle.setVisible(false);
   }
 
   protected void doReplace(DockingWindow oldWindow, DockingWindow newWindow) {
@@ -872,7 +1183,8 @@ public class RootWindow extends DockingWindow implements ReadWritable {
           window.setVisible(false);
 
         windowPanel.add(window);
-        revalidate();
+        windowPanel.revalidate();
+        //revalidate();
       }
     }
   }
@@ -899,7 +1211,8 @@ public class RootWindow extends DockingWindow implements ReadWritable {
     if (maximizedWindow != null) {
       Point p2 = SwingUtilities.convertPoint(this, p, maximizedWindow);
 
-      if (maximizedWindow.contains(p2)) {
+      if (maximizedWindow.contains(p2) &&
+          getChildDropFilter().acceptDrop(new ChildDropInfo(window, this, p, maximizedWindow))) {
         DropAction da = maximizedWindow.acceptDrop(p2, window);
 
         if (da != null)
@@ -914,15 +1227,14 @@ public class RootWindow extends DockingWindow implements ReadWritable {
     if (this.window != null)
       return null;
 
-    return new DropAction() {
-      public void execute(DockingWindow window, MouseEvent mouseEvent) {
-        setWindow(window);
-      }
-    };
-  }
+    if (getInteriorDropFilter().acceptDrop(new InteriorDropInfo(window, this, p)))
+      return new DropAction() {
+        public void execute(DockingWindow window, MouseEvent mouseEvent) {
+          setWindow(window);
+        }
+      };
 
-  protected WindowLocation getWindowLocation(DockingWindow window) {
-    return new WindowRootLocation(this);
+    return null;
   }
 
   protected PropertyMap getPropertyObject() {
@@ -956,5 +1268,25 @@ public class RootWindow extends DockingWindow implements ReadWritable {
 
   protected boolean isShowingInRootWindow() {
     return true;
+  }
+
+  public void updateUI() {
+    super.updateUI();
+
+    if (floatingWindows != null) {
+      for (int i = 0; i < floatingWindows.size(); i++)
+        SwingUtilities.updateComponentTreeUI(((JComponent) floatingWindows.get(i)).getTopLevelAncestor());
+
+      for (int i = 0; i < views.size(); i++) {
+        View v = (View) ((WeakReference) views.get(i)).get();
+        if (v != null && v.getWindowParent() == null)
+          SwingUtilities.updateComponentTreeUI(v);
+      }
+    }
+  }
+
+  protected void paintComponent(final Graphics g) {
+    //((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    super.paintComponent(g);
   }
 }

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: GradientDockingTheme.java,v 1.11 2005/02/16 11:28:14 jesper Exp $
+// $Id: GradientDockingTheme.java,v 1.12 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.docking.theme;
 
 import net.infonode.docking.properties.RootWindowProperties;
@@ -43,7 +43,7 @@ import java.awt.*;
  * A theme that draws gradient tab backgrounds.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.12 $
  * @since IDW 1.1.0
  */
 public class GradientDockingTheme extends DockingWindowsTheme {

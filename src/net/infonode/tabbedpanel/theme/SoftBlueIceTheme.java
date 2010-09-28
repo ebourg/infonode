@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SoftBlueIceTheme.java,v 1.13 2005/02/16 11:28:15 jesper Exp $
+// $Id: SoftBlueIceTheme.java,v 1.17 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.tabbedpanel.theme;
 
 import net.infonode.gui.colorprovider.ColorBlender;
@@ -43,7 +43,7 @@ import java.awt.*;
  * A light blue theme with gradients and rounded corners.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.17 $
  * @since ITP 1.2.0
  */
 public class SoftBlueIceTheme extends TabbedPanelTitledTabTheme {
@@ -125,14 +125,17 @@ public class SoftBlueIceTheme extends TabbedPanelTitledTabTheme {
     tabbedPanelProperties.getTabAreaProperties()
         .getShapedPanelProperties()
         .setClipChildren(true)
-        .setComponentPainter(areaPainter);
+        .setComponentPainter(areaPainter)
+        .setOpaque(false);
 
     tabbedPanelProperties.getTabAreaComponentsProperties()
         .setStretchEnabled(true)
         .getComponentProperties()
         .setBorder(null)
-        .setInsets(new Insets(0, 0, 0, 0))
-        .setBackgroundColor(null);
+        .setInsets(new Insets(0, 0, 0, 0));
+
+    tabbedPanelProperties.getTabAreaComponentsProperties()
+        .getShapedPanelProperties().setOpaque(false);
 
     tabbedPanelProperties.getContentPanelProperties()
         .getComponentProperties()
@@ -141,12 +144,16 @@ public class SoftBlueIceTheme extends TabbedPanelTitledTabTheme {
 
     tabbedPanelProperties.getContentPanelProperties()
         .getShapedPanelProperties()
-        .setComponentPainter(contentPainter);
+        .setComponentPainter(contentPainter)
+        .setClipChildren(true)
+        .setOpaque(false);
 
     titledTabProperties.setHighlightedRaised(0);
 
-    Font font = titledTabProperties.getNormalProperties().getComponentProperties().getFont().deriveFont(Font.PLAIN)
-        .deriveFont(11f);
+    Font font = titledTabProperties.getNormalProperties().getComponentProperties().getFont();
+
+    if (font != null)
+      font = font.deriveFont(Font.PLAIN).deriveFont(11f);
 
     titledTabProperties.getNormalProperties()
         .getComponentProperties()
@@ -158,7 +165,7 @@ public class SoftBlueIceTheme extends TabbedPanelTitledTabTheme {
 
     titledTabProperties.getNormalProperties()
         .getShapedPanelProperties()
-        .setComponentPainter(normalPainter);
+        .setComponentPainter(normalPainter).setOpaque(false);
 
     Property[] linkedProperties = {ComponentProperties.BORDER, ComponentProperties.INSETS, ComponentProperties.FONT};
 

@@ -20,10 +20,11 @@
  */
 
 
-// $Id: ClassicTheme.java,v 1.11 2005/02/16 11:28:15 jesper Exp $
+// $Id: ClassicTheme.java,v 1.14 2005/12/04 13:46:05 jesper Exp $
 
 package net.infonode.tabbedpanel.theme;
 
+import net.infonode.gui.GraphicsUtil;
 import net.infonode.gui.colorprovider.ColorProvider;
 import net.infonode.gui.colorprovider.UIManagerColorProvider;
 import net.infonode.tabbedpanel.TabbedPanel;
@@ -44,7 +45,7 @@ import java.awt.*;
  * A theme with a "classic" look and with round edges for the titled tabs.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.14 $
  * @since ITP 1.2.0
  */
 public class ClassicTheme extends TabbedPanelTitledTabTheme {
@@ -54,6 +55,8 @@ public class ClassicTheme extends TabbedPanelTitledTabTheme {
   private ColorProvider shadowColor = UIManagerColorProvider.TABBED_PANE_SHADOW;
   private ColorProvider darkShadow = UIManagerColorProvider.TABBED_PANE_DARK_SHADOW;
   private int raised;
+
+  private Border shadowBorder;
 
   /**
    * Constructs a default Classic Theme
@@ -69,6 +72,37 @@ public class ClassicTheme extends TabbedPanelTitledTabTheme {
    */
   public ClassicTheme(final int raised) {
     this.raised = raised;
+
+    shadowBorder = new Border() {
+      public boolean isBorderOpaque() {
+        return false;
+      }
+
+      public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+        TabbedPanel tp = TabbedUtils.getParentTabbedPanel(c);
+        if (tp != null) {
+          Direction d = tp.getProperties().getTabAreaOrientation();
+          g.setColor(shadowColor.getColor());
+
+          if (d == Direction.UP || d == Direction.DOWN)
+            GraphicsUtil.drawOptimizedLine(g, x + width - 1, y, x + width - 1, y + height - 1);
+          else
+            GraphicsUtil.drawOptimizedLine(g, x, y + height - 1, x + width - 1, y + height - 1);
+        }
+      }
+
+      public Insets getBorderInsets(Component c) {
+        TabbedPanel tp = TabbedUtils.getParentTabbedPanel(c);
+        if (tp != null) {
+          Direction d = tp.getProperties().getTabAreaOrientation();
+          return new Insets(0,
+                            0,
+                            (d == Direction.LEFT || d == Direction.RIGHT) ? 1 : 0,
+                            (d == Direction.UP || d == Direction.DOWN) ? 1 : 0);
+        }
+        return new Insets(0, 0, 0, 0);
+      }
+    };
 
     Border contentBorder = contentBorder = new CompoundBorder(
         new OpenContentBorder(highlightColor, darkShadow, null, 1),
@@ -209,37 +243,6 @@ public class ClassicTheme extends TabbedPanelTitledTabTheme {
   }
 
   private Border doCreateTabBorder(boolean roundEdges, boolean open, boolean highlight, final boolean equalInset) {
-    Border shadowBorder = new Border() {
-      public boolean isBorderOpaque() {
-        return false;
-      }
-
-      public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-        TabbedPanel tp = TabbedUtils.getParentTabbedPanel(c);
-        if (tp != null) {
-          Direction d = tp.getProperties().getTabAreaOrientation();
-          g.setColor(shadowColor.getColor());
-
-          if (d == Direction.UP || d == Direction.DOWN)
-            g.drawLine(x + width - 1, y, x + width - 1, y + height - 1);
-          else
-            g.drawLine(x, y + height - 1, x + width - 1, y + height - 1);
-        }
-      }
-
-      public Insets getBorderInsets(Component c) {
-        TabbedPanel tp = TabbedUtils.getParentTabbedPanel(c);
-        if (tp != null) {
-          Direction d = tp.getProperties().getTabAreaOrientation();
-          return new Insets(0,
-                            0,
-                            (d == Direction.LEFT || d == Direction.RIGHT) ? 1 : 0,
-                            (d == Direction.UP || d == Direction.DOWN) ? 1 : 0);
-        }
-        return new Insets(0, 0, 0, 0);
-      }
-    };
-
     return new CompoundBorder(new TwoColoredLineBorder(
         highlight ? highlightColor : createNormalHighlightColorProvider(), darkShadow, roundEdges, open) {
       protected Insets getShapedBorderInsets(Component c) {

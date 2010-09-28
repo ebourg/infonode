@@ -20,16 +20,18 @@
  */
 
 
-// $Id: TabbedPanelContentPanel.java,v 1.37 2005/02/16 11:28:15 jesper Exp $
+// $Id: TabbedPanelContentPanel.java,v 1.59 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.tabbedpanel;
 
-import net.infonode.gui.componentpainter.ComponentPainter;
-import net.infonode.gui.componentpainter.SolidColorComponentPainter;
+import net.infonode.gui.ComponentPaintChecker;
 import net.infonode.gui.draggable.DraggableComponentBoxAdapter;
 import net.infonode.gui.draggable.DraggableComponentBoxEvent;
+import net.infonode.gui.draggable.DraggableComponentEvent;
 import net.infonode.gui.hover.HoverListener;
 import net.infonode.gui.hover.panel.HoverableShapedPanel;
-import net.infonode.properties.gui.util.ShapedPanelProperties;
+import net.infonode.gui.panel.BaseContainer;
+import net.infonode.gui.panel.BaseContainerUtil;
+import net.infonode.properties.gui.InternalPropertiesUtil;
 import net.infonode.properties.propertymap.PropertyMapTreeListener;
 import net.infonode.properties.propertymap.PropertyMapWeakListenerManager;
 import net.infonode.tabbedpanel.internal.TabbedHoverUtil;
@@ -48,51 +50,39 @@ import java.util.Map;
  * the content panel.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.37 $
+ * @version $Revision: 1.59 $
  * @see TabbedPanel
  * @see Tab
  */
-public class TabbedPanelContentPanel extends JPanel {
+public class TabbedPanelContentPanel extends BaseContainer {
   private TabbedPanel tabbedPanel;
   private HoverableShapedPanel shapedPanel;
+  private ComponentPaintChecker repaintChecker;
 
   private PropertyMapTreeListener propertiesListener = new PropertyMapTreeListener() {
     public void propertyValuesChanged(Map changes) {
-      boolean update = false;
-
       Map m = (Map) changes.get(tabbedPanel.getProperties().getContentPanelProperties().getMap());
       if (m != null) {
-        update = true;
-
         if (m.keySet().contains(TabbedPanelContentPanelProperties.HOVER_LISTENER)) {
           HoverListener oldHoverListener = shapedPanel.getHoverListener();
           shapedPanel.setHoverListener(
               (HoverListener) ((ValueChange) m.get(TabbedPanelContentPanelProperties.HOVER_LISTENER)).getNewValue());
         }
-
-        repaint();
       }
 
       m = (Map) changes.get(tabbedPanel.getProperties().getContentPanelProperties().getComponentProperties().getMap());
       if (m != null)
-        update = true;
+        update();
 
-      m =
-      (Map) changes.get(tabbedPanel.getProperties().getContentPanelProperties().getShapedPanelProperties().getMap());
+      m = (Map) changes.get(
+          tabbedPanel.getProperties().getContentPanelProperties().getShapedPanelProperties().getMap());
       if (m != null)
-        update = true;
+        update();
 
       m = (Map) changes.get(tabbedPanel.getProperties().getMap());
       if (m != null && m.keySet().contains(TabbedPanelProperties.TAB_AREA_ORIENTATION)) {
         shapedPanel.setDirection(
             ((Direction) ((ValueChange) m.get(TabbedPanelProperties.TAB_AREA_ORIENTATION)).getNewValue()).getNextCW());
-
-        repaint();
-      }
-
-      if (update) {
-        update();
-        repaint();
       }
     }
   };
@@ -104,9 +94,8 @@ public class TabbedPanelContentPanel extends JPanel {
    *                    area component for
    * @param component   a component used as container for the tabs' content components
    */
-  public TabbedPanelContentPanel(TabbedPanel tabbedPanel, JComponent component) {
+  public TabbedPanelContentPanel(final TabbedPanel tabbedPanel, JComponent component) {
     super(new BorderLayout());
-    setOpaque(false);
     this.tabbedPanel = tabbedPanel;
 
     shapedPanel = new HoverableShapedPanel(new BorderLayout(),
@@ -137,6 +126,8 @@ public class TabbedPanelContentPanel extends JPanel {
       }
     };
 
+    repaintChecker = new ComponentPaintChecker(shapedPanel);
+
     shapedPanel.add(component, BorderLayout.CENTER);
     add(shapedPanel, BorderLayout.CENTER);
     update();
@@ -145,7 +136,9 @@ public class TabbedPanelContentPanel extends JPanel {
 
     tabbedPanel.getDraggableComponentBox().addListener(new DraggableComponentBoxAdapter() {
       public void changed(DraggableComponentBoxEvent event) {
-        repaintBorder();
+        if (event.getDraggableComponent() == null || event.getDraggableComponentEvent().getType() == DraggableComponentEvent.TYPE_UNDEFINED) {
+          repaintBorder();
+        }
       }
     });
 
@@ -166,11 +159,11 @@ public class TabbedPanelContentPanel extends JPanel {
         repaintBorder();
       }
 
-      public void tabHighlighted(TabStateChangedEvent event) {
+      public void tabDehighlighted(TabStateChangedEvent event) {
         repaintBorder();
       }
 
-      public void tabDehighlighted(TabStateChangedEvent event) {
+      public void tabHighlighted(TabStateChangedEvent event) {
         repaintBorder();
       }
 
@@ -200,43 +193,36 @@ public class TabbedPanelContentPanel extends JPanel {
 
   private void update() {
     getProperties().getComponentProperties().applyTo(shapedPanel);
-    shapedPanel.setOpaque(false);
-
-    ShapedPanelProperties shapedPanelProperties = getProperties().getShapedPanelProperties();
-    ComponentPainter painter = shapedPanelProperties.getComponentPainter();
-    if (painter != null)
-      shapedPanel.setComponentPainter(painter);
-    else if (getProperties().getComponentProperties().getBackgroundColor() != null)
-      shapedPanel.setComponentPainter(SolidColorComponentPainter.BACKGROUND_COLOR_PAINTER);
-    else
-      shapedPanel.setComponentPainter(null);
-    shapedPanel.setVerticalFlip(shapedPanelProperties.getVerticalFlip());
-    shapedPanel.setHorizontalFlip(shapedPanelProperties.getHorizontalFlip());
-    shapedPanel.setDirection(tabbedPanel.getProperties().getTabAreaOrientation().getNextCW());
-    shapedPanel.setClipChildren(shapedPanelProperties.getClipChildren());
+    InternalPropertiesUtil.applyTo(getProperties().getShapedPanelProperties(),
+                                   shapedPanel,
+                                   tabbedPanel.getProperties().getTabAreaOrientation().getNextCW());
+    BaseContainerUtil.setForcedOpaque(this, getProperties().getShapedPanelProperties().getOpaque());
+    //setForcedOpaque(getProperties().getShapedPanelProperties().getOpaque());
   }
 
   private void repaintBorder() {
-    Rectangle r;
+    if (repaintChecker.isPaintingOk()) {
+      final Rectangle r;
 
-    Direction d = tabbedPanel.getProperties().getTabAreaOrientation();
+      Direction d = tabbedPanel.getProperties().getTabAreaOrientation();
 
-    if (d == Direction.UP)
-      r = new Rectangle(0, 0, shapedPanel.getWidth(), shapedPanel.getInsets().top);
-    else if (d == Direction.LEFT)
-      r = new Rectangle(0, 0, shapedPanel.getInsets().left, shapedPanel.getHeight());
-    else if (d == Direction.DOWN)
-      r = new Rectangle(0,
-                        shapedPanel.getHeight() - shapedPanel.getInsets().bottom - 1,
-                        shapedPanel.getWidth(),
-                        shapedPanel.getHeight());
-    else
-      r = new Rectangle(shapedPanel.getWidth() - shapedPanel.getInsets().right - 1,
-                        0,
-                        shapedPanel.getWidth(),
-                        shapedPanel.getHeight());
+      if (d == Direction.UP)
+        r = new Rectangle(0, 0, shapedPanel.getWidth(), shapedPanel.getInsets().top);
+      else if (d == Direction.LEFT)
+        r = new Rectangle(0, 0, shapedPanel.getInsets().left, shapedPanel.getHeight());
+      else if (d == Direction.DOWN)
+        r = new Rectangle(0,
+                          shapedPanel.getHeight() - shapedPanel.getInsets().bottom - 1,
+                          shapedPanel.getWidth(),
+                          shapedPanel.getHeight());
+      else
+        r = new Rectangle(shapedPanel.getWidth() - shapedPanel.getInsets().right - 1,
+                          0,
+                          shapedPanel.getWidth(),
+                          shapedPanel.getHeight());
 
-    shapedPanel.repaint(r);
+      shapedPanel.repaint(r);
+    }
   }
 
   private void doProcessMouseEvent(MouseEvent event) {

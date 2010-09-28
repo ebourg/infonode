@@ -20,8 +20,10 @@
  */
 
 
-// $Id: PopupMenuBorder.java,v 1.5 2005/02/16 11:28:10 jesper Exp $
+// $Id: PopupMenuBorder.java,v 1.7 2005/12/04 13:46:03 jesper Exp $
 package net.infonode.gui.border;
+
+import net.infonode.gui.GraphicsUtil;
 
 import javax.swing.border.Border;
 import java.awt.*;
@@ -29,7 +31,7 @@ import java.io.Serializable;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.7 $
  */
 public class PopupMenuBorder implements Border, Serializable {
   private static final long serialVersionUID = 1;
@@ -53,9 +55,9 @@ public class PopupMenuBorder implements Border, Serializable {
     g.drawRect(x, y, width - 1, height - 1);
 
     g.setColor(highlightColor);
-    g.drawLine(x + 1, y + 1, x + width - 2, y + 1);
-    g.drawLine(x + 1, y + 2, x + 1, y + 2);
-    g.drawLine(x + 1, y + height - 2, x + 1, y + height - 2);
+    GraphicsUtil.drawOptimizedLine(g, x + 1, y + 1, x + width - 2, y + 1);
+    GraphicsUtil.drawOptimizedLine(g, x + 1, y + 2, x + 1, y + 2);
+    GraphicsUtil.drawOptimizedLine(g, x + 1, y + height - 2, x + 1, y + height - 2);
   }
 
   public Insets getBorderInsets(Component c) {

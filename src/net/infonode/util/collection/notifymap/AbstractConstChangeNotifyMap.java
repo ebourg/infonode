@@ -20,38 +20,55 @@
  */
 
 
-// $Id: AbstractConstChangeNotifyMap.java,v 1.12 2005/02/16 11:28:13 jesper Exp $
+// $Id: AbstractConstChangeNotifyMap.java,v 1.14 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.util.collection.notifymap;
 
 import net.infonode.util.ValueChange;
 import net.infonode.util.collection.map.SingleValueMap;
 import net.infonode.util.collection.map.base.ConstMap;
-
-import java.util.ArrayList;
+import net.infonode.util.signal.Signal;
+import net.infonode.util.signal.SignalHook;
+import net.infonode.util.signal.SignalListener;
 
 abstract public class AbstractConstChangeNotifyMap implements ConstChangeNotifyMap {
-  private ArrayList listeners;
+  private Signal changeSignal = new Signal() {
+    protected void firstListenerAdded() {
+      AbstractConstChangeNotifyMap.this.firstListenerAdded();
+    }
 
-  public void addListener(ChangeNotifyMapListener listener) {
-    removeListener(listener);
+    protected void lastListenerRemoved() {
+      AbstractConstChangeNotifyMap.this.lastListenerRemoved();
+    }
 
-    if (listeners == null)
-      listeners = new ArrayList(2);
+    protected synchronized void removeListener(int index) {
+      super.removeListener(index);
+      listenerRemoved();
+    }
 
-    listeners.add(listener);
+    public synchronized void addListener(SignalListener listener) {
+      super.addListener(listener);
+      listenerAdded();
+    }
+  };
+
+  protected void firstListenerAdded() {
   }
 
-  public boolean removeListener(ChangeNotifyMapListener listener) {
-    if (listeners != null && listeners.remove(listener)) {
-      if (listeners.size() == 0)
-        listeners = null;
+  protected void lastListenerRemoved() {
+  }
 
-      return true;
-    }
-/*    else if (weakListeners != null)
-      return weakListeners.remove(listener);
-  */
-    return false;
+  protected void listenerRemoved() {
+  }
+
+  protected void listenerAdded() {
+  }
+
+  public SignalHook getChangeSignal() {
+    return changeSignal.getHook();
+  }
+
+  protected Signal getChangeSignalInternal() {
+    return changeSignal;
   }
 
   protected void fireEntryRemoved(Object key, Object value) {
@@ -63,20 +80,8 @@ abstract public class AbstractConstChangeNotifyMap implements ConstChangeNotifyM
   }
 
   protected void fireEntriesChanged(ConstMap changes) {
-    if (changes.isEmpty())
-      return;
-
-    if (listeners != null) {
-      ChangeNotifyMapListener[] l = (ChangeNotifyMapListener[]) listeners.toArray(
-          new ChangeNotifyMapListener[listeners.size()]);
-
-      for (int i = 0; i < l.length; i++)
-        l[i].entriesChanged(changes);
-    }
-  }
-
-  protected boolean hasListeners() {
-    return (listeners != null && !listeners.isEmpty());
+    if (!changes.isEmpty())
+      changeSignal.emit(changes);
   }
 
 }

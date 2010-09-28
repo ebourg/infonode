@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ComponentUtil.java,v 1.21 2005/02/16 11:28:13 jesper Exp $
+// $Id: ComponentUtil.java,v 1.25 2005/12/04 13:46:04 jesper Exp $
 
 package net.infonode.gui;
 
@@ -42,28 +42,28 @@ public class ComponentUtil {
   }
 
   public static final Component getVisibleChildAt(Container container, Point p) {
-    Component[] children = container.getComponents();
-
-    for (int i = 0; i < children.length; i++) {
-      if (children[i].isVisible() && children[i].contains(p.x - children[i].getX(), p.y - children[i].getY()))
-        return children[i];
+    for (int i = 0; i < container.getComponentCount(); i++) {
+      Component c = container.getComponent(i);
+      if (c.isVisible() && c.contains(p.x - c.getX(), p.y - c.getY()))
+        return c;
     }
 
     return null;
   }
 
   public static final Component getChildAtLine(Container container, Point p, boolean horizontal) {
-    Component c[] = container.getComponents();
     if (horizontal) {
-      for (int i = 0; i < c.length; i++) {
-        if (p.x >= c[i].getX() && p.x < c[i].getX() + c[i].getWidth())
-          return c[i];
+      for (int i = 0; i < container.getComponentCount(); i++) {
+        Component c = container.getComponent(i);
+        if (p.x >= c.getX() && p.x < c.getX() + c.getWidth())
+          return c;
       }
     }
     else {
-      for (int i = 0; i < c.length; i++) {
-        if (p.y >= c[i].getY() && p.y < c[i].getY() + c[i].getHeight())
-          return c[i];
+      for (int i = 0; i < container.getComponentCount(); i++) {
+        Component c = container.getComponent(i);
+        if (p.y >= c.getY() && p.y < c.getY() + c.getHeight())
+          return c;
       }
     }
 
@@ -84,14 +84,10 @@ public class ComponentUtil {
     Component c = null;
 
     if (top.isShowing()) {
-      if (top instanceof JFrame)
+      if (top instanceof RootPaneContainer)
         c =
-        ((JFrame) top).getLayeredPane().findComponentAt(
-            SwingUtilities.convertPoint(top, p, ((JFrame) top).getLayeredPane()));
-      else if (top instanceof JApplet)
-        c =
-        ((JApplet) top).getLayeredPane().findComponentAt(
-            SwingUtilities.convertPoint(top, p, ((JApplet) top).getLayeredPane()));
+        ((RootPaneContainer) top).getLayeredPane().findComponentAt(
+            SwingUtilities.convertPoint(top, p, ((RootPaneContainer) top).getLayeredPane()));
       else
         c = ((Container) top).findComponentAt(p);
     }
@@ -101,9 +97,9 @@ public class ComponentUtil {
 
   public static final int getComponentIndex(Component component) {
     if (component != null && component.getParent() != null) {
-      Component[] c = component.getParent().getComponents();
-      for (int i = 0; i < c.length; i++) {
-        if (c[i] == component)
+      Container c = component.getParent();
+      for (int i = 0; i < c.getComponentCount(); i++) {
+        if (c.getComponent(i) == component)
           return i;
       }
     }
@@ -153,10 +149,10 @@ public class ComponentUtil {
       return 0;
 
     int count = 0;
-    Component[] comp = ((Container) c).getComponents();
+    Container container = (Container) c;
 
-    for (int i = 0; i < comp.length; i++)
-      if (comp[i].isVisible())
+    for (int i = 0; i < container.getComponentCount(); i++)
+      if (container.getComponent(i).isVisible())
         count++;
 
     return count;
@@ -195,9 +191,9 @@ public class ComponentUtil {
       return comp;
 
     if (comp instanceof Container) {
-      Component[] children = ((Container) comp).getComponents();
-      for (int i = 0; i < children.length; i++) {
-        Component comp2 = findFirstComponentOfType(children[i], c);
+      Container container = (Container) comp;
+      for (int i = 0; i < container.getComponentCount(); i++) {
+        Component comp2 = findFirstComponentOfType(container.getComponent(i), c);
         if (comp2 != null)
           return comp2;
       }
@@ -306,11 +302,22 @@ public class ComponentUtil {
   public static void setAllOpaque(Container c, boolean opaque) {
     if (c instanceof JComponent) {
       ((JComponent) c).setOpaque(opaque);
-      Component comps[] = c.getComponents();
-      for (int i = 0; i < comps.length; i++) {
-        if (comps[i] instanceof Container)
-          setAllOpaque((Container) comps[i], opaque);
+      for (int i = 0; i < c.getComponentCount(); i++) {
+        Component comp = c.getComponent(i);
+        if (comp instanceof Container)
+          setAllOpaque((Container) comp, opaque);
       }
     }
+  }
+
+  public static void validate(JComponent c) {
+    c.revalidate();
+  }
+
+  public static void validate(Component c) {
+    if (c instanceof JComponent)
+      ((JComponent) c).revalidate();
+    else
+      c.validate();
   }
 }

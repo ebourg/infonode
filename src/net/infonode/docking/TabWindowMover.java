@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabWindowMover.java,v 1.15 2004/12/22 10:15:52 jesper Exp $
+// $Id: TabWindowMover.java,v 1.17 2005/04/15 15:57:08 johan Exp $
 package net.infonode.docking;
 
 import net.infonode.tabbedpanel.TabAdapter;
@@ -29,8 +29,8 @@ import net.infonode.tabbedpanel.TabEvent;
 import net.infonode.tabbedpanel.TabbedPanel;
 
 /**
- * @author $Author: jesper $
- * @version $Revision: 1.15 $
+ * @author $Author: johan $
+ * @version $Revision: 1.17 $
  */
 class TabWindowMover extends TabAdapter {
   private AbstractTabWindow window;

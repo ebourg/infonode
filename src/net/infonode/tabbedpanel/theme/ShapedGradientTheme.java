@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ShapedGradientTheme.java,v 1.10 2005/02/16 11:28:15 jesper Exp $
+// $Id: ShapedGradientTheme.java,v 1.14 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.tabbedpanel.theme;
 
 import net.infonode.gui.HighlightPainter;
@@ -44,7 +44,7 @@ import java.awt.*;
  * slopes on left/right side of tab.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.14 $
  * @since ITP 1.2.0
  */
 public class ShapedGradientTheme extends TabbedPanelTitledTabTheme {
@@ -84,9 +84,10 @@ public class ShapedGradientTheme extends TabbedPanelTitledTabTheme {
       Polygon p = super.createPolygon(c, width, height);
       if (isNormal) {
         int leftX = width / 2;
+        boolean first = isFirst(c);
         for (int i = 0; i < p.npoints; i++) {
           if (p.xpoints[i] < leftX)
-            p.xpoints[i] = p.xpoints[i] + raised + (isFirst(c) ? 0 : cornerInset);
+            p.xpoints[i] = p.xpoints[i] + raised + (first ? 0 : cornerInset);
           else
             p.xpoints[i] = p.xpoints[i] - raised - cornerInset;
         }
@@ -111,8 +112,9 @@ public class ShapedGradientTheme extends TabbedPanelTitledTabTheme {
     private boolean isFirst(Component c) {
       if (!hasLeftSlope) {
         Tab tab = TabbedUtils.getParentTab(c);
-        if (tab != null && tab.getTabbedPanel() != null)
+        if (tab != null && tab.getTabbedPanel() != null) {
           return tab.getTabbedPanel().getTabAt(0) == tab;
+        }
       }
 
       return false;
@@ -236,7 +238,7 @@ public class ShapedGradientTheme extends TabbedPanelTitledTabTheme {
                                                                                    darkControlColor1,
                                                                                    darkControlColor2,
                                                                                    darkControlColor2);
-    normalState.getShapedPanelProperties().setComponentPainter(normalComponentPainter);
+    normalState.getShapedPanelProperties().setOpaque(false).setComponentPainter(normalComponentPainter);
     disabledState.getShapedPanelProperties().setComponentPainter(normalComponentPainter);
 
     if (highlightColor == null)
@@ -266,6 +268,8 @@ public class ShapedGradientTheme extends TabbedPanelTitledTabTheme {
 
     tabbedPanelProperties.getTabAreaComponentsProperties().getShapedPanelProperties().setComponentPainter(
         blendedComponentPainter);
+
+    tabbedPanelProperties.getTabAreaProperties().getShapedPanelProperties().setOpaque(false);
 
     tabbedPanelProperties.getContentPanelProperties().getComponentProperties()
         .setBorder(new OpenContentBorder(lineColor, lineColor,

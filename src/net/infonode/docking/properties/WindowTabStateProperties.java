@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowTabStateProperties.java,v 1.11 2005/02/16 11:28:14 jesper Exp $
+// $Id: WindowTabStateProperties.java,v 1.14 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.propertymap.*;
@@ -29,7 +29,7 @@ import net.infonode.properties.propertymap.*;
  * Properties and property values for the window tab buttons.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.14 $
  */
 public class WindowTabStateProperties extends PropertyMapContainer {
   /**
@@ -61,6 +61,25 @@ public class WindowTabStateProperties extends PropertyMapContainer {
                                                                                             "The close button property values.",
                                                                                             WindowTabButtonProperties.PROPERTIES);
 
+  /**
+   * The undock button property values.
+   *
+   * @since IDW 1.4.0
+   */
+  public static final PropertyMapProperty UNDOCK_BUTTON_PROPERTIES = new PropertyMapProperty(PROPERTIES,
+                                                                                             "Undock Button Properties",
+                                                                                             "The undock button property values.",
+                                                                                             WindowTabButtonProperties.PROPERTIES);
+
+  /**
+   * The dock button property values.
+   *
+   * @since IDW 1.4.0
+   */
+  public static final PropertyMapProperty DOCK_BUTTON_PROPERTIES = new PropertyMapProperty(PROPERTIES,
+                                                                                           "Dock Button Properties",
+                                                                                           "The dock button property values.",
+                                                                                           WindowTabButtonProperties.PROPERTIES);
 
   /**
    * Creates an empty property object.
@@ -149,4 +168,23 @@ public class WindowTabStateProperties extends PropertyMapContainer {
     return new WindowTabButtonProperties(CLOSE_BUTTON_PROPERTIES.get(getMap()));
   }
 
+  /**
+   * Returns the undock button property values.
+   *
+   * @return the undock button property values
+   * @since IDW 1.4.0
+   */
+  public WindowTabButtonProperties getUndockButtonProperties() {
+    return new WindowTabButtonProperties(UNDOCK_BUTTON_PROPERTIES.get(getMap()));
+  }
+
+  /**
+   * Returns the dock button property values.
+   *
+   * @return the dock button property values
+   * @since IDW 1.4.0
+   */
+  public WindowTabButtonProperties getDockButtonProperties() {
+    return new WindowTabButtonProperties(DOCK_BUTTON_PROPERTIES.get(getMap()));
+  }
 }

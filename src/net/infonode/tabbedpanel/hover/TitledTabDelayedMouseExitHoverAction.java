@@ -20,16 +20,17 @@
  */
 
 
-// $Id: TitledTabDelayedMouseExitHoverAction.java,v 1.3 2005/02/16 11:28:14 jesper Exp $
+// $Id: TitledTabDelayedMouseExitHoverAction.java,v 1.6 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.tabbedpanel.hover;
 
 import net.infonode.gui.hover.HoverEvent;
 import net.infonode.gui.hover.HoverListener;
 import net.infonode.gui.hover.action.DelayedHoverExitAction;
-import net.infonode.tabbedpanel.TabAdapter;
-import net.infonode.tabbedpanel.TabRemovedEvent;
+import net.infonode.tabbedpanel.TabbedPanel;
 import net.infonode.tabbedpanel.titledtab.TitledTab;
 import net.infonode.tabbedpanel.titledtab.TitledTabProperties;
+
+import javax.swing.*;
 
 /**
  * <p>
@@ -45,7 +46,7 @@ import net.infonode.tabbedpanel.titledtab.TitledTabProperties;
  * </p>
  *
  * @author johan
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.6 $
  * @see TitledTab
  * @see TitledTabProperties
  * @since ITP 1.3.0
@@ -53,12 +54,6 @@ import net.infonode.tabbedpanel.titledtab.TitledTabProperties;
 public class TitledTabDelayedMouseExitHoverAction implements HoverListener {
   private DelayedHoverExitAction delayedAction;
   private HoverListener hoverListener;
-
-  private TabAdapter listener = new TabAdapter() {
-    public void tabRemoved(TabRemovedEvent event) {
-      delayedAction.forceExit(event.getTab());
-    }
-  };
 
   /**
    * Creates a TitledTabDelayedMouseExitHoverAction object with the given HoverListener as action
@@ -71,16 +66,13 @@ public class TitledTabDelayedMouseExitHoverAction implements HoverListener {
     this.hoverListener = hoverListener;
 
     delayedAction = new DelayedHoverExitAction(new HoverListener() {
-
       public void mouseEntered(HoverEvent event) {
         getHoverListener().mouseEntered(event);
       }
 
       public void mouseExited(HoverEvent event) {
-        ((TitledTab) event.getSource()).removeTabListener(listener);
         getHoverListener().mouseExited(event);
       }
-
     }, delay);
   }
 
@@ -96,18 +88,32 @@ public class TitledTabDelayedMouseExitHoverAction implements HoverListener {
   /**
    * Gets the TitledTabProperties object for this action.
    *
-   * @return reference to the TitledTabProperties
+   * @return reference to the TitledTabProperties or null
+   *         if the delayed action is not a TitledTabHoverAction
    */
   public TitledTabProperties getTitledTabProperties() {
-    return ((TitledTabHoverAction) delayedAction.getHoverAction()).getTitledTabProperties();
+    if (getHoverListener() instanceof TitledTabHoverAction)
+      return ((TitledTabHoverAction) getHoverListener()).getTitledTabProperties();
+
+    return null;
   }
 
   public void mouseEntered(HoverEvent event) {
-    ((TitledTab) event.getSource()).addTabListener(listener);
     delayedAction.mouseEntered(event);
   }
 
   public void mouseExited(HoverEvent event) {
+    final TitledTab tab = (TitledTab) event.getSource();
+    final TabbedPanel tp = tab.getTabbedPanel();
+
     delayedAction.mouseExited(event);
+
+    SwingUtilities.invokeLater(new Runnable() {
+      public void run() {
+        if (tab.getTabbedPanel() != tp) {
+          delayedAction.forceExit(tab);
+        }
+      }
+    });
   }
 }

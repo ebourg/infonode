@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyMapManager.java,v 1.13 2005/02/16 11:28:15 jesper Exp $
+// $Id: PropertyMapManager.java,v 1.16 2005/12/04 13:46:06 jesper Exp $
 package net.infonode.properties.propertymap;
 
 import net.infonode.properties.propertymap.value.PropertyValue;
@@ -39,7 +39,7 @@ import java.util.Map;
  * optimize performance.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.16 $
  */
 public class PropertyMapManager {
   private static final PropertyMapManager INSTANCE = new PropertyMapManager();
@@ -67,10 +67,12 @@ public class PropertyMapManager {
     for (ConstMapIterator iterator = mapChanges.constIterator(); iterator.atEntry(); iterator.next()) {
       ValueChange vc = (ValueChange) iterator.getValue();
       Object key = iterator.getKey();
-      Object newValue = vc.getNewValue() == null ? null : ((PropertyValue) vc.getNewValue()).get(propertyMap);
+      Object newValue = vc.getNewValue() == null ?
+                        null : ((PropertyValue) vc.getNewValue()).getWithDefault(propertyMap);
       Object value = map.get(key);
       Object oldValue = value == null ?
-                        vc.getOldValue() == null ? null : ((PropertyValue) vc.getOldValue()).get(propertyMap) :
+                        vc.getOldValue() == null ?
+                        null : ((PropertyValue) vc.getOldValue()).getWithDefault(propertyMap) :
                         ((ValueChange) value).getOldValue();
 
       if (!Utils.equals(oldValue, newValue))
@@ -136,15 +138,20 @@ public class PropertyMapManager {
         Map.Entry entry = (Map.Entry) iterator.next();
         PropertyMapImpl object = (PropertyMapImpl) entry.getKey();
         HashMap objectChanges = (HashMap) entry.getValue();
-        object.firePropertyValuesChanged(Collections.unmodifiableMap(objectChanges));
-        addTreeChanges(object, object, objectChanges, treeChanges);
+
+        if (!objectChanges.isEmpty()) {
+          object.firePropertyValuesChanged(Collections.unmodifiableMap(objectChanges));
+          addTreeChanges(object, object, objectChanges, treeChanges);
+        }
       }
 
       for (Iterator iterator = treeChanges.entrySet().iterator(); iterator.hasNext();) {
         Map.Entry entry = (Map.Entry) iterator.next();
         PropertyMapImpl object = (PropertyMapImpl) entry.getKey();
         HashMap objectChanges = (HashMap) entry.getValue();
-        object.firePropertyTreeValuesChanged(Collections.unmodifiableMap(objectChanges));
+
+        if (!objectChanges.isEmpty())
+          object.firePropertyTreeValuesChanged(Collections.unmodifiableMap(objectChanges));
       }
     }
   }

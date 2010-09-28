@@ -20,31 +20,33 @@
  */
 
 
-// $Id: RootWindowProperties.java,v 1.54 2005/02/16 11:28:14 jesper Exp $
+// $Id: RootWindowProperties.java,v 1.94 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.docking.DefaultButtonFactories;
-import net.infonode.docking.action.CloseWithAbortWindowAction;
-import net.infonode.docking.action.MaximizeWindowAction;
-import net.infonode.docking.action.MinimizeWindowAction;
-import net.infonode.docking.action.RestoreWindowAction;
+import net.infonode.docking.action.*;
+import net.infonode.docking.drop.AcceptAllDropFilter;
 import net.infonode.docking.internalutil.InternalDockingUtil;
 import net.infonode.gui.DynamicUIManager;
 import net.infonode.gui.DynamicUIManagerListener;
 import net.infonode.gui.UIManagerUtil;
+import net.infonode.gui.colorprovider.FixedColorProvider;
+import net.infonode.gui.componentpainter.ComponentPainter;
+import net.infonode.gui.componentpainter.GradientComponentPainter;
+import net.infonode.gui.componentpainter.SolidColorComponentPainter;
+import net.infonode.properties.base.Property;
 import net.infonode.properties.gui.util.ComponentProperties;
 import net.infonode.properties.gui.util.ShapedPanelProperties;
 import net.infonode.properties.propertymap.*;
 import net.infonode.properties.types.BooleanProperty;
 import net.infonode.properties.types.IntegerProperty;
-import net.infonode.tabbedpanel.TabDropDownListVisiblePolicy;
-import net.infonode.tabbedpanel.TabSelectTrigger;
-import net.infonode.tabbedpanel.TabbedPanelProperties;
-import net.infonode.tabbedpanel.TabbedUIDefaults;
+import net.infonode.tabbedpanel.*;
 import net.infonode.tabbedpanel.border.TabAreaLineBorder;
 import net.infonode.tabbedpanel.titledtab.TitledTabProperties;
 import net.infonode.tabbedpanel.titledtab.TitledTabSizePolicy;
+import net.infonode.util.Direction;
 
+import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.util.Map;
@@ -53,7 +55,7 @@ import java.util.Map;
  * Properties and property values for a root window.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.54 $
+ * @version $Revision: 1.94 $
  */
 public class RootWindowProperties extends PropertyMapContainer {
   /**
@@ -85,21 +87,21 @@ public class RootWindowProperties extends PropertyMapContainer {
                               ShapedPanelProperties.PROPERTIES);
 
   /**
-   * The window area component property values. The window area is the area inside the WindowBar's.
+   * The window area component property values. The window area is the area inside the WindowBars.
    */
   public static final PropertyMapProperty WINDOW_AREA_PROPERTIES =
       new PropertyMapProperty(PROPERTIES,
                               "Window Area Properties",
-                              "The window area component property values. The window area is the area inside the WindowBar's.",
+                              "The window area component property values. The window area is the area inside the WindowBars.",
                               ComponentProperties.PROPERTIES);
 
   /**
-   * The window area shaped panel property values. The window area is the area inside the WindowBar's.
+   * The window area shaped panel property values. The window area is the area inside the WindowBars.
    */
   public static final PropertyMapProperty WINDOW_AREA_SHAPED_PANEL_PROPERTIES =
       new PropertyMapProperty(PROPERTIES,
                               "Window Area Shaped Panel Properties",
-                              "The window area shaped panel property values. The window area is the area inside the WindowBar's.",
+                              "The window area shaped panel property values. The window area is the area inside the WindowBars.",
                               ShapedPanelProperties.PROPERTIES);
 
   /**
@@ -136,12 +138,12 @@ public class RootWindowProperties extends PropertyMapContainer {
                               ComponentProperties.PROPERTIES);
 
   /**
-   * Default property values for DockingWindow's inside this root window.
+   * Default property values for DockingWindows inside this root window.
    */
   public static final PropertyMapProperty DOCKING_WINDOW_PROPERTIES =
       new PropertyMapProperty(PROPERTIES,
                               "Docking Window Properties",
-                              "Default property values for DockingWindow's inside this RootWindow.",
+                              "Default property values for DockingWindows inside this RootWindow.",
                               DockingWindowProperties.PROPERTIES);
 
   /**
@@ -150,7 +152,7 @@ public class RootWindowProperties extends PropertyMapContainer {
   public static final PropertyMapProperty TAB_WINDOW_PROPERTIES =
       new PropertyMapProperty(PROPERTIES,
                               "Tab Window Properties",
-                              "Default property values for TabWindow's inside this RootWindow.",
+                              "Default property values for TabWindows inside this RootWindow.",
                               TabWindowProperties.PROPERTIES);
 
   /**
@@ -159,8 +161,19 @@ public class RootWindowProperties extends PropertyMapContainer {
   public static final PropertyMapProperty SPLIT_WINDOW_PROPERTIES =
       new PropertyMapProperty(PROPERTIES,
                               "Split Window Properties",
-                              "Default property values for SplitWindow's inside this RootWindow.",
+                              "Default property values for SplitWindows inside this RootWindow.",
                               SplitWindowProperties.PROPERTIES);
+
+  /**
+   * Default property values for floating windows inside this root window.
+   *
+   * @since IDW 1.4.0
+   */
+  public static final PropertyMapProperty FLOATING_WINDOW_PROPERTIES =
+      new PropertyMapProperty(PROPERTIES,
+                              "Floating Window Properties",
+                              "Default property values for FloatingWindows inside this RootWindow.",
+                              FloatingWindowProperties.PROPERTIES);
 
   /**
    * Default property values for views inside this root window.
@@ -168,7 +181,7 @@ public class RootWindowProperties extends PropertyMapContainer {
   public static final PropertyMapProperty VIEW_PROPERTIES =
       new PropertyMapProperty(PROPERTIES,
                               "View Properties",
-                              "Default property values for View's inside this RootWindow.",
+                              "Default property values for Views inside this RootWindow.",
                               ViewProperties.PROPERTIES);
 
   /**
@@ -221,13 +234,37 @@ public class RootWindowProperties extends PropertyMapContainer {
   public static final PropertyMapProperty WINDOW_BAR_PROPERTIES =
       new PropertyMapProperty(PROPERTIES,
                               "Window Bar Properties",
-                              "Default property values for WindowBar's inside this RootWindow.",
+                              "Default property values for WindowBars inside this RootWindow.",
                               WindowBarProperties.PROPERTIES);
 
   private static RootWindowProperties DEFAULT_VALUES;
 
   private static void setTabProperties() {
     WindowTabProperties tabProperties = DEFAULT_VALUES.getTabWindowProperties().getTabProperties();
+
+    PropertyMapProperty[] buttonProperties = {WindowTabStateProperties.CLOSE_BUTTON_PROPERTIES,
+                                              WindowTabStateProperties.MINIMIZE_BUTTON_PROPERTIES,
+                                              WindowTabStateProperties.RESTORE_BUTTON_PROPERTIES,
+                                              WindowTabStateProperties.UNDOCK_BUTTON_PROPERTIES,
+                                              WindowTabStateProperties.DOCK_BUTTON_PROPERTIES};
+
+    for (int i = 0; i < buttonProperties.length; i++) {
+      for (int j = 0; j < WindowTabButtonProperties.PROPERTIES.getPropertyCount(); j++) {
+        Property property = WindowTabButtonProperties.PROPERTIES.getProperty(j);
+
+        // Highlighted properties inherits from normal properties
+        buttonProperties[i].get(tabProperties.getHighlightedButtonProperties().getMap()).
+            createRelativeRef(property,
+                              buttonProperties[i].get(tabProperties.getNormalButtonProperties().getMap()),
+                              property);
+
+        // Focus properties inherits from highlight properties
+        buttonProperties[i].get(tabProperties.getFocusedButtonProperties().getMap()).
+            createRelativeRef(property,
+                              buttonProperties[i].get(tabProperties.getHighlightedButtonProperties().getMap()),
+                              property);
+      }
+    }
 
     tabProperties.getTitledTabProperties().getNormalProperties()
         .setToolTipEnabled(true)
@@ -239,20 +276,32 @@ public class RootWindowProperties extends PropertyMapContainer {
         .setFactory(DefaultButtonFactories.getCloseButtonFactory())
         .setTo(CloseWithAbortWindowAction.INSTANCE);
 
+    tabProperties.getNormalButtonProperties().getUndockButtonProperties()
+        .setFactory(DefaultButtonFactories.getUndockButtonFactory())
+        .setVisible(false)
+        .setTo(UndockWithAbortWindowAction.INSTANCE);
+
+    tabProperties.getNormalButtonProperties().getDockButtonProperties()
+        .setFactory(DefaultButtonFactories.getDockButtonFactory())
+        .setVisible(false)
+        .setTo(DockWithAbortWindowAction.INSTANCE);
+
     tabProperties.getNormalButtonProperties().getRestoreButtonProperties()
         .setFactory(DefaultButtonFactories.getRestoreButtonFactory())
         .setVisible(false)
-        .setTo(RestoreWindowAction.INSTANCE);
+        .setTo(RestoreWithAbortWindowAction.INSTANCE);
 
     tabProperties.getNormalButtonProperties().getMinimizeButtonProperties()
         .setFactory(DefaultButtonFactories.getMinimizeButtonFactory())
         .setVisible(false)
-        .setTo(MinimizeWindowAction.INSTANCE);
+        .setTo(MinimizeWithAbortWindowAction.INSTANCE);
 
     tabProperties.getTitledTabProperties().setFocusable(false);
     tabProperties.getHighlightedButtonProperties().getCloseButtonProperties().setVisible(true);
     tabProperties.getHighlightedButtonProperties().getMinimizeButtonProperties().setVisible(true);
     tabProperties.getHighlightedButtonProperties().getRestoreButtonProperties().setVisible(true);
+    tabProperties.getHighlightedButtonProperties().getUndockButtonProperties().setVisible(true);
+    tabProperties.getHighlightedButtonProperties().getDockButtonProperties().setVisible(true);
   }
 
   private static void setTabbedPanelProperties() {
@@ -277,17 +326,34 @@ public class RootWindowProperties extends PropertyMapContainer {
     tabWindowProperties.getRestoreButtonProperties()
         .setFactory(DefaultButtonFactories.getRestoreButtonFactory())
         .setVisible(true)
-        .setTo(RestoreWindowAction.INSTANCE);
+        .setTo(RestoreWithAbortWindowAction.INSTANCE);
 
     tabWindowProperties.getMinimizeButtonProperties()
         .setFactory(DefaultButtonFactories.getMinimizeButtonFactory())
         .setVisible(true)
-        .setTo(MinimizeWindowAction.INSTANCE);
+        .setTo(MinimizeWithAbortWindowAction.INSTANCE);
 
     tabWindowProperties.getMaximizeButtonProperties()
         .setFactory(DefaultButtonFactories.getMaximizeButtonFactory())
         .setVisible(true)
-        .setTo(MaximizeWindowAction.INSTANCE);
+        .setTo(MaximizeWithAbortWindowAction.INSTANCE);
+
+    tabWindowProperties.getUndockButtonProperties()
+        .setFactory(DefaultButtonFactories.getUndockButtonFactory())
+        .setVisible(true)
+        .setTo(UndockWithAbortWindowAction.INSTANCE);
+
+    tabWindowProperties.getDockButtonProperties()
+        .setFactory(DefaultButtonFactories.getDockButtonFactory())
+        .setVisible(true)
+        .setTo(DockWithAbortWindowAction.INSTANCE);
+
+    TabbedPanelButtonProperties buttonProps = tabWindowProperties.getTabbedPanelProperties().getButtonProperties();
+    buttonProps.getTabDropDownListButtonProperties().setToolTipText("Tab List");
+    buttonProps.getScrollLeftButtonProperties().setToolTipText("Scroll Left");
+    buttonProps.getScrollRightButtonProperties().setToolTipText("Scroll Right");
+    buttonProps.getScrollUpButtonProperties().setToolTipText("Scroll Up");
+    buttonProps.getScrollDownButtonProperties().setToolTipText("Scroll Down");
   }
 
   private static void setWindowBarProperties() {
@@ -296,6 +362,8 @@ public class RootWindowProperties extends PropertyMapContainer {
 
       p.setMinimumWidth(4);
       p.setContentPanelEdgeResizeEdgeDistance(6);
+      p.setContinuousLayoutEnabled(true);
+      p.setDragIndicatorColor(Color.DARK_GRAY);
 
       p.getTabWindowProperties().getTabbedPanelProperties()
           .setTabDeselectable(true)
@@ -309,6 +377,12 @@ public class RootWindowProperties extends PropertyMapContainer {
 
       p.getTabWindowProperties().getTabbedPanelProperties().getContentPanelProperties().getComponentProperties()
           .setInsets(new Insets(4, 4, 4, 4));
+
+      p.getTabWindowProperties().getTabbedPanelProperties().getContentPanelProperties().getShapedPanelProperties()
+          .setOpaque(true);
+
+      p.getTabWindowProperties().getTabbedPanelProperties().getTabAreaProperties().setTabAreaVisiblePolicy(
+          TabAreaVisiblePolicy.ALWAYS);
     }
 
     {
@@ -328,19 +402,85 @@ public class RootWindowProperties extends PropertyMapContainer {
 
       p.getNormalButtonProperties().getCloseButtonProperties().setVisible(true);
       p.getNormalButtonProperties().getRestoreButtonProperties().setVisible(true);
+      p.getNormalButtonProperties().getUndockButtonProperties().setVisible(true);
+      p.getNormalButtonProperties().getDockButtonProperties().setVisible(true);
+    }
+  }
+
+  private static void setFloatingWindowProperties() {
+    for (int i = 0; i < ComponentProperties.PROPERTIES.getPropertyCount(); i++) {
+      Property property = ComponentProperties.PROPERTIES.getProperty(i);
+
+      FloatingWindowProperties.COMPONENT_PROPERTIES.get(DEFAULT_VALUES.getFloatingWindowProperties().getMap()).
+          createRelativeRef(property,
+                            RootWindowProperties.WINDOW_AREA_PROPERTIES.get(DEFAULT_VALUES.getMap()),
+                            property);
+    }
+    for (int i = 0; i < ShapedPanelProperties.PROPERTIES.getPropertyCount(); i++) {
+      Property property = ShapedPanelProperties.PROPERTIES.getProperty(i);
+
+      FloatingWindowProperties.SHAPED_PANEL_PROPERTIES.get(DEFAULT_VALUES.getFloatingWindowProperties().getMap()).
+          createRelativeRef(property,
+                            RootWindowProperties.WINDOW_AREA_SHAPED_PANEL_PROPERTIES.get(DEFAULT_VALUES.getMap()),
+                            property);
     }
 
+    DEFAULT_VALUES.getFloatingWindowProperties().setAutoCloseEnabled(true);
+  }
+
+  private static void setViewTitleBarProperties() {
+    ViewTitleBarProperties props = DEFAULT_VALUES.getViewProperties().getViewTitleBarProperties();
+
+    props.setOrientation(Direction.UP).setDirection(Direction.RIGHT).getNormalProperties().setTitleVisible(true)
+        .setIconVisible(true);
+
+    ViewTitleBarStateProperties stateProps = props.getNormalProperties();
+
+    stateProps.setButtonSpacing(0);
+
+    stateProps.getUndockButtonProperties()
+        .setFactory(DefaultButtonFactories.getUndockButtonFactory())
+        .setVisible(true)
+        .setTo(UndockWithAbortWindowAction.INSTANCE);
+
+    stateProps.getDockButtonProperties()
+        .setFactory(DefaultButtonFactories.getDockButtonFactory())
+        .setVisible(true)
+        .setTo(DockWithAbortWindowAction.INSTANCE);
+
+    stateProps.getCloseButtonProperties()
+        .setFactory(DefaultButtonFactories.getCloseButtonFactory())
+        .setVisible(true)
+        .setTo(CloseWithAbortWindowAction.INSTANCE);
+
+    stateProps.getRestoreButtonProperties()
+        .setFactory(DefaultButtonFactories.getRestoreButtonFactory())
+        .setVisible(true)
+        .setTo(RestoreViewWithAbortTitleBarAction.INSTANCE);
+
+    stateProps.getMinimizeButtonProperties()
+        .setFactory(DefaultButtonFactories.getMinimizeButtonFactory())
+        .setVisible(true)
+        .setTo(MinimizeWithAbortWindowAction.INSTANCE);
+
+    stateProps.getMaximizeButtonProperties()
+        .setFactory(DefaultButtonFactories.getMaximizeButtonFactory())
+        .setVisible(true)
+        .setTo(MaximizeWithAbortWindowAction.INSTANCE);
+
+    stateProps.getMap().createRelativeRef(ViewTitleBarStateProperties.TITLE,
+                                          DEFAULT_VALUES.getViewProperties().getMap(),
+                                          ViewProperties.TITLE);
+
+    stateProps.getMap().createRelativeRef(ViewTitleBarStateProperties.ICON,
+                                          DEFAULT_VALUES.getViewProperties().getMap(),
+                                          ViewProperties.ICON);
   }
 
   private static void updateVisualProperties() {
-    DEFAULT_VALUES = new RootWindowProperties(PROPERTIES.getDefaultMap());
-
     DEFAULT_VALUES.getWindowBarProperties().getTabWindowProperties().getTabProperties().getTitledTabProperties()
         .getNormalProperties().getComponentProperties().setBackgroundColor(
             TabbedUIDefaults.getHighlightedStateBackground());
-
-    DEFAULT_VALUES.getComponentProperties()
-        .setBackgroundColor(TabbedUIDefaults.getNormalStateBackground());
 
     Color shadowColor = UIManagerUtil.getColor("controlDkShadow", Color.BLACK);
 
@@ -348,8 +488,12 @@ public class RootWindowProperties extends PropertyMapContainer {
         .setBorder(new LineBorder(shadowColor))
         .setBackgroundColor(UIManagerUtil.getColor("Desktop.background", "control"));
 
+    DEFAULT_VALUES.getWindowAreaShapedPanelProperties().setOpaque(true);
+
     DEFAULT_VALUES.getDragLabelProperties()
         .setBorder(new LineBorder(shadowColor))
+        .setFont(UIManagerUtil.getFont("ToolTip.font"))
+        .setForegroundColor(UIManagerUtil.getColor("ToolTip.foreground", "controlText"))
         .setBackgroundColor(UIManagerUtil.getColor("ToolTip.background", "control"));
 
     DEFAULT_VALUES
@@ -358,10 +502,57 @@ public class RootWindowProperties extends PropertyMapContainer {
 
   private static void updateFont() {
     Font font = TitledTabProperties.getDefaultProperties().getHighlightedProperties().
-        getComponentProperties().getFont().deriveFont(Font.BOLD);
+        getComponentProperties().getFont();
+
+    if (font != null)
+      font = font.deriveFont(Font.BOLD);
 
     DEFAULT_VALUES.getTabWindowProperties().getTabProperties().getTitledTabProperties().
         getHighlightedProperties().getComponentProperties().setFont(font);
+  }
+
+  private static void updateViewTitleBarProperties() {
+    ViewTitleBarProperties props = DEFAULT_VALUES.getViewProperties().getViewTitleBarProperties();
+    Font font = TabbedUIDefaults.getFont();
+    if (font != null)
+      font = font.deriveFont(Font.BOLD);
+
+
+    props.getNormalProperties().getComponentProperties().setFont(font).setForegroundColor(
+        UIManager.getColor("InternalFrame.inactiveTitleForeground"))
+        .setBackgroundColor(UIManager.getColor("InternalFrame.inactiveTitleBackground"))
+        .setInsets(new Insets(2, 2, 2, 2));
+    props.getFocusedProperties().getComponentProperties().setForegroundColor(
+        UIManager.getColor("InternalFrame.activeTitleForeground"))
+        .setBackgroundColor(UIManager.getColor("InternalFrame.activeTitleBackground"));
+
+    Color c1 = UIManager.getColor("InternalFrame.inactiveTitleBackground");
+    Color c2 = UIManager.getColor("InternalFrame.inactiveTitleGradient");
+    ComponentPainter backgroundPainter;
+
+    if (c1 == null)
+      backgroundPainter = null;
+    else if (c1.equals(c2) || c2 == null)
+      backgroundPainter = new SolidColorComponentPainter(new FixedColorProvider(c1));
+    else
+      backgroundPainter = new GradientComponentPainter(c2, c2, c1, c1);
+    props.getNormalProperties().getShapedPanelProperties().setComponentPainter(backgroundPainter).setOpaque(true);
+
+    Color focused1 = UIManager.getColor("InternalFrame.activeTitleBackground");
+    Color focused2 = UIManager.getColor("InternalFrame.activeTitleGradient");
+    ComponentPainter focusedPainter;
+
+    if (focused1 == null)
+      focusedPainter = null;
+    else if (focused1.equals(focused2) || focused2 == null)
+      focusedPainter = new SolidColorComponentPainter(new FixedColorProvider(focused1));
+    else
+      focusedPainter = new GradientComponentPainter(focused2, focused2, focused1, focused1);
+    props.getFocusedProperties().getShapedPanelProperties().setComponentPainter(focusedPainter);
+    props.getFocusedProperties().getComponentProperties().setForegroundColor(
+        UIManager.getColor("InternalFrame.activeTitleForeground"));
+
+    props.setContentTitleBarGap(0).getNormalProperties().setIconTextGap(TabbedUIDefaults.getIconTextGap());
   }
 
   static {
@@ -372,12 +563,23 @@ public class RootWindowProperties extends PropertyMapContainer {
         .setEdgeSplitDistance(6)
         .setDragRectangleBorderWidth(5);
 
+    DEFAULT_VALUES.getShapedPanelProperties().setOpaque(true);
+
     DEFAULT_VALUES.getDockingWindowProperties()
         .setMaximizeEnabled(true)
         .setMinimizeEnabled(true)
         .setCloseEnabled(true)
         .setRestoreEnabled(true)
-        .setDragEnabled(true);
+        .setDragEnabled(true)
+        .setUndockEnabled(true)
+        .setUndockOnDropEnabled(true)
+        .setDockEnabled(true);
+
+    DEFAULT_VALUES.getDockingWindowProperties().getDropFilterProperties()
+        .setChildDropFilter(AcceptAllDropFilter.INSTANCE)
+        .setInsertTabDropFilter(AcceptAllDropFilter.INSTANCE)
+        .setInteriorDropFilter(AcceptAllDropFilter.INSTANCE)
+        .setSplitDropFilter(AcceptAllDropFilter.INSTANCE);
 
     DEFAULT_VALUES.getWindowAreaProperties()
         .setInsets(new Insets(6, 6, 2, 2));
@@ -385,18 +587,25 @@ public class RootWindowProperties extends PropertyMapContainer {
     DEFAULT_VALUES.getDragLabelProperties()
         .setInsets(new Insets(4, 6, 4, 6));
 
+    DEFAULT_VALUES.getDragRectangleShapedPanelProperties().setOpaque(false);
+
     DEFAULT_VALUES.getSplitWindowProperties()
         .setContinuousLayoutEnabled(true)
         .setDividerSize(4)
-        .setDividerLocationDragEnabled(true);
+        .setDividerLocationDragEnabled(true)
+        .setDragIndicatorColor(Color.DARK_GRAY);
 
     DEFAULT_VALUES.getViewProperties().setAlwaysShowTitle(true);
 
     setTabbedPanelProperties();
     setTabProperties();
     setWindowBarProperties();
+    setViewTitleBarProperties();
+    setFloatingWindowProperties();
 
     updateVisualProperties();
+
+    updateViewTitleBarProperties();
 
     updateFont();
 
@@ -409,11 +618,27 @@ public class RootWindowProperties extends PropertyMapContainer {
 
     DynamicUIManager.getInstance().addListener(new DynamicUIManagerListener() {
       public void lookAndFeelChanged() {
-        updateVisualProperties();
+        PropertyMapManager.runBatch(new Runnable() {
+          public void run() {
+            updateVisualProperties();
+            updateViewTitleBarProperties();
+          }
+        });
       }
 
       public void propertiesChanged() {
-        updateVisualProperties();
+        PropertyMapManager.runBatch(new Runnable() {
+          public void run() {
+            updateVisualProperties();
+            updateViewTitleBarProperties();
+          }
+        });
+      }
+
+      public void propertiesChanging() {
+      }
+
+      public void lookAndFeelChanging() {
       }
     });
   }
@@ -517,6 +742,16 @@ public class RootWindowProperties extends PropertyMapContainer {
    */
   public SplitWindowProperties getSplitWindowProperties() {
     return new SplitWindowProperties(SPLIT_WINDOW_PROPERTIES.get(getMap()));
+  }
+
+  /**
+   * Returns the default property values for floating windows.
+   *
+   * @return the default property values for floating windows
+   * @since IDW 1.4.0
+   */
+  public FloatingWindowProperties getFloatingWindowProperties() {
+    return new FloatingWindowProperties(FLOATING_WINDOW_PROPERTIES.get(getMap()));
   }
 
   /**

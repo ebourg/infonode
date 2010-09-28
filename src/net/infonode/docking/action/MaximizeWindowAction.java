@@ -20,7 +20,7 @@
  */
 
 
-// $Id: MaximizeWindowAction.java,v 1.4 2005/02/16 11:28:14 jesper Exp $
+// $Id: MaximizeWindowAction.java,v 1.6 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.docking.action;
 
 import net.infonode.docking.DockingWindow;
@@ -37,7 +37,7 @@ import java.io.ObjectStreamException;
  * a {@link TabWindow}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.6 $
  * @since IDW 1.3.0
  */
 public final class MaximizeWindowAction extends DockingWindowAction {
@@ -62,6 +62,9 @@ public final class MaximizeWindowAction extends DockingWindowAction {
   }
 
   public boolean isPerformable(DockingWindow window) {
+    if (!window.isMaximizable())
+      return false;
+
     TabWindow tabWindow = DockingUtil.getTabWindowFor(window);
     return tabWindow != null && !tabWindow.isMaximized() && tabWindow.isMaximizable();
   }

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabbedPanelTitledTabHoverAction.java,v 1.10 2005/02/16 11:28:14 jesper Exp $
+// $Id: TabbedPanelTitledTabHoverAction.java,v 1.12 2005/04/20 15:43:28 johan Exp $
 
 package net.infonode.tabbedpanel.hover;
 
@@ -66,7 +66,7 @@ import net.infonode.tabbedpanel.titledtab.TitledTabProperties;
  * </p>
  *
  * @author johan
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.12 $
  * @see TabbedPanel
  * @see TitledTab
  * @see TabbedPanelProperties

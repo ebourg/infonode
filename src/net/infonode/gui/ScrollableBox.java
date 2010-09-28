@@ -19,11 +19,12 @@
  * MA 02111-1307, USA.
  */
 
-//$Id: ScrollableBox.java,v 1.21 2005/02/16 11:28:13 jesper Exp $
+//$Id: ScrollableBox.java,v 1.27 2005/12/04 13:46:04 jesper Exp $
 
 package net.infonode.gui;
 
 import net.infonode.gui.layout.LayoutUtil;
+import net.infonode.gui.panel.SimplePanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,7 +34,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 
-public class ScrollableBox extends JPanel {
+public class ScrollableBox extends SimplePanel {
   private LayoutManager l = new LayoutManager() {
     public void addLayoutComponent(String name, Component comp) {
     }
@@ -85,7 +86,6 @@ public class ScrollableBox extends JPanel {
     this.vertical = vertical;
     this.scrollOffset = scrollOffset;
     add(scrollingContainer);
-    setOpaque(false);
 
     scrollingContainer.addMouseWheelListener(mouseWheelListener);
     scrollingContainer.addHierarchyListener(new HierarchyListener() {
@@ -180,8 +180,12 @@ public class ScrollableBox extends JPanel {
   }
 
   private int getScrollOffset(int index) {
-    return (index == 0) ?
-           0 : Math.min(scrollOffset, getDimensionSize(getScrollingComponents()[index - 1].getPreferredSize()) / 2);
+    if (index == 0)
+      return 0;
+
+    Component c = getScrollingComponents()[index - 1];
+    return Math.min(scrollOffset,
+                    Math.max(getDimensionSize(c.getMinimumSize()), getDimensionSize(c.getPreferredSize()) / 2));
   }
 
   private Component[] getScrollingComponents() {

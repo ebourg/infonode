@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowDecoder.java,v 1.15 2005/02/16 11:28:14 jesper Exp $
+// $Id: WindowDecoder.java,v 1.18 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.internal.ReadContext;
@@ -34,7 +34,7 @@ import java.io.ObjectInputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.18 $
  */
 class WindowDecoder {
   private WindowDecoder() {

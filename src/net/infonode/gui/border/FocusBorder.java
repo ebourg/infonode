@@ -20,7 +20,7 @@
  */
 
 
-// $Id: FocusBorder.java,v 1.7 2005/02/16 11:28:10 jesper Exp $
+// $Id: FocusBorder.java,v 1.14 2005/12/04 13:46:03 jesper Exp $
 package net.infonode.gui.border;
 
 import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
@@ -36,24 +36,28 @@ import java.io.Serializable;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.14 $
  */
 public class FocusBorder implements Border, Serializable {
   private static final long serialVersionUID = 1;
 
   private static final Insets INSETS = new Insets(1, 1, 1, 1);
 
-  public FocusBorder() {
-  }
+  private Component component;
 
-  public FocusBorder(final Component component) {
-    component.addFocusListener(new FocusListener() {
+  private boolean enabled = true;
+
+  public FocusBorder(final Component focusComponent) {
+    this.component = focusComponent;
+    focusComponent.addFocusListener(new FocusListener() {
       public void focusGained(FocusEvent e) {
-        component.repaint();
+        if (enabled)
+          focusComponent.repaint();
       }
 
       public void focusLost(FocusEvent e) {
-        component.repaint();
+        if (enabled)
+          focusComponent.repaint();
       }
     });
   }
@@ -66,8 +70,18 @@ public class FocusBorder implements Border, Serializable {
     return false;
   }
 
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  public void setEnabled(boolean enabled) {
+    if (enabled != this.enabled) {
+      this.enabled = enabled;
+    }
+  }
+
   public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-    if (c.hasFocus()) {
+    if (enabled && component.hasFocus()) {
       g.setColor(UIManagerUtil.getColor("Button.focus", "TabbedPane.focus"));
 
       if (UIManager.getLookAndFeel().getClass() == WindowsLookAndFeel.class)

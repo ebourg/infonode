@@ -20,11 +20,23 @@
  */
 
 
-// $Id: ChangeNotifyMapListener.java,v 1.2 2004/06/17 13:01:11 johan Exp $
-package net.infonode.util.collection.notifymap;
+package net.infonode.gui;
 
-import net.infonode.util.collection.map.base.ConstMap;
+import java.awt.*;
 
-public interface ChangeNotifyMapListener {
-  void entriesChanged(ConstMap changes);
+/**
+ * An object that provides dimensions.
+ *
+ * @author $Author: jesper $
+ * @version $Revision: 1.2 $
+ */
+public interface DimensionProvider {
+
+  /**
+   * Returns the dimension for the given component
+   *
+   * @param c the component to get dimension for
+   * @return the dimension
+   */
+  public Dimension getDimension(Component c);
 }

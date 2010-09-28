@@ -20,38 +20,60 @@
  */
 
 
-// $Id: View.java,v 1.39 2005/02/16 11:28:14 jesper Exp $
+// $Id: View.java,v 1.66 2005/12/03 14:34:34 jesper Exp $
 package net.infonode.docking;
 
+import net.infonode.docking.drag.DockingWindowDragSource;
+import net.infonode.docking.drag.DockingWindowDragger;
+import net.infonode.docking.drag.DockingWindowDraggerProvider;
+import net.infonode.docking.drop.InteriorDropInfo;
 import net.infonode.docking.internal.ReadContext;
+import net.infonode.docking.internal.ViewTitleBar;
 import net.infonode.docking.internal.WriteContext;
 import net.infonode.docking.internalutil.DropAction;
-import net.infonode.docking.location.NullLocation;
-import net.infonode.docking.location.WindowLocation;
 import net.infonode.docking.model.ViewItem;
 import net.infonode.docking.model.ViewWriter;
 import net.infonode.docking.properties.ViewProperties;
+import net.infonode.docking.properties.ViewTitleBarProperties;
 import net.infonode.gui.ComponentUtil;
 import net.infonode.gui.panel.SimplePanel;
 import net.infonode.properties.base.Property;
 import net.infonode.properties.propertymap.PropertyMap;
-import net.infonode.properties.propertymap.PropertyMapManager;
 import net.infonode.properties.propertymap.PropertyMapWeakListenerManager;
 import net.infonode.properties.util.PropertyChangeListener;
+import net.infonode.tabbedpanel.TabbedPanel;
+import net.infonode.util.ChangeNotifyList;
+import net.infonode.util.Direction;
 import net.infonode.util.StreamUtil;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.*;
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 /**
+ * <p>
  * A view is a docking window containing a component.
+ * </p>
+ *
+ * <p>
+ * A view can also contain a title bar that can be shown on either side of the view component.
+ * The title bar is made visible by setting the visible property in the ViewTitleBarProperties
+ * in the ViewProperties for this view. The title bar automatically inherits the view's title
+ * and icon but it's possible to specify a specific title and icon for the title bar in the
+ * ViewTitleBarProperties in the ViewProperties for this view.
+ * </p>
  *
  * @author $Author: jesper $
- * @version $Revision: 1.39 $
+ * @version $Revision: 1.66 $
+ * @see net.infonode.docking.properties.ViewProperties
+ * @see net.infonode.docking.properties.ViewTitleBarProperties
  */
 public class View extends DockingWindow {
   private Component lastFocusedComponent;
@@ -69,6 +91,49 @@ public class View extends DockingWindow {
     }
   };
 
+  private PropertyChangeListener titleBarPropertiesListener = new PropertyChangeListener() {
+    public void propertyChanged(Property property, Object valueContainer, Object oldValue, Object newValue) {
+      updateTitleBar(property, valueContainer);
+    }
+  };
+
+  private ViewTitleBar titleBar;
+  private boolean isfocused = false;
+  private List customTitleBarComponents;
+
+  private WindowTab ghostTab;
+
+  private DropAction titleBarDropAction = new DropAction() {
+    public boolean showTitle() {
+      return false;
+    }
+
+    public void execute(DockingWindow window, MouseEvent mouseEvent) {
+      removeGhostTab();
+
+      ((AbstractTabWindow) getWindowParent()).addTab(window);
+    }
+
+    public void clear(DockingWindow window, DropAction newDropAction) {
+      if (newDropAction != this)
+        removeGhostTab();
+    }
+
+    private void removeGhostTab() {
+      if (ghostTab != null) {
+        TabbedPanel tp = ((AbstractTabWindow) getWindowParent()).getTabbedPanel();
+        tp.removeTab(ghostTab);
+        ghostTab = null;
+
+        if (tp.getProperties().getEnsureSelectedTabVisible() && tp.getSelectedTab() != null) {
+          tp.scrollTabToVisibleArea(tp.getSelectedTab());
+        }
+      }
+    }
+
+  };
+
+
   /**
    * Constructor.
    *
@@ -78,7 +143,6 @@ public class View extends DockingWindow {
    */
   public View(String title, Icon icon, Component component) {
     super(new ViewItem());
-
     rootProperties.setTitle(title);
     rootProperties.setIcon(icon);
     getViewProperties().addSuperObject(rootProperties);
@@ -91,6 +155,22 @@ public class View extends DockingWindow {
     PropertyMapWeakListenerManager.addWeakPropertyChangeListener(getViewProperties().getMap(),
                                                                  ViewProperties.ICON,
                                                                  listener);
+
+    PropertyMapWeakListenerManager
+        .addWeakPropertyChangeListener(getViewProperties().getViewTitleBarProperties().getMap(),
+                                       ViewTitleBarProperties.VISIBLE,
+                                       titleBarPropertiesListener);
+    PropertyMapWeakListenerManager
+        .addWeakPropertyChangeListener(getViewProperties().getViewTitleBarProperties().getMap(),
+                                       ViewTitleBarProperties.CONTENT_TITLE_BAR_GAP,
+                                       titleBarPropertiesListener);
+    PropertyMapWeakListenerManager
+        .addWeakPropertyChangeListener(getViewProperties().getViewTitleBarProperties().getMap(),
+                                       ViewTitleBarProperties.ORIENTATION,
+                                       titleBarPropertiesListener);
+
+    updateTitleBar(null, null);
+
     init();
   }
 
@@ -109,6 +189,34 @@ public class View extends DockingWindow {
    */
   public java.util.List getCustomTabComponents() {
     return getTab().getCustomTabComponentsList();
+  }
+
+  /**
+   * <p>
+   * Returns a list containing the custom view title bar components. Changes to the list will be propagated to the title bar.
+   * </p>
+   * <p>
+   * The custom title bar components will be shown after the view title in the title bar but before the close, minimize and restore
+   * buttons. The components are shown in the same order as they appear in the list. The custom title bar components container
+   * layout is rotated with the title bar direction.
+   * </p>
+   * <p>
+   * <strong>Note:</strong> The components are only shon if the title bar is visible, see {@link ViewTitleBarProperties}.
+   * </p>
+   *
+   * @return a list containing the custom title bar components, list elements are of type {@link JComponent}
+   * @since IDW 1.4.0
+   */
+  public List getCustomTitleBarComponents() {
+    if (customTitleBarComponents == null)
+      customTitleBarComponents = new ChangeNotifyList() {
+        protected void changed() {
+          if (titleBar != null)
+            titleBar.updateCustomBarComponents(this);
+        }
+      };
+
+    return customTitleBarComponents;
   }
 
   /**
@@ -150,10 +258,6 @@ public class View extends DockingWindow {
 
   public int getChildWindowCount() {
     return 0;
-  }
-
-  protected WindowLocation getWindowLocation(DockingWindow window) {
-    return NullLocation.INSTANCE;
   }
 
   void setLastFocusedComponent(Component component) {
@@ -212,9 +316,15 @@ public class View extends DockingWindow {
   protected void write(ObjectOutputStream out, WriteContext context) throws IOException {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     ObjectOutputStream oos = new ObjectOutputStream(baos);
-    context.getViewSerializer().writeView(this, oos);
-    getWindowItem().writeSettings(oos, context);
-    oos.close();
+
+    try {
+      context.getViewSerializer().writeView(this, oos);
+      getWindowItem().writeSettings(oos, context);
+    }
+    finally {
+      oos.close();
+    }
+
     out.writeInt(baos.size());
     baos.writeTo(out);
   }
@@ -233,9 +343,45 @@ public class View extends DockingWindow {
   }
 
   protected DropAction doAcceptDrop(Point p, DockingWindow window) {
+    if (getWindowParent() instanceof TabWindow && titleBar != null &&
+        titleBar.contains(SwingUtilities.convertPoint(this, p, titleBar))) {
+      return acceptInteriorDrop(p, window);
+    }
+
     return getWindowParent() instanceof TabWindow && getWindowParent().getChildWindowCount() == 1 ?
            null :
            super.doAcceptDrop(p, window);
+  }
+
+  protected DropAction acceptInteriorDrop(Point p, DockingWindow window) {
+    if (getWindowParent() instanceof TabWindow && titleBar != null && window.getWindowParent() != getWindowParent()) {
+      Point p2 = SwingUtilities.convertPoint(this, p, titleBar);
+      if (titleBar.contains(p2)) {
+        if (!getInteriorDropFilter().acceptDrop(new InteriorDropInfo(window, this, p)))
+          return null;
+
+        addGhostTab(window);
+        Component c = getWindowParent() instanceof TabWindow ? getWindowParent() : this;
+        getRootWindow().setDragRectangle(SwingUtilities.convertRectangle(c,
+                                                                         new Rectangle(0,
+                                                                                       0,
+                                                                                       c.getWidth(),
+                                                                                       c.getHeight()),
+                                                                         getRootWindow()));
+
+        return titleBarDropAction;
+      }
+    }
+
+    return null;
+  }
+
+  private void addGhostTab(DockingWindow window) {
+    if (ghostTab == null) {
+      ghostTab = ((AbstractTabWindow) getWindowParent()).createGhostTab(window);
+      ((AbstractTabWindow) getWindowParent()).getTabbedPanel().addTab(ghostTab);
+      ((AbstractTabWindow) getWindowParent()).getTabbedPanel().scrollTabToVisibleArea(ghostTab);
+    }
   }
 
   public String toString() {
@@ -243,34 +389,48 @@ public class View extends DockingWindow {
   }
 
   void setRootWindow(RootWindow newRoot) {
-    if (newRoot != null) {
-      if (lastRootWindow != null) {
-        RootWindow last = (RootWindow) lastRootWindow.get();
+    if (newRoot == null)
+      return;
 
-        if (last != null)
-          last.removeView(this);
-      }
+    RootWindow last = lastRootWindow == null ? null : (RootWindow) lastRootWindow.get();
 
-      lastRootWindow = new WeakReference(newRoot);
-      newRoot.addView(this);
+    if (last == newRoot)
+      return;
+
+    if (last != null)
+      last.removeView(this);
+
+    lastRootWindow = new WeakReference(newRoot);
+    newRoot.addView(this);
+  }
+
+  protected void setFocused(boolean focused) {
+    super.setFocused(focused);
+    if (isfocused != focused) {
+      isfocused = focused;
+
+      if (focused)
+        getViewProperties().getViewTitleBarProperties().getNormalProperties()
+            .addSuperObject(getViewProperties().getViewTitleBarProperties().getFocusedProperties());
+      else
+        getViewProperties().getViewTitleBarProperties().getNormalProperties()
+            .removeSuperObject(getViewProperties().getViewTitleBarProperties().getFocusedProperties());
     }
-
   }
 
   protected void rootChanged(final RootWindow oldRoot, final RootWindow newRoot) {
     super.rootChanged(oldRoot, newRoot);
     setRootWindow(newRoot);
 
-    PropertyMapManager.runBatch(new Runnable() {
-      public void run() {
-        if (oldRoot != null)
-          rootProperties.removeSuperObject(oldRoot.getRootWindowProperties().getViewProperties());
+    // TODO: eliminate root window = null because triggers property updates.
+    if (oldRoot != getRootWindow()) {
+      if (oldRoot != null)
+        rootProperties.removeSuperObject(oldRoot.getRootWindowProperties().getViewProperties());
 
-        if (newRoot != null) {
-          rootProperties.addSuperObject(newRoot.getRootWindowProperties().getViewProperties());
-        }
+      if (getRootWindow() != null) {
+        rootProperties.addSuperObject(getRootWindow().getRootWindowProperties().getViewProperties());
       }
-    });
+    }
   }
 
   protected PropertyMap getPropertyObject() {
@@ -298,9 +458,94 @@ public class View extends DockingWindow {
   void restoreWindowComponent(DockingWindow window) {
   }
 
+  private void updateTitleBar(Property property, Object valueContainer) {
+    boolean changed = valueContainer == null;
+
+    ViewTitleBarProperties titleBarProperties = getViewProperties().getViewTitleBarProperties();
+    //System.out.println("Updating title bar " + changed + "  " + property);
+
+    if (changed || property == ViewTitleBarProperties.VISIBLE) {
+      if (titleBarProperties.getVisible()) {
+        if (titleBar == null) {
+          titleBar = new ViewTitleBar(this);
+          new DockingWindowDragSource(titleBar, new DockingWindowDraggerProvider() {
+            public DockingWindowDragger getDragger(MouseEvent mouseEvent) {
+              return getWindowProperties().getDragEnabled() ? startDrag(getRootWindow()) : null;
+            }
+          });
+          titleBar.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+              fireTabWindowMouseButtonEvent(e);
+              checkPopupMenu(e);
+            }
+
+            public void mouseClicked(MouseEvent e) {
+              fireTabWindowMouseButtonEvent(e);
+            }
+
+            public void mouseReleased(MouseEvent e) {
+              fireTabWindowMouseButtonEvent(e);
+              checkPopupMenu(e);
+            }
+
+            private void checkPopupMenu(MouseEvent e) {
+              if (e.isPopupTrigger()) {
+                showPopupMenu(e);
+              }
+            }
+          });
+
+          if (customTitleBarComponents != null)
+            titleBar.updateCustomBarComponents(customTitleBarComponents);
+          changed = true;
+        }
+      }
+      else {
+        if (titleBar != null) {
+          remove(titleBar);
+          titleBar.dispose();
+          titleBar = null;
+
+          changed = true;
+        }
+      }
+    }
+
+    if (changed || property == ViewTitleBarProperties.ORIENTATION) {
+      if (titleBar != null) {
+        remove(titleBar);
+        add(titleBar, ComponentUtil.getBorderLayoutOrientation(titleBarProperties.getOrientation()));
+
+        changed = true;
+      }
+    }
+
+    if (changed || property == ViewTitleBarProperties.CONTENT_TITLE_BAR_GAP) {
+      if (titleBar != null) {
+        Direction orientation = titleBarProperties.getOrientation();
+        int contentBarGap = titleBarProperties.getContentTitleBarGap();
+        contentPanel.setBorder(new EmptyBorder(orientation == Direction.UP ? contentBarGap : 0,
+                                               orientation == Direction.LEFT ? contentBarGap : 0,
+                                               orientation == Direction.DOWN
+                                               ? contentBarGap
+                                               : 0,
+                                               orientation == Direction.RIGHT ? contentBarGap : 0));
+      }
+      else {
+        contentPanel.setBorder(null);
+      }
+    }
+  }
+
+  protected void updateButtonVisibility() {
+    super.updateButtonVisibility();
+
+    if (titleBar != null)
+      titleBar.updateViewButtons(null);
+  }
+
   protected void write(ObjectOutputStream out, WriteContext context, ViewWriter viewWriter) throws IOException {
     out.writeInt(WindowIds.VIEW);
     viewWriter.writeView(this, out, context);
   }
-
 }

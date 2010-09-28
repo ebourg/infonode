@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowItemDecoder.java,v 1.6 2005/02/16 11:28:14 jesper Exp $
+// $Id: WindowItemDecoder.java,v 1.7 2005/06/19 20:56:31 jesper Exp $
 package net.infonode.docking.model;
 
 import net.infonode.docking.internal.ReadContext;
@@ -30,7 +30,7 @@ import java.io.ObjectInputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 public class WindowItemDecoder {
   static final int SPLIT = 0;

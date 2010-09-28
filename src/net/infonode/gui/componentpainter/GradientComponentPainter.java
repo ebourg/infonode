@@ -20,7 +20,7 @@
  */
 
 
-// $Id: GradientComponentPainter.java,v 1.9 2005/02/16 11:28:11 jesper Exp $
+// $Id: GradientComponentPainter.java,v 1.11 2005/12/04 13:46:03 jesper Exp $
 package net.infonode.gui.componentpainter;
 
 import net.infonode.gui.colorprovider.ColorProvider;
@@ -38,7 +38,7 @@ import java.lang.ref.SoftReference;
  * A painter that paints an gradient area specified by four corner colors.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.11 $
  */
 public class GradientComponentPainter extends AbstractComponentPainter implements Serializable {
   private static final long serialVersionUID = 1;
@@ -91,48 +91,44 @@ public class GradientComponentPainter extends AbstractComponentPainter implement
                     boolean verticalFlip) {
     updateColors(component);
 
-    if (colors[0].equals(colors[2]) && colors[1].equals(colors[3]) && colors[0].equals(colors[1])) {
-      g.setColor(colors[0]);
-      g.fillRect(x, y, width, height);
-    }
-    else {
-      int imageIndex = direction.getValue() + (horizontalFlip ? 4 : 0) + (verticalFlip ? 8 : 0);
-      SoftReference ref = images[imageIndex];
-      Image image = ref == null ? null : (Image) ref.get();
-
-      if (image == null) {
-        image = createGradientImage(fixColors(direction, horizontalFlip, verticalFlip));
-        images[imageIndex] = new SoftReference(image);
+    if (colors[0] != null && colors[1] != null && colors[2] != null && colors[3] != null) {
+      if (colors[0].equals(colors[2]) && colors[1].equals(colors[3]) && colors[0].equals(colors[1])) {
+        g.setColor(colors[0]);
+        g.fillRect(x, y, width, height);
       }
+      else {
+        int imageIndex = direction.getValue() + (horizontalFlip ? 4 : 0) + (verticalFlip ? 8 : 0);
+        SoftReference ref = images[imageIndex];
+        Image image = ref == null ? null : (Image) ref.get();
 
-      g.drawImage(image, x, y, width, height, null);
+        if (image == null) {
+          image = createGradientImage(fixColors(direction, horizontalFlip, verticalFlip));
+          images[imageIndex] = new SoftReference(image);
+        }
+
+        g.drawImage(image, x, y, width, height, null);
+      }
     }
 
   }
 
-/*  private Image createLineImage(Direction direction, Color c1, Color c2) {
-    BufferedImage image = new BufferedImage(direction.isHorizontal() ? size : 1,
-                                            direction.isHorizontal() ? 1 : size,
-                                            BufferedImage.TYPE_INT_RGB);
-
-    int dx = direction == Direction.RIGHT ? 1 :
-             direction == Direction.LEFT ? -1 : 0;
-    int dy = direction == Direction.DOWN ? 1 :
-             direction == Direction.UP ? -1 : 0;
-
-    int x = direction == Direction.LEFT ? size - 1 : 0;
-    int y = direction == Direction.UP ? size - 1 : 0;
-
-    for (int i = 0; i < size; i++) {
-      Color c = ColorUtil.blend(c1, c2, (double) i / size);
-      image.setRGB(x, y, c.getRGB());
-      x += dx;
-      y += dy;
-    }
-
-    return image;
-  }
-*/
+/*
+ * private Image createLineImage(Direction direction, Color c1, Color c2) {
+ * BufferedImage image = new BufferedImage(direction.isHorizontal() ? size : 1,
+ * direction.isHorizontal() ? 1 : size, BufferedImage.TYPE_INT_RGB);
+ * 
+ * int dx = direction == Direction.RIGHT ? 1 : direction == Direction.LEFT ? -1 :
+ * 0; int dy = direction == Direction.DOWN ? 1 : direction == Direction.UP ? -1 :
+ * 0;
+ * 
+ * int x = direction == Direction.LEFT ? size - 1 : 0; int y = direction ==
+ * Direction.UP ? size - 1 : 0;
+ * 
+ * for (int i = 0; i < size; i++) { Color c = ColorUtil.blend(c1, c2, (double) i /
+ * size); image.setRGB(x, y, c.getRGB()); x += dx; y += dy; }
+ * 
+ * return image; }
+ */
 /*  private static void drawLines(Direction direction, Graphics g, int x, int y, int width, int height, Color c1, Color c2) {
     int size = direction.isHorizontal() ? width : height;
     Int4 c = ImageUtils.toInt4(c1);
@@ -232,14 +228,14 @@ public class GradientComponentPainter extends AbstractComponentPainter implement
     for (int i = 0; i < colors.length; i++) {
       Color c = colorProviders[i].getColor(component);
 
-      if (!c.equals(colors[i])) {
+      if (c != null && !c.equals(colors[i])) {
         for (int j = 0; j < images.length; j++) {
           images[j] = null;
         }
       }
 
       colors[i] = c;
-      hasAlpha |= c.getAlpha() != 255;
+      hasAlpha |= c != null && c.getAlpha() != 255;
     }
   }
 

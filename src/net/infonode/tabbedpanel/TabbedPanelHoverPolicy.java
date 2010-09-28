@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabbedPanelHoverPolicy.java,v 1.4 2005/02/16 11:28:15 jesper Exp $
+// $Id: TabbedPanelHoverPolicy.java,v 1.6 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.util.Enum;
@@ -32,7 +32,7 @@ import net.infonode.util.Enum;
  * area).
  *
  * @author johan
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.6 $
  * @see net.infonode.gui.hover.HoverListener
  * @since ITP 1.3.0
  */
@@ -65,6 +65,16 @@ public class TabbedPanelHoverPolicy extends Enum {
   public static final TabbedPanelHoverPolicy ONLY_WHEN_DEEPEST = new TabbedPanelHoverPolicy(3,
                                                                                             "Only when Deepest Tabbed Panel");
 
+  /**
+   * Always and exclude hover policy. This means that the tabbed panel will always consider itself hovered
+   * when the mouse is over the tabbed panel but it will be excluded by other tabbed panels when their hover policies
+   * are evaluated.
+   *
+   * @since ITP 1.4.0
+   */
+  public static final TabbedPanelHoverPolicy ALWAYS_AND_EXCLUDE = new TabbedPanelHoverPolicy(4,
+                                                                                             "Always Hover and be Excluded by Others");
+
   private TabbedPanelHoverPolicy(int value, String name) {
     super(value, name);
   }
@@ -75,6 +85,6 @@ public class TabbedPanelHoverPolicy extends Enum {
    * @return the hover policies
    */
   public static TabbedPanelHoverPolicy[] getHoverPolicies() {
-    return new TabbedPanelHoverPolicy[]{NEVER, ALWAYS, NO_HOVERED_CHILD, ONLY_WHEN_DEEPEST};
+    return new TabbedPanelHoverPolicy[]{NEVER, ALWAYS, NO_HOVERED_CHILD, ONLY_WHEN_DEEPEST, ALWAYS_AND_EXCLUDE};
   }
 }

@@ -20,33 +20,38 @@
  */
 
 
-// $Id: ReadContext.java,v 1.2 2005/02/16 11:28:14 jesper Exp $
+// $Id: ReadContext.java,v 1.4 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.docking.internal;
 
+import net.infonode.docking.RootWindow;
 import net.infonode.docking.ViewSerializer;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.4 $
  */
 public class ReadContext {
-  private ViewSerializer viewSerializer;
+  private RootWindow rootWindow;
   private int version;
   private boolean propertyValuesAvailable;
   private boolean readPropertiesEnabled;
 
-  public ReadContext(ViewSerializer viewSerializer,
+  public ReadContext(RootWindow rootWindow,
                      int version,
                      boolean propertyValuesAvailable,
                      boolean readPropertiesEnabled) {
-    this.viewSerializer = viewSerializer;
+    this.rootWindow = rootWindow;
     this.version = version;
     this.propertyValuesAvailable = propertyValuesAvailable;
     this.readPropertiesEnabled = readPropertiesEnabled;
   }
 
+  public RootWindow getRootWindow() {
+    return rootWindow;
+  }
+
   public ViewSerializer getViewSerializer() {
-    return viewSerializer;
+    return rootWindow.getViewSerializer();
   }
 
   public boolean isPropertyValuesAvailable() {

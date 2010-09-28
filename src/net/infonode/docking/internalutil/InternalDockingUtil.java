@@ -20,7 +20,7 @@
  */
 
 
-// $Id: InternalDockingUtil.java,v 1.22 2005/02/16 11:28:14 jesper Exp $
+// $Id: InternalDockingUtil.java,v 1.26 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.docking.internalutil;
 
 import net.infonode.docking.DockingWindow;
@@ -40,10 +40,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.22 $
+ * @version $Revision: 1.26 $
  */
 public class InternalDockingUtil {
   private InternalDockingUtil() {
@@ -134,15 +135,23 @@ public class InternalDockingUtil {
                                       AbstractButton[] buttons,
                                       Container container,
                                       DockingWindow window,
-                                      PropertyMap map) {
+                                      PropertyMap map,
+                                      Map changes) {
 //    DockingWindow window = w.getOptimizedWindow();
     boolean updateContainer = false;
 
     for (int i = 0; i < buttonInfos.length; i++) {
       WindowTabButtonProperties p = new WindowTabButtonProperties(buttonInfos[i].getProperty().get(map));
       DockingWindowAction action = p.getAction();
+      Map propertyChanges = changes == null ? null : (Map) changes.get(p.getMap());
+      boolean v = p.isVisible();
+      boolean b = action != null && action.isPerformable(window);
+      boolean visible = p.isVisible() && action != null && action.getAction(window).isEnabled();
 
-      if (buttons[i] == null && p.getFactory() != null && action != null) {
+      if ((buttons[i] == null || (propertyChanges != null && propertyChanges.containsKey(
+          WindowTabButtonProperties.FACTORY))) &&
+          p.getFactory() != null &&
+          action != null) {
         buttons[i] = p.getFactory().createButton(window);
         buttons[i].setFocusable(false);
         buttons[i].addActionListener(action.getAction(window).toSwingAction());
@@ -152,7 +161,7 @@ public class InternalDockingUtil {
       if (buttons[i] != null) {
         buttons[i].setToolTipText(p.getToolTipText());
         buttons[i].setIcon(p.getIcon());
-        buttons[i].setVisible(p.isVisible() && action != null && action.getAction(window).isEnabled());
+        buttons[i].setVisible(visible);
       }
     }
 

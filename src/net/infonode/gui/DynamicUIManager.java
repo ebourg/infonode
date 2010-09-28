@@ -20,7 +20,7 @@
  */
 
 
-// $Id: DynamicUIManager.java,v 1.6 2005/02/16 11:28:13 jesper Exp $
+// $Id: DynamicUIManager.java,v 1.11 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.gui;
 
 import javax.swing.*;
@@ -33,6 +33,8 @@ public class DynamicUIManager {
   private static final DynamicUIManager instance = new DynamicUIManager();
 
   private ArrayList listeners = new ArrayList(2);
+  private ArrayList prioritizedListeners = new ArrayList(2);
+
   private String[] properties = {"win.3d.backgroundColor",
                                  "win.3d.highlightColor",
                                  "win.3d.lightColor",
@@ -67,7 +69,7 @@ public class DynamicUIManager {
   private DynamicUIManager() {
     final PropertyChangeListener l = new PropertyChangeListener() {
       public void propertyChange(PropertyChangeEvent event) {
-        firePropertyChange();
+        handlePropertyChanges();
       }
     };
 
@@ -75,6 +77,7 @@ public class DynamicUIManager {
       public void propertyChange(PropertyChangeEvent event) {
         if (event.getPropertyName().equals("lookAndFeel")) {
           setupPropertyListener(l);
+          fireLookAndFeelChanging();
           fireLookAndFeelChanged();
         }
       }
@@ -82,7 +85,7 @@ public class DynamicUIManager {
     UIManager.getDefaults().addPropertyChangeListener(new PropertyChangeListener() {
       public void propertyChange(PropertyChangeEvent event) {
         if (!(event.getNewValue() instanceof Class))
-          firePropertyChange();
+          handlePropertyChanges();
       }
     });
 
@@ -108,25 +111,72 @@ public class DynamicUIManager {
     listeners.remove(l);
   }
 
-  private void fireLookAndFeelChanged() {
-    Object l[] = listeners.toArray();
-    for (int i = 0; i < l.length; i++)
-      ((DynamicUIManagerListener) l[i]).lookAndFeelChanged();
+  public void addPrioritizedListener(DynamicUIManagerListener l) {
+    prioritizedListeners.add(l);
   }
 
-  private void firePropertyChange() {
+  public void removePrioritizedListener(DynamicUIManagerListener l) {
+    prioritizedListeners.remove(l);
+  }
+
+  private void fireLookAndFeelChanging() {
+    Object l[] = prioritizedListeners.toArray();
+    Object l2[] = listeners.toArray();
+
+    for (int i = 0; i < l.length; i++)
+      ((DynamicUIManagerListener) l[i]).lookAndFeelChanging();
+
+    for (int i = 0; i < l2.length; i++)
+      ((DynamicUIManagerListener) l2[i]).lookAndFeelChanging();
+  }
+
+  private void fireLookAndFeelChanged() {
+    Object l[] = prioritizedListeners.toArray();
+    Object l2[] = listeners.toArray();
+
+    for (int i = 0; i < l.length; i++)
+      ((DynamicUIManagerListener) l[i]).lookAndFeelChanged();
+
+    for (int i = 0; i < l2.length; i++)
+      ((DynamicUIManagerListener) l2[i]).lookAndFeelChanged();
+  }
+
+  private void handlePropertyChanges() {
     if (!propertyChangePending) {
       propertyChangePending = true;
+
       SwingUtilities.invokeLater(new Runnable() {
         public void run() {
           propertyChangePending = false;
 
-          Object l[] = listeners.toArray();
-          for (int i = 0; i < l.length; i++)
-            ((DynamicUIManagerListener) l[i]).propertiesChanged();
+          firePropertyChanged();
         }
       });
+
+      firePropertyChanging();
     }
+  }
+
+  private void firePropertyChanging() {
+    Object l[] = prioritizedListeners.toArray();
+    Object l2[] = listeners.toArray();
+
+    for (int i = 0; i < l.length; i++)
+      ((DynamicUIManagerListener) l[i]).propertiesChanging();
+
+    for (int i = 0; i < l2.length; i++)
+      ((DynamicUIManagerListener) l2[i]).propertiesChanging();
+  }
+
+  private void firePropertyChanged() {
+    Object l[] = prioritizedListeners.toArray();
+    Object l2[] = listeners.toArray();
+
+    for (int i = 0; i < l.length; i++)
+      ((DynamicUIManagerListener) l[i]).propertiesChanged();
+
+    for (int i = 0; i < l2.length; i++)
+      ((DynamicUIManagerListener) l2[i]).propertiesChanged();
   }
 }
 

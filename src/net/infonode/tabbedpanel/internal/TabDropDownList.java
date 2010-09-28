@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabDropDownList.java,v 1.16 2005/02/16 11:28:14 jesper Exp $
+// $Id: TabDropDownList.java,v 1.18 2005/12/04 13:46:05 jesper Exp $
 
 package net.infonode.tabbedpanel.internal;
 
@@ -35,7 +35,7 @@ import javax.swing.event.ListSelectionListener;
 
 /**
  * @author Bjorn Lind
- * @version $Revision: 1.16 $ $Date: 2005/02/16 11:28:14 $
+ * @version $Revision: 1.18 $ $Date: 2005/12/04 13:46:05 $
  * @since ITP 1.1.0
  */
 public class TabDropDownList extends PopupList {
@@ -96,7 +96,11 @@ public class TabDropDownList extends PopupList {
   public void updateUI() {
     super.updateUI();
 
-    if (cellRenderer != null)
-      cellRenderer.setRenderer((ListCellRenderer) (UIManager.get("List.cellRenderer")));
+    if (cellRenderer != null) {
+      ListCellRenderer renderer = (ListCellRenderer) UIManager.get("List.cellRenderer");
+      if (renderer == null)
+        renderer = new DefaultListCellRenderer();
+      cellRenderer.setRenderer(renderer);
+    }
   }
 }

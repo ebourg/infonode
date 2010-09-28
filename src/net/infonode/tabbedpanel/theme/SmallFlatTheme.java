@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SmallFlatTheme.java,v 1.24 2005/02/16 11:28:15 jesper Exp $
+// $Id: SmallFlatTheme.java,v 1.26 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.tabbedpanel.theme;
 
 import net.infonode.tabbedpanel.TabbedPanelProperties;
@@ -34,7 +34,7 @@ import java.awt.*;
  * A theme with small fonts and flat look
  *
  * @author $Author: jesper $
- * @version $Revision: 1.24 $
+ * @version $Revision: 1.26 $
  */
 public class SmallFlatTheme extends TabbedPanelTitledTabTheme {
   private TitledTabProperties tabProperties = new TitledTabProperties();
@@ -47,9 +47,12 @@ public class SmallFlatTheme extends TabbedPanelTitledTabTheme {
     TitledTabProperties tabDefaultProp = TitledTabProperties.getDefaultProperties();
 
     TabAreaLineBorder border = new TabAreaLineBorder();
+    Font font = tabDefaultProp.getNormalProperties().getComponentProperties().getFont();
+    if (font != null)
+      font = font.deriveFont((float) 9);
     tabProperties.getNormalProperties().getComponentProperties()
         .setBorder(border)
-        .setFont(tabDefaultProp.getNormalProperties().getComponentProperties().getFont().deriveFont((float) 9))
+        .setFont(font)
         .setInsets(new Insets(0, 4, 0, 4));
     tabProperties.getHighlightedProperties().getComponentProperties()
         .setBorder(border);

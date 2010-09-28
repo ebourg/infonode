@@ -20,9 +20,11 @@
  */
 
 
-// $Id: SimpleSplitPane.java,v 1.18 2005/02/16 11:28:13 jesper Exp $
+// $Id: SimpleSplitPane.java,v 1.28 2005/12/04 13:46:04 jesper Exp $
+
 package net.infonode.gui;
 
+import net.infonode.gui.panel.BaseContainer;
 import net.infonode.gui.panel.SimplePanel;
 
 import javax.swing.*;
@@ -34,9 +36,9 @@ import java.util.ArrayList;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.18 $
+ * @version $Revision: 1.28 $
  */
-public class SimpleSplitPane extends JLayeredPane {
+public class SimpleSplitPane extends BaseContainer {
   private LayoutManager splitLayout = new LayoutManager() {
     public void addLayoutComponent(String name, Component comp) {
     }
@@ -80,11 +82,14 @@ public class SimpleSplitPane extends JLayeredPane {
     }
 
     public Dimension minimumLayoutSize(Container parent) {
-      Dimension d = createSize((leftComponent == null ? 0 : getDimensionSize(leftComponent.getMinimumSize())) +
-                               dividerSize +
-                               (rightComponent == null ? 0 : getDimensionSize(rightComponent.getMinimumSize())),
-                               Math.max(leftComponent == null ? 0 : getOtherSize(leftComponent.getMinimumSize()),
-                                        rightComponent == null ? 0 : getOtherSize(rightComponent.getMinimumSize())));
+      Dimension d = createSize((leftComponent == null ? 0 : getDimensionSize(leftComponent.getMinimumSize())) + dividerSize
+                               + (rightComponent == null ? 0 : getDimensionSize(rightComponent.getMinimumSize())), Math.max(
+                                   leftComponent == null ? 0 : getOtherSize(leftComponent.getMinimumSize()), rightComponent == null
+                                                                                                             ?
+                                                                                                             0
+                                                                                                             :
+                                                                                                             getOtherSize(
+                                                                                                                 rightComponent.getMinimumSize())));
       return new Dimension(d.width + getInsets().left + getInsets().right,
                            d.height + getInsets().top + getInsets().bottom);
     }
@@ -92,11 +97,13 @@ public class SimpleSplitPane extends JLayeredPane {
     public Dimension preferredLayoutSize(Container parent) {
       boolean lv = leftComponent != null && leftComponent.isVisible();
       boolean rv = rightComponent != null && rightComponent.isVisible();
-      Dimension d = createSize((lv ? getDimensionSize(leftComponent.getPreferredSize()) : 0) +
-                               (lv && rv ? dividerSize : 0) +
-                               (rv ? getDimensionSize(rightComponent.getPreferredSize()) : 0),
-                               Math.max(lv ? getOtherSize(leftComponent.getPreferredSize()) : 0,
-                                        rv ? getOtherSize(rightComponent.getPreferredSize()) : 0));
+      Dimension d = createSize(
+          (lv ? getDimensionSize(leftComponent.getPreferredSize()) : 0) + (lv && rv ? dividerSize : 0) + (rv ?
+                                                                                                          getDimensionSize(
+                                                                                                              rightComponent.getPreferredSize()) :
+                                                                                                          0),
+          Math.max(lv ? getOtherSize(leftComponent.getPreferredSize()) : 0,
+                   rv ? getOtherSize(rightComponent.getPreferredSize()) : 0));
       return new Dimension(d.width + getInsets().left + getInsets().right,
                            d.height + getInsets().top + getInsets().bottom);
     }
@@ -108,7 +115,7 @@ public class SimpleSplitPane extends JLayeredPane {
   private Component leftComponent;
   private Component rightComponent;
   private SimplePanel dividerPanel = new SimplePanel();
-  private SimplePanel dragIndicator = new SimplePanel();
+  private Component dragIndicator;
   private boolean dividerDraggable = true;
   private boolean continuousLayout = true;
   private float dragLocation;
@@ -116,25 +123,37 @@ public class SimpleSplitPane extends JLayeredPane {
   private float dividerLocation = 0.5F;
   private int dividerSize = 6;
   private ArrayList listeners = new ArrayList(0);
+  private Color dragIndicatorColor = Color.DARK_GRAY;
 
   public SimpleSplitPane(boolean horizontal) {
+    this(horizontal, false);
+  }
+
+  public SimpleSplitPane(boolean horizontal, boolean heavyWeightDragIndicator) {
     setLayout(splitLayout);
     add(dividerPanel);
     setHorizontal(horizontal);
-    add(dragIndicator, new Integer(1));
-    dragIndicator.setOpaque(true);
-    dragIndicator.setBackground(Color.DARK_GRAY);
+
+    setHeavyWeightDragIndicator(heavyWeightDragIndicator);
 
     dividerPanel.addMouseListener(new MouseAdapter() {
       public void mousePressed(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON1) {
-          CursorManager.setGlobalCursor(SimpleSplitPane.this, dividerPanel.getCursor());
+        if (e.getButton() == MouseEvent.BUTTON1) {// &&
+          // MouseEventCoalesceManager.getInstance().isPressedAllowed(e))
+          // {
+          CursorManager.setGlobalCursor(getRootPane(), dividerPanel.getCursor());
+          if (dividerDraggable && !continuousLayout) {
+            float location = (float) (getPos(dividerPanel.getLocation()) - getOffset() + getPos(e.getPoint())) / getViewSize();
+            setDragIndicator(location);
+          }
         }
       }
 
       public void mouseReleased(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON1) {
-          CursorManager.resetGlobalCursor(SimpleSplitPane.this);
+        if (e.getButton() == MouseEvent.BUTTON1) {// &&
+          // MouseEventCoalesceManager.getInstance().isReleasedAllowed(e))
+          // {
+          CursorManager.resetGlobalCursor(getRootPane());
 
           if (dividerDraggable && !continuousLayout) {
             dragIndicator.setVisible(false);
@@ -146,9 +165,8 @@ public class SimpleSplitPane extends JLayeredPane {
 
     dividerPanel.addMouseMotionListener(new MouseMotionAdapter() {
       public void mouseDragged(MouseEvent e) {
-        if (dividerDraggable && (e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) != 0) {
-          float location = (float) (getPos(dividerPanel.getLocation()) - getOffset() + getPos(e.getPoint())) /
-                           getViewSize();
+        if (dividerDraggable && /* MouseEventCoalesceManager.getInstance().isDraggedAllowed(e) && */(e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) != 0) {
+          float location = (float) (getPos(dividerPanel.getLocation()) - getOffset() + getPos(e.getPoint())) / getViewSize();
 
           if (continuousLayout)
             setDividerLocation(location);
@@ -185,6 +203,19 @@ public class SimpleSplitPane extends JLayeredPane {
     updateDividerCursor();
   }
 
+  public void setHeavyWeightDragIndicator(boolean heavyWeight) {
+    initDragIndicatior(heavyWeight);
+  }
+
+  public Color getDragIndicatorColor() {
+    return dragIndicatorColor;
+  }
+
+  public void setDragIndicatorColor(Color dragIndicatorColor) {
+    this.dragIndicatorColor = dragIndicatorColor;
+    dragIndicator.setBackground(dragIndicatorColor);
+  }
+
   private void setDragIndicator(float location) {
     dragLocation = fixDividerLocation(location);
     dragIndicator.setVisible(true);
@@ -194,6 +225,23 @@ public class SimpleSplitPane extends JLayeredPane {
                             (int) (p.getY() + getInsets().top),
                             (int) d.getWidth(),
                             (int) d.getHeight());
+  }
+
+
+  private void initDragIndicatior(boolean heavyWeight) {
+    if (dragIndicator != null)
+      remove(dragIndicator);
+
+    if (heavyWeight) {
+      dragIndicator = new Canvas();
+    }
+    else {
+      dragIndicator = new BaseContainer();
+    }
+
+    add(dragIndicator, 0);
+    dragIndicator.setBackground(dragIndicatorColor);
+    dragIndicator.setVisible(false);
   }
 
   private float fixDividerLocation(float location) {
@@ -238,8 +286,9 @@ public class SimpleSplitPane extends JLayeredPane {
   }
 
   private int getViewSize() {
-    return getDimensionSize(getSize()) - dividerSize -
-           (horizontal ? getInsets().left + getInsets().right : getInsets().top + getInsets().bottom);
+    return getDimensionSize(getSize()) - dividerSize - (horizontal ?
+                                                        getInsets().left + getInsets().right :
+                                                        getInsets().top + getInsets().bottom);
   }
 
   private int getDimensionSize(Dimension d) {
@@ -297,7 +346,6 @@ public class SimpleSplitPane extends JLayeredPane {
     if (leftComponent != null)
       add(leftComponent);
 
-
     revalidate();
   }
 
@@ -318,9 +366,9 @@ public class SimpleSplitPane extends JLayeredPane {
   }
 
   private void updateDividerCursor() {
-    dividerPanel.setCursor(dividerDraggable ?
-                           new Cursor(horizontal ? Cursor.W_RESIZE_CURSOR : Cursor.N_RESIZE_CURSOR) :
-                           Cursor.getDefaultCursor());
+    dividerPanel.setCursor(
+        dividerDraggable ?
+        new Cursor(horizontal ? Cursor.W_RESIZE_CURSOR : Cursor.N_RESIZE_CURSOR) : Cursor.getDefaultCursor());
   }
 
   public void setComponents(Component leftComponent, Component rightComponent) {

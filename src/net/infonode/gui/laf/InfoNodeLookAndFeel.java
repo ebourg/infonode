@@ -20,7 +20,7 @@
  */
 
 
-// $Id: InfoNodeLookAndFeel.java,v 1.13 2005/02/16 11:28:11 jesper Exp $
+// $Id: InfoNodeLookAndFeel.java,v 1.22 2005/12/04 13:46:03 jesper Exp $
 package net.infonode.gui.laf;
 
 import net.infonode.gui.icon.button.TreeIcon;
@@ -63,7 +63,7 @@ import java.lang.reflect.InvocationTargetException;
  * Do not modify the theme after it has been used in the look and feel!
  *
  * @author $Author: jesper $
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.22 $
  */
 public class InfoNodeLookAndFeel extends MetalLookAndFeel {
   public static final UIManager.LookAndFeelInfo LOOK_AND_FEEL_INFO =
@@ -221,6 +221,15 @@ public class InfoNodeLookAndFeel extends MetalLookAndFeel {
     this.theme = theme;
   }
 
+  /**
+   * Gets the active theme
+   *
+   * @return the active theme
+   */
+  public InfoNodeLookAndFeelTheme getTheme() {
+    return theme;
+  }
+
   public void initialize() {
     super.initialize();
 
@@ -335,7 +344,7 @@ public class InfoNodeLookAndFeel extends MetalLookAndFeel {
 //    "TabbedPane.selectedTabPadInsets", new InsetsUIResource(0, 0, 0, 0),
 //    "TabbedPane.tabInsets", new InsetsUIResource(0, 0, 0, 0),
       "TabbedPane.background", theme.getControlLightShadowColor(),
-//    "TabbedPane.darkShadow", desktopColor.getColor(),
+      //"TabbedPane.darkShadow", new Color(160, 160, 160),
 
       "ComboBox.selectionBackground", theme.getSelectedMenuBackgroundColor(),
       "ComboBox.selectionForeground", theme.getSelectedMenuForegroundColor(),
@@ -371,7 +380,11 @@ public class InfoNodeLookAndFeel extends MetalLookAndFeel {
       "TableHeader.cellBorder", theme.getTableHeaderCellBorder(),
 
       "InternalFrame.activeTitleBackground", theme.getActiveInternalFrameTitleBackgroundColor(),
+      "InternalFrame.activeTitleForeground", theme.getActiveInternalFrameTitleForegroundColor(),
+      "InternalFrame.activeTitleGradient", theme.getActiveInternalFrameTitleGradientColor(), //ColorUtil.mult(theme.getActiveInternalFrameTitleBackgroundColor(), 1.2),
       "InternalFrame.inactiveTitleBackground", theme.getInactiveInternalFrameTitleBackgroundColor(),
+      "InternalFrame.inactiveTitleForeground", theme.getInactiveInternalFrameTitleForegroundColor(),
+      "InternalFrame.inactiveTitleGradient", theme.getInactiveInternalFrameTitleGradientColor(), //ColorUtil.mult(theme.getInactiveInternalFrameTitleBackgroundColor(), 1.2),
       "InternalFrame.icon", theme.getInternalFrameIcon(),
       "InternalFrame.iconifyIcon", theme.getInternalFrameIconifyIcon(),
       "InternalFrame.minimizeIcon", theme.getInternalFrameMinimizeIcon(),

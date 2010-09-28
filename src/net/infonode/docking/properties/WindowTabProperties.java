@@ -20,10 +20,9 @@
  */
 
 
-// $Id: WindowTabProperties.java,v 1.18 2005/02/16 11:28:14 jesper Exp $
+// $Id: WindowTabProperties.java,v 1.21 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.docking.properties;
 
-import net.infonode.properties.base.Property;
 import net.infonode.properties.propertymap.*;
 import net.infonode.tabbedpanel.titledtab.TitledTabProperties;
 import net.infonode.tabbedpanel.titledtab.TitledTabStateProperties;
@@ -32,7 +31,7 @@ import net.infonode.tabbedpanel.titledtab.TitledTabStateProperties;
  * Properties and property values for window tabs.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.18 $
+ * @version $Revision: 1.21 $
  */
 public class WindowTabProperties extends PropertyMapContainer {
   /**
@@ -86,31 +85,6 @@ public class WindowTabProperties extends PropertyMapContainer {
                               "Focused Button Properties",
                               "Property values for the tab buttons when the tab is focused or a component in the tab's content component has focus.",
                               WindowTabStateProperties.PROPERTIES);
-
-  static {
-    WindowTabProperties properties = new WindowTabProperties(PROPERTIES.getDefaultMap());
-    PropertyMapProperty[] buttonProperties = {WindowTabStateProperties.CLOSE_BUTTON_PROPERTIES,
-                                              WindowTabStateProperties.MINIMIZE_BUTTON_PROPERTIES,
-                                              WindowTabStateProperties.RESTORE_BUTTON_PROPERTIES};
-
-    for (int i = 0; i < buttonProperties.length; i++) {
-      for (int j = 0; j < WindowTabButtonProperties.PROPERTIES.getPropertyCount(); j++) {
-        Property property = WindowTabButtonProperties.PROPERTIES.getProperty(j);
-
-        // Highlighted properties inherits from normal properties
-        buttonProperties[i].get(properties.getHighlightedButtonProperties().getMap()).
-            createRelativeRef(property,
-                              buttonProperties[i].get(properties.getNormalButtonProperties().getMap()),
-                              property);
-
-        // Focus properties inherits from highlight properties
-        buttonProperties[i].get(properties.getFocusedButtonProperties().getMap()).
-            createRelativeRef(property,
-                              buttonProperties[i].get(properties.getHighlightedButtonProperties().getMap()),
-                              property);
-      }
-    }
-  }
 
   /**
    * Creates an empty property object.

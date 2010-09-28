@@ -20,55 +20,55 @@
  */
 
 
-// $Id: MinimizeWindowAction.java,v 1.4 2005/02/16 11:28:14 jesper Exp $
+// $Id: DockWindowAction.java,v 1.5 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.docking.action;
 
 import net.infonode.docking.DockingWindow;
 import net.infonode.docking.internalutil.InternalDockingUtil;
-import net.infonode.gui.icon.button.MinimizeIcon;
+import net.infonode.gui.icon.button.DockIcon;
 
 import javax.swing.*;
 import java.io.ObjectStreamException;
 
 /**
- * Minimizes a window.
+ * Docks a window using the {@link DockingWindow#dock()} method.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
- * @since IDW 1.3.0
+ * @version $Revision: 1.5 $
+ * @since IDW 1.4.0
  */
-public final class MinimizeWindowAction extends DockingWindowAction {
+public class DockWindowAction extends DockingWindowAction {
   private static final long serialVersionUID = 1;
 
   /**
-   * The only instance of this class.
+   * The only instance of this class
    */
-  public static final MinimizeWindowAction INSTANCE = new MinimizeWindowAction();
+  public static final DockWindowAction INSTANCE = new DockWindowAction();
 
-  private static final Icon icon = new MinimizeIcon(InternalDockingUtil.DEFAULT_BUTTON_ICON_SIZE);
+  private static final Icon icon = new DockIcon(InternalDockingUtil.DEFAULT_BUTTON_ICON_SIZE);
 
-  private MinimizeWindowAction() {
-  }
-
-  public String getName() {
-    return "Minimize";
+  private DockWindowAction() {
   }
 
   public Icon getIcon() {
     return icon;
   }
 
+  public String getName() {
+    return "Dock";
+  }
+
   public boolean isPerformable(DockingWindow window) {
-    return window != null && !window.isMinimized() && window.isMinimizable();
+    return window.isDockable() && window.isUndocked();
   }
 
   public void perform(DockingWindow window) {
-    if (isPerformable(window))
-      window.minimize();
+    if (isPerformable(window)) {
+      window.dock();
+    }
   }
 
   protected Object readResolve() throws ObjectStreamException {
     return INSTANCE;
   }
-
 }

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SimplePropertyValue.java,v 1.13 2005/02/16 11:28:15 jesper Exp $
+// $Id: SimplePropertyValue.java,v 1.14 2005/03/17 16:15:32 jesper Exp $
 package net.infonode.properties.propertymap.value;
 
 import net.infonode.properties.propertymap.PropertyMapImpl;
@@ -34,7 +34,7 @@ import java.io.Serializable;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.14 $
  */
 public class SimplePropertyValue implements PropertyValue {
   private final Object value;

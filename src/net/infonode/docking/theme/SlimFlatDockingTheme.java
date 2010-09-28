@@ -20,21 +20,20 @@
  */
 
 
-//$Id: SlimFlatDockingTheme.java,v 1.16 2005/02/16 11:28:14 jesper Exp $
+//$Id: SlimFlatDockingTheme.java,v 1.20 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.docking.theme;
 
 import net.infonode.docking.properties.RootWindowProperties;
+import net.infonode.docking.properties.ViewTitleBarStateProperties;
 import net.infonode.docking.properties.WindowBarProperties;
 import net.infonode.docking.properties.WindowTabProperties;
-import net.infonode.gui.icon.button.CloseIcon;
-import net.infonode.gui.icon.button.MaximizeIcon;
-import net.infonode.gui.icon.button.MinimizeIcon;
-import net.infonode.gui.icon.button.RestoreIcon;
+import net.infonode.gui.icon.button.*;
 import net.infonode.tabbedpanel.TabLayoutPolicy;
 import net.infonode.tabbedpanel.TabbedPanelProperties;
 import net.infonode.tabbedpanel.border.TabAreaLineBorder;
 import net.infonode.tabbedpanel.theme.SmallFlatTheme;
 
+import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 
@@ -42,7 +41,7 @@ import java.awt.*;
  * A theme very slim theme that doesn't waste any screen space.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.16 $
+ * @version $Revision: 1.20 $
  */
 public final class SlimFlatDockingTheme extends DockingWindowsTheme {
   private RootWindowProperties rootWindowProperties;
@@ -82,19 +81,43 @@ public final class SlimFlatDockingTheme extends DockingWindowsTheme {
     WindowTabProperties tabProperties = rootWindowProperties.getTabWindowProperties().getTabProperties();
     tabProperties.getTitledTabProperties().addSuperObject(smallFlatTheme.getTitledTabProperties());
 
-    tabProperties.getTitledTabProperties().getHighlightedProperties().getComponentProperties().setFont(
-        tabProperties.getTitledTabProperties().getHighlightedProperties().getComponentProperties().getFont().
-        deriveFont(
-            tabProperties.getTitledTabProperties().getNormalProperties().getComponentProperties().getFont().getSize2D()));
+    Font font = tabProperties.getTitledTabProperties().getHighlightedProperties().getComponentProperties().getFont();
+    if (font != null)
+      font = font.deriveFont(
+          tabProperties.getTitledTabProperties().getNormalProperties().getComponentProperties().getFont().getSize2D());
+    tabProperties.getTitledTabProperties().getHighlightedProperties().getComponentProperties().setFont(font);
 
-    tabProperties.getNormalButtonProperties().getCloseButtonProperties().setIcon(new CloseIcon(8));
-    tabProperties.getNormalButtonProperties().getRestoreButtonProperties().setIcon(new RestoreIcon(8));
-    tabProperties.getNormalButtonProperties().getMinimizeButtonProperties().setIcon(new MinimizeIcon(8));
+    Icon closeIcon = new CloseIcon(8);
+    Icon restoreIcon = new RestoreIcon(8);
+    Icon minimizeIcon = new MinimizeIcon(8);
+    Icon maximizeIcon = new MaximizeIcon(8);
+    Icon dockIcon = new DockIcon(8);
+    Icon undockIcon = new UndockIcon(8);
 
-    rootWindowProperties.getTabWindowProperties().getCloseButtonProperties().setIcon(new CloseIcon(8));
-    rootWindowProperties.getTabWindowProperties().getRestoreButtonProperties().setIcon(new RestoreIcon(8));
-    rootWindowProperties.getTabWindowProperties().getMinimizeButtonProperties().setIcon(new MinimizeIcon(8));
-    rootWindowProperties.getTabWindowProperties().getMaximizeButtonProperties().setIcon(new MaximizeIcon(8));
+    tabProperties.getNormalButtonProperties().getCloseButtonProperties().setIcon(closeIcon);
+    tabProperties.getNormalButtonProperties().getRestoreButtonProperties().setIcon(restoreIcon);
+    tabProperties.getNormalButtonProperties().getMinimizeButtonProperties().setIcon(minimizeIcon);
+    tabProperties.getNormalButtonProperties().getDockButtonProperties().setIcon(dockIcon);
+    tabProperties.getNormalButtonProperties().getUndockButtonProperties().setIcon(undockIcon);
+
+    rootWindowProperties.getTabWindowProperties().getCloseButtonProperties().setIcon(closeIcon);
+    rootWindowProperties.getTabWindowProperties().getRestoreButtonProperties().setIcon(restoreIcon);
+    rootWindowProperties.getTabWindowProperties().getMinimizeButtonProperties().setIcon(minimizeIcon);
+    rootWindowProperties.getTabWindowProperties().getMaximizeButtonProperties().setIcon(maximizeIcon);
+    rootWindowProperties.getTabWindowProperties().getDockButtonProperties().setIcon(dockIcon);
+    rootWindowProperties.getTabWindowProperties().getUndockButtonProperties().setIcon(undockIcon);
+
+    ViewTitleBarStateProperties stateProps = rootWindowProperties.getViewProperties().getViewTitleBarProperties()
+        .getNormalProperties();
+    stateProps.getCloseButtonProperties().setIcon(closeIcon);
+    stateProps.getRestoreButtonProperties().setIcon(restoreIcon);
+    stateProps.getMaximizeButtonProperties().setIcon(maximizeIcon);
+    stateProps.getMinimizeButtonProperties().setIcon(minimizeIcon);
+    stateProps.getDockButtonProperties().setIcon(dockIcon);
+    stateProps.getUndockButtonProperties().setIcon(undockIcon);
+
+    rootWindowProperties.getViewProperties().getViewTitleBarProperties().getNormalProperties().getComponentProperties()
+        .setFont(tabProperties.getTitledTabProperties().getNormalProperties().getComponentProperties().getFont());
 
     setWindowBarProperties(rootWindowProperties.getWindowBarProperties());
 

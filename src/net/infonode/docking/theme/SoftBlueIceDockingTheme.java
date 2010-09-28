@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SoftBlueIceDockingTheme.java,v 1.8 2005/02/16 11:28:14 jesper Exp $
+// $Id: SoftBlueIceDockingTheme.java,v 1.17 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.docking.theme;
 
 import net.infonode.docking.properties.RootWindowProperties;
@@ -38,11 +38,10 @@ import java.awt.*;
  * A light blue theme with gradients and rounded corners.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.17 $
  */
 public class SoftBlueIceDockingTheme extends DockingWindowsTheme {
   private RootWindowProperties rootWindowProperties = new RootWindowProperties();
-
   private boolean slim;
 
   /**
@@ -76,25 +75,21 @@ public class SoftBlueIceDockingTheme extends DockingWindowsTheme {
     if (slim) {
       theme.getTabbedPanelProperties().getTabAreaProperties().getComponentProperties().setBorder(new FixedInsetsShapedBorder(
           new Insets(0, 0, 0, 0),
-          (ShapedBorder) theme.getTabbedPanelProperties().getTabAreaProperties().
-                         getComponentProperties().getBorder()));
+          (ShapedBorder) theme.getTabbedPanelProperties().getTabAreaProperties().getComponentProperties().getBorder()));
 
       theme.getTabbedPanelProperties().getTabAreaProperties().getComponentProperties().setInsets(
           new Insets(0, 0, 0, 0));
       theme.getTabbedPanelProperties().setTabSpacing(-1);
       theme.getTabbedPanelProperties().getTabAreaComponentsProperties().getComponentProperties().setInsets(
-          new Insets(0, 0, 0, 4));
+          new Insets(2, 2, 2, 2));
     }
+
     rootWindowProperties.getWindowAreaProperties()
         .setBorder(null)
         .setInsets(new Insets(2, 2, 2, 2));
     rootWindowProperties.getWindowAreaShapedPanelProperties().setComponentPainter(
         new SolidColorComponentPainter(new ColorBlender(darkColor, lightColor, 0.5f)));
 
-    init(theme);
-  }
-
-  private void init(SoftBlueIceTheme theme) {
     rootWindowProperties.getTabWindowProperties().getTabbedPanelProperties().addSuperObject(
         theme.getTabbedPanelProperties());
     rootWindowProperties.getTabWindowProperties().getTabProperties().getTitledTabProperties().addSuperObject(
@@ -104,12 +99,33 @@ public class SoftBlueIceDockingTheme extends DockingWindowsTheme {
         setComponentPainter(theme.getTabbedPanelProperties().getTabAreaProperties().getShapedPanelProperties().
                             getComponentPainter());
 
+    rootWindowProperties.getTabWindowProperties().getTabbedPanelProperties().getContentPanelProperties()
+        .getShapedPanelProperties()
+        .setClipChildren(true);
+    rootWindowProperties.getViewProperties().getViewTitleBarProperties().getNormalProperties().getComponentProperties()
+        .setForegroundColor(Color.BLACK)
+        .setInsets(new Insets(0, 2, 0, 2));
+    rootWindowProperties.getViewProperties().getViewTitleBarProperties().getNormalProperties()
+        .getShapedPanelProperties()
+        .setComponentPainter(null)
+        .setOpaque(false);
+    rootWindowProperties.getViewProperties().getViewTitleBarProperties().getFocusedProperties()
+        .getShapedPanelProperties()
+        .setComponentPainter(null);//.setOpaque(false);
+    rootWindowProperties.getViewProperties().getViewTitleBarProperties().getFocusedProperties().getComponentProperties()
+        .setForegroundColor(Color.BLACK);
 
     TabAreaProperties p = rootWindowProperties.getWindowBarProperties().getTabWindowProperties().
         getTabbedPanelProperties().getTabAreaProperties();
 
     p.getShapedPanelProperties().setComponentPainter(null);
     p.getComponentProperties().setBorder(null);
+
+    rootWindowProperties.getWindowBarProperties().getTabWindowProperties().
+        getTabbedPanelProperties().getTabAreaComponentsProperties().getComponentProperties().setBorder(null);
+
+    rootWindowProperties.getWindowBarProperties().getTabWindowProperties().
+        getTabbedPanelProperties().getContentPanelProperties().getShapedPanelProperties().setOpaque(false);
   }
 
   public String getName() {

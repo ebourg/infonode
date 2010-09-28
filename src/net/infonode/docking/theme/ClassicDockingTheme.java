@@ -20,12 +20,13 @@
  */
 
 
-// $Id: ClassicDockingTheme.java,v 1.6 2005/02/16 11:28:14 jesper Exp $
+// $Id: ClassicDockingTheme.java,v 1.10 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.docking.theme;
 
 import net.infonode.docking.properties.RootWindowProperties;
 import net.infonode.gui.border.EdgeBorder;
 import net.infonode.gui.colorprovider.UIManagerColorProvider;
+import net.infonode.tabbedpanel.TabSelectTrigger;
 import net.infonode.tabbedpanel.TabbedPanel;
 import net.infonode.tabbedpanel.TabbedPanelProperties;
 import net.infonode.tabbedpanel.TabbedUtils;
@@ -41,7 +42,7 @@ import java.awt.*;
  * A theme with a "classic" look with round edges for the tabs.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.10 $
  * @since IDW 1.2.0
  */
 public class ClassicDockingTheme extends DockingWindowsTheme {
@@ -78,7 +79,9 @@ public class ClassicDockingTheme extends DockingWindowsTheme {
     };
 
     // Tab window
-    rootWindowProperties.getTabWindowProperties().getTabbedPanelProperties().addSuperObject(tabbedPanelProperties)
+    rootWindowProperties.getTabWindowProperties().getTabbedPanelProperties().setTabSelectTrigger(
+        TabSelectTrigger.MOUSE_PRESS)
+        .addSuperObject(tabbedPanelProperties)
         .getTabAreaComponentsProperties().getComponentProperties().setInsets(new Insets(0, 0, 0, 0));
     rootWindowProperties.getTabWindowProperties().getTabProperties().getTitledTabProperties().addSuperObject(
         titledTabProperties);
@@ -115,6 +118,9 @@ public class ClassicDockingTheme extends DockingWindowsTheme {
                                   true,
                                   true));
     rootWindowProperties.setDragRectangleBorderWidth(3);
+    rootWindowProperties.getViewProperties().getViewTitleBarProperties().getNormalProperties()
+        .getShapedPanelProperties()
+        .setDirection(Direction.DOWN);
   }
 
   /**

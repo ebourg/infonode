@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabWindow.java,v 1.40 2005/02/16 11:28:14 jesper Exp $
+// $Id: TabWindow.java,v 1.55 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.drag.DockingWindowDragSource;
@@ -32,6 +32,8 @@ import net.infonode.docking.model.TabWindowItem;
 import net.infonode.docking.model.ViewWriter;
 import net.infonode.docking.properties.TabWindowProperties;
 import net.infonode.properties.propertymap.PropertyMap;
+import net.infonode.properties.propertymap.PropertyMapTreeListener;
+import net.infonode.properties.propertymap.PropertyMapWeakListenerManager;
 import net.infonode.tabbedpanel.TabAdapter;
 import net.infonode.tabbedpanel.TabEvent;
 import net.infonode.tabbedpanel.TabRemovedEvent;
@@ -43,15 +45,18 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.Map;
 
 /**
  * A docking window containing a tabbed panel.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.40 $
+ * @version $Revision: 1.55 $
  */
 public class TabWindow extends AbstractTabWindow {
   private static final ButtonInfo[] buttonInfos = {
+    new UndockButtonInfo(TabWindowProperties.UNDOCK_BUTTON_PROPERTIES),
+    new DockButtonInfo(TabWindowProperties.DOCK_BUTTON_PROPERTIES),
     new MinimizeButtonInfo(TabWindowProperties.MINIMIZE_BUTTON_PROPERTIES),
     new MaximizeButtonInfo(TabWindowProperties.MAXIMIZE_BUTTON_PROPERTIES),
     new RestoreButtonInfo(TabWindowProperties.RESTORE_BUTTON_PROPERTIES),
@@ -59,6 +64,12 @@ public class TabWindow extends AbstractTabWindow {
   };
 
   private AbstractButton[] buttons = new AbstractButton[buttonInfos.length];
+
+  private PropertyMapTreeListener buttonFactoryListener = new PropertyMapTreeListener() {
+    public void propertyValuesChanged(Map changes) {
+      doUpdateButtonVisibility(changes);
+    }
+  };
 
   /**
    * Creates an empty tab window.
@@ -105,15 +116,16 @@ public class TabWindow extends AbstractTabWindow {
       }
     });
 
+    initMouseListener();
     init();
 
     getTabbedPanel().addTabListener(new TabAdapter() {
       public void tabAdded(TabEvent event) {
-        update();
+        doUpdateButtonVisibility(null);
       }
 
       public void tabRemoved(TabRemovedEvent event) {
-        update();
+        doUpdateButtonVisibility(null);
       }
     });
 
@@ -121,6 +133,8 @@ public class TabWindow extends AbstractTabWindow {
       for (int i = 0; i < windows.length; i++)
         addTab(windows[i]);
     }
+
+    PropertyMapWeakListenerManager.addWeakTreeListener(getTabWindowProperties().getMap(), buttonFactoryListener);
   }
 
   public TabWindowProperties getTabWindowProperties() {
@@ -136,15 +150,26 @@ public class TabWindow extends AbstractTabWindow {
     }
   }
 
-  protected void maximized(boolean maximized) {
-    super.maximized(maximized);
-    update();
+  protected void update() {
   }
 
-  protected void update() {
-    if (InternalDockingUtil.updateButtons(buttonInfos, buttons, null, this, getTabWindowProperties().getMap())) {
+  protected void updateButtonVisibility() {
+    doUpdateButtonVisibility(null);
+  }
+
+  private void doUpdateButtonVisibility(Map changes) {
+    //System.out.println("%%  Updating tab window buttons!");
+    //System.out.println(getTabbedPanel().getTabCount() + "  " + getTabbedPanel().getSelectedTab() + "  " + isMaximizable() + "  " + isUndockable() + "  " + isMinimizable() + "  " + isClosable());
+    if (InternalDockingUtil.updateButtons(buttonInfos,
+                                          buttons,
+                                          null,
+                                          this,
+                                          getTabWindowProperties().getMap(),
+                                          changes)) {
       updateTabAreaComponents();
     }
+
+    super.updateButtonVisibility();
   }
 
   protected int getTabAreaComponentCount() {
@@ -181,13 +206,8 @@ public class TabWindow extends AbstractTabWindow {
     int i = super.addTabNoSelect(window, index);
 
     if (getUpdateModel()) {
-      if (beforeWindow == null)
-        getWindowItem().addWindow(window.getWindowItem());
-      else {
-        getWindowItem().addWindow(window.getWindowItem(),
-                                  getWindowItem().getWindowIndex(
-                                      getWindowItem().getChildWindowContaining(beforeWindow.getWindowItem())));
-      }
+      addWindowItem(window, beforeWindow == null ? -1 : getWindowItem().getWindowIndex(
+          getWindowItem().getChildWindowContaining(beforeWindow.getWindowItem())));
     }
 
     return i;
@@ -207,11 +227,6 @@ public class TabWindow extends AbstractTabWindow {
 
   protected PropertyMap createPropertyObject() {
     return new TabWindowProperties().getMap();
-  }
-
-  protected void updateMinimizable() {
-    update();
-    super.updateMinimizable();
   }
 
   protected int getEdgeDepth(Direction dir) {

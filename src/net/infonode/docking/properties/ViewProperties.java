@@ -19,7 +19,7 @@
  * MA 02111-1307, USA.
  */
 
-// $Id: ViewProperties.java,v 1.18 2005/02/16 11:28:14 jesper Exp $
+// $Id: ViewProperties.java,v 1.21 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.propertymap.*;
@@ -33,13 +33,24 @@ import javax.swing.*;
  * Properties and property values for views.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.18 $
+ * @version $Revision: 1.21 $
  */
 public class ViewProperties extends PropertyMapContainer {
   /**
    * Property group containing all view properties.
    */
   public static final PropertyMapGroup PROPERTIES = new PropertyMapGroup("View Properties", "");
+
+  /**
+   * Properties for the view title bar
+   *
+   * @see #getViewTitleBarProperties
+   * @since IDW 1.4.0
+   */
+  public static final PropertyMapProperty VIEW_TITLE_BAR_PROPERTIES = new PropertyMapProperty(PROPERTIES,
+                                                                                              "View Title Bar Properties",
+                                                                                              "Properties for view's title bar.",
+                                                                                              ViewTitleBarProperties.PROPERTIES);
 
   /**
    * If true the view will always be placed in a TabWindow so that it's title is shown.
@@ -129,6 +140,16 @@ public class ViewProperties extends PropertyMapContainer {
   public ViewProperties removeSuperObject(ViewProperties superObject) {
     getMap().removeSuperMap(superObject.getMap());
     return this;
+  }
+
+  /**
+   * Returns the property values for the title bar in the view
+   *
+   * @return the property values for the title bar in the view
+   * @since IDW 1.4.0
+   */
+  public ViewTitleBarProperties getViewTitleBarProperties() {
+    return new ViewTitleBarProperties(VIEW_TITLE_BAR_PROPERTIES.get(getMap()));
   }
 
   /**

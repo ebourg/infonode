@@ -20,7 +20,7 @@
  */
 
 
-// $Id: RotatableLabelUI.java,v 1.8 2005/02/16 11:28:13 jesper Exp $
+// $Id: RotatableLabelUI.java,v 1.11 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.gui;
 
 import net.infonode.util.Direction;
@@ -35,7 +35,6 @@ public class RotatableLabelUI extends BasicLabelUI {
   private static Rectangle paintIconR = new Rectangle();
   private static Rectangle paintTextR = new Rectangle();
   private static Rectangle paintViewR = new Rectangle();
-  private static Insets insets = new Insets(0, 0, 0, 0);
 
   private Direction direction;
   private boolean mirror;
@@ -74,7 +73,7 @@ public class RotatableLabelUI extends BasicLabelUI {
       return;
 
     FontMetrics fm = g.getFontMetrics();
-    insets = c.getInsets(insets);
+    Insets insets = c.getInsets();
 
     paintViewR.x = insets.left;
     paintViewR.y = insets.top;

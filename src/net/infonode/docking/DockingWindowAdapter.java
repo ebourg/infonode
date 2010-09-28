@@ -20,14 +20,14 @@
  */
 
 
-// $Id: DockingWindowAdapter.java,v 1.7 2004/11/19 16:02:08 jesper Exp $
+// $Id: DockingWindowAdapter.java,v 1.13 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.docking;
 
 /**
  * Adapter class which implements the {@link DockingWindowListener} methods with empty bodies.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.13 $
  * @since IDW 1.1.0
  */
 public class DockingWindowAdapter implements DockingWindowListener {
@@ -51,4 +51,35 @@ public class DockingWindowAdapter implements DockingWindowListener {
 
   public void windowClosed(DockingWindow window) {
   }
+
+  public void windowUndocking(DockingWindow window) throws OperationAbortedException {
+  }
+
+  public void windowUndocked(DockingWindow window) {
+  }
+
+  public void windowDocking(DockingWindow window) throws OperationAbortedException {
+  }
+
+  public void windowDocked(DockingWindow window) {
+  }
+
+  public void windowMinimized(DockingWindow window) {
+  }
+
+  public void windowMaximized(DockingWindow window) {
+  }
+
+  public void windowRestored(DockingWindow window) {
+  }
+
+  public void windowMaximizing(DockingWindow window) throws OperationAbortedException {
+  }
+
+  public void windowMinimizing(DockingWindow window) throws OperationAbortedException {
+  }
+
+  public void windowRestoring(DockingWindow window) throws OperationAbortedException {
+  }
+
 }

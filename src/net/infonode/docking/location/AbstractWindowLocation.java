@@ -20,7 +20,7 @@
  */
 
 
-// $Id: AbstractWindowLocation.java,v 1.14 2005/02/16 11:28:14 jesper Exp $
+// $Id: AbstractWindowLocation.java,v 1.15 2005/03/17 16:19:37 jesper Exp $
 package net.infonode.docking.location;
 
 import net.infonode.docking.DockingWindow;
@@ -31,20 +31,20 @@ import net.infonode.util.IntList;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.14 $
+ * @version $Revision: 1.15 $
  */
 abstract public class AbstractWindowLocation implements WindowLocation {
   private WindowLocation parentLocation;
-  private SoftReference window;
+  private WeakReference window;
 
   abstract protected boolean set(DockingWindow parent, DockingWindow child);
 
   protected AbstractWindowLocation(DockingWindow window, WindowLocation parentLocation) {
-    this.window = new SoftReference(window);
+    this.window = new WeakReference(window);
     this.parentLocation = parentLocation;
   }
 
@@ -87,7 +87,7 @@ abstract public class AbstractWindowLocation implements WindowLocation {
   protected void read(ObjectInputStream in, RootWindow rootWindow) throws IOException {
     parentLocation = in.readBoolean() ? LocationDecoder.decode(in, rootWindow) : null;
     window = in.readBoolean() ?
-             new SoftReference(InternalDockingUtil.getWindow(rootWindow, IntList.decode(in))) : null;
+             new WeakReference(InternalDockingUtil.getWindow(rootWindow, IntList.decode(in))) : null;
   }
 
 }

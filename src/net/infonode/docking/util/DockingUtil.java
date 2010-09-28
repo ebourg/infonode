@@ -20,20 +20,17 @@
  */
 
 
-// $Id: DockingUtil.java,v 1.19 2005/02/16 11:28:14 jesper Exp $
+// $Id: DockingUtil.java,v 1.24 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.docking.util;
 
-import net.infonode.docking.DockingWindow;
-import net.infonode.docking.RootWindow;
-import net.infonode.docking.TabWindow;
-import net.infonode.docking.ViewSerializer;
+import net.infonode.docking.*;
 import net.infonode.docking.internalutil.InternalDockingUtil;
 
 /**
  * Class that contains utility methods for docking windows.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.19 $
+ * @version $Revision: 1.24 $
  */
 public final class DockingUtil {
   private DockingUtil() {
@@ -52,6 +49,25 @@ public final class DockingUtil {
   }
 
   /**
+   * <p>
+   * Creates a root window with support for view serialization, popup menues and support for heavy
+   * weight components inside the views.
+   * </p>
+   *
+   * <p>
+   * All the views are added to a tab window which is placed in the root window.
+   * </p>
+   *
+   * @param views                 the views that can be shown inside the root window
+   * @param createWindowPopupMenu true if a standard window popup menu should be created
+   * @return the created root window
+   * @since IDW 1.4.0
+   */
+  public static RootWindow createHeavyweightSupportedRootWindow(AbstractViewMap views, boolean createWindowPopupMenu) {
+    return createRootWindow(true, views, views, createWindowPopupMenu);
+  }
+
+  /**
    * Creates a root window with support for view serialization and popup menues.
    * All the views are added to a tab window which is placed in the root window.
    *
@@ -63,13 +79,43 @@ public final class DockingUtil {
   public static RootWindow createRootWindow(AbstractViewMap views,
                                             ViewSerializer viewSerializer,
                                             boolean createWindowPopupMenu) {
+
+    return createRootWindow(false, views, viewSerializer, createWindowPopupMenu);
+  }
+
+  /**
+   * <p>
+   * Creates a root window with support for view serialization, popup menues and support for
+   * heavyweight components inside the views.
+   * </p>
+   *
+   * <p>
+   * All the views are added to a tab window which is placed in the root window.
+   * </p>
+   *
+   * @param views                 contains all the static views
+   * @param viewSerializer        the view serializer used in the created {@link RootWindow}
+   * @param createWindowPopupMenu true if a standard window popup menu should be created
+   * @return the created root window
+   * @since IDW 1.4.0
+   */
+  public static RootWindow createHeavyweightSupportedRootWindow(AbstractViewMap views,
+                                                                ViewSerializer viewSerializer,
+                                                                boolean createWindowPopupMenu) {
+
+    return createRootWindow(true, views, viewSerializer, createWindowPopupMenu);
+  }
+
+  private static RootWindow createRootWindow(boolean heavyweightSupport,
+                                             AbstractViewMap views,
+                                             ViewSerializer viewSerializer,
+                                             boolean createWindowPopupMenu) {
     TabWindow tabWindow = new TabWindow();
 
     for (int i = 0; i < views.getViewCount(); i++)
       tabWindow.addTab(views.getViewAtIndex(i));
-
     tabWindow.setSelectedTab(0);
-    RootWindow rootWindow = new RootWindow(viewSerializer, tabWindow);
+    RootWindow rootWindow = new RootWindow(heavyweightSupport, viewSerializer, tabWindow);
 
     if (createWindowPopupMenu)
       rootWindow.setPopupMenuFactory(WindowMenuUtil.createWindowMenuFactory(views, true));
@@ -127,5 +173,25 @@ public final class DockingUtil {
     return window instanceof TabWindow ? (TabWindow) window :
            window.getWindowParent() != null && window.getWindowParent() instanceof TabWindow ? (TabWindow) window.getWindowParent() :
            null;
+  }
+
+  /**
+   * Returns the {@link FloatingWindow} for a window if the window is undocked.
+   *
+   * @param window the window
+   * @return the {@link FloatingWindow} for the window or null if the window is not undocked
+   * @since IDW 1.4.0
+   */
+  public static FloatingWindow getFloatingWindowFor(DockingWindow window) {
+    if (window == null)
+      return null;
+
+    if (!window.isUndocked())
+      return null;
+
+    while (window != null && !(window instanceof FloatingWindow))
+      window = window.getWindowParent();
+
+    return (FloatingWindow) window;
   }
 }

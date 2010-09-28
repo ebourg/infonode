@@ -20,19 +20,23 @@
  */
 
 
-// $Id: WindowBarProperties.java,v 1.31 2005/02/16 11:28:14 jesper Exp $
+// $Id: WindowBarProperties.java,v 1.33 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.gui.util.ComponentProperties;
 import net.infonode.properties.propertymap.*;
+import net.infonode.properties.types.BooleanProperty;
+import net.infonode.properties.types.ColorProperty;
 import net.infonode.properties.types.IntegerProperty;
 import net.infonode.util.Direction;
+
+import java.awt.*;
 
 /**
  * Properties and property values for window bars.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.31 $
+ * @version $Revision: 1.33 $
  */
 public class WindowBarProperties extends PropertyMapContainer {
   /**
@@ -69,6 +73,28 @@ public class WindowBarProperties extends PropertyMapContainer {
                                      "always be visible and the user can drag windows to it.",
                                      2,
                                      PropertyMapValueHandler.INSTANCE);
+
+  /**
+   * When enabled causes the windows to change size continuously while dragging the split window divider.
+   *
+   * @since IDW 1.4.0
+   */
+  public static final BooleanProperty CONTINUOUS_LAYOUT_ENABLED =
+      new BooleanProperty(PROPERTIES,
+                          "Continuous Layout Enabled",
+                          "When enabled causes the selected tab's content to change size continuously while resizing it.",
+                          PropertyMapValueHandler.INSTANCE);
+
+  /**
+   * The drag indicator color.
+   *
+   * @since IDW 1.4.0
+   */
+  public static final ColorProperty DRAG_INDICATOR_COLOR =
+      new ColorProperty(PROPERTIES,
+                        "Drag Indicator Color",
+                        "The color for the resizer's drag indicator that is shown when continuous layout is disabled.",
+                        PropertyMapValueHandler.INSTANCE);
 
   /**
    * Properties for the tab window used by this window bar.
@@ -224,4 +250,47 @@ public class WindowBarProperties extends PropertyMapContainer {
     return new ComponentProperties(COMPONENT_PROPERTIES.get(getMap()));
   }
 
+  /**
+   * Sets the resizer's drag indicator color.
+   *
+   * @param color the color for the drag indicator
+   * @return this
+   * @since IDW 1.4.0
+   */
+  public WindowBarProperties setDragIndicatorColor(Color color) {
+    DRAG_INDICATOR_COLOR.set(getMap(), color);
+    return this;
+  }
+
+  /**
+   * Returns the resizer's drag indicator color.
+   *
+   * @return the drag indicator color
+   * @since IDW 1.4.0
+   */
+  public Color getDragIndicatorColor() {
+    return DRAG_INDICATOR_COLOR.get(getMap());
+  }
+
+  /**
+   * Returns true if continuous layout is enabled.
+   *
+   * @return true if continuous layout is enabled
+   * @since IDW 1.4.0
+   */
+  public boolean getContinuousLayoutEnabled() {
+    return CONTINUOUS_LAYOUT_ENABLED.get(getMap());
+  }
+
+  /**
+   * Enables/disables continuous layout.
+   *
+   * @param enabled if true continuous layout is enabled
+   * @return this
+   * @since IDW 1.4.0
+   */
+  public WindowBarProperties setContinuousLayoutEnabled(boolean enabled) {
+    CONTINUOUS_LAYOUT_ENABLED.set(getMap(), enabled);
+    return this;
+  }
 }

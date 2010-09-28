@@ -20,7 +20,7 @@
  */
 
 
-// $Id: HoverableShapedPanel.java,v 1.12 2005/02/16 11:28:11 jesper Exp $
+// $Id: HoverableShapedPanel.java,v 1.15 2005/12/04 13:46:03 jesper Exp $
 package net.infonode.gui.hover.panel;
 
 import net.infonode.gui.hover.HoverEvent;
@@ -37,7 +37,9 @@ import java.util.ArrayList;
  */
 public class HoverableShapedPanel extends ShapedPanel implements Hoverable {
   private HoverListener hoverListener;
+
   private Component hoveredComponent;
+
   private boolean hovered = false;
 
   public HoverableShapedPanel(HoverListener listener) {
@@ -48,9 +50,11 @@ public class HoverableShapedPanel extends ShapedPanel implements Hoverable {
     this(l, listener, null);
   }
 
-  public HoverableShapedPanel(LayoutManager l, HoverListener listener, final Component hoveredComponent) {
+  public HoverableShapedPanel(LayoutManager l, HoverListener listener,
+                              final Component hoveredComponent) {
     super(l);
     this.hoveredComponent = hoveredComponent != null ? hoveredComponent : this;
+    HoverManager.getInstance().addHoverable(this);
     setHoverListener(listener);
   }
 
@@ -62,13 +66,13 @@ public class HoverableShapedPanel extends ShapedPanel implements Hoverable {
     if (hoverListener != newHoverListener) {
       HoverListener oldHoverListener = hoverListener;
 
-      if (oldHoverListener != null && newHoverListener == null)
-        HoverManager.getInstance().removeHoverable(this);
+      // if (oldHoverListener != null && newHoverListener == null)
+      // HoverManager.getInstance().removeHoverable(this);
 
       hoverListener = newHoverListener;
 
-      if (oldHoverListener == null && newHoverListener != null)
-        HoverManager.getInstance().addHoverable(this);
+      // if (oldHoverListener == null && newHoverListener != null)
+      // HoverManager.getInstance().addHoverable(this);
 
       if (oldHoverListener != null && newHoverListener != null && hovered) {
         HoverEvent event = new HoverEvent(hoveredComponent);

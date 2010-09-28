@@ -20,16 +20,16 @@
  */
 
 
-// $Id: ShapedPanel.java,v 1.24 2005/02/16 11:28:13 jesper Exp $
+// $Id: ShapedPanel.java,v 1.32 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.gui.shaped.panel;
 
 import net.infonode.gui.BackgroundPainter;
 import net.infonode.gui.InsetsUtil;
 import net.infonode.gui.componentpainter.ComponentPainter;
+import net.infonode.gui.panel.BaseContainer;
 import net.infonode.gui.shaped.border.ShapedBorder;
 import net.infonode.util.Direction;
 
-import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import java.awt.*;
@@ -56,7 +56,7 @@ import java.awt.*;
  *
  * @author johan
  */
-public class ShapedPanel extends JPanel implements BackgroundPainter {
+public class ShapedPanel extends BaseContainer implements BackgroundPainter {
   private Direction direction = Direction.RIGHT;
   private boolean horizontalFlip;
   private boolean verticalFlip;
@@ -66,12 +66,11 @@ public class ShapedPanel extends JPanel implements BackgroundPainter {
   private Insets shapedInsets;
 
   public ShapedPanel() {
-    this(new BorderLayout());
+    super();
   }
 
   public ShapedPanel(LayoutManager l) {
     super(l);
-    setOpaque(false);
   }
 
   public ShapedPanel(ComponentPainter painter) {
@@ -86,7 +85,7 @@ public class ShapedPanel extends JPanel implements BackgroundPainter {
 
   public ShapedPanel(Component component) {
     this();
-    add(component);
+    add(component, BorderLayout.CENTER);
   }
 
   public Shape getShape() {
@@ -103,8 +102,11 @@ public class ShapedPanel extends JPanel implements BackgroundPainter {
   }
 
   public void setComponentPainter(ComponentPainter painter) {
-    this.painter = painter;
-    repaint();
+    if (this.painter != painter) {
+      this.painter = painter;
+
+      repaint();
+    }
   }
 
   public Direction getDirection() {
@@ -116,8 +118,10 @@ public class ShapedPanel extends JPanel implements BackgroundPainter {
   }
 
   public void setHorizontalFlip(boolean horizontalFlip) {
-    this.horizontalFlip = horizontalFlip;
-    revalidate();
+    if (this.horizontalFlip != horizontalFlip) {
+      this.horizontalFlip = horizontalFlip;
+      revalidate();
+    }
   }
 
   public boolean isVerticalFlip() {
@@ -125,14 +129,19 @@ public class ShapedPanel extends JPanel implements BackgroundPainter {
   }
 
   public void setVerticalFlip(boolean verticalFlip) {
-    this.verticalFlip = verticalFlip;
-    revalidate();
+    if (this.verticalFlip != verticalFlip) {
+      this.verticalFlip = verticalFlip;
+      revalidate();
+    }
   }
 
   public void setDirection(Direction direction) {
-    this.direction = direction;
-    revalidate();
-    repaint();
+    if (this.direction != direction) {
+      this.direction = direction;
+      revalidate();
+
+      repaint();
+    }
   }
 
   public boolean isClipChildren() {
@@ -232,5 +241,4 @@ public class ShapedPanel extends JPanel implements BackgroundPainter {
     else
       return false;
   }
-
 }

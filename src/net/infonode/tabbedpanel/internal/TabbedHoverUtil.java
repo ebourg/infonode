@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabbedHoverUtil.java,v 1.6 2005/02/16 11:28:14 jesper Exp $
+// $Id: TabbedHoverUtil.java,v 1.8 2005/12/04 13:46:05 jesper Exp $
 
 package net.infonode.tabbedpanel.internal;
 
@@ -39,7 +39,20 @@ public class TabbedHoverUtil {
   public static boolean isDeepestHoverableTabbedPanel(ArrayList enterables, TabbedPanel tp) {
     Component c = (Component) enterables.get(0);
     while (c != null) {
+      TabbedPanel tp2 = null;
+
       if (c instanceof TabbedPanel)
+        tp2 = (TabbedPanel) c;
+
+      if (c instanceof TabbedPanelContentPanel)
+        tp2 = ((TabbedPanelContentPanel) c).getTabbedPanel();
+
+      if (tp2 != null)
+        if (tp2 == tp)
+          return true;
+        else if (tp2.getProperties().getHoverPolicy() != TabbedPanelHoverPolicy.ALWAYS_AND_EXCLUDE)
+          return false;
+      /*if (c instanceof TabbedPanel)
         if (c == tp)
           return true;
         else
@@ -49,7 +62,7 @@ public class TabbedHoverUtil {
         if (((TabbedPanelContentPanel) c).getTabbedPanel() == tp)
           return true;
         else
-          return false;
+          return false;*/
 
       c = c.getParent();
     }
@@ -58,7 +71,7 @@ public class TabbedHoverUtil {
   }
 
   public static boolean hasVisibleTabbedPanelChild(Component c) {
-    if (c instanceof TabbedPanel)
+    if (c instanceof TabbedPanel && ((TabbedPanel) c).getProperties().getHoverPolicy() != TabbedPanelHoverPolicy.ALWAYS_AND_EXCLUDE)
       return true;
 
     if (c instanceof Container) {
@@ -82,7 +95,7 @@ public class TabbedHoverUtil {
     if (policy == TabbedPanelHoverPolicy.NEVER)
       return false;
 
-    if (policy == TabbedPanelHoverPolicy.ALWAYS)
+    if (policy == TabbedPanelHoverPolicy.ALWAYS || policy == TabbedPanelHoverPolicy.ALWAYS_AND_EXCLUDE)
       return true;
 
     if (policy == TabbedPanelHoverPolicy.ONLY_WHEN_DEEPEST && c != null)

@@ -20,54 +20,66 @@
  */
 
 
-// $Id: RestoreWindowAction.java,v 1.7 2005/02/16 11:28:14 jesper Exp $
+// $Id: UndockWindowAction.java,v 1.8 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.docking.action;
 
 import net.infonode.docking.DockingWindow;
+import net.infonode.docking.FloatingWindow;
 import net.infonode.docking.internalutil.InternalDockingUtil;
-import net.infonode.gui.icon.button.RestoreIcon;
+import net.infonode.docking.util.DockingUtil;
+import net.infonode.gui.icon.button.UndockIcon;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.ObjectStreamException;
 
 /**
- * Restores a window using the {@link DockingWindow#restore()} method.
+ * Undocks a window using the {@link DockingWindow#undock(Point)} method.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
+ * @since IDW 1.4.0
  */
-public class RestoreWindowAction extends DockingWindowAction {
+public class UndockWindowAction extends DockingWindowAction {
   private static final long serialVersionUID = 1;
 
   /**
-   * The only instance of this class.
+   * The only instance of this class
    */
-  public static final RestoreWindowAction INSTANCE = new RestoreWindowAction();
+  public static final UndockWindowAction INSTANCE = new UndockWindowAction();
 
-  private static final Icon icon = new RestoreIcon(InternalDockingUtil.DEFAULT_BUTTON_ICON_SIZE);
+  private static final Icon icon = new UndockIcon(InternalDockingUtil.DEFAULT_BUTTON_ICON_SIZE);
 
-  private RestoreWindowAction() {
-  }
-
-  public String getName() {
-    return "Restore";
-  }
-
-  public boolean isPerformable(DockingWindow window) {
-    return window != null && (window.isMinimized() || window.isMaximized()) && window.isRestorable();
-  }
-
-  public void perform(DockingWindow window) {
-    if (window != null && window.isRestorable())
-      window.restore();
+  private UndockWindowAction() {
   }
 
   public Icon getIcon() {
     return icon;
   }
 
+  public String getName() {
+    return "Undock";
+  }
+
+  public boolean isPerformable(DockingWindow window) {
+    if (window.isUndockable()) {
+      FloatingWindow fw = DockingUtil.getFloatingWindowFor(window);
+      return fw == null || (fw.getChildWindowCount() > 0 && fw.getChildWindow(0) != window && fw.getChildWindow(0)
+          .getChildWindowCount() > 1);
+    }
+
+    return false;
+  }
+
+  public void perform(DockingWindow window) {
+    if (isPerformable(window)) {
+      Point p = window.getLocation();
+      SwingUtilities.convertPointToScreen(p, window.getParent());
+      window.undock(p);
+    }
+  }
+
   protected Object readResolve() throws ObjectStreamException {
     return INSTANCE;
   }
-
 }

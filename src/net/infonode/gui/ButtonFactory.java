@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ButtonFactory.java,v 1.19 2005/02/16 11:28:13 jesper Exp $
+// $Id: ButtonFactory.java,v 1.23 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.gui;
 
 import net.infonode.gui.border.HighlightBorder;
@@ -116,7 +116,8 @@ public class ButtonFactory {
       if (button.isEnabled() && (rollover || pressed)) {
         button.setOpaque(true);
         Color backgroundColor = ComponentUtil.getBackgroundColor(button.getParent());
-        backgroundColor = backgroundColor == null ? UIManagerUtil.getColor("control", Color.WHITE) : backgroundColor;
+        backgroundColor = backgroundColor == null ?
+                          UIManagerUtil.getColor("control", Color.LIGHT_GRAY) : backgroundColor;
         button.setBackground(ColorUtil.mult(backgroundColor, pressed ? 0.8 : 1.15));
 
         button.setBorder(pressed ?
@@ -263,6 +264,19 @@ public class ButtonFactory {
   public static final JButton createHighlightButton(Icon icon, String text, ActionListener action) {
     JButton b = newButton(icon, text);
     b.addActionListener(action);
+    return b;
+  }
+
+  public static final JButton createFlatIconHoverButton(Icon icon, Icon hovered, Icon pressed) {
+    final JButton b = new JButton(icon) {
+      public void setUI(ButtonUI ui) {
+        super.setUI(new FlatIconButtonUI());
+      }
+    };
+    b.setPressedIcon(pressed);
+    b.setRolloverEnabled(true);
+    b.setRolloverIcon(hovered);
+    b.setVerticalAlignment(SwingConstants.CENTER);
     return b;
   }
 }

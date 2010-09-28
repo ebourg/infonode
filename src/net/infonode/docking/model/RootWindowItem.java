@@ -20,7 +20,7 @@
  */
 
 
-// $Id: RootWindowItem.java,v 1.7 2005/02/16 11:28:14 jesper Exp $
+// $Id: RootWindowItem.java,v 1.8 2005/03/11 13:16:49 jesper Exp $
 package net.infonode.docking.model;
 
 import net.infonode.docking.DockingWindow;
@@ -31,7 +31,7 @@ import java.util.ArrayList;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public class RootWindowItem extends WindowItem {
   private RootWindowProperties rootWindowProperties = RootWindowProperties.createDefault();
@@ -53,6 +53,10 @@ public class RootWindowItem extends WindowItem {
 
   public RootWindowProperties getRootWindowProperties() {
     return rootWindowProperties;
+  }
+
+  public boolean isRestoreWindow() {
+    return true;
   }
 
   protected DockingWindow createWindow(ViewReader viewReader, ArrayList childWindows) {

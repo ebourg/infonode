@@ -20,9 +20,10 @@
  */
 
 
-// $Id: TabAreaLineBorder.java,v 1.16 2005/02/16 11:28:14 jesper Exp $
+// $Id: TabAreaLineBorder.java,v 1.19 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.tabbedpanel.border;
 
+import net.infonode.gui.GraphicsUtil;
 import net.infonode.gui.colorprovider.*;
 import net.infonode.tabbedpanel.*;
 import net.infonode.util.Direction;
@@ -38,7 +39,7 @@ import java.io.Serializable;
  *
  * @author $Author: jesper $
  * @author $Author: jesper $
- * @version $Revision: 1.16 $
+ * @version $Revision: 1.19 $
  * @see Tab
  * @see TabbedPanel
  * @see TabbedPanelProperties
@@ -125,7 +126,7 @@ public class TabAreaLineBorder implements Border, Serializable {
   }
 
   public boolean isBorderOpaque() {
-    return false;
+    return true;
   }
 
   public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
@@ -133,16 +134,16 @@ public class TabAreaLineBorder implements Border, Serializable {
     g.setColor(color.getColor(c));
 
     if (insets.top == 1)
-      g.drawLine(x, y, x + width - 1, y);
+      GraphicsUtil.drawOptimizedLine(g, x, y, x + width - 1, y);
 
     if (insets.bottom == 1)
-      g.drawLine(x, y + height - 1, x + width - 1, y + height - 1);
+      GraphicsUtil.drawOptimizedLine(g, x, y + height - 1, x + width - 1, y + height - 1);
 
     if (insets.left == 1)
-      g.drawLine(x, y, x, y + height - 1);
+      GraphicsUtil.drawOptimizedLine(g, x, y, x, y + height - 1);
 
     if (insets.right == 1)
-      g.drawLine(x + width - 1, y, x + width - 1, y + height - 1);
+      GraphicsUtil.drawOptimizedLine(g, x + width - 1, y, x + width - 1, y + height - 1);
   }
 
   private boolean drawTop(Direction orientation) {

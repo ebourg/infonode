@@ -20,24 +20,22 @@
  */
 
 
-// $Id: BasePanel.java,v 1.3 2005/02/16 11:28:13 jesper Exp $
+// $Id: BasePanel.java,v 1.6 2005/12/04 13:46:03 jesper Exp $
 package net.infonode.gui.panel;
 
-import javax.swing.*;
 import java.awt.*;
 
 /**
  * A transparent panel with {@link java.awt.BorderLayout}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.6 $
  */
-public class BasePanel extends JPanel {
+public class BasePanel extends BaseContainer {
   private Component comp;
 
   protected BasePanel() {
-    super(new BorderLayout());
-    setOpaque(false);
+    setForcedOpaque(false);
   }
 
   protected void setComponent(Component c) {
@@ -46,7 +44,8 @@ public class BasePanel extends JPanel {
 
     if (c != null) {
       add(c, BorderLayout.CENTER);
-      c.repaint();
+      revalidate();
+      //c.repaint();
     }
 
     comp = c;
@@ -54,6 +53,7 @@ public class BasePanel extends JPanel {
 
   protected void setSouthComponent(Component c) {
     add(c, BorderLayout.SOUTH);
+    revalidate();
   }
 
 }

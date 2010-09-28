@@ -20,7 +20,7 @@
  */
 
 
-// $Id: StateDependentWindowAction.java,v 1.3 2005/02/16 11:28:14 jesper Exp $
+// $Id: StateDependentWindowAction.java,v 1.6 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.docking.action;
 
 import net.infonode.docking.DockingWindow;
@@ -31,7 +31,7 @@ import net.infonode.docking.util.DockingUtil;
  * Performs different actions on a window depending on the state of the window.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.6 $
  * @since IDW 1.3.0
  */
 public class StateDependentWindowAction extends DockingWindowAction {
@@ -44,6 +44,17 @@ public class StateDependentWindowAction extends DockingWindowAction {
       MaximizeWindowAction.INSTANCE,
       RestoreParentWindowAction.INSTANCE,
       RestoreParentWindowAction.INSTANCE);
+
+  /**
+   * If the window is maximized or minimized it is restored, otherwise it is maximized. The operations
+   * can be aborted by a {@link net.infonode.docking.DockingWindowListener}.
+   *
+   * @since IDW 1.4.0
+   */
+  public static final StateDependentWindowAction MAXIMIZE_RESTORE_WITH_ABORT = new StateDependentWindowAction(
+      MaximizeWithAbortWindowAction.INSTANCE,
+      RestoreParentWithAbortWindowAction.INSTANCE,
+      RestoreParentWithAbortWindowAction.INSTANCE);
 
   private DockingWindowAction normalAction;
   private DockingWindowAction minimizedAction;

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: DockingWindowProperties.java,v 1.19 2005/02/16 11:28:14 jesper Exp $
+// $Id: DockingWindowProperties.java,v 1.25 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.docking.title.DockingWindowTitleProvider;
@@ -32,7 +32,7 @@ import net.infonode.properties.types.BooleanProperty;
  * Properties and property values common for all docking windows.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.19 $
+ * @version $Revision: 1.25 $
  */
 public class DockingWindowProperties extends PropertyMapContainer {
   /**
@@ -50,6 +50,17 @@ public class DockingWindowProperties extends PropertyMapContainer {
                               WindowTabProperties.PROPERTIES);
 
   /**
+   * Property values for drop filters.
+   *
+   * @since IDW 1.4.0
+   */
+  public static final PropertyMapProperty DROP_FILTER_PROPERTIES =
+      new PropertyMapProperty(PROPERTIES,
+                              "Drop Filter Properties",
+                              "Property values for drop filters.",
+                              DockingWindowDropFilterProperties.PROPERTIES);
+
+  /**
    * Enables/disables window drag by the user.
    *
    * @since IDW 1.2.0
@@ -58,6 +69,45 @@ public class DockingWindowProperties extends PropertyMapContainer {
       new BooleanProperty(PROPERTIES,
                           "Drag Enabled",
                           "Enables/disables window drag by the user.",
+                          PropertyMapValueHandler.INSTANCE);
+
+  /**
+   * Enables/disables undock to a floating window.
+   *
+   * @since IDW 1.4.0
+   */
+  public static final BooleanProperty UNDOCK_ENABLED =
+      new BooleanProperty(PROPERTIES,
+                          "Undock Enabled",
+                          "Enables/disables if a window can be undocked to a floating window.",
+                          PropertyMapValueHandler.INSTANCE);
+  /**
+   * <p>
+   * Enables/disables undock when dropped outside root window.
+   * </p>
+   *
+   * <p>
+   * <strong>Note:</strong> This property will only have effect if window drag is enabled and undocking is enabled.
+   * </p>
+   *
+   * @since IDW 1.4.0
+   */
+  public static final BooleanProperty UNDOCK_ON_DROP =
+      new BooleanProperty(PROPERTIES,
+                          "Undock when Dropped",
+                          "Enables/disables window undock to floating window when a drag and drop is performed outside the root window.",
+                          PropertyMapValueHandler.INSTANCE);
+
+
+  /**
+   * Enables/disables undock to a floating window.
+   *
+   * @since IDW 1.4.0
+   */
+  public static final BooleanProperty DOCK_ENABLED =
+      new BooleanProperty(PROPERTIES,
+                          "Dock Enabled",
+                          "Enables/disables if a window can be docked to the root window from a floating window.",
                           PropertyMapValueHandler.INSTANCE);
 
   /**
@@ -186,6 +236,16 @@ public class DockingWindowProperties extends PropertyMapContainer {
   }
 
   /**
+   * Returns the property values for drop filters.
+   *
+   * @return the property values for drop filters
+   * @since IDW 1.4.0
+   */
+  public DockingWindowDropFilterProperties getDropFilterProperties() {
+    return new DockingWindowDropFilterProperties(DROP_FILTER_PROPERTIES.get(getMap()));
+  }
+
+  /**
    * Returns true if the window drag by the user is enabled.
    *
    * @return true if the window drag is enabled
@@ -204,6 +264,88 @@ public class DockingWindowProperties extends PropertyMapContainer {
    */
   public DockingWindowProperties setDragEnabled(boolean enabled) {
     DRAG_ENABLED.set(getMap(), enabled);
+    return this;
+  }
+
+  /**
+   * Returns true if the window can be undocked to a floating window.
+   *
+   * @return true if undocking is enabled
+   * @since IDW 1.4.0
+   */
+  public boolean getUndockEnabled() {
+    return UNDOCK_ENABLED.get(getMap());
+  }
+
+  /**
+   * Enables/disables undock to floating window.
+   *
+   * @param enabled if true, a window can be undocked to a floating window,
+   *                otherwise it's disabled
+   * @return this
+   * @since IDW 1.4.0
+   */
+  public DockingWindowProperties setUndockEnabled(boolean enabled) {
+    UNDOCK_ENABLED.set(getMap(), enabled);
+    return this;
+  }
+
+  /**
+   * <p>
+   * Returns true if the window drag by the user and is dropped outside the root window should undock to a floating
+   * window.
+   * </p>
+   *
+   * <p>
+   * <strong>Note:</strong> This property will only have effect if drag is enabled.
+   * </p>
+   *
+   * @return true if the dropped window should undock to a floating window
+   * @since IDW 1.4.0
+   */
+  public boolean getUndockOnDropEnabled() {
+    return UNDOCK_ON_DROP.get(getMap());
+  }
+
+  /**
+   * <p>
+   * Enables/disables if the window drag by the user and is dropped outside the root window should undock to a floating
+   * window or not.
+   * </p>
+   *
+   * <p>
+   * <strong>Note:</strong> This property will only have effect if drag is enabled.
+   * </p>
+   *
+   * @param enabled if true, drop to floating window is enabled, otherwise it's disabled
+   * @return this
+   * @since IDW 1.4.0
+   */
+  public DockingWindowProperties setUndockOnDropEnabled(boolean enabled) {
+    UNDOCK_ON_DROP.set(getMap(), enabled);
+    return this;
+  }
+
+  /**
+   * Returns true if the window can be docked to the root window from a floating window.
+   *
+   * @return true if docking is enabled
+   * @since IDW 1.4.0
+   */
+  public boolean getDockEnabled() {
+    return DOCK_ENABLED.get(getMap());
+  }
+
+  /**
+   * Enables/disables dock to the root window from a floating window.
+   *
+   * @param enabled if true, a window can be docked to the root window from a floating window,
+   *                otherwise it's disabled
+   * @return this
+   * @since IDW 1.4.0
+   */
+  public DockingWindowProperties setDockEnabled(boolean enabled) {
+    DOCK_ENABLED.set(getMap(), enabled);
     return this;
   }
 

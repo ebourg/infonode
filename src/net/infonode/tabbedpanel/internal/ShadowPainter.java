@@ -20,10 +20,11 @@
  */
 
 
-// $Id: ShadowPainter.java,v 1.6 2005/02/16 11:28:14 jesper Exp $
+// $Id: ShadowPainter.java,v 1.9 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.tabbedpanel.internal;
 
 import net.infonode.gui.ComponentUtil;
+import net.infonode.gui.GraphicsUtil;
 import net.infonode.gui.UIManagerUtil;
 import net.infonode.util.ColorUtil;
 import net.infonode.util.Direction;
@@ -33,7 +34,7 @@ import java.awt.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.9 $
  * @since ITP 1.1.0
  */
 public class ShadowPainter {
@@ -61,13 +62,14 @@ public class ShadowPainter {
                        float shadowStrength, boolean highlightedTabIsLast) {
     this.component = component;
     this.componentsPanel = componentsPanel;
-    this.highlightedTab = highlightedTab;
+    this.highlightedTab = highlightedTab == null ?
+                          null : !highlightedTab.isVisible() || !tabAreaContainer.isVisible() ? null : highlightedTab;
     this.contentPanel = contentPanel;
     this.tabAreaComponentsPanel = tabAreaComponentsPanel;
     this.tabAreaContainer = tabAreaContainer;
     this.tabBox = tabBox;
     this.tabOrientation = tabOrientation;
-    this.paintTabAreaShadow = paintTabAreaShadow;
+    this.paintTabAreaShadow = paintTabAreaShadow && tabAreaContainer.isVisible();
     this.shadowSize = shadowSize;
     this.shadowBlendSize = shadowBlendSize;
     this.shadowColor = shadowColor;
@@ -110,6 +112,9 @@ public class ShadowPainter {
               (tabAreaContainer.getInsets().bottom == 0 ? tabAreaComponentsPanel.getWidth() : 0) :
               (tabAreaContainer.getInsets().right == 0 ? tabAreaComponentsPanel.getHeight() : 0);
       }
+
+      if (!tabAreaContainer.isVisible())
+        len = 0;
 
       if (tabOrientation != Direction.RIGHT || highlightedTab == null)
         drawBottomRightEdgeShadow(g,
@@ -414,9 +419,9 @@ public class ShadowPainter {
 */
   private static void drawLine(Graphics g, int x1, int y1, int x2, int y2, boolean flip) {
     if (flip)
-      g.drawLine(y1, x1, y2, x2);
+      GraphicsUtil.drawOptimizedLine(g, y1, x1, y2, x2);
     else
-      g.drawLine(x1, y1, x2, y2);
+      GraphicsUtil.drawOptimizedLine(g, x1, y1, x2, y2);
   }
 
 

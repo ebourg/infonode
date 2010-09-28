@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowItem.java,v 1.12 2005/02/16 11:28:14 jesper Exp $
+// $Id: WindowItem.java,v 1.16 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.docking.model;
 
 import net.infonode.docking.DockingWindow;
@@ -39,7 +39,7 @@ import java.util.ArrayList;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.16 $
  */
 abstract public class WindowItem {
   public static final DockingWindowProperties emptyProperties = new DockingWindowProperties();
@@ -67,11 +67,17 @@ abstract public class WindowItem {
     lastMinimizedDirection = windowItem.getLastMinimizedDirection();
   }
 
+  public boolean isRestoreWindow() {
+    return parent != null && parent.isRestoreWindow();
+  }
+
   public void addWindow(WindowItem item) {
     addWindow(item, windows.size());
   }
 
   public void addWindow(WindowItem item, int index) {
+    index = index == -1 ? windows.size() : index;
+
     if (item.parent == this) {
       int currentIndex = windows.indexOf(item);
 
@@ -89,6 +95,14 @@ abstract public class WindowItem {
   public void removeWindow(WindowItem item) {
     if (windows.remove(item))
       item.parent = null;
+  }
+
+  public void removeWindowRefs(DockingWindow window) {
+    if (connectedWindow.get() == window)
+      connectedWindow = new WeakReference(null);
+
+    for (int i = 0; i < getWindowCount(); i++)
+      getWindow(i).removeWindowRefs(window);
   }
 
   public void replaceWith(WindowItem item) {
@@ -142,7 +156,7 @@ abstract public class WindowItem {
   public DockingWindow getVisibleDockingWindow() {
     DockingWindow window = getConnectedWindow();
 
-    if (window != null && window.getRootWindow() != null && !window.isMinimized())
+    if (window != null && window.getRootWindow() != null && !window.isMinimized() && !window.isUndocked())
       return window;
 
     for (int i = 0; i < getWindowCount(); i++) {
@@ -279,7 +293,8 @@ abstract public class WindowItem {
 
     DockingWindow window = getConnectedWindow();
     writeSettings(out, context);
-    out.writeBoolean(window != null && !window.isMinimized() && window.getRootWindow() != null);
+    boolean b = window != null && !window.isMinimized() && !window.isUndocked() && window.getRootWindow() != null;
+    out.writeBoolean(window != null && !window.isMinimized() && !window.isUndocked() && window.getRootWindow() != null);
   }
 
   public DockingWindow read(ObjectInputStream in, ReadContext context, ViewReader viewReader) throws IOException {

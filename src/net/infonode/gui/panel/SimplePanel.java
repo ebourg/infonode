@@ -20,14 +20,13 @@
  */
 
 
-// $Id: SimplePanel.java,v 1.6 2005/02/16 11:28:13 jesper Exp $
+// $Id: SimplePanel.java,v 1.11 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.gui.panel;
 
-import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 
-public class SimplePanel extends JPanel {
+public class SimplePanel extends BaseContainer {
   private Component comp;
 
   public SimplePanel() {
@@ -45,8 +44,7 @@ public class SimplePanel extends JPanel {
   }
 
   public SimplePanel(LayoutManager layoutManager) {
-    setLayout(layoutManager);
-    setOpaque(false);
+    super(false, layoutManager);
   }
 
   public SimplePanel(Component c) {
@@ -70,7 +68,8 @@ public class SimplePanel extends JPanel {
 
     if (c != null) {
       add(c, BorderLayout.CENTER);
-      c.repaint();
+      // c.repaint();
+      revalidate();
     }
 
     comp = c;
@@ -78,6 +77,6 @@ public class SimplePanel extends JPanel {
 
   public void setSouthComponent(Component c) {
     add(c, BorderLayout.SOUTH);
+    revalidate();
   }
-
 }

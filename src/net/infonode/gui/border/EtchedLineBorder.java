@@ -20,10 +20,11 @@
  */
 
 
-// $Id: EtchedLineBorder.java,v 1.8 2005/02/16 11:28:10 jesper Exp $
+// $Id: EtchedLineBorder.java,v 1.10 2005/12/04 13:46:03 jesper Exp $
 package net.infonode.gui.border;
 
 import net.infonode.gui.ComponentUtil;
+import net.infonode.gui.GraphicsUtil;
 import net.infonode.util.ColorUtil;
 
 import javax.swing.border.Border;
@@ -32,7 +33,7 @@ import java.io.Serializable;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.10 $
  */
 public class EtchedLineBorder implements Border, Serializable {
   private static final long serialVersionUID = 1;
@@ -78,41 +79,41 @@ public class EtchedLineBorder implements Border, Serializable {
     g.setColor(c1);
 
     if (drawTop)
-      g.drawLine(x, y + 1, x + width - 1, y + 1);
+      GraphicsUtil.drawOptimizedLine(g, x, y + 1, x + width - 1, y + 1);
 
     if (drawLeft)
-      g.drawLine(x + 1, y, x + 1, y + height - 1);
+      GraphicsUtil.drawOptimizedLine(g, x + 1, y, x + 1, y + height - 1);
 
     g.setColor(c2);
 
     if (drawBottom)
-      g.drawLine(x, y + height - 2, x + width - 1, y + height - 2);
+      GraphicsUtil.drawOptimizedLine(g, x, y + height - 2, x + width - 1, y + height - 2);
 
     if (drawRight)
-      g.drawLine(x + width - 2, y, x + width - 2, y + height - 1);
+      GraphicsUtil.drawOptimizedLine(g, x + width - 2, y, x + width - 2, y + height - 1);
 
     g.setColor(c1);
 
     if (drawBottom)
-      g.drawLine(x, y + height - 1, x + width - 1, y + height - 1);
+      GraphicsUtil.drawOptimizedLine(g, x, y + height - 1, x + width - 1, y + height - 1);
 
     if (drawRight)
-      g.drawLine(x + width - 1, y, x + width - 1, y + height - 1);
+      GraphicsUtil.drawOptimizedLine(g, x + width - 1, y, x + width - 1, y + height - 1);
 
     g.setColor(c2);
 
     if (drawTop)
-      g.drawLine(x, y, x + width - 1, y);
+      GraphicsUtil.drawOptimizedLine(g, x, y, x + width - 1, y);
 
     if (drawLeft)
-      g.drawLine(x, y, x, y + height - 1);
+      GraphicsUtil.drawOptimizedLine(g, x, y, x, y + height - 1);
 
     g.setColor(ComponentUtil.getBackgroundColor(c));
 
     if (drawTop && drawRight)
-      g.drawLine(x + width - 2, y + 1, x + width - 1, y);
+      GraphicsUtil.drawOptimizedLine(g, x + width - 2, y + 1, x + width - 1, y);
 
     if (drawBottom && drawLeft)
-      g.drawLine(x, y + height - 1, x + 1, y + height - 2);
+      GraphicsUtil.drawOptimizedLine(g, x, y + height - 1, x + 1, y + height - 2);
   }
 }

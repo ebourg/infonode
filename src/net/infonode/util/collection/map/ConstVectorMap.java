@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ConstVectorMap.java,v 1.7 2005/02/16 11:28:13 jesper Exp $
+// $Id: ConstVectorMap.java,v 1.8 2005/03/17 16:13:03 jesper Exp $
 package net.infonode.util.collection.map;
 
 import net.infonode.util.collection.map.base.ConstMap;
@@ -101,8 +101,8 @@ public class ConstVectorMap implements ConstMap {
     return maps.size();
   }
 
-  public void removeMap(int index) {
-    maps.remove(index);
+  public ConstMap removeMap(int index) {
+    return (ConstMap) maps.remove(index);
   }
 
   public Object get(Object key) {

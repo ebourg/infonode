@@ -20,7 +20,7 @@
  */
 
 
-// $Id: DockingWindowDragSource.java,v 1.5 2005/02/16 11:28:14 jesper Exp $
+// $Id: DockingWindowDragSource.java,v 1.7 2005/06/10 14:13:41 johan Exp $
 package net.infonode.docking.drag;
 
 import net.infonode.gui.draggable.DraggableComponent;
@@ -36,8 +36,8 @@ import java.awt.*;
  * the key set in the {@link net.infonode.docking.properties.RootWindowProperties#ABORT_DRAG_KEY} property of the
  * {@link net.infonode.docking.RootWindow} which is the drop target.
  *
- * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @author $Author: johan $
+ * @version $Revision: 1.7 $
  * @since IDW 1.3.0
  */
 public class DockingWindowDragSource {
@@ -79,10 +79,10 @@ public class DockingWindowDragSource {
           draggableComponent.setAbortDragKeyCode(dragger.getDropTarget().getRootWindowProperties().getAbortDragKey());
         }
 
-        if (startPoint != null &&
+        /*if (startPoint != null &&
             Math.abs(startPoint.x - event.getMouseEvent().getX()) +
             Math.abs(startPoint.y - event.getMouseEvent().getY()) < 16)
-          return;
+          return;*/
 
         startPoint = null;
         dragger.dragWindow(event.getMouseEvent());

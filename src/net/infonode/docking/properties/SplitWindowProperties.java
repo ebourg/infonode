@@ -20,18 +20,21 @@
  */
 
 
-// $Id: SplitWindowProperties.java,v 1.18 2005/02/16 11:28:14 jesper Exp $
+// $Id: SplitWindowProperties.java,v 1.20 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.propertymap.*;
 import net.infonode.properties.types.BooleanProperty;
+import net.infonode.properties.types.ColorProperty;
 import net.infonode.properties.types.IntegerProperty;
+
+import java.awt.*;
 
 /**
  * Properties and property values for split windows.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.18 $
+ * @version $Revision: 1.20 $
  */
 public class SplitWindowProperties extends PropertyMapContainer {
   /**
@@ -70,6 +73,17 @@ public class SplitWindowProperties extends PropertyMapContainer {
                           "Divider Location Drag Enabled",
                           "When enabled the user can drag the SplitWindow divider to a new location.",
                           PropertyMapValueHandler.INSTANCE);
+
+  /**
+   * The split pane drag indicator color.
+   *
+   * @since IDW 1.4.0
+   */
+  public static final ColorProperty DRAG_INDICATOR_COLOR =
+      new ColorProperty(PROPERTIES,
+                        "Drag Indicator Color",
+                        "The color for the divider's drag indicator that is shown when continuous layout is disabled.",
+                        PropertyMapValueHandler.INSTANCE);
 
   /**
    * Creates an empty property object.
@@ -149,6 +163,28 @@ public class SplitWindowProperties extends PropertyMapContainer {
    */
   public int getDividerSize() {
     return DIVIDER_SIZE.get(getMap());
+  }
+
+  /**
+   * Sets the split pane drag indicator color.
+   *
+   * @param color the color for the drag indicator
+   * @return this
+   * @since IDW 1.4.0
+   */
+  public SplitWindowProperties setDragIndicatorColor(Color color) {
+    DRAG_INDICATOR_COLOR.set(getMap(), color);
+    return this;
+  }
+
+  /**
+   * Returns the split pane drag indicator color.
+   *
+   * @return the split pane drag indicator color
+   * @since IDW 1.4.0
+   */
+  public Color getDragIndicatorColor() {
+    return DRAG_INDICATOR_COLOR.get(getMap());
   }
 
   /**

@@ -20,14 +20,11 @@
  */
 
 
-// $Id: WindowMenuUtil.java,v 1.21 2005/02/16 11:28:14 jesper Exp $
+// $Id: WindowMenuUtil.java,v 1.26 2005/11/06 18:32:02 jesper Exp $
 package net.infonode.docking.util;
 
 import net.infonode.docking.*;
-import net.infonode.docking.action.CloseWithAbortWindowAction;
-import net.infonode.docking.action.MaximizeWindowAction;
-import net.infonode.docking.action.MinimizeWindowAction;
-import net.infonode.docking.action.RestoreWindowAction;
+import net.infonode.docking.action.*;
 import net.infonode.docking.internalutil.InternalDockingUtil;
 import net.infonode.gui.icon.button.ArrowIcon;
 import net.infonode.gui.menu.MenuUtil;
@@ -43,7 +40,7 @@ import java.awt.event.ActionListener;
  * Class containing utility methods for creating window popup menues.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.21 $
+ * @version $Revision: 1.26 $
  */
 public final class WindowMenuUtil {
   private WindowMenuUtil() {
@@ -89,13 +86,19 @@ public final class WindowMenuUtil {
   }
 
   private static void addWindowMenuItems(JPopupMenu menu, DockingWindow window) {
-    menu.add(RestoreWindowAction.INSTANCE.getAction(window).toSwingAction());
-    menu.add(MinimizeWindowAction.INSTANCE.getAction(window).toSwingAction());
+    menu.add(UndockWithAbortWindowAction.INSTANCE.getAction(window).toSwingAction());
+    menu.add(DockWithAbortWindowAction.INSTANCE.getAction(window).toSwingAction());
+    menu.add(RestoreWithAbortWindowAction.INSTANCE.getAction(window).toSwingAction());
+    menu.add(MinimizeWithAbortWindowAction.INSTANCE.getAction(window).toSwingAction());
 
     if (window instanceof TabWindow)
-      menu.add(MaximizeWindowAction.INSTANCE.getAction(window).toSwingAction());
+      menu.add(MaximizeWithAbortWindowAction.INSTANCE.getAction(window).toSwingAction());
 
     menu.add(CloseWithAbortWindowAction.INSTANCE.getAction(window).toSwingAction());
+
+    if (window.getWindowParent() instanceof AbstractTabWindow)
+      menu.add(CloseOthersWindowAction.INSTANCE.getAction(window).toSwingAction());
+
     JMenu moveToMenu = getMoveToMenuItems(window);
 
     if (moveToMenu.getItemCount() > 0) {

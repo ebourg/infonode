@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ViewItem.java,v 1.7 2005/02/16 11:28:14 jesper Exp $
+// $Id: ViewItem.java,v 1.8 2005/06/19 20:56:31 jesper Exp $
 package net.infonode.docking.model;
 
 import net.infonode.docking.DockingWindow;
@@ -37,7 +37,7 @@ import java.util.ArrayList;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public class ViewItem extends WindowItem {
   private ViewProperties viewProperties = new ViewProperties();
@@ -65,7 +65,7 @@ public class ViewItem extends WindowItem {
     out.writeInt(WindowItemDecoder.VIEW);
     DockingWindow window = getConnectedWindow();
     viewWriter.writeView((View) getConnectedWindow(), out, context);
-    out.writeBoolean(window != null && !window.isMinimized() && window.getRootWindow() != null);
+    out.writeBoolean(window != null && !window.isMinimized() && !window.isUndocked() && window.getRootWindow() != null);
   }
 
   public DockingWindow read(ObjectInputStream in, ReadContext context, ViewReader viewReader) throws IOException {

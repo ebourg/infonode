@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabbedPanelProperties.java,v 1.53 2005/02/16 11:28:15 jesper Exp $
+// $Id: TabbedPanelProperties.java,v 1.60 2005/12/04 13:46:05 jesper Exp $
 
 package net.infonode.tabbedpanel;
 
@@ -52,7 +52,7 @@ import java.util.HashMap;
  * the TabbedPanel.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.53 $
+ * @version $Revision: 1.60 $
  * @see TabbedPanel
  * @see #getContentPanelProperties
  * @see #getTabAreaProperties
@@ -413,6 +413,12 @@ public class TabbedPanelProperties extends PropertyMapContainer {
       public void propertiesChanged() {
         updateVisualProperties();
       }
+
+      public void propertiesChanging() {
+      }
+
+      public void lookAndFeelChanging() {
+      }
     });
 
     updateVisualProperties();
@@ -436,10 +442,15 @@ public class TabbedPanelProperties extends PropertyMapContainer {
             new OpenContentBorder(TabbedUIDefaults.getDarkShadow(), TabbedUIDefaults.getHighlight()))
             .setInsets(TabbedUIDefaults.getContentAreaInsets())
             .setBackgroundColor(TabbedUIDefaults.getContentAreaBackground());
+        DEFAULT_PROPERTIES.getContentPanelProperties().getShapedPanelProperties().setOpaque(true);
+
         DEFAULT_PROPERTIES.getTabAreaComponentsProperties().setStretchEnabled(false).getComponentProperties()
             .setBorder(new CompoundBorder(new TabAreaLineBorder(TabbedUIDefaults.getDarkShadow()),
                                           new HighlightBorder(false, TabbedUIDefaults.getHighlight())))
             .setBackgroundColor(TabbedUIDefaults.getContentAreaBackground());
+        DEFAULT_PROPERTIES.getTabAreaComponentsProperties().getShapedPanelProperties().setOpaque(true);
+
+        DEFAULT_PROPERTIES.getTabAreaProperties().getShapedPanelProperties().setOpaque(false);
       }
     });
   }
@@ -464,6 +475,8 @@ public class TabbedPanelProperties extends PropertyMapContainer {
         .setShadowBlendAreaSize(2)
         .setShadowColor(Color.BLACK)
         .setShadowStrength(0.4F);
+
+    DEFAULT_PROPERTIES.getTabAreaProperties().setTabAreaVisiblePolicy(TabAreaVisiblePolicy.ALWAYS);
 
     HashMap buttonMap = new HashMap();
     buttonMap.put(Direction.DOWN, DEFAULT_PROPERTIES.getButtonProperties().getScrollDownButtonProperties());
@@ -547,6 +560,19 @@ public class TabbedPanelProperties extends PropertyMapContainer {
    */
   public TabbedPanelProperties removeSuperObject(TabbedPanelProperties superObject) {
     getMap().removeSuperMap(superObject.getMap());
+    return this;
+  }
+
+  /**
+   * Replaces the given super objects.
+   *
+   * @param oldSuperObject old super object
+   * @param newSuperObject new super object
+   * @return this
+   * @since ITP 1.4.0
+   */
+  public TabbedPanelProperties replaceSuperObject(TabbedPanelProperties oldSuperObject, TabbedPanelProperties newSuperObject) {
+    getMap().replaceSuperMap(oldSuperObject.getMap(), newSuperObject.getMap());
     return this;
   }
 

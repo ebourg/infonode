@@ -20,7 +20,7 @@
  */
 
 
-// $Id: InfoNodeLookAndFeelThemes.java,v 1.9 2005/02/16 11:28:12 jesper Exp $
+// $Id: InfoNodeLookAndFeelThemes.java,v 1.17 2005/12/04 13:46:03 jesper Exp $
 package net.infonode.gui.laf;
 
 import net.infonode.gui.Colors;
@@ -32,7 +32,7 @@ import java.awt.*;
  * Contains some predefined InfoNode look and feel themes.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.17 $
  */
 public class InfoNodeLookAndFeelThemes {
   private InfoNodeLookAndFeelThemes() {
@@ -94,6 +94,32 @@ public class InfoNodeLookAndFeelThemes {
                                                                   Color.BLACK,
                                                                   0.3);
     theme.setPrimaryControlColor(ColorUtil.mult(color, 0.9));
+    return theme;
+  }
+
+  /**
+   * A low contrast theme with a softer tone.
+   *
+   * @return the theme
+   */
+  public static InfoNodeLookAndFeelTheme getSoftGrayTheme() {
+    InfoNodeLookAndFeelTheme theme = new InfoNodeLookAndFeelTheme("Soft Gray Theme",
+                                                                  /*new Color(230, 225, 217)*/new Color(230, 230, 233),
+                                                                  new Color(212, 220, 236),
+                                                                  new Color(255, 255, 255),
+                                                                  new Color(0, 0, 0),
+                                                                  new Color(76, 113, 188),
+                                                                  new Color(255, 255, 255),
+                                                                  0.2);
+    theme.setActiveInternalFrameTitleBackgroundColor(new Color(76, 113, 188));
+    //theme.setActiveInternalFrameTitleBackgroundColor(new Color(118, 146, 204));
+    theme.setActiveInternalFrameTitleForegroundColor(Color.WHITE);
+    theme.setActiveInternalFrameTitleGradientColor(new Color(80, 135, 248));
+    //theme.setActiveInternalFrameTitleGradientColor(new Color(149, 182, 251));
+    theme.setInactiveInternalFrameTitleBackgroundColor(new Color(220, 220, 222)/*new Color(210, 206, 198)*/);
+    theme.setInactiveInternalFrameTitleForegroundColor(Color.BLACK);
+    theme.setInactiveInternalFrameTitleGradientColor(new Color(240, 240, 243));
+
     return theme;
   }
 

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: Tab.java,v 1.28 2005/02/16 11:28:15 jesper Exp $
+// $Id: Tab.java,v 1.33 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.gui.draggable.DraggableComponent;
@@ -69,7 +69,7 @@ import java.util.ArrayList;
  * </ul></p>
  *
  * @author $Author: jesper $
- * @version $Revision: 1.28 $
+ * @version $Revision: 1.33 $
  * @see TabListener
  * @see TabbedPanel
  * @see TitledTab
@@ -97,8 +97,8 @@ public class Tab extends JPanel {
             return;
 
           if (tab.getFocusableComponent() != null) {
-            tab.getFocusableComponent().setFocusable(true);
-            tab.getFocusableComponent().requestFocusInWindow();
+            /*tab.getFocusableComponent().setFocusable(true);
+            tab.getFocusableComponent().requestFocusInWindow();*/
             tab.setSelected(true);
             break;
           }
@@ -142,26 +142,26 @@ public class Tab extends JPanel {
 
     public void tabSelected(TabStateChangedEvent event) {
       if (event.getTab() == Tab.this) {
+        Tab tab = event.getPreviousTab();
+        boolean hasFocus = tab != null && tab.getFocusableComponent() != null && tab.getFocusableComponent().hasFocus();
+
+        if (tab != null && tab.getFocusableComponent() != null)
+          tab.getFocusableComponent().setFocusable(false);
+
+        if (focusableComponent != null) {
+          focusableComponent.setFocusable(true);
+
+          if (hasFocus)
+            focusableComponent.requestFocusInWindow();
+        }
+
         fireSelectedEvent(event);
-        SwingUtilities.invokeLater(new Runnable() {
-          public void run() {
-            if (focusableComponent != null)
-              focusableComponent.setFocusable(true);
-          }
-        });
       }
     }
 
     public void tabDeselected(TabStateChangedEvent event) {
       if (event.getTab() == Tab.this) {
         fireDeselectedEvent(event);
-        SwingUtilities.invokeLater(new Runnable() {
-          public void run() {
-            if (focusableComponent != null) {
-              focusableComponent.setFocusable(false);
-            }
-          }
-        });
       }
     }
 
@@ -379,11 +379,22 @@ public class Tab extends JPanel {
    *                           should be focusable
    */
   public void setFocusableComponent(JComponent focusableComponent) {
-    if (this.focusableComponent != null)
-      this.focusableComponent.removeKeyListener(focusableKeyListener);
-    this.focusableComponent = focusableComponent;
-    if (this.focusableComponent != null)
-      this.focusableComponent.addKeyListener(focusableKeyListener);
+    if (this.focusableComponent != focusableComponent) {
+      boolean hasFocus = false;
+
+      if (this.focusableComponent != null) {
+        this.focusableComponent.removeKeyListener(focusableKeyListener);
+        hasFocus = this.focusableComponent.hasFocus();
+      }
+
+      this.focusableComponent = focusableComponent;
+      if (this.focusableComponent != null) {
+        this.focusableComponent.setFocusable(isSelected());
+        this.focusableComponent.addKeyListener(focusableKeyListener);
+        if (hasFocus)
+          this.focusableComponent.requestFocusInWindow();
+      }
+    }
   }
 
   /**
@@ -523,5 +534,15 @@ public class Tab extends JPanel {
       for (int i = 0; i < l.length; i++)
         ((TabListener) l[i]).tabRemoved(e);
     }
+  }
+
+  public void addNotify() {
+    if (!draggableComponent.isIgnoreAddNotify())
+      super.addNotify();
+  }
+
+  public void removeNotify() {
+    if (!draggableComponent.isIgnoreAddNotify())
+      super.removeNotify();
   }
 }

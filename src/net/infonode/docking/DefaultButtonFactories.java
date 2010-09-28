@@ -20,7 +20,7 @@
  */
 
 
-// $Id: DefaultButtonFactories.java,v 1.5 2004/09/28 15:07:29 jesper Exp $
+// $Id: DefaultButtonFactories.java,v 1.7 2005/04/21 15:38:10 johan Exp $
 package net.infonode.docking;
 
 import net.infonode.gui.button.ButtonFactory;
@@ -29,8 +29,8 @@ import net.infonode.gui.button.FlatButtonFactory;
 /**
  * Contains the default window button factories used in window tabs and {@link TabWindow}'s.
  *
- * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @author $Author: johan $
+ * @version $Revision: 1.7 $
  * @since IDW 1.1.0
  */
 public class DefaultButtonFactories {
@@ -72,6 +72,26 @@ public class DefaultButtonFactories {
    * @return the default restore button factory
    */
   public static ButtonFactory getRestoreButtonFactory() {
+    return BUTTON_FACTORY;
+  }
+
+  /**
+   * Returns the default undock button factory.
+   *
+   * @return the default undock button factory
+   * @since IDW 1.4.0
+   */
+  public static ButtonFactory getUndockButtonFactory() {
+    return BUTTON_FACTORY;
+  }
+
+  /**
+   * Returns the default dock button factory.
+   *
+   * @return the default dock button factory
+   * @since IDW 1.4.0
+   */
+  public static ButtonFactory getDockButtonFactory() {
     return BUTTON_FACTORY;
   }
 }
