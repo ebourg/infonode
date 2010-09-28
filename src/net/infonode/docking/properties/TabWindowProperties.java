@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabWindowProperties.java,v 1.21 2008/04/03 23:17:57 jesper Exp $
+// $Id: TabWindowProperties.java,v 1.22 2009/02/24 13:49:23 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.propertymap.*;
@@ -31,7 +31,7 @@ import net.infonode.tabbedpanel.TabbedPanelProperties;
  * Properties and property values for tab windows.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.21 $
+ * @version $Revision: 1.22 $
  */
 public class TabWindowProperties extends PropertyMapContainer {
   /**
@@ -43,19 +43,19 @@ public class TabWindowProperties extends PropertyMapContainer {
    * Property values for the tabbed panel in the tab window.
    */
   public static final PropertyMapProperty TABBED_PANEL_PROPERTIES =
-      new PropertyMapProperty(PROPERTIES,
-                              "Tabbed Panel Properties",
-                              "Property values for the tabbed panel in the TabWindow.",
-                              TabbedPanelProperties.PROPERTIES);
+    new PropertyMapProperty(PROPERTIES,
+        "Tabbed Panel Properties",
+        "Property values for the tabbed panel in the TabWindow.",
+        TabbedPanelProperties.PROPERTIES);
 
   /**
    * Default property values for the window tabs in the tab window.
    */
   public static final PropertyMapProperty TAB_PROPERTIES =
-      new PropertyMapProperty(PROPERTIES,
-                              "Tab Properties",
-                              "Default property values for the window tabs in the TabWindow.",
-                              WindowTabProperties.PROPERTIES);
+    new PropertyMapProperty(PROPERTIES,
+        "Tab Properties",
+        "Default property values for the window tabs in the TabWindow.",
+        WindowTabProperties.PROPERTIES);
 
   /**
    * The minimize button property values.
@@ -63,9 +63,9 @@ public class TabWindowProperties extends PropertyMapContainer {
    * @since IDW 1.1.0
    */
   public static final PropertyMapProperty MINIMIZE_BUTTON_PROPERTIES = new PropertyMapProperty(PROPERTIES,
-                                                                                               "Minimize Button Properties",
-                                                                                               "The minimize button property values.",
-                                                                                               WindowTabButtonProperties.PROPERTIES);
+      "Minimize Button Properties",
+      "The minimize button property values.",
+      WindowTabButtonProperties.PROPERTIES);
 
   /**
    * The restore button property values.
@@ -73,9 +73,9 @@ public class TabWindowProperties extends PropertyMapContainer {
    * @since IDW 1.1.0
    */
   public static final PropertyMapProperty RESTORE_BUTTON_PROPERTIES = new PropertyMapProperty(PROPERTIES,
-                                                                                              "Restore Button Properties",
-                                                                                              "The restore button property values.",
-                                                                                              WindowTabButtonProperties.PROPERTIES);
+      "Restore Button Properties",
+      "The restore button property values.",
+      WindowTabButtonProperties.PROPERTIES);
 
   /**
    * The close button property values.
@@ -83,9 +83,9 @@ public class TabWindowProperties extends PropertyMapContainer {
    * @since IDW 1.1.0
    */
   public static final PropertyMapProperty CLOSE_BUTTON_PROPERTIES = new PropertyMapProperty(PROPERTIES,
-                                                                                            "Close Button Properties",
-                                                                                            "The close button property values.",
-                                                                                            WindowTabButtonProperties.PROPERTIES);
+      "Close Button Properties",
+      "The close button property values.",
+      WindowTabButtonProperties.PROPERTIES);
 
   /**
    * The maximize button property values.
@@ -93,9 +93,9 @@ public class TabWindowProperties extends PropertyMapContainer {
    * @since IDW 1.1.0
    */
   public static final PropertyMapProperty MAXIMIZE_BUTTON_PROPERTIES = new PropertyMapProperty(PROPERTIES,
-                                                                                               "Maximize Button Properties",
-                                                                                               "The maximize button property values.",
-                                                                                               WindowTabButtonProperties.PROPERTIES);
+      "Maximize Button Properties",
+      "The maximize button property values.",
+      WindowTabButtonProperties.PROPERTIES);
 
 
   /**
@@ -104,9 +104,9 @@ public class TabWindowProperties extends PropertyMapContainer {
    * @since IDW 1.4.0
    */
   public static final PropertyMapProperty UNDOCK_BUTTON_PROPERTIES = new PropertyMapProperty(PROPERTIES,
-                                                                                             "Undock Button Properties",
-                                                                                             "The undock button property values.",
-                                                                                             WindowTabButtonProperties.PROPERTIES);
+      "Undock Button Properties",
+      "The undock button property values.",
+      WindowTabButtonProperties.PROPERTIES);
 
 
   /**
@@ -115,20 +115,20 @@ public class TabWindowProperties extends PropertyMapContainer {
    * @since IDW 1.4.0
    */
   public static final PropertyMapProperty DOCK_BUTTON_PROPERTIES = new PropertyMapProperty(PROPERTIES,
-                                                                                           "Dock Button Properties",
-                                                                                           "The dock button property values.",
-                                                                                           WindowTabButtonProperties.PROPERTIES);
+      "Dock Button Properties",
+      "The dock button property values.",
+      WindowTabButtonProperties.PROPERTIES);
 
   /**
-   * The repect child windows minimum sizes property.
+   * The respect child windows minimum sizes property.
    *
    * @since IDW 1.5.0
    */
   public static final BooleanProperty RESPECT_CHILD_WINDOW_MINIMUM_SIZE =
-      new BooleanProperty(PROPERTIES,
-                          "Respect Child Window Minimum Size",
-                          "When enabled the Tab Window will respect its child windows minimum sizes.",
-                          PropertyMapValueHandler.INSTANCE);
+    new BooleanProperty(PROPERTIES,
+        "Respect Child Window Minimum Size",
+        "When enabled the Tab Window will respect its child windows minimum sizes.",
+        PropertyMapValueHandler.INSTANCE);
 
   /**
    * Creates an empty property object.

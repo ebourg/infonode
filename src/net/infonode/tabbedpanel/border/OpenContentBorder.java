@@ -20,7 +20,7 @@
  */
 
 
-// $Id: OpenContentBorder.java,v 1.30 2009/02/05 15:57:55 jesper Exp $
+// $Id: OpenContentBorder.java,v 1.31 2009/02/24 13:49:23 jesper Exp $
 package net.infonode.tabbedpanel.border;
 
 import java.awt.*;
@@ -55,7 +55,7 @@ import net.infonode.util.Direction;
  * </p>
  *
  * @author $Author: jesper $
- * @version $Revision: 1.30 $
+ * @version $Revision: 1.31 $
  * @see TabbedPanel
  */
 public class OpenContentBorder implements Border, Serializable {
@@ -173,6 +173,7 @@ public class OpenContentBorder implements Border, Serializable {
       for (; !it.isDone(); it.next()) {
         float lastX = coords[0];
         float lastY = coords[1];
+        it.currentSegment(coords);
         int li = getLineIntersection(edge, lastX, lastY, coords[0], coords[1], orientation);
 
         if (li != Integer.MAX_VALUE) {
