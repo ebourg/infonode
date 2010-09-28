@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabWindowHoverAction.java,v 1.3 2005/12/04 13:46:05 jesper Exp $
+// $Id: TabWindowHoverAction.java,v 1.4 2007/01/28 21:25:10 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.properties.ViewTitleBarProperties;
@@ -91,7 +91,9 @@ public class TabWindowHoverAction implements HoverListener {
     this(new TabbedPanelProperties(), new TitledTabProperties(), new ViewTitleBarProperties());
   }
 
-  public TabWindowHoverAction(TabbedPanelProperties tabbedPanelProperties, TitledTabProperties titledTabProperties, ViewTitleBarProperties viewTitleBarProperties) {
+  public TabWindowHoverAction(TabbedPanelProperties tabbedPanelProperties,
+                              TitledTabProperties titledTabProperties,
+                              ViewTitleBarProperties viewTitleBarProperties) {
     this.tabbedPanelProperties = tabbedPanelProperties;
     this.titledTabProperties = titledTabProperties;
     this.viewTitleBarProperties = viewTitleBarProperties;

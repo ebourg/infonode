@@ -20,7 +20,7 @@
  */
 
 
-// $Id: DeveloperUtil.java,v 1.8 2005/12/04 13:46:05 jesper Exp $
+// $Id: DeveloperUtil.java,v 1.9 2007/01/28 21:25:10 jesper Exp $
 package net.infonode.docking.util;
 
 import net.infonode.docking.*;
@@ -41,7 +41,7 @@ import java.awt.event.ActionListener;
  * </p>
  *
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  * @since IDW 1.4.0
  */
 public class DeveloperUtil {
@@ -154,8 +154,9 @@ public class DeveloperUtil {
 
           if (bar.getChildWindowCount() > 0) {
             for (int k = 0; k < bar.getChildWindowCount(); k++)
-              s += "<rootWindow>.getWindowBar(Direction." + bar.getDirection().toString().toUpperCase() + ").addTab(" + getDockingWindowLayout(
-                  bar.getChildWindow(k), depth) + ");\n";
+              s += "<rootWindow>.getWindowBar(Direction." + bar.getDirection().toString().toUpperCase() + ").addTab(" +
+                   getDockingWindowLayout(
+                       bar.getChildWindow(k), depth) + ");\n";
             s += "\n";
           }
         }
@@ -163,7 +164,8 @@ public class DeveloperUtil {
           FloatingWindow fw = (FloatingWindow) w;
           Point loc = fw.getTopLevelAncestor().getLocation();
           Dimension size = fw.getRootPane().getSize();
-          s += "<rootWindow>.createFloatingWindow(new Point(" + loc.x + ", " + loc.y + "), new Dimension(" + size.width + ", " + size.height + "), ";
+          s += "<rootWindow>.createFloatingWindow(new Point(" + loc.x + ", " + loc.y + "), new Dimension(" + size
+              .width + ", " + size.height + "), ";
           s += getDockingWindowLayout(fw.getChildWindow(0), depth);
           s += ");\n\n";
         }

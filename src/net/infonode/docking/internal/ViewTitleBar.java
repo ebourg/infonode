@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ViewTitleBar.java,v 1.23 2005/12/04 13:46:04 jesper Exp $
+// $Id: ViewTitleBar.java,v 1.24 2007/01/28 21:25:10 jesper Exp $
 package net.infonode.docking.internal;
 
 import net.infonode.docking.View;
@@ -49,12 +49,12 @@ import java.util.Map;
  */
 public class ViewTitleBar extends ContentTitleBar {
   private static final ButtonInfo[] buttonInfos = {
-    new UndockButtonInfo(ViewTitleBarStateProperties.UNDOCK_BUTTON_PROPERTIES),
-    new DockButtonInfo(ViewTitleBarStateProperties.DOCK_BUTTON_PROPERTIES),
-    new MinimizeButtonInfo(ViewTitleBarStateProperties.MINIMIZE_BUTTON_PROPERTIES),
-    new MaximizeButtonInfo(ViewTitleBarStateProperties.MAXIMIZE_BUTTON_PROPERTIES),
-    new RestoreButtonInfo(ViewTitleBarStateProperties.RESTORE_BUTTON_PROPERTIES),
-    new CloseButtonInfo(ViewTitleBarStateProperties.CLOSE_BUTTON_PROPERTIES)};
+      new UndockButtonInfo(ViewTitleBarStateProperties.UNDOCK_BUTTON_PROPERTIES),
+      new DockButtonInfo(ViewTitleBarStateProperties.DOCK_BUTTON_PROPERTIES),
+      new MinimizeButtonInfo(ViewTitleBarStateProperties.MINIMIZE_BUTTON_PROPERTIES),
+      new MaximizeButtonInfo(ViewTitleBarStateProperties.MAXIMIZE_BUTTON_PROPERTIES),
+      new RestoreButtonInfo(ViewTitleBarStateProperties.RESTORE_BUTTON_PROPERTIES),
+      new CloseButtonInfo(ViewTitleBarStateProperties.CLOSE_BUTTON_PROPERTIES)};
 
   private DimensionProvider minimumSizeProvider;
   private net.infonode.docking.View view;
@@ -187,7 +187,7 @@ public class ViewTitleBar extends ContentTitleBar {
                                       null,
                                       view,
                                       view.getViewProperties().getViewTitleBarProperties().getNormalProperties()
-                                      .getMap(),
+                                          .getMap(),
                                       changes);
 
     if (shouldUpdateButtons())
@@ -221,7 +221,7 @@ public class ViewTitleBar extends ContentTitleBar {
                     new Insets(0, 0, 0, 0) :
                     new Insets(0,
                                view.getViewProperties().getViewTitleBarProperties().getNormalProperties()
-                               .getButtonSpacing(),
+                                   .getButtonSpacing(),
                                0,
                                0);
       }
@@ -234,7 +234,7 @@ public class ViewTitleBar extends ContentTitleBar {
                   new Insets(0, 0, 0, 0) :
                   new Insets(0,
                              view.getViewProperties().getViewTitleBarProperties().getNormalProperties()
-                             .getButtonSpacing(),
+                                 .getButtonSpacing(),
                              0,
                              0);
     }

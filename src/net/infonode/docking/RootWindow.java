@@ -20,7 +20,7 @@
  */
 
 
-// $Id: RootWindow.java,v 1.125 2005/12/04 13:46:05 jesper Exp $
+// $Id: RootWindow.java,v 1.127 2007/01/28 21:25:10 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.action.*;
@@ -67,7 +67,7 @@ import java.util.ArrayList;
  * window. The property values of a root window is inherited to the docking windows inside it.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.125 $
+ * @version $Revision: 1.127 $
  */
 public class RootWindow extends DockingWindow implements ReadWritable {
   private static final int SERIALIZE_VERSION = 4;
@@ -390,13 +390,14 @@ public class RootWindow extends DockingWindow implements ReadWritable {
     Point pos = SwingUtilities.convertPoint(window.getParent(), window.getLocation(), this);
 
     int[] distances = new int[]{
-      getWindowBar(Direction.UP).isEnabled() ? pos.y + window.getHeight() : Integer.MAX_VALUE,
-      getWindowBar(Direction.DOWN).isEnabled() ? getHeight() - pos.y : Integer.MAX_VALUE,
-      getWindowBar(Direction.LEFT).isEnabled() ? pos.x + window.getWidth() : Integer.MAX_VALUE,
-      getWindowBar(Direction.RIGHT).isEnabled() ? getWidth() - pos.x : Integer.MAX_VALUE};
+        getWindowBar(Direction.UP).isEnabled() ? pos.y + window.getHeight() : Integer.MAX_VALUE,
+        getWindowBar(Direction.DOWN).isEnabled() ? getHeight() - pos.y : Integer.MAX_VALUE,
+        getWindowBar(Direction.LEFT).isEnabled() ? pos.x + window.getWidth() : Integer.MAX_VALUE,
+        getWindowBar(Direction.RIGHT).isEnabled() ? getWidth() - pos.x : Integer.MAX_VALUE};
 
-    Direction dir = new Direction[]{Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT}[ArrayUtil.findSmallest(
-        distances)];
+    Direction dir =
+        new Direction[]{Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT}[ArrayUtil.findSmallest(
+            distances)];
     return getWindowBar(dir).isEnabled() ? dir : null;
   }
 
@@ -490,8 +491,8 @@ public class RootWindow extends DockingWindow implements ReadWritable {
     if (size.width <= 0 || size.height <= 0) {
       Dimension preferred = window.getPreferredSize();
       size =
-      new Dimension(Math.max(FLOATING_WINDOW_MIN_WIDTH, preferred.width),
-                    Math.max(FLOATING_WINDOW_MIN_HEIGHT, preferred.height));
+          new Dimension(Math.max(FLOATING_WINDOW_MIN_WIDTH, preferred.width),
+                        Math.max(FLOATING_WINDOW_MIN_HEIGHT, preferred.height));
     }
 
     FloatingWindow fw = createFloatingWindow(p, size, window);
@@ -562,7 +563,8 @@ public class RootWindow extends DockingWindow implements ReadWritable {
 
     writeViews(v, out, context);
     ViewWriter viewWriter = new ViewWriter() {
-      public void writeWindowItem(WindowItem windowItem, ObjectOutputStream out, WriteContext context) throws IOException {
+      public void writeWindowItem(WindowItem windowItem, ObjectOutputStream out, WriteContext context) throws
+                                                                                                       IOException {
         if (windowItem.getRootItem() == getWindowItem()) {
           out.writeBoolean(true);
           writeWindowItemIndex(windowItem, out);
@@ -1038,6 +1040,7 @@ public class RootWindow extends DockingWindow implements ReadWritable {
   boolean floatingWindowsContainPoint(Point p) {
     for (int i = 0; i < floatingWindows.size(); i++) {
       FloatingWindow c = ((FloatingWindow) floatingWindows.get(i));
+
       if (c.isShowing() && c.windowContainsPoint(SwingUtilities.convertPoint(getRootPane(), p, c)))
         return true;
     }
@@ -1110,9 +1113,9 @@ public class RootWindow extends DockingWindow implements ReadWritable {
                                     (int) (p2.getY() - dragTextContainer.getHeight() + yLocationOffs));
 
       // Drag text window
-      if (!getTopLevelAncestor().contains(
-          SwingUtilities.convertPoint(currentDragRootPane, textPoint, getTopLevelAncestor())) &&
-          !floatingWindowsContainPoint(SwingUtilities.convertPoint(currentDragRootPane, textPoint, getRootPane()))) {
+      Point rp = SwingUtilities.convertPoint(currentDragRootPane, textPoint, getRootPane());
+
+      if (!getRootPane().contains(rp) && !floatingWindowsContainPoint(rp)) {
         dragTextContainer.setVisible(false);
 
         if (dragTextWindow == null) {

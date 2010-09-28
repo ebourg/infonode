@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabWindow.java,v 1.55 2005/12/04 13:46:05 jesper Exp $
+// $Id: TabWindow.java,v 1.57 2007/01/28 21:25:10 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.drag.DockingWindowDragSource;
@@ -31,9 +31,11 @@ import net.infonode.docking.internalutil.*;
 import net.infonode.docking.model.TabWindowItem;
 import net.infonode.docking.model.ViewWriter;
 import net.infonode.docking.properties.TabWindowProperties;
+import net.infonode.properties.base.Property;
 import net.infonode.properties.propertymap.PropertyMap;
 import net.infonode.properties.propertymap.PropertyMapTreeListener;
 import net.infonode.properties.propertymap.PropertyMapWeakListenerManager;
+import net.infonode.properties.util.PropertyChangeListener;
 import net.infonode.tabbedpanel.TabAdapter;
 import net.infonode.tabbedpanel.TabEvent;
 import net.infonode.tabbedpanel.TabRemovedEvent;
@@ -51,20 +53,25 @@ import java.util.Map;
  * A docking window containing a tabbed panel.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.55 $
+ * @version $Revision: 1.57 $
  */
 public class TabWindow extends AbstractTabWindow {
   private static final ButtonInfo[] buttonInfos = {
-    new UndockButtonInfo(TabWindowProperties.UNDOCK_BUTTON_PROPERTIES),
-    new DockButtonInfo(TabWindowProperties.DOCK_BUTTON_PROPERTIES),
-    new MinimizeButtonInfo(TabWindowProperties.MINIMIZE_BUTTON_PROPERTIES),
-    new MaximizeButtonInfo(TabWindowProperties.MAXIMIZE_BUTTON_PROPERTIES),
-    new RestoreButtonInfo(TabWindowProperties.RESTORE_BUTTON_PROPERTIES),
-    new CloseButtonInfo(TabWindowProperties.CLOSE_BUTTON_PROPERTIES)
+      new UndockButtonInfo(TabWindowProperties.UNDOCK_BUTTON_PROPERTIES),
+      new DockButtonInfo(TabWindowProperties.DOCK_BUTTON_PROPERTIES),
+      new MinimizeButtonInfo(TabWindowProperties.MINIMIZE_BUTTON_PROPERTIES),
+      new MaximizeButtonInfo(TabWindowProperties.MAXIMIZE_BUTTON_PROPERTIES),
+      new RestoreButtonInfo(TabWindowProperties.RESTORE_BUTTON_PROPERTIES),
+      new CloseButtonInfo(TabWindowProperties.CLOSE_BUTTON_PROPERTIES)
   };
 
   private AbstractButton[] buttons = new AbstractButton[buttonInfos.length];
 
+  private PropertyChangeListener minimumSizePropertiesListener = new PropertyChangeListener() {
+    public void propertyChanged(Property property, Object valueContainer, Object oldValue, Object newValue) {
+      revalidate();
+    }
+  };
   private PropertyMapTreeListener buttonFactoryListener = new PropertyMapTreeListener() {
     public void propertyValuesChanged(Map changes) {
       doUpdateButtonVisibility(changes);
@@ -100,6 +107,11 @@ public class TabWindow extends AbstractTabWindow {
     super(true, windowItem == null ? new TabWindowItem() : windowItem);
 
     setTabWindowProperties(((TabWindowItem) getWindowItem()).getTabWindowProperties());
+
+    PropertyMapWeakListenerManager.addWeakPropertyChangeListener(getTabWindowProperties().getMap(),
+                                                                 TabWindowProperties.RESPECT_CHILD_WINDOW_MINIMUM_SIZE,
+                                                                 minimumSizePropertiesListener);
+
 
     new DockingWindowDragSource(getTabbedPanel(), new DockingWindowDraggerProvider() {
       public DockingWindowDragger getDragger(MouseEvent mouseEvent) {
@@ -218,7 +230,7 @@ public class TabWindow extends AbstractTabWindow {
     ((TabWindowItem) getWindowItem()).setParentTabWindowProperties(rootWindow == null ?
                                                                    TabWindowItem.emptyProperties :
                                                                    rootWindow.getRootWindowProperties()
-                                                                   .getTabWindowProperties());
+                                                                       .getTabWindowProperties());
   }
 
   protected PropertyMap getPropertyObject() {

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ClassicDockingTheme.java,v 1.10 2005/12/04 13:46:05 jesper Exp $
+// $Id: ClassicDockingTheme.java,v 1.11 2007/01/28 21:25:10 jesper Exp $
 package net.infonode.docking.theme;
 
 import net.infonode.docking.properties.RootWindowProperties;
@@ -42,7 +42,7 @@ import java.awt.*;
  * A theme with a "classic" look with round edges for the tabs.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  * @since IDW 1.2.0
  */
 public class ClassicDockingTheme extends DockingWindowsTheme {
@@ -85,7 +85,7 @@ public class ClassicDockingTheme extends DockingWindowsTheme {
         .getTabAreaComponentsProperties().getComponentProperties().setInsets(new Insets(0, 0, 0, 0));
     rootWindowProperties.getTabWindowProperties().getTabProperties().getTitledTabProperties().addSuperObject(
         titledTabProperties);
-    
+
     // Window bar
     rootWindowProperties.getWindowBarProperties().getTabWindowProperties().getTabbedPanelProperties().addSuperObject(
         tabbedPanelProperties);
@@ -108,7 +108,7 @@ public class ClassicDockingTheme extends DockingWindowsTheme {
         .getNormalProperties()
         .getComponentProperties()
         .setBorder(theme.createInsetsTabBorder(true, false, true));
-    
+
     // Tweak root window
     rootWindowProperties.getWindowAreaProperties().setBackgroundColor(null).setInsets(new Insets(0, 0, 0, 0))
         .setBorder(new EdgeBorder(UIManagerColorProvider.TABBED_PANE_DARK_SHADOW,

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowItemDecoder.java,v 1.7 2005/06/19 20:56:31 jesper Exp $
+// $Id: WindowItemDecoder.java,v 1.8 2007/01/28 21:25:10 jesper Exp $
 package net.infonode.docking.model;
 
 import net.infonode.docking.internal.ReadContext;
@@ -30,7 +30,7 @@ import java.io.ObjectInputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public class WindowItemDecoder {
   static final int SPLIT = 0;
@@ -40,7 +40,8 @@ public class WindowItemDecoder {
   private WindowItemDecoder() {
   }
 
-  static WindowItem decodeWindowItem(ObjectInputStream in, ReadContext context, ViewReader viewReader) throws IOException {
+  static WindowItem decodeWindowItem(ObjectInputStream in, ReadContext context, ViewReader viewReader) throws
+                                                                                                       IOException {
     int id = in.readInt();
 
     switch (id) {

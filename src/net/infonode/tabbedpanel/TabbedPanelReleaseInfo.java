@@ -37,8 +37,8 @@ public class TabbedPanelReleaseInfo {
   private static ReleaseInfo productInfo =
       new ReleaseInfo("InfoNode Tabbed Panel GPL",
                       "NNL Technology AB",
-                      AntUtils.getBuildTime(1133706519523L),
-                      AntUtils.createProductVersion(1, 4, 0),
+                      AntUtils.getBuildTime(1170278669833L),
+                      AntUtils.createProductVersion(1, 5, 0),
                       "GNU General Public License, Version 2",
                       "http://www.infonode.net");
 

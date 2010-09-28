@@ -20,7 +20,7 @@
  */
 
 
-// $Id: DockingWindow.java,v 1.116 2005/12/04 13:46:05 jesper Exp $
+// $Id: DockingWindow.java,v 1.119 2007/01/28 21:25:09 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.drag.DockingWindowDragger;
@@ -68,7 +68,7 @@ import java.util.Map;
  * <b>Warning: </b> the non-public methods in this class can be changed in non-compatible ways in future versions.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.116 $
+ * @version $Revision: 1.119 $
  */
 abstract public class DockingWindow extends BasePanel {
   private static int DROP_FLOATING_YOFFSET = 10;
@@ -200,7 +200,7 @@ abstract public class DockingWindow extends BasePanel {
   }
 
   protected final void updateWindowItems() {
-    windowItem.removeAll();
+    windowItem.clearWindows();
 
     for (int i = 0; i < getChildWindowCount(); i++) {
       boolean isRestore = getChildWindow(i).windowItem.isRestoreWindow();
@@ -797,8 +797,11 @@ abstract public class DockingWindow extends BasePanel {
   private void doMinimize() {
     doMinimize(windowItem.getLastMinimizedDirection() != null &&
                getRootWindow().getWindowBar(windowItem.getLastMinimizedDirection()).isEnabled() ?
-               windowItem.getLastMinimizedDirection() :
-               getRootWindow().getClosestWindowBar(this));
+                                                                                                windowItem
+                                                                                                    .getLastMinimizedDirection() :
+                                                                                                                                 getRootWindow()
+                                                                                                                                     .getClosestWindowBar(
+                                                                                                                                         this));
   }
 
   private void doMinimize(Direction direction) {
@@ -898,7 +901,12 @@ abstract public class DockingWindow extends BasePanel {
     DockingWindow nw = internalReplaceChildWindow(oldWindow, newWindow);
 
     if (getUpdateModel()) {
+      boolean isRestore = nw.getWindowItem().isRestoreWindow();
       oldWindow.windowItem.replaceWith(nw.getWindowItem());
+
+      if (!isRestore)
+        nw.updateWindowItems();
+
       cleanUpModel();
     }
   }
@@ -1617,11 +1625,12 @@ abstract public class DockingWindow extends BasePanel {
     DockingWindow fw2 = DockingUtil.getFloatingWindowFor(this);
 
     // Check getRootWindow() != window.getRootWindow() so that a view not insidedrop window's root window can be dragged to a floating window
-    if (getRootWindow() != window.getRootWindow() || ((window.getWindowProperties().getDockEnabled() || fw == null || fw2 != null) &&
-                                                      (window.getWindowProperties().getUndockEnabled() || (fw == fw2)))) {
+    if (getRootWindow() != window.getRootWindow() ||
+        ((window.getWindowProperties().getDockEnabled() || fw == null || fw2 != null) &&
+         (window.getWindowProperties().getUndockEnabled() || (fw == fw2)))) {
       da = !isShowing() || !contains(p) || hasParent(window) || (!getRootWindow().getRootWindowProperties()
           .getRecursiveTabsEnabled() && insideTab()) ?
-           null : doAcceptDrop(p, window);
+                                                     null : doAcceptDrop(p, window);
     }
     //System.out.println(!isShowing() + "  " + !contains(p) + "  " + hasParent(window) + "  " + (!getRootWindow().getRootWindowProperties().getRecursiveTabsEnabled() && insideTab()));
     //System.out.println(" \n ----- Accept drop: " + (this instanceof
@@ -1871,7 +1880,8 @@ abstract public class DockingWindow extends BasePanel {
         while (item.getParent() != null) {
           DockingWindow parentWindow = item.getParent().getConnectedWindow();
 
-          if (parentWindow != null && parentWindow.getRootWindow() != null && !parentWindow.isMinimized() && !parentWindow.isUndocked()) {
+          if (parentWindow != null && parentWindow.getRootWindow() != null && !parentWindow.isMinimized() &&
+              !parentWindow.isUndocked()) {
             if (parentWindow instanceof TabWindow)
               insertTab((TabWindow) parentWindow, this);
             else if (parentWindow instanceof RootWindow) {
@@ -2045,7 +2055,7 @@ abstract public class DockingWindow extends BasePanel {
 			throw new RuntimeException(e);
 		}
 	}*/
-  
+
   DropFilter getSplitDropFilter() {
     return getWindowProperties().getDropFilterProperties().getSplitDropFilter();
   }

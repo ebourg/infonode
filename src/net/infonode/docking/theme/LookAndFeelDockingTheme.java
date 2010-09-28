@@ -20,7 +20,7 @@
  */
 
 
-// $Id: LookAndFeelDockingTheme.java,v 1.20 2005/12/04 13:46:05 jesper Exp $
+// $Id: LookAndFeelDockingTheme.java,v 1.21 2007/01/28 21:25:10 jesper Exp $
 package net.infonode.docking.theme;
 
 import net.infonode.docking.properties.RootWindowProperties;
@@ -74,7 +74,7 @@ import java.awt.*;
  * </p>
  *
  * @author johan
- * @version $Revision: 1.20 $
+ * @version $Revision: 1.21 $
  * @see net.infonode.tabbedpanel.theme.LookAndFeelTheme
  * @since IDW 1.4.0
  */
@@ -197,8 +197,8 @@ public class LookAndFeelDockingTheme extends DockingWindowsTheme {
           barProps.getTabWindowProperties().getTabbedPanelProperties().getContentPanelProperties()
               .getShapedPanelProperties()
               .setOpaque(true).setComponentPainter(
-                  new CompoundComponentPainter(new SolidColorComponentPainter(BackgroundColorProvider.INSTANCE),
-                                               barContentPainter));
+              new CompoundComponentPainter(new SolidColorComponentPainter(BackgroundColorProvider.INSTANCE),
+                                           barContentPainter));
 
           barProps.getTabWindowProperties().getTabbedPanelProperties().getTabAreaComponentsProperties()
               .getComponentProperties()
@@ -246,8 +246,9 @@ public class LookAndFeelDockingTheme extends DockingWindowsTheme {
                                                  left == null ? 0 : 1,
                                                  bottom == null ? 0 : 1,
                                                  right == null ? 0 : 1);
-          final boolean borderOpaque = (top != null && top.getAlpha() == 255) || (left != null && left.getAlpha() == 255)
-                                       || (bottom != null && bottom.getAlpha() == 255) || (right != null && right.getAlpha() == 255);
+          final boolean borderOpaque =
+              (top != null && top.getAlpha() == 255) || (left != null && left.getAlpha() == 255)
+              || (bottom != null && bottom.getAlpha() == 255) || (right != null && right.getAlpha() == 255);
 
           final Border windowAreaBorder = new Border() {
             public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {

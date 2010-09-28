@@ -20,7 +20,7 @@
  */
 
 
-// $Id: DockingUtil.java,v 1.24 2005/12/04 13:46:05 jesper Exp $
+// $Id: DockingUtil.java,v 1.25 2007/01/28 21:25:10 jesper Exp $
 package net.infonode.docking.util;
 
 import net.infonode.docking.*;
@@ -30,7 +30,7 @@ import net.infonode.docking.internalutil.InternalDockingUtil;
  * Class that contains utility methods for docking windows.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.24 $
+ * @version $Revision: 1.25 $
  */
 public final class DockingUtil {
   private DockingUtil() {
@@ -171,7 +171,8 @@ public final class DockingUtil {
    */
   public static TabWindow getTabWindowFor(DockingWindow window) {
     return window instanceof TabWindow ? (TabWindow) window :
-           window.getWindowParent() != null && window.getWindowParent() instanceof TabWindow ? (TabWindow) window.getWindowParent() :
+           window.getWindowParent() != null && window.getWindowParent() instanceof TabWindow ?
+           (TabWindow) window.getWindowParent() :
            null;
   }
 

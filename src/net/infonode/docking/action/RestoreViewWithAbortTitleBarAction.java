@@ -20,7 +20,7 @@
  */
 
 
-// $Id: RestoreViewWithAbortTitleBarAction.java,v 1.2 2005/12/04 13:46:04 jesper Exp $
+// $Id: RestoreViewWithAbortTitleBarAction.java,v 1.3 2007/01/28 21:25:10 jesper Exp $
 
 package net.infonode.docking.action;
 
@@ -43,7 +43,7 @@ import java.io.ObjectStreamException;
  * </p>
  *
  * @author johan
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  * @since IDW 1.4.0
  */
 public class RestoreViewWithAbortTitleBarAction extends DockingWindowAction {
@@ -64,8 +64,9 @@ public class RestoreViewWithAbortTitleBarAction extends DockingWindowAction {
   }
 
   public boolean isPerformable(DockingWindow window) {
-    return window != null && (window.isMinimized() || window.isMaximized() || (window.getWindowParent() != null && window.getWindowParent()
-        .isMaximized() && window.getWindowParent().isRestorable())) && window.isRestorable();
+    return window != null && (window.isMinimized() || window.isMaximized() ||
+                              (window.getWindowParent() != null && window.getWindowParent()
+                                  .isMaximized() && window.getWindowParent().isRestorable())) && window.isRestorable();
   }
 
   public void perform(DockingWindow window) {

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: FloatingWindow.java,v 1.49 2005/12/04 13:46:05 jesper Exp $
+// $Id: FloatingWindow.java,v 1.51 2007/01/28 21:25:09 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.drop.ChildDropInfo;
@@ -100,12 +100,12 @@ import java.util.Map;
  * </pre>
  *
  * @author $Author: jesper $
- * @version $Revision: 1.49 $
+ * @version $Revision: 1.51 $
  * @since IDW 1.4.0
  */
 public class FloatingWindow extends DockingWindow {
   private DockingWindow window;
-  private JDialog dialog;
+  private Window dialog;
   private JPanel dragPanel = new SimplePanel();
   private ShapedPanel shapedPanel;
   private DockingWindow maximizedWindow;
@@ -129,9 +129,15 @@ public class FloatingWindow extends DockingWindow {
     setComponent(shapedPanel);
 
     Component c = rootWindow.getTopLevelComponent();
-    dialog = c instanceof Frame ? new JDialog((Frame) c) : new JDialog((Dialog) c);
-    dialog.getContentPane().add(this, BorderLayout.CENTER);
-    dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+    dialog = getFloatingWindowProperties().getUseFrame() ? (Window) new JFrame() :
+             (Window) (c instanceof Frame ? new JDialog((Frame) c) : new JDialog((Dialog) c));
+    ((RootPaneContainer) dialog).getContentPane().add(this, BorderLayout.CENTER);
+
+    if (dialog instanceof JDialog)
+      ((JDialog) dialog).setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+    else
+      ((JFrame) dialog).setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+
     dialog.addWindowListener(new WindowAdapter() {
       public void windowClosing(WindowEvent e) {
         try {
@@ -144,20 +150,18 @@ public class FloatingWindow extends DockingWindow {
       }
     });
 
-    JRootPane rp = dialog.getRootPane();
+    JRootPane rp = ((RootPaneContainer) dialog).getRootPane();
     rp.getLayeredPane().add(dragPanel);
     rp.getLayeredPane().setLayer(dragPanel, JLayeredPane.DRAG_LAYER.intValue());
     dragPanel.setVisible(false);
 
     dragPanel.addMouseListener(new MouseAdapter() {
       public void mouseEntered(MouseEvent e) {
-        //System.out.println("Enter: " + getTitle());
         getRootWindow().setCurrentDragRootPane(getRootPane());
       }
 
       public void mouseExited(MouseEvent e) {
-        //System.out.println("Exit: " + getTitle());
-        if (!dragPanel.contains(e.getPoint()))
+        if (!dragPanel.contains(e.getPoint()) && getRootWindow().getCurrentDragRootPane() == getRootPane())
           getRootWindow().setCurrentDragRootPane(null);
       }
     });
@@ -352,7 +356,7 @@ public class FloatingWindow extends DockingWindow {
   }
 
   void startDrag() {
-    JRootPane rp = dialog.getRootPane();
+    JRootPane rp = ((RootPaneContainer) dialog).getRootPane();
     dragPanel.setBounds(0, 0, rp.getWidth(), rp.getHeight());
     dragPanel.setVisible(true);
     //ComponentUtil.validate(rp.getLayeredPane());
@@ -459,8 +463,12 @@ public class FloatingWindow extends DockingWindow {
     if (titleUpdater == null) {
       titleUpdater = new Runnable() {
         public void run() {
-          if (dialog != null)
-            dialog.setTitle(window == null ? "" : window.getTitle());
+          if (dialog != null) {
+            if (dialog instanceof Dialog)
+              ((Dialog) dialog).setTitle(window == null ? "" : window.getTitle());
+            else
+              ((Frame) dialog).setTitle(window == null ? "" : window.getTitle());
+          }
 
           titleUpdater = null;
         }
@@ -536,12 +544,14 @@ public class FloatingWindow extends DockingWindow {
     FloatingWindowProperties properties = getFloatingWindowProperties();
     ComponentProperties componentProperties = map == null ||
                                               map.get(properties.getComponentProperties().getMap()) != null ?
-                                              properties.getComponentProperties() :
-                                              null;
+                                                                                                            properties
+                                                                                                                .getComponentProperties() :
+                                                                                                                                          null;
     ShapedPanelProperties shapedProperties = map == null ||
                                              map.get(properties.getShapedPanelProperties().getMap()) != null ?
-                                             properties.getShapedPanelProperties() :
-                                             null;
+                                                                                                             properties
+                                                                                                                 .getShapedPanelProperties() :
+                                                                                                                                             null;
 
     if (componentProperties != null)
       componentProperties.applyTo(shapedPanel);
@@ -557,13 +567,13 @@ public class FloatingWindow extends DockingWindow {
   }
 
   private void setInternalSize(Dimension size) {
-    dialog.getRootPane().setPreferredSize(size);
+    ((RootPaneContainer) dialog).getRootPane().setPreferredSize(size);
     dialog.pack();
-    dialog.getRootPane().setPreferredSize(null);
+    ((RootPaneContainer) dialog).getRootPane().setPreferredSize(null);
   }
 
   protected DockingWindow read(ObjectInputStream in, ReadContext context, ViewReader viewReader) throws IOException {
-    setInternalSize(new Dimension(in.readInt(), in.readInt()));
+    dialog.setSize(new Dimension(in.readInt(), in.readInt()));
     dialog.setLocation(in.readInt(), in.readInt());
 
     dialog.setVisible(in.readBoolean());

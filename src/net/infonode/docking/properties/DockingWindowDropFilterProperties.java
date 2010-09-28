@@ -20,7 +20,7 @@
  */
 
 
-// $Id: DockingWindowDropFilterProperties.java,v 1.3 2005/12/04 13:46:04 jesper Exp $
+// $Id: DockingWindowDropFilterProperties.java,v 1.4 2007/01/28 21:25:10 jesper Exp $
 
 package net.infonode.docking.properties;
 
@@ -33,7 +33,7 @@ import net.infonode.properties.propertymap.*;
  * for all types of {@link net.infonode.docking.DockingWindow}s.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  * @since IDW 1.4.0
  */
 public class DockingWindowDropFilterProperties extends PropertyMapContainer {
@@ -47,7 +47,9 @@ public class DockingWindowDropFilterProperties extends PropertyMapContainer {
    * The {@link net.infonode.docking.drop.DropFilter} that is called when a
    * split drop is in progress.
    */
-  public static final DropFilterProperty SPLIT_DROP_FILTER = new DropFilterProperty(PROPERTIES, "Split Drop Filter", "The drop filter that is called when a split drop is in progress.",
+  public static final DropFilterProperty SPLIT_DROP_FILTER = new DropFilterProperty(PROPERTIES,
+                                                                                    "Split Drop Filter",
+                                                                                    "The drop filter that is called when a split drop is in progress.",
                                                                                     PropertyMapValueHandler.INSTANCE);
 
   /**

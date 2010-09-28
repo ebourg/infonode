@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SoftBlueIceDockingTheme.java,v 1.17 2005/12/04 13:46:05 jesper Exp $
+// $Id: SoftBlueIceDockingTheme.java,v 1.18 2007/01/28 21:25:10 jesper Exp $
 package net.infonode.docking.theme;
 
 import net.infonode.docking.properties.RootWindowProperties;
@@ -38,7 +38,7 @@ import java.awt.*;
  * A light blue theme with gradients and rounded corners.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.17 $
+ * @version $Revision: 1.18 $
  */
 public class SoftBlueIceDockingTheme extends DockingWindowsTheme {
   private RootWindowProperties rootWindowProperties = new RootWindowProperties();
@@ -73,9 +73,11 @@ public class SoftBlueIceDockingTheme extends DockingWindowsTheme {
     this.slim = slim;
 
     if (slim) {
-      theme.getTabbedPanelProperties().getTabAreaProperties().getComponentProperties().setBorder(new FixedInsetsShapedBorder(
-          new Insets(0, 0, 0, 0),
-          (ShapedBorder) theme.getTabbedPanelProperties().getTabAreaProperties().getComponentProperties().getBorder()));
+      theme.getTabbedPanelProperties().getTabAreaProperties().getComponentProperties()
+          .setBorder(new FixedInsetsShapedBorder(
+              new Insets(0, 0, 0, 0),
+              (ShapedBorder) theme.getTabbedPanelProperties().getTabAreaProperties().getComponentProperties()
+                  .getBorder()));
 
       theme.getTabbedPanelProperties().getTabAreaProperties().getComponentProperties().setInsets(
           new Insets(0, 0, 0, 0));
@@ -97,7 +99,7 @@ public class SoftBlueIceDockingTheme extends DockingWindowsTheme {
 
     rootWindowProperties.getShapedPanelProperties().
         setComponentPainter(theme.getTabbedPanelProperties().getTabAreaProperties().getShapedPanelProperties().
-                            getComponentPainter());
+            getComponentPainter());
 
     rootWindowProperties.getTabWindowProperties().getTabbedPanelProperties().getContentPanelProperties()
         .getShapedPanelProperties()

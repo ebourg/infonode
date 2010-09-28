@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowItem.java,v 1.16 2005/12/04 13:46:04 jesper Exp $
+// $Id: WindowItem.java,v 1.18 2007/01/28 21:25:10 jesper Exp $
 package net.infonode.docking.model;
 
 import net.infonode.docking.DockingWindow;
@@ -39,7 +39,7 @@ import java.util.ArrayList;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.16 $
+ * @version $Revision: 1.18 $
  */
 abstract public class WindowItem {
   public static final DockingWindowProperties emptyProperties = new DockingWindowProperties();
@@ -61,7 +61,7 @@ abstract public class WindowItem {
 
   protected WindowItem(WindowItem windowItem) {
     dockingWindowProperties =
-    new DockingWindowProperties(windowItem.getDockingWindowProperties().getMap().copy(true, true));
+        new DockingWindowProperties(windowItem.getDockingWindowProperties().getMap().copy(true, true));
     dockingWindowProperties.getMap().replaceSuperMap(windowItem.getParentDockingWindowProperties().getMap(),
                                                      emptyProperties.getMap());
     lastMinimizedDirection = windowItem.getLastMinimizedDirection();
@@ -305,7 +305,8 @@ abstract public class WindowItem {
            childWindows.size() > 0 ? (DockingWindow) childWindows.get(0) : null;
   }
 
-  public ArrayList readChildWindows(ObjectInputStream in, ReadContext context, ViewReader viewReader) throws IOException {
+  public ArrayList readChildWindows(ObjectInputStream in, ReadContext context, ViewReader viewReader) throws
+                                                                                                      IOException {
     int count = in.readInt();
     removeAll();
     ArrayList childWindows = new ArrayList();
@@ -324,6 +325,21 @@ abstract public class WindowItem {
 
   protected PropertyMap getPropertyObject() {
     return null;
+  }
+
+  public String toString() {
+    StringBuffer s = new StringBuffer();
+    DockingWindow dw = getConnectedWindow();
+    s.append(dw + ":\n");
+
+    for (int i = 0; i < windows.size(); i++)
+      s.append("  " + windows.get(i).toString());
+
+    return s.toString();
+  }
+
+  public void clearWindows() {
+    removeAll();
   }
 
 }

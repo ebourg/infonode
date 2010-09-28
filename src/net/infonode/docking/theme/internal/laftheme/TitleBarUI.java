@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TitleBarUI.java,v 1.11 2005/12/04 13:46:04 jesper Exp $
+// $Id: TitleBarUI.java,v 1.12 2007/01/28 21:25:10 jesper Exp $
 package net.infonode.docking.theme.internal.laftheme;
 
 import net.infonode.docking.View;
@@ -97,7 +97,9 @@ public class TitleBarUI {
     public boolean isShowing() {
       return showing;
     }
-  };
+  }
+
+  ;
 
   private Color[] fadeSelectedColors = new Color[NUM_FADE_COLORS];
 
@@ -125,7 +127,14 @@ public class TitleBarUI {
     public void paint(Component component, Graphics g, int x, int y, int width, int height) {
     }
 
-    public void paint(Component component, Graphics g, int x, int y, int width, int height, Direction direction, boolean horizontalFlip,
+    public void paint(Component component,
+                      Graphics g,
+                      int x,
+                      int y,
+                      int width,
+                      int height,
+                      Direction direction,
+                      boolean horizontalFlip,
                       boolean verticalFlip) {
       g.translate(-x, -y);
       paintTitleBar(component, g, true, width, height, Direction.UP);
@@ -145,7 +154,14 @@ public class TitleBarUI {
     public void paint(Component component, Graphics g, int x, int y, int width, int height) {
     }
 
-    public void paint(Component component, Graphics g, int x, int y, int width, int height, Direction direction, boolean horizontalFlip,
+    public void paint(Component component,
+                      Graphics g,
+                      int x,
+                      int y,
+                      int width,
+                      int height,
+                      Direction direction,
+                      boolean horizontalFlip,
                       boolean verticalFlip) {
       g.translate(-x, -y);
       paintTitleBar(component, g, false, width, height, Direction.UP);
@@ -232,7 +248,7 @@ public class TitleBarUI {
         skipIFrame = lafName.indexOf("GTKLookAndFeel") != -1
                      || (lafName.indexOf(".WindowsLookAndFeel") != -1 || UIManager.getLookAndFeel().getClass().getName()
             .indexOf(".Office2003LookAndFeel") != -1) && Toolkit.getDefaultToolkit().getDesktopProperty(
-                "win.xpstyle.themeActive") != null;
+            "win.xpstyle.themeActive") != null;
 
         estimateBackgroundColors();
 
@@ -255,8 +271,9 @@ public class TitleBarUI {
         fadeSelectedColors[i] = new Color(activeBackgroundColor.getRed(), activeBackgroundColor.getGreen(),
                                           activeBackgroundColor.getBlue(), (int) ((i + 1) * factor));
       if (inactiveBackgroundColor != null)
-        fadeNormalColors[i] = new Color(inactiveBackgroundColor.getRed(), inactiveBackgroundColor.getGreen(), inactiveBackgroundColor
-                                                                                                              .getBlue(), (int) ((i + 1) * factor));
+        fadeNormalColors[i] =
+            new Color(inactiveBackgroundColor.getRed(), inactiveBackgroundColor.getGreen(), inactiveBackgroundColor
+                .getBlue(), (int) ((i + 1) * factor));
     }
   }
 
@@ -311,8 +328,9 @@ public class TitleBarUI {
       if (view == null)
         return;
 
-      setTitleAndIcon(view.getViewProperties().getViewTitleBarProperties().getNormalProperties().getTitle(), view.getViewProperties()
-                                                                                                             .getViewTitleBarProperties().getNormalProperties().getIcon());
+      setTitleAndIcon(view.getViewProperties().getViewTitleBarProperties().getNormalProperties().getTitle(),
+                      view.getViewProperties()
+                          .getViewTitleBarProperties().getNormalProperties().getIcon());
 
       iFrame.setSelectedActivated(selected);
 
@@ -431,7 +449,14 @@ public class TitleBarUI {
       public void paint(Component component, Graphics g, int x, int y, int width, int height) {
       }
 
-      public void paint(Component component, Graphics g, int x, int y, int width, int height, Direction direction, boolean horizontalFlip,
+      public void paint(Component component,
+                        Graphics g,
+                        int x,
+                        int y,
+                        int width,
+                        int height,
+                        Direction direction,
+                        boolean horizontalFlip,
                         boolean verticalFlip) {
         g.setColor(gradient);
         g.drawLine(x, y, x + width - 1, y);

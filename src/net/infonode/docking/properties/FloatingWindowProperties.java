@@ -20,7 +20,7 @@
  */
 
 
-// $Id: FloatingWindowProperties.java,v 1.5 2005/12/04 13:46:04 jesper Exp $
+// $Id: FloatingWindowProperties.java,v 1.6 2007/01/07 19:11:20 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.gui.util.ComponentProperties;
@@ -67,6 +67,19 @@ public class FloatingWindowProperties extends PropertyMapContainer {
       new BooleanProperty(PROPERTIES,
                           "Auto Close Enabled",
                           "Enables/disables if the floating window should be automatically closed when it doesn't contain any child window.",
+                          PropertyMapValueHandler.INSTANCE);
+
+  /**
+   * If true the floating window will be created as a JFrame, otherwise a JDialog will be created.
+   * Note that the value of this property only takes effect when the FloatingWindow is created, it doesn't affect
+   * existing FloatingWindows (but this might change in future versions).
+   *
+   * @since IDW 1.5.0
+   */
+  public static final BooleanProperty USE_FRAME =
+      new BooleanProperty(PROPERTIES,
+                          "Use Frame",
+                          "If true the floating window will be created as a JFrame, otherwise a JDialog will be created.",
                           PropertyMapValueHandler.INSTANCE);
 
   /**
@@ -153,6 +166,30 @@ public class FloatingWindowProperties extends PropertyMapContainer {
    */
   public FloatingWindowProperties setAutoCloseEnabled(boolean enabled) {
     AUTO_CLOSE_ENABLED.set(getMap(), enabled);
+    return this;
+  }
+
+  /**
+   * Returns true if the floating window should be created as a JFrame, otherwise a JDialog is used.
+   *
+   * @return true if a JFrame should be used
+   * @since IDW 1.5.0
+   */
+  public boolean getUseFrame() {
+    return USE_FRAME.get(getMap());
+  }
+
+  /**
+   * Set to true if the floating window should be created as a JFrame, otherwise a JDialog is used.
+   * Note that the value of this property only takes effect when the FloatingWindow is created, it doesn't affect
+   * existing FloatingWindows (but this might change in future versions).
+   *
+   * @param enabled true if a JFrame should be used
+   * @return this
+   * @since IDW 1.5.0
+   */
+  public FloatingWindowProperties setUseFrame(boolean enabled) {
+    USE_FRAME.set(getMap(), enabled);
     return this;
   }
 }

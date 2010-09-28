@@ -20,7 +20,7 @@
  */
 
 
-// $Id: RootWindowProperties.java,v 1.94 2005/12/04 13:46:04 jesper Exp $
+// $Id: RootWindowProperties.java,v 1.96 2007/01/28 21:25:10 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.docking.DefaultButtonFactories;
@@ -55,7 +55,7 @@ import java.util.Map;
  * Properties and property values for a root window.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.94 $
+ * @version $Revision: 1.96 $
  */
 public class RootWindowProperties extends PropertyMapContainer {
   /**
@@ -426,6 +426,7 @@ public class RootWindowProperties extends PropertyMapContainer {
     }
 
     DEFAULT_VALUES.getFloatingWindowProperties().setAutoCloseEnabled(true);
+    DEFAULT_VALUES.getFloatingWindowProperties().setUseFrame(false);
   }
 
   private static void setViewTitleBarProperties() {
@@ -480,7 +481,7 @@ public class RootWindowProperties extends PropertyMapContainer {
   private static void updateVisualProperties() {
     DEFAULT_VALUES.getWindowBarProperties().getTabWindowProperties().getTabProperties().getTitledTabProperties()
         .getNormalProperties().getComponentProperties().setBackgroundColor(
-            TabbedUIDefaults.getHighlightedStateBackground());
+        TabbedUIDefaults.getHighlightedStateBackground());
 
     Color shadowColor = UIManagerUtil.getColor("controlDkShadow", Color.BLACK);
 

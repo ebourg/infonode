@@ -20,7 +20,7 @@
  */
 
 
-// $Id: AbstractTabWindow.java,v 1.70 2005/12/04 13:46:05 jesper Exp $
+// $Id: AbstractTabWindow.java,v 1.72 2007/01/28 21:25:09 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.drop.InsertTabDropInfo;
@@ -50,7 +50,7 @@ import java.io.ObjectOutputStream;
  * Abstract base class for windows containing a tabbed panel.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.70 $
+ * @version $Revision: 1.72 $
  */
 abstract public class AbstractTabWindow extends DockingWindow {
   private static int MINIMUM_SIZE = 7;
@@ -103,8 +103,11 @@ abstract public class AbstractTabWindow extends DockingWindow {
    * Temporary drag tab.
    */
   private WindowTab dragTab;
+
   private int ignoreSelected;
+
   private int draggedTabIndex;
+
   private java.util.List tabAreaComponents;
 
   /**
@@ -119,11 +122,17 @@ abstract public class AbstractTabWindow extends DockingWindow {
     if (showContent) {
       TabContentPanel contentPanel = new TabContentPanel() {
         public Dimension getMinimumSize() {
+          if (getTabWindowProperties().getRespectChildWindowMinimumSize())
+            return super.getMinimumSize();
+
           return new Dimension(0, 0);
         }
       };
       tabbedPanel = new TabbedPanel(contentPanel, true) {
         public Dimension getMinimumSize() {
+          if (getTabWindowProperties().getRespectChildWindowMinimumSize())
+            return super.getMinimumSize();
+
           return getTabbedPanelMinimumSize(super.getMinimumSize());
         }
       };
@@ -132,6 +141,9 @@ abstract public class AbstractTabWindow extends DockingWindow {
     else
       tabbedPanel = new TabbedPanel(null) {
         public Dimension getMinimumSize() {
+          if (getTabWindowProperties().getRespectChildWindowMinimumSize())
+            return super.getMinimumSize();
+
           return getTabbedPanelMinimumSize(super.getMinimumSize());
         }
       };
@@ -201,15 +213,18 @@ abstract public class AbstractTabWindow extends DockingWindow {
 
   /**
    * <p>
-   * Returns a list containing the custom tab area components. Changes to the list will be propagated to the tab area.
+   * Returns a list containing the custom tab area components. Changes to the
+   * list will be propagated to the tab area.
    * </p>
    * <p>
-   * The custom tab area components will between the scroll buttons and the window buttons in the tab area components
-   * panel. The components are shown in the same order as they appear in the list. The tab area components container
-   * layout is rotated with the tab window tab orientation.
+   * The custom tab area components will between the scroll buttons and the
+   * window buttons in the tab area components panel. The components are shown
+   * in the same order as they appear in the list. The tab area components
+   * container layout is rotated with the tab window tab orientation.
    * </p>
    *
-   * @return a list containing the custom tab area components, list elements are of type {@link JComponent}
+   * @return a list containing the custom tab area components, list elements are
+   *         of type {@link JComponent}
    * @since IDW 1.3.0
    */
   public final java.util.List getCustomTabAreaComponents() {
@@ -472,8 +487,8 @@ abstract public class AbstractTabWindow extends DockingWindow {
 
     Point p2 = SwingUtilities.convertPoint(this, p, tabbedPanel);
 
-    if ((getRootWindow().getRootWindowProperties().getRecursiveTabsEnabled() || window.getChildWindowCount() <= 1) && isInsideTabArea(
-        p2)) {
+    if ((getRootWindow().getRootWindowProperties().getRecursiveTabsEnabled() || window.getChildWindowCount() <= 1) &&
+        isInsideTabArea(p2)) {
       getRootWindow().setDragRectangle(null);
 
       if (window.getWindowParent() == this) {

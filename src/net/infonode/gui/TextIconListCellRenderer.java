@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TextIconListCellRenderer.java,v 1.10 2005/02/16 11:28:13 jesper Exp $
+// $Id: TextIconListCellRenderer.java,v 1.11 2006/06/13 20:12:39 johan Exp $
 package net.infonode.gui;
 
 import net.infonode.gui.icon.IconUtil;
@@ -35,6 +35,7 @@ public class TextIconListCellRenderer extends DefaultListCellRenderer {
   private ListCellRenderer renderer;
   private Icon emptyIcon;
   private int width;
+  private int gap = -1;
 
   public TextIconListCellRenderer(ListCellRenderer renderer) {
     this.renderer = renderer;
@@ -69,6 +70,9 @@ public class TextIconListCellRenderer extends DefaultListCellRenderer {
       return null;
 
     JLabel label = (JLabel) renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+    if (gap < 0)
+      gap = label.getIconTextGap();
+    
     Icon icon = IconUtil.getIcon(value);
 
     if (icon == null) {
@@ -76,9 +80,7 @@ public class TextIconListCellRenderer extends DefaultListCellRenderer {
     }
     else {
       label.setIcon(icon);
-
-      if (icon.getIconWidth() < width)
-        label.setIconTextGap(label.getIconTextGap() + width - icon.getIconWidth());
+      label.setIconTextGap(gap + width - icon.getIconWidth());
     }
 
     return label;

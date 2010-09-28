@@ -20,7 +20,7 @@
  */
 
 
-// $Id: DropFilter.java,v 1.3 2005/12/04 13:46:04 jesper Exp $
+// $Id: DropFilter.java,v 1.4 2007/01/07 19:11:20 jesper Exp $
 package net.infonode.docking.drop;
 
 /**
@@ -47,7 +47,7 @@ package net.infonode.docking.drop;
  * </p>
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  * @since IDW 1.4.0
  */
 public interface DropFilter {
@@ -58,5 +58,5 @@ public interface DropFilter {
    * @param dropInfo information about the current drop
    * @return true if drop is to be accepted, otherwise false
    */
-  public boolean acceptDrop(DropInfo dropInfo);
+  boolean acceptDrop(DropInfo dropInfo);
 }

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowBar.java,v 1.66 2005/12/04 13:46:05 jesper Exp $
+// $Id: WindowBar.java,v 1.68 2007/01/28 21:25:10 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.internal.HeavyWeightContainer;
@@ -57,7 +57,7 @@ import java.io.ObjectOutputStream;
  * A window bar is enabled and disabled using the {@link Component#setEnabled} method.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.66 $
+ * @version $Revision: 1.68 $
  */
 public class WindowBar extends AbstractTabWindow {
   private RootWindow rootWindow;
@@ -78,7 +78,14 @@ public class WindowBar extends AbstractTabWindow {
     initMouseListener();
 
     this.rootWindow = rootWindow;
-    contentPanel = new TabbedPanelContentPanel(getTabbedPanel(), new TabContentPanel(getTabbedPanel()));
+    contentPanel = new TabbedPanelContentPanel(getTabbedPanel(), new TabContentPanel(getTabbedPanel()) {
+      public Dimension getMinimumSize() {
+        if (getWindowBarProperties().getTabWindowProperties().getRespectChildWindowMinimumSize())
+          return super.getMinimumSize();
+
+        return new Dimension(0, 0);
+      }
+    });
 
     this.direction = direction;
 
@@ -117,6 +124,7 @@ public class WindowBar extends AbstractTabWindow {
     getEdgePanel().setVisible(false);
 
     setTabWindowProperties(getWindowBarProperties().getTabWindowProperties());
+
     init();
   }
 
@@ -207,8 +215,8 @@ public class WindowBar extends AbstractTabWindow {
     if (edgePanel != null)
       BaseContainerUtil.setForcedOpaque(edgePanel,
                                         rootWindow.isHeavyweightSupported() || contentPanel.getProperties()
-                                                                               .getShapedPanelProperties()
-                                                                               .getOpaque());
+                                            .getShapedPanelProperties()
+                                            .getOpaque());
     //edgePanel.setForcedOpaque(rootWindow.isHeavyweightSupported() ? true : contentPanel.getProperties().getShapedPanelProperties().getOpaque());
   }
 

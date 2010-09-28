@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowMenuUtil.java,v 1.26 2005/11/06 18:32:02 jesper Exp $
+// $Id: WindowMenuUtil.java,v 1.27 2007/01/28 21:25:10 jesper Exp $
 package net.infonode.docking.util;
 
 import net.infonode.docking.*;
@@ -40,7 +40,7 @@ import java.awt.event.ActionListener;
  * Class containing utility methods for creating window popup menues.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.26 $
+ * @version $Revision: 1.27 $
  */
 public final class WindowMenuUtil {
   private WindowMenuUtil() {
@@ -58,7 +58,8 @@ public final class WindowMenuUtil {
   private static AbstractTabWindow getTabWindowFor(DockingWindow window) {
     return (AbstractTabWindow)
         (window instanceof AbstractTabWindow ? window :
-         window.getWindowParent() != null && window.getWindowParent() instanceof AbstractTabWindow ? window.getWindowParent() :
+         window.getWindowParent() != null && window.getWindowParent() instanceof AbstractTabWindow ?
+         window.getWindowParent() :
          null);
   }
 

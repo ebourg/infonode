@@ -20,8 +20,38 @@
  */
 
 
-// $Id: TitledTab.java,v 1.86 2005/12/04 13:46:05 jesper Exp $
+// $Id: TitledTab.java,v 1.88 2007/01/28 21:25:49 jesper Exp $
 package net.infonode.tabbedpanel.titledtab;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Insets;
+import java.awt.KeyboardFocusManager;
+import java.awt.LayoutManager;
+import java.awt.Point;
+import java.awt.Shape;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.PanelUI;
 
 import net.infonode.gui.DimensionProvider;
 import net.infonode.gui.InsetsUtil;
@@ -43,21 +73,17 @@ import net.infonode.properties.gui.util.ShapedPanelProperties;
 import net.infonode.properties.propertymap.PropertyMapTreeListener;
 import net.infonode.properties.propertymap.PropertyMapWeakListenerManager;
 import net.infonode.properties.util.PropertyChangeListener;
-import net.infonode.tabbedpanel.*;
+import net.infonode.tabbedpanel.Tab;
+import net.infonode.tabbedpanel.TabAdapter;
+import net.infonode.tabbedpanel.TabEvent;
+import net.infonode.tabbedpanel.TabRemovedEvent;
+import net.infonode.tabbedpanel.TabSelectTrigger;
+import net.infonode.tabbedpanel.TabbedPanel;
+import net.infonode.tabbedpanel.TabbedPanelProperties;
+import net.infonode.tabbedpanel.TabbedUtils;
 import net.infonode.util.Alignment;
 import net.infonode.util.Direction;
 import net.infonode.util.ValueChange;
-
-import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.PanelUI;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * <p>A TitledTab is a tab that has support for text, icon and a custom Swing component
@@ -90,7 +116,7 @@ import java.util.Set;
  * enters or exits the tab. The hover event's source will be the affected titled tab.</p>
  *
  * @author $Author: jesper $
- * @version $Revision: 1.86 $
+ * @version $Revision: 1.88 $
  * @see TitledTabProperties
  * @see TitledTabStateProperties
  */
@@ -762,12 +788,20 @@ public class TitledTab extends Tab implements IconProvider {
    * @param highlighted true for highlight, otherwise false
    */
   public void setHighlighted(boolean highlighted) {
-    super.setHighlighted(highlighted);
+    super.setHighlighted(highlighted);  
     updateCurrentStatePanel();
   }
 
   /**
+   * <p>
    * Sets if this TitledTab should be enabled or disabled
+   * </p>
+   * 
+   * <p>
+   * <strong>Note:</strong> since ITP 1.5.0 this method will change the enabled property 
+   * in the {@link TitledTabProperties} for this tab. Enabled/disabled can be controlled by 
+   * modifying the property or this method.
+   * </p>
    *
    * @param enabled true for enabled, otherwise false
    */
@@ -1037,6 +1071,10 @@ public class TitledTab extends Tab implements IconProvider {
             TitledTabProperties.BORDER_SIZE_POLICY)) {
           updateBorders = true;
         }
+
+        if (keySet.contains(TitledTabProperties.ENABLED)) {
+          doSetEnabled(properties.getEnabled());
+        }
       }
     }
 
@@ -1119,6 +1157,11 @@ public class TitledTab extends Tab implements IconProvider {
                           (int) p.getX(), (int) p.getY(), e.getClickCount(),
                           !e.isConsumed() && e.isPopupTrigger(), e.getButton());
   }
+  
+  private void doSetEnabled(boolean enabled) {
+    super.setEnabled(enabled);
+    updateCurrentStatePanel();
+  }
 
   public void setUI(PanelUI ui) {
     if (getUI() != UI)
@@ -1132,4 +1175,5 @@ public class TitledTab extends Tab implements IconProvider {
   public void setOpaque(boolean opaque) {
     // Ignore
   }
+
 }

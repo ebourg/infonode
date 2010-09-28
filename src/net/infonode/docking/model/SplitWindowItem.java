@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SplitWindowItem.java,v 1.10 2005/02/16 11:28:14 jesper Exp $
+// $Id: SplitWindowItem.java,v 1.12 2007/01/28 21:25:10 jesper Exp $
 package net.infonode.docking.model;
 
 import net.infonode.docking.DockingWindow;
@@ -36,7 +36,7 @@ import java.util.ArrayList;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.12 $
  */
 public class SplitWindowItem extends WindowItem {
   public static final SplitWindowProperties emptyProperties = new SplitWindowProperties();
@@ -127,6 +127,10 @@ public class SplitWindowItem extends WindowItem {
 
   protected PropertyMap getPropertyObject() {
     return getSplitWindowProperties().getMap();
+  }
+
+  public String toString() {
+    return "SplitWindow: " + super.toString();
   }
 
 }

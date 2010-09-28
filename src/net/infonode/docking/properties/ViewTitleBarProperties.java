@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ViewTitleBarProperties.java,v 1.13 2005/12/04 13:46:04 jesper Exp $
+// $Id: ViewTitleBarProperties.java,v 1.14 2007/01/28 21:25:10 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.gui.DimensionProvider;
@@ -33,7 +33,7 @@ import net.infonode.util.Direction;
  * Properties and property values for a view title bar.
  *
  * @author johan
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.14 $
  * @since IDW 1.4.0
  */
 public class ViewTitleBarProperties extends PropertyMapContainer {
@@ -102,8 +102,9 @@ public class ViewTitleBarProperties extends PropertyMapContainer {
    * @see #setOrientation
    * @see #getOrientation
    */
-  public static final DirectionProperty ORIENTATION = new DirectionProperty(PROPERTIES, "Orientation", "Title bar's orientation relative to the view's content area.",
-                                                                            PropertyMapValueHandler.INSTANCE);
+  public static final DirectionProperty ORIENTATION =
+      new DirectionProperty(PROPERTIES, "Orientation", "Title bar's orientation relative to the view's content area.",
+                            PropertyMapValueHandler.INSTANCE);
 
   /**
    * Direction property
@@ -111,8 +112,9 @@ public class ViewTitleBarProperties extends PropertyMapContainer {
    * @see #setDirection
    * @see #getDirection
    */
-  public static final DirectionProperty DIRECTION = new DirectionProperty(PROPERTIES, "Direction", "Title bar's layout direction.",
-                                                                          PropertyMapValueHandler.INSTANCE);
+  public static final DirectionProperty DIRECTION =
+      new DirectionProperty(PROPERTIES, "Direction", "Title bar's layout direction.",
+                            PropertyMapValueHandler.INSTANCE);
 
   /**
    * Hover listener property

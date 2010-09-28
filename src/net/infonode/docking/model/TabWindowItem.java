@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabWindowItem.java,v 1.11 2005/02/16 11:28:14 jesper Exp $
+// $Id: TabWindowItem.java,v 1.13 2007/01/28 21:25:10 jesper Exp $
 package net.infonode.docking.model;
 
 import net.infonode.docking.DockingWindow;
@@ -34,7 +34,7 @@ import java.util.ArrayList;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.13 $
  */
 public class TabWindowItem extends AbstractTabWindowItem {
   public static final TabWindowProperties emptyProperties = new TabWindowProperties();
@@ -87,6 +87,14 @@ public class TabWindowItem extends AbstractTabWindowItem {
 
   protected PropertyMap getPropertyObject() {
     return getTabWindowProperties().getMap();
+  }
+
+  public void clearWindows() {
+    // Do nothing
+  }
+
+  public String toString() {
+    return "TabWindow: " + super.toString();
   }
 
 }

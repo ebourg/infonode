@@ -20,7 +20,7 @@
  */
 
 
-// $Id: FocusManager.java,v 1.12 2005/12/04 13:46:05 jesper Exp $
+// $Id: FocusManager.java,v 1.13 2007/01/28 19:00:30 jesper Exp $
 package net.infonode.docking;
 
 import javax.swing.*;
@@ -35,7 +35,7 @@ import java.util.ArrayList;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.13 $
  */
 class FocusManager {
   private static final FocusManager INSTANCE = new FocusManager();
@@ -109,20 +109,18 @@ class FocusManager {
       runnable.run();
     }
     finally {
-      if (--ignoreFocusChanges == 0) {
-        if (c != null) {
-          c.requestFocusInWindow();
+      if (--ignoreFocusChanges == 0 && c != null) {
+        c.requestFocusInWindow();
 
-          SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-              SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                  c.requestFocusInWindow();
-                }
-              });
-            }
-          });
-        }
+        SwingUtilities.invokeLater(new Runnable() {
+          public void run() {
+            SwingUtilities.invokeLater(new Runnable() {
+              public void run() {
+                c.requestFocusInWindow();
+              }
+            });
+          }
+        });
       }
     }
   }

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ShapedGradientDockingTheme.java,v 1.25 2005/12/04 13:46:05 jesper Exp $
+// $Id: ShapedGradientDockingTheme.java,v 1.26 2007/01/28 21:25:10 jesper Exp $
 
 package net.infonode.docking.theme;
 
@@ -47,7 +47,7 @@ import java.awt.*;
  * slopes on left/right side of tab.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.25 $
+ * @version $Revision: 1.26 $
  * @since IDW 1.2.0
  */
 public class ShapedGradientDockingTheme extends DockingWindowsTheme {
@@ -122,7 +122,6 @@ public class ShapedGradientDockingTheme extends DockingWindowsTheme {
     TabbedPanelProperties tabbedPanelProperties = theme.getTabbedPanelProperties();
     TitledTabProperties titledTabProperties = theme.getTitledTabProperties();
 
-
     // Tab window
     rootWindowProperties.getTabWindowProperties().getTabbedPanelProperties().addSuperObject(tabbedPanelProperties);
     rootWindowProperties.getTabWindowProperties().getTabProperties().getTitledTabProperties().addSuperObject(
@@ -131,23 +130,23 @@ public class ShapedGradientDockingTheme extends DockingWindowsTheme {
     if (focusHighlighterEnabled) {
       rootWindowProperties.getTabWindowProperties().getTabProperties().getFocusedProperties().
           getShapedPanelProperties().setComponentPainter(rootWindowProperties.getTabWindowProperties().
-                                                         getTabProperties().getTitledTabProperties()
-                                                         .getHighlightedProperties()
-                                                         .getShapedPanelProperties()
-                                                         .getComponentPainter());
+          getTabProperties().getTitledTabProperties()
+          .getHighlightedProperties()
+          .getShapedPanelProperties()
+          .getComponentPainter());
       ColorProvider topColor = new ColorMultiplier(theme.getControlColor(), 0.85f);
       rootWindowProperties.getTabWindowProperties().getTabProperties().getTitledTabProperties().
           getHighlightedProperties().getShapedPanelProperties().setComponentPainter(new GradientComponentPainter(
-              topColor,
-              theme.getControlColor(),
-              theme.getControlColor(),
-              theme.getControlColor()));
+          topColor,
+          theme.getControlColor(),
+          theme.getControlColor(),
+          theme.getControlColor()));
       rootWindowProperties.getTabWindowProperties().getTabbedPanelProperties().getTabAreaComponentsProperties().
           getShapedPanelProperties().setComponentPainter(new GradientComponentPainter(
-              new ColorMultiplier(theme.getControlColor(), 1.1f),
-              theme.getControlColor(),
-              theme.getControlColor(),
-              topColor));
+          new ColorMultiplier(theme.getControlColor(), 1.1f),
+          theme.getControlColor(),
+          theme.getControlColor(),
+          topColor));
     }
 
     Border highlightBorder = theme.createTabBorder(theme.getLineColor(),

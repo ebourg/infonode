@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowTab.java,v 1.56 2005/12/04 13:46:05 jesper Exp $
+// $Id: WindowTab.java,v 1.57 2007/01/28 21:25:10 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.internalutil.*;
@@ -45,18 +45,18 @@ import java.util.Map;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.56 $
+ * @version $Revision: 1.57 $
  */
 class WindowTab extends TitledTab {
   private static final TitledTabStateProperties EMPTY_PROPERTIES = new TitledTabStateProperties();
   private static final WindowTabProperties EMPTY_TAB_PROPERTIES = new WindowTabProperties();
 
   private static final ButtonInfo[] buttonInfos = {
-    new UndockButtonInfo(WindowTabStateProperties.UNDOCK_BUTTON_PROPERTIES),
-    new DockButtonInfo(WindowTabStateProperties.DOCK_BUTTON_PROPERTIES),
-    new MinimizeButtonInfo(WindowTabStateProperties.MINIMIZE_BUTTON_PROPERTIES),
-    new RestoreButtonInfo(WindowTabStateProperties.RESTORE_BUTTON_PROPERTIES),
-    new CloseButtonInfo(WindowTabStateProperties.CLOSE_BUTTON_PROPERTIES)};
+      new UndockButtonInfo(WindowTabStateProperties.UNDOCK_BUTTON_PROPERTIES),
+      new DockButtonInfo(WindowTabStateProperties.DOCK_BUTTON_PROPERTIES),
+      new MinimizeButtonInfo(WindowTabStateProperties.MINIMIZE_BUTTON_PROPERTIES),
+      new RestoreButtonInfo(WindowTabStateProperties.RESTORE_BUTTON_PROPERTIES),
+      new CloseButtonInfo(WindowTabStateProperties.CLOSE_BUTTON_PROPERTIES)};
 
   private final DockingWindow window;
   private AbstractButton[][] buttons = new AbstractButton[WindowTabState.getStateCount()][];

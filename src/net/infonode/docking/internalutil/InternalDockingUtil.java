@@ -20,7 +20,7 @@
  */
 
 
-// $Id: InternalDockingUtil.java,v 1.26 2005/12/04 13:46:04 jesper Exp $
+// $Id: InternalDockingUtil.java,v 1.27 2007/01/28 21:25:10 jesper Exp $
 package net.infonode.docking.internalutil;
 
 import net.infonode.docking.DockingWindow;
@@ -44,7 +44,7 @@ import java.util.Map;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.26 $
+ * @version $Revision: 1.27 $
  */
 public class InternalDockingUtil {
   private InternalDockingUtil() {
@@ -150,8 +150,8 @@ public class InternalDockingUtil {
 
       if ((buttons[i] == null || (propertyChanges != null && propertyChanges.containsKey(
           WindowTabButtonProperties.FACTORY))) &&
-          p.getFactory() != null &&
-          action != null) {
+                                               p.getFactory() != null &&
+                                               action != null) {
         buttons[i] = p.getFactory().createButton(window);
         buttons[i].setFocusable(false);
         buttons[i].addActionListener(action.getAction(window).toSwingAction());

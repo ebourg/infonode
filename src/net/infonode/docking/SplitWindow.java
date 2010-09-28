@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SplitWindow.java,v 1.49 2005/12/04 13:46:05 jesper Exp $
+// $Id: SplitWindow.java,v 1.50 2007/01/28 21:25:10 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.drop.InteriorDropInfo;
@@ -52,7 +52,7 @@ import java.io.ObjectOutputStream;
  * A window with a split pane that contains two child windows.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.49 $
+ * @version $Revision: 1.50 $
  */
 public class SplitWindow extends DockingWindow {
   private SimpleSplitPane splitPane;
@@ -324,7 +324,7 @@ public class SplitWindow extends DockingWindow {
     ((SplitWindowItem) getWindowItem()).setParentSplitWindowProperties(rootWindow == null ?
                                                                        SplitWindowItem.emptyProperties :
                                                                        rootWindow.getRootWindowProperties()
-                                                                       .getSplitWindowProperties());
+                                                                           .getSplitWindowProperties());
   }
 
   protected PropertyMap getPropertyObject() {

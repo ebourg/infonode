@@ -19,7 +19,7 @@
  * MA 02111-1307, USA.
  */
 
-// $Id: TitledTabProperties.java,v 1.38 2005/12/04 13:46:05 jesper Exp $
+// $Id: TitledTabProperties.java,v 1.42 2007/01/28 21:25:49 jesper Exp $
 package net.infonode.tabbedpanel.titledtab;
 
 import net.infonode.gui.DimensionProvider;
@@ -71,7 +71,7 @@ import javax.swing.border.CompoundBorder;
  * </p>
  *
  * @author $Author: jesper $
- * @version $Revision: 1.38 $
+ * @version $Revision: 1.42 $
  * @see TitledTab
  * @see TitledTabStateProperties
  */
@@ -188,6 +188,17 @@ public class TitledTabProperties extends PropertyMapContainer {
                                                                                        "Hover Listener",
                                                                                        "Hover Listener to be used for tracking mouse hovering over the tab.",
                                                                                        PropertyMapValueHandler.INSTANCE);
+  /**
+   * TitledTab enabled property
+   *
+   * @see #setEnabled
+   * @see #getEnabled
+   * @since ITP 1.5.0
+   */
+  public static final BooleanProperty ENABLED = new BooleanProperty(PROPERTIES,
+                                                                       "Enabled",
+                                                                       "TitledTab enabled or disabled",
+                                                                        PropertyMapValueHandler.INSTANCE);
 
   private static final TitledTabProperties DEFAULT_VALUES = new TitledTabProperties(PROPERTIES.getDefaultMap());
 
@@ -515,6 +526,35 @@ public class TitledTabProperties extends PropertyMapContainer {
   }
 
   /**
+   * <p>
+   * Sets if this TitledTab should be enabled or not.
+   * </p>
+   * 
+   * <p>
+   * <strong>Note:</strong> Calling {@link TitledTab#setEnabled(boolean)} will modify this property for the tab.
+   * </p>
+   *
+   * @param value true for enabled, otherwise false
+   * @return this TitledTabProperties
+   * @since ITP 1.5.0
+   */
+  public TitledTabProperties setEnabled(boolean value) {
+    ENABLED.set(getMap(), value);
+
+    return this;
+  }
+
+  /**
+   * Gets if this TitledTab is enabled or disabled
+   *
+   * @return true for enabled, otherwise false
+   * @since ITP 1.5.0
+   */
+  public boolean getEnabled() {
+    return ENABLED.get(getMap());
+  }
+
+  /**
    * <p>Sets the hover listener that will be triggered when the tab is hovered by the mouse.</p>
    *
    * <p>The hovered titled tab will be the source of the hover event sent to the hover listener.</p>
@@ -568,7 +608,7 @@ public class TitledTabProperties extends PropertyMapContainer {
   }
 
   private static void updateFunctionalProperties() {
-    DEFAULT_VALUES.setFocusable(true).setFocusMarkerEnabled(true).setSizePolicy(TitledTabSizePolicy.EQUAL_SIZE)
+    DEFAULT_VALUES.setEnabled(true).setFocusable(true).setFocusMarkerEnabled(true).setSizePolicy(TitledTabSizePolicy.EQUAL_SIZE)
         .setBorderSizePolicy(TitledTabBorderSizePolicy.EQUAL_SIZE).setHighlightedRaised(2);
 
     DEFAULT_VALUES.getNormalProperties().setHorizontalAlignment(Alignment.LEFT).setVerticalAlignment(Alignment.CENTER)

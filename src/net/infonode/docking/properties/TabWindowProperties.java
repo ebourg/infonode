@@ -20,17 +20,18 @@
  */
 
 
-// $Id: TabWindowProperties.java,v 1.18 2005/12/04 13:46:04 jesper Exp $
+// $Id: TabWindowProperties.java,v 1.20 2007/01/28 21:25:10 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.propertymap.*;
+import net.infonode.properties.types.BooleanProperty;
 import net.infonode.tabbedpanel.TabbedPanelProperties;
 
 /**
  * Properties and property values for tab windows.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.18 $
+ * @version $Revision: 1.20 $
  */
 public class TabWindowProperties extends PropertyMapContainer {
   /**
@@ -118,6 +119,16 @@ public class TabWindowProperties extends PropertyMapContainer {
                                                                                            "The dock button property values.",
                                                                                            WindowTabButtonProperties.PROPERTIES);
 
+  /**
+   * The repect child windows minimum sizes property.
+   *
+   * @since IDW 1.5.0
+   */
+  public static final BooleanProperty RESPECT_CHILD_WINDOW_MINIMUM_SIZE =
+      new BooleanProperty(PROPERTIES,
+                          "Respect Child Window Minimum Size",
+                          "When enabled the Tab Window will repsect its child windows minimum sizes.",
+                          PropertyMapValueHandler.INSTANCE);
 
   /**
    * Creates an empty property object.
@@ -256,4 +267,42 @@ public class TabWindowProperties extends PropertyMapContainer {
   public WindowTabButtonProperties getDockButtonProperties() {
     return new WindowTabButtonProperties(DOCK_BUTTON_PROPERTIES.get(getMap()));
   }
+
+  /**
+   * <p>
+   * Returns true if the TabWindow will respect its child windows minimum sizes.
+   * </p>
+   *
+   * <p>
+   * When true the content area of the TabWindow cannot be resized smaller than
+   * the maximum of all its child windows minimum sizes.
+   * </p>
+   *
+   * @return true if the TabWindow respects its child windows minimum sizes
+   * @since IDW 1.5.0
+   */
+  public boolean getRespectChildWindowMinimumSize() {
+    return RESPECT_CHILD_WINDOW_MINIMUM_SIZE.get(getMap());
+  }
+
+  /**
+   * <p>
+   * Enables/disables the TabWindow will respect its child windows minimum sizes.
+   * </p>
+   *
+   * <p>
+   * When true the content area of the TabWindow cannot be resized smaller than
+   * the maximum of all its child windows minimum sizes.
+   * </p>
+   *
+   * @param repsectMinimuSize if true the TabWindow will respect its child windows
+   *                          minimum sizes
+   * @return this
+   * @since IDW 1.5.0
+   */
+  public TabWindowProperties setRespectChildWindowMinimumSize(boolean repsectMinimuSize) {
+    RESPECT_CHILD_WINDOW_MINIMUM_SIZE.set(getMap(), repsectMinimuSize);
+    return this;
+  }
+
 }
