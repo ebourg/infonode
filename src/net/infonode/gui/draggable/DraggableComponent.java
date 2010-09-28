@@ -20,16 +20,10 @@
  */
 
 
-// $Id: DraggableComponent.java,v 1.31 2005/12/04 13:46:03 jesper Exp $
+// $Id: DraggableComponent.java,v 1.32 2009/02/05 15:57:56 jesper Exp $
 
 package net.infonode.gui.draggable;
 
-import net.infonode.gui.ComponentUtil;
-import net.infonode.gui.EventUtil;
-
-import javax.swing.*;
-import javax.swing.event.MouseInputAdapter;
-import javax.swing.event.MouseInputListener;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -37,9 +31,16 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
+import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
+import javax.swing.event.MouseInputAdapter;
+import javax.swing.event.MouseInputListener;
+
+import net.infonode.gui.ComponentUtil;
+import net.infonode.gui.EventUtil;
+
 public class DraggableComponent {
-  private static long MAX_EVENT_DELAY = 50;
-  private JComponent component;
+  private final JComponent component;
   private JComponent[] eventComponents;
 
   private boolean reorderEnabled = true;
@@ -64,7 +65,7 @@ public class DraggableComponent {
   private ArrayList listeners;
   private JComponent outerParentArea;
 
-  private KeyEventDispatcher abortDragKeyDispatcher = new KeyEventDispatcher() {
+  private final KeyEventDispatcher abortDragKeyDispatcher = new KeyEventDispatcher() {
     public boolean dispatchKeyEvent(KeyEvent e) {
       if (mousePressed && e.getKeyCode() == abortDragKeyCode) {
         if (e.getID() == KeyEvent.KEY_PRESSED)
@@ -75,7 +76,7 @@ public class DraggableComponent {
     }
   };
 
-  private MouseInputListener mouseInputListener = new MouseInputAdapter() {
+  private final MouseInputListener mouseInputListener = new MouseInputAdapter() {
     public void mousePressed(MouseEvent e) {
       //if (MouseEventCoalesceManager.getInstance().isPressedAllowed(e))
       pressed(e);
@@ -382,13 +383,13 @@ public class DraggableComponent {
     if (detectOuterAreaAsLine) {
       Insets i = new Insets(0, 0, 0, 0);//outerParentArea.getInsets();
       return component.getParent().contains(p)
-             ||
-             (outerParentArea.contains(p2) &&
-              (isVerticalDrag()
-               ?
+      ||
+      (outerParentArea.contains(p2) &&
+          (isVerticalDrag()
+              ?
                (p2.getX() >= i.left && p2.getX() < (outerParentArea.getWidth() - i.right))
                :
-               (p2.getY() >= i.top && p2.getY() < (outerParentArea.getHeight() - i.bottom))));
+                 (p2.getY() >= i.top && p2.getY() < (outerParentArea.getHeight() - i.bottom))));
     }
 
     return component.getParent().contains(p) || outerParentArea.contains(p2);

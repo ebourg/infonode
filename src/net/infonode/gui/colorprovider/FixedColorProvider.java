@@ -20,20 +20,19 @@
  */
 
 
-// $Id: FixedColorProvider.java,v 1.7 2005/02/16 11:28:10 jesper Exp $
+// $Id: FixedColorProvider.java,v 1.8 2009/02/05 15:57:56 jesper Exp $
 package net.infonode.gui.colorprovider;
 
-import java.awt.*;
+import java.awt.Color;
 import java.io.ObjectStreamException;
-import java.io.Serializable;
 
 /**
  * A {@link ColorProvider} which always returns the same color.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
-public class FixedColorProvider extends AbstractColorProvider implements Serializable {
+public class FixedColorProvider extends AbstractColorProvider {
   private static final long serialVersionUID = 1;
 
   /**

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowDragger.java,v 1.30 2007/01/28 21:25:10 jesper Exp $
+// $Id: WindowDragger.java,v 1.31 2008/04/04 12:42:15 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.drag.DockingWindowDragger;
@@ -33,7 +33,7 @@ import java.awt.event.MouseEvent;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.30 $
+ * @version $Revision: 1.31 $
  */
 class WindowDragger implements DockingWindowDragger {
   private DockingWindow dragWindow;
@@ -94,6 +94,7 @@ class WindowDragger implements DockingWindowDragger {
 
   public void dragWindow(MouseEvent mouseEvent) {
     JRootPane root = rootWindow.getCurrentDragRootPane();
+    
     Point point = SwingUtilities.convertPoint((Component) mouseEvent.getSource(),
                                               mouseEvent.getPoint(),
                                               root);

@@ -20,15 +20,10 @@
  */
 
 
-// $Id: HoverManager.java,v 1.14 2005/12/04 13:46:03 jesper Exp $
+// $Id: HoverManager.java,v 1.16 2008/11/28 10:00:35 jesper Exp $
 
 package net.infonode.gui.hover.hoverable;
 
-import net.infonode.gui.ComponentUtil;
-import net.infonode.util.ArrayUtil;
-
-import javax.swing.*;
-import javax.swing.event.MouseInputAdapter;
 import java.awt.*;
 import java.awt.event.AWTEventListener;
 import java.awt.event.HierarchyEvent;
@@ -37,21 +32,26 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import javax.swing.SwingUtilities;
+import javax.swing.event.MouseInputAdapter;
+
+import net.infonode.gui.ComponentUtil;
+import net.infonode.util.ArrayUtil;
+
 /**
  * @author johan
  */
 public class HoverManager {
   private static HoverManager INSTANCE = new HoverManager();
 
-  private HierarchyListener hierarchyListener = new HierarchyListener() {
+  private final HierarchyListener hierarchyListener = new HierarchyListener() {
     public void hierarchyChanged(final HierarchyEvent e) {
       SwingUtilities.invokeLater(new Runnable() {
         public void run() {
           if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) {
             if (((Component) e.getSource()).isShowing()) {
               addHoverListeners((Hoverable) e.getSource());
-            }
-            else {
+            } else {
               removeHoverListeners((Hoverable) e.getSource());
             }
           }
@@ -60,21 +60,24 @@ public class HoverManager {
     }
   };
 
-  private MouseInputAdapter mouseAdapter = new MouseInputAdapter() {
+  private final MouseInputAdapter mouseAdapter = new MouseInputAdapter() {
   };
 
-  private HashSet hoverableComponents = new HashSet();
-  private ArrayList enteredComponents = new ArrayList();
+  private final HashSet hoverableComponents = new HashSet();
+
+  private final ArrayList enteredComponents = new ArrayList();
 
   private boolean enabled = true;
+
   private boolean hasPermission = true;
 
   private boolean active = true;
 
   private boolean gotEnterAfterExit = false;
+
   private boolean isDrag = false;
 
-  private AWTEventListener eventListener = new AWTEventListener() {
+  private final AWTEventListener eventListener = new AWTEventListener() {
     public void eventDispatched(final AWTEvent e) {
       if (active) {
         HoverManager.this.eventDispatched(e);
@@ -83,19 +86,18 @@ public class HoverManager {
   };
 
   private void eventDispatched(final AWTEvent e) {
-    MouseEvent event = (MouseEvent) e;
+    if (e.getSource() instanceof Component /* Fix for TrayIcon in 1.6. Only handle real components */ && e instanceof MouseEvent) {
+      MouseEvent event = (MouseEvent) e;
 
-    if (event.getID() == MouseEvent.MOUSE_PRESSED || event.getID() == MouseEvent.MOUSE_RELEASED) {
-      handleButtonEvent(event);
-    }
-    else if (event.getID() == MouseEvent.MOUSE_ENTERED || event.getID() == MouseEvent.MOUSE_MOVED) {
-      handleEnterEvent(event);
-    }
-    else if (event.getID() == MouseEvent.MOUSE_EXITED) {
-      handleExitEvent(event);
-    }
-    else if (event.getID() == MouseEvent.MOUSE_DRAGGED) {
-      isDrag = true;
+      if (event.getID() == MouseEvent.MOUSE_PRESSED || event.getID() == MouseEvent.MOUSE_RELEASED) {
+        handleButtonEvent(event);
+      } else if (event.getID() == MouseEvent.MOUSE_ENTERED || event.getID() == MouseEvent.MOUSE_MOVED) {
+        handleEnterEvent(event);
+      } else if (event.getID() == MouseEvent.MOUSE_EXITED) {
+        handleExitEvent(event);
+      } else if (event.getID() == MouseEvent.MOUSE_DRAGGED) {
+        isDrag = true;
+      }
     }
   }
 
@@ -103,8 +105,7 @@ public class HoverManager {
     if (event.getID() == MouseEvent.MOUSE_PRESSED && event.getButton() == MouseEvent.BUTTON1) {
       enabled = false;
       isDrag = false;
-    }
-    else if (!enabled && event.getID() == MouseEvent.MOUSE_RELEASED) {
+    } else if (!enabled && event.getID() == MouseEvent.MOUSE_RELEASED) {
       enabled = true;
 
       if (isDrag) {
@@ -115,8 +116,7 @@ public class HoverManager {
           final Point p = SwingUtilities.convertPoint((Component) event.getSource(), event.getPoint(), top);
           if (!top.contains(p.x, p.y)) {
             exitAll();
-          }
-          else if (top instanceof Container) {
+          } else if (top instanceof Container) {
             SwingUtilities.invokeLater(new Runnable() {
               public void run() {
                 SwingUtilities.invokeLater(new Runnable() {
@@ -192,8 +192,7 @@ public class HoverManager {
       SecurityManager sm = System.getSecurityManager();
       if (sm != null)
         sm.checkPermission(new AWTPermission("listenToAllAWTEvents"));
-    }
-    catch (SecurityException e) {
+    } catch (SecurityException e) {
       hasPermission = false;
     }
   }
@@ -228,11 +227,9 @@ public class HoverManager {
 
       if (active && hoverableComponents.size() == 1) {
         try {
-          Toolkit.getDefaultToolkit().addAWTEventListener(eventListener,
-                                                          AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK);
+          Toolkit.getDefaultToolkit().addAWTEventListener(eventListener, AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK);
           hasPermission = true;
-        }
-        catch (SecurityException e) {
+        } catch (SecurityException e) {
           hasPermission = false;
         }
       }

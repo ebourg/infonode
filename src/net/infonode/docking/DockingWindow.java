@@ -20,7 +20,7 @@
  */
 
 
-// $Id: DockingWindow.java,v 1.119 2007/01/28 21:25:09 jesper Exp $
+// $Id: DockingWindow.java,v 1.120 2008/04/04 12:42:15 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.drag.DockingWindowDragger;
@@ -68,7 +68,7 @@ import java.util.Map;
  * <b>Warning: </b> the non-public methods in this class can be changed in non-compatible ways in future versions.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.119 $
+ * @version $Revision: 1.120 $
  */
 abstract public class DockingWindow extends BasePanel {
   private static int DROP_FLOATING_YOFFSET = 10;
@@ -197,6 +197,12 @@ abstract public class DockingWindow extends BasePanel {
 
     if (!isRestore)
       w.updateWindowItems();
+  }
+  
+  protected void updateWindowItem(DockingWindow w) {
+  	int index = getChildWindowIndex(w);
+  	int modelIndex = index == 0 ? 0 : windowItem.getWindowIndex(getChildWindow(index - 1).getWindowItem()) + 1;
+    windowItem.addWindow(w.getWindowItem(), modelIndex);
   }
 
   protected final void updateWindowItems() {

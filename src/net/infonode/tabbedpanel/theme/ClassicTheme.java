@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ClassicTheme.java,v 1.14 2005/12/04 13:46:05 jesper Exp $
+// $Id: ClassicTheme.java,v 1.15 2008/04/04 12:43:22 jesper Exp $
 
 package net.infonode.tabbedpanel.theme;
 
@@ -45,7 +45,7 @@ import java.awt.*;
  * A theme with a "classic" look and with round edges for the titled tabs.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.14 $
+ * @version $Revision: 1.15 $
  * @since ITP 1.2.0
  */
 public class ClassicTheme extends TabbedPanelTitledTabTheme {
@@ -104,7 +104,7 @@ public class ClassicTheme extends TabbedPanelTitledTabTheme {
       }
     };
 
-    Border contentBorder = contentBorder = new CompoundBorder(
+    Border contentBorder = new CompoundBorder(
         new OpenContentBorder(highlightColor, darkShadow, null, 1),
         new OpenContentBorder(null, shadowColor, null, 1));
     tabbedPanelProperties.getContentPanelProperties().getComponentProperties().setBorder(contentBorder).setInsets(

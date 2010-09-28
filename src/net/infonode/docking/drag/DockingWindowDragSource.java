@@ -20,15 +20,14 @@
  */
 
 
-// $Id: DockingWindowDragSource.java,v 1.7 2005/06/10 14:13:41 johan Exp $
+// $Id: DockingWindowDragSource.java,v 1.8 2009/02/05 15:57:55 jesper Exp $
 package net.infonode.docking.drag;
+
+import javax.swing.JComponent;
 
 import net.infonode.gui.draggable.DraggableComponent;
 import net.infonode.gui.draggable.DraggableComponentAdapter;
 import net.infonode.gui.draggable.DraggableComponentEvent;
-
-import javax.swing.*;
-import java.awt.*;
 
 /**
  * Handles the drag and drop of a {@link net.infonode.docking.DockingWindow} triggered by mouse events on a
@@ -36,14 +35,14 @@ import java.awt.*;
  * the key set in the {@link net.infonode.docking.properties.RootWindowProperties#ABORT_DRAG_KEY} property of the
  * {@link net.infonode.docking.RootWindow} which is the drop target.
  *
- * @author $Author: johan $
- * @version $Revision: 1.7 $
+ * @author $Author: jesper $
+ * @version $Revision: 1.8 $
  * @since IDW 1.3.0
  */
 public class DockingWindowDragSource {
-  private DraggableComponent draggableComponent;
+  private final DraggableComponent draggableComponent;
   private DockingWindowDragger dragger;
-  private Point startPoint;
+  //  private Point startPoint;
 
   /**
    * Constructor.
@@ -68,7 +67,7 @@ public class DockingWindowDragSource {
 
       public void dragged(DraggableComponentEvent event) {
         if (dragger == null) {
-          startPoint = event.getMouseEvent().getPoint();
+          //          startPoint = event.getMouseEvent().getPoint();
           dragger = draggerProvider.getDragger(event.getMouseEvent());
 
           if (dragger == null) {
@@ -84,7 +83,7 @@ public class DockingWindowDragSource {
             Math.abs(startPoint.y - event.getMouseEvent().getY()) < 16)
           return;*/
 
-        startPoint = null;
+        //        startPoint = null;
         dragger.dragWindow(event.getMouseEvent());
       }
 
@@ -92,7 +91,7 @@ public class DockingWindowDragSource {
         if (dragger != null) {
           dragger.dropWindow(event.getMouseEvent());
           dragger = null;
-          startPoint = null;
+          //startPoint = null;
         }
       }
     });
@@ -106,7 +105,7 @@ public class DockingWindowDragSource {
       dragger.abortDrag();
 
     dragger = null;
-    startPoint = null;
+    //    startPoint = null;
   }
 
 }

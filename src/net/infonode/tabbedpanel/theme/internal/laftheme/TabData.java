@@ -20,21 +20,21 @@
  */
 
 
-// $Id: TabData.java,v 1.3 2005/12/04 13:46:05 jesper Exp $
+// $Id: TabData.java,v 1.4 2009/02/05 15:57:56 jesper Exp $
 package net.infonode.tabbedpanel.theme.internal.laftheme;
+
+import java.awt.Dimension;
+import java.util.ArrayList;
 
 import net.infonode.gui.DimensionUtil;
 import net.infonode.tabbedpanel.Tab;
 import net.infonode.tabbedpanel.TabbedPanel;
 import net.infonode.util.Direction;
 
-import java.awt.*;
-import java.util.ArrayList;
-
 class TabData {
-  private ArrayList tabList = new ArrayList();
+  private final ArrayList tabList = new ArrayList();
 
-  private ArrayList visibleTabRects = new ArrayList();
+  private final ArrayList visibleTabRects = new ArrayList();
 
   private TabbedPanel tabbedPanel;
 
@@ -48,7 +48,7 @@ class TabData {
 
   private Dimension tpInternalSize;
 
-  private Tab preTab;;
+  private Tab preTab;
   private Tab postTab;
 
   public TabData() {

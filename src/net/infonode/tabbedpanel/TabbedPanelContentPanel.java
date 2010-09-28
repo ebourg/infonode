@@ -20,8 +20,17 @@
  */
 
 
-// $Id: TabbedPanelContentPanel.java,v 1.59 2005/12/04 13:46:05 jesper Exp $
+// $Id: TabbedPanelContentPanel.java,v 1.60 2009/02/05 15:57:55 jesper Exp $
 package net.infonode.tabbedpanel;
+
+import java.awt.BorderLayout;
+import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Map;
+
+import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 
 import net.infonode.gui.ComponentPaintChecker;
 import net.infonode.gui.draggable.DraggableComponentBoxAdapter;
@@ -38,33 +47,26 @@ import net.infonode.tabbedpanel.internal.TabbedHoverUtil;
 import net.infonode.util.Direction;
 import net.infonode.util.ValueChange;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Map;
-
 /**
  * A TabbedPanelContentPanel is a component that holds a container for tab content
  * components. It can be configured using properties that specifies the look for
  * the content panel.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.59 $
+ * @version $Revision: 1.60 $
  * @see TabbedPanel
  * @see Tab
  */
 public class TabbedPanelContentPanel extends BaseContainer {
-  private TabbedPanel tabbedPanel;
-  private HoverableShapedPanel shapedPanel;
-  private ComponentPaintChecker repaintChecker;
+  private final TabbedPanel tabbedPanel;
+  private final HoverableShapedPanel shapedPanel;
+  private final ComponentPaintChecker repaintChecker;
 
-  private PropertyMapTreeListener propertiesListener = new PropertyMapTreeListener() {
+  private final PropertyMapTreeListener propertiesListener = new PropertyMapTreeListener() {
     public void propertyValuesChanged(Map changes) {
       Map m = (Map) changes.get(tabbedPanel.getProperties().getContentPanelProperties().getMap());
       if (m != null) {
         if (m.keySet().contains(TabbedPanelContentPanelProperties.HOVER_LISTENER)) {
-          HoverListener oldHoverListener = shapedPanel.getHoverListener();
           shapedPanel.setHoverListener(
               (HoverListener) ((ValueChange) m.get(TabbedPanelContentPanelProperties.HOVER_LISTENER)).getNewValue());
         }
@@ -99,13 +101,13 @@ public class TabbedPanelContentPanel extends BaseContainer {
     this.tabbedPanel = tabbedPanel;
 
     shapedPanel = new HoverableShapedPanel(new BorderLayout(),
-                                           tabbedPanel.getProperties().getContentPanelProperties().getHoverListener(),
-                                           tabbedPanel) {
+        tabbedPanel.getProperties().getContentPanelProperties().getHoverListener(),
+        tabbedPanel) {
       public boolean acceptHover(ArrayList enterableHoverables) {
         return TabbedHoverUtil.acceptTabbedPanelHover(getTabbedPanel().getProperties().getHoverPolicy(),
-                                                      enterableHoverables,
-                                                      getTabbedPanel(),
-                                                      this);
+            enterableHoverables,
+            getTabbedPanel(),
+            this);
       }
 
       protected void processMouseEvent(MouseEvent event) {
@@ -194,8 +196,8 @@ public class TabbedPanelContentPanel extends BaseContainer {
   private void update() {
     getProperties().getComponentProperties().applyTo(shapedPanel);
     InternalPropertiesUtil.applyTo(getProperties().getShapedPanelProperties(),
-                                   shapedPanel,
-                                   tabbedPanel.getProperties().getTabAreaOrientation().getNextCW());
+        shapedPanel,
+        tabbedPanel.getProperties().getTabAreaOrientation().getNextCW());
     BaseContainerUtil.setForcedOpaque(this, getProperties().getShapedPanelProperties().getOpaque());
     //setForcedOpaque(getProperties().getShapedPanelProperties().getOpaque());
   }
@@ -212,14 +214,14 @@ public class TabbedPanelContentPanel extends BaseContainer {
         r = new Rectangle(0, 0, shapedPanel.getInsets().left, shapedPanel.getHeight());
       else if (d == Direction.DOWN)
         r = new Rectangle(0,
-                          shapedPanel.getHeight() - shapedPanel.getInsets().bottom - 1,
-                          shapedPanel.getWidth(),
-                          shapedPanel.getHeight());
+            shapedPanel.getHeight() - shapedPanel.getInsets().bottom - 1,
+            shapedPanel.getWidth(),
+            shapedPanel.getHeight());
       else
         r = new Rectangle(shapedPanel.getWidth() - shapedPanel.getInsets().right - 1,
-                          0,
-                          shapedPanel.getWidth(),
-                          shapedPanel.getHeight());
+            0,
+            shapedPanel.getWidth(),
+            shapedPanel.getHeight());
 
       shapedPanel.repaint(r);
     }

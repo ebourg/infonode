@@ -20,8 +20,20 @@
  */
 
 
-// $Id: AbstractTabWindow.java,v 1.72 2007/01/28 21:25:09 jesper Exp $
+// $Id: AbstractTabWindow.java,v 1.74 2009/02/05 15:57:55 jesper Exp $
 package net.infonode.docking;
+
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 
 import net.infonode.docking.drop.InsertTabDropInfo;
 import net.infonode.docking.internal.ReadContext;
@@ -38,30 +50,26 @@ import net.infonode.properties.propertymap.PropertyMapManager;
 import net.infonode.tabbedpanel.*;
 import net.infonode.util.ChangeNotifyList;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-
 /**
  * Abstract base class for windows containing a tabbed panel.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.72 $
+ * @version $Revision: 1.74 $
  */
 abstract public class AbstractTabWindow extends DockingWindow {
   private static int MINIMUM_SIZE = 7;
 
-  private DropAction dropAction = new DropAction() {
+  private final DropAction dropAction = new DropAction() {
     public boolean showTitle() {
       return false;
     }
 
     public void execute(DockingWindow window, MouseEvent mouseEvent) {
-      if (window.getWindowParent() != AbstractTabWindow.this) {
+      if (window.getWindowParent() == AbstractTabWindow.this) {
+        // Tab moved inside window
+        updateWindowItem(window);
+      }
+      else {
         int index = tabbedPanel.getTabIndex(dragTab);
         stopDrag();
 
@@ -140,13 +148,13 @@ abstract public class AbstractTabWindow extends DockingWindow {
     }
     else
       tabbedPanel = new TabbedPanel(null) {
-        public Dimension getMinimumSize() {
-          if (getTabWindowProperties().getRespectChildWindowMinimumSize())
-            return super.getMinimumSize();
+      public Dimension getMinimumSize() {
+        if (getTabWindowProperties().getRespectChildWindowMinimumSize())
+          return super.getMinimumSize();
 
-          return getTabbedPanelMinimumSize(super.getMinimumSize());
-        }
-      };
+        return getTabbedPanelMinimumSize(super.getMinimumSize());
+      }
+    };
 
     tabbedPanel.addTabListener(new TabWindowMover(this, tabbedPanel));
     setComponent(tabbedPanel);
@@ -160,7 +168,7 @@ abstract public class AbstractTabWindow extends DockingWindow {
         });
       }
 
-      public void tabRemoved(final TabEvent event) {
+      public void tabRemoved(final TabRemovedEvent event) {
         SwingUtilities.invokeLater(new Runnable() {
           public void run() {
             updateButtonVisibility();
@@ -230,10 +238,10 @@ abstract public class AbstractTabWindow extends DockingWindow {
   public final java.util.List getCustomTabAreaComponents() {
     if (tabAreaComponents == null)
       tabAreaComponents = new ChangeNotifyList() {
-        protected void changed() {
-          updateTabAreaComponents();
-        }
-      };
+      protected void changed() {
+        updateTabAreaComponents();
+      }
+    };
 
     return tabAreaComponents;
   }

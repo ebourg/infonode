@@ -20,30 +20,32 @@
  */
 
 
-// $Id: FocusBorder.java,v 1.14 2005/12/04 13:46:03 jesper Exp $
+// $Id: FocusBorder.java,v 1.15 2009/02/05 15:57:56 jesper Exp $
 package net.infonode.gui.border;
 
-import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
-import net.infonode.gui.UIManagerUtil;
-
-import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.plaf.basic.BasicGraphicsUtils;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Insets;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.Serializable;
 
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.plaf.basic.BasicGraphicsUtils;
+
+import net.infonode.gui.UIManagerUtil;
+
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.14 $
+ * @version $Revision: 1.15 $
  */
 public class FocusBorder implements Border, Serializable {
   private static final long serialVersionUID = 1;
 
   private static final Insets INSETS = new Insets(1, 1, 1, 1);
 
-  private Component component;
+  private final Component component;
 
   private boolean enabled = true;
 
@@ -84,7 +86,7 @@ public class FocusBorder implements Border, Serializable {
     if (enabled && component.hasFocus()) {
       g.setColor(UIManagerUtil.getColor("Button.focus", "TabbedPane.focus"));
 
-      if (UIManager.getLookAndFeel().getClass() == WindowsLookAndFeel.class)
+      if (UIManager.getLookAndFeel().getClass().getName().equals("com.sun.java.swing.plaf.windows.WindowsLookAndFeel"))
         BasicGraphicsUtils.drawDashedRect(g, x, y, width, height);
       else
         g.drawRect(x, y, width - 1, height - 1);

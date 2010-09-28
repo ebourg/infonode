@@ -20,15 +20,16 @@
  */
 
 
-// $Id: BackgroundPainterColorProvider.java,v 1.7 2005/02/16 11:28:10 jesper Exp $
+// $Id: BackgroundPainterColorProvider.java,v 1.8 2009/02/05 15:57:56 jesper Exp $
 package net.infonode.gui.colorprovider;
 
-import net.infonode.gui.ComponentUtil;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
 import java.io.ObjectStreamException;
-import java.io.Serializable;
+
+import javax.swing.UIManager;
+
+import net.infonode.gui.ComponentUtil;
 
 /**
  * Finds the most suitable background color of a component.
@@ -37,9 +38,9 @@ import java.io.Serializable;
  * color is taken from this painter, otherwise the component background color is used.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
-public class BackgroundPainterColorProvider extends AbstractColorProvider implements Serializable {
+public class BackgroundPainterColorProvider extends AbstractColorProvider {
   private static final long serialVersionUID = 1;
 
   /**

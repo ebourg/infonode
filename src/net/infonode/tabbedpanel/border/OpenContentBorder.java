@@ -20,8 +20,15 @@
  */
 
 
-// $Id: OpenContentBorder.java,v 1.29 2005/07/17 14:29:05 johan Exp $
+// $Id: OpenContentBorder.java,v 1.30 2009/02/05 15:57:55 jesper Exp $
 package net.infonode.tabbedpanel.border;
+
+import java.awt.*;
+import java.awt.geom.PathIterator;
+import java.io.Serializable;
+
+import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
 
 import net.infonode.gui.GraphicsUtil;
 import net.infonode.gui.colorprovider.ColorProvider;
@@ -32,12 +39,6 @@ import net.infonode.tabbedpanel.Tab;
 import net.infonode.tabbedpanel.TabbedPanel;
 import net.infonode.tabbedpanel.TabbedUtils;
 import net.infonode.util.Direction;
-
-import javax.swing.*;
-import javax.swing.border.Border;
-import java.awt.*;
-import java.awt.geom.PathIterator;
-import java.io.Serializable;
 
 /**
  * <p>
@@ -53,16 +54,16 @@ import java.io.Serializable;
  * shape will be used to calculate where the OpenContentBorder should be open.
  * </p>
  *
- * @author $Author: johan $
- * @version $Revision: 1.29 $
+ * @author $Author: jesper $
+ * @version $Revision: 1.30 $
  * @see TabbedPanel
  */
 public class OpenContentBorder implements Border, Serializable {
   private static final long serialVersionUID = 1;
 
-  private ColorProvider topLeftLineColor;
-  private ColorProvider bottomRightLineColor;
-  private ColorProvider highlightColorProvider;
+  private final ColorProvider topLeftLineColor;
+  private final ColorProvider bottomRightLineColor;
+  private final ColorProvider highlightColorProvider;
   private int tabLeftInset = 1;
 
   /**
@@ -102,8 +103,8 @@ public class OpenContentBorder implements Border, Serializable {
    */
   public OpenContentBorder(Color color, Color highlightColor) {
     this(ColorProviderUtil.getColorProvider(color, UIManagerColorProvider.TABBED_PANE_DARK_SHADOW),
-         highlightColor == null ? null : new FixedColorProvider(highlightColor),
-         1);
+        highlightColor == null ? null : new FixedColorProvider(highlightColor),
+                               1);
   }
 
   /**
@@ -138,13 +139,13 @@ public class OpenContentBorder implements Border, Serializable {
   private static int getLineIntersection(int edge, float x1, float y1, float x2, float y2, Direction orientation) {
     return (orientation.isHorizontal() ?
 
-            ((x1 <= edge && x2 >= edge) || (x1 >= edge && x2 <= edge) ?
-             Math.round(x2 == x1 ? y2 : y1 + (edge - x1) * (y2 - y1) / (x2 - x1)) :
-             Integer.MAX_VALUE) :
+                                        ((x1 <= edge && x2 >= edge) || (x1 >= edge && x2 <= edge) ?
+                                                                                                   Math.round(x2 == x1 ? y2 : y1 + (edge - x1) * (y2 - y1) / (x2 - x1)) :
+                                                                                                     Integer.MAX_VALUE) :
 
-            ((y1 <= edge && y2 >= edge) || (y1 >= edge && y2 <= edge) ?
-             Math.round(y2 == y1 ? x2 : x1 + (edge - y1) * (x2 - x1) / (y2 - y1)) :
-             Integer.MAX_VALUE));
+                                                                                                       ((y1 <= edge && y2 >= edge) || (y1 >= edge && y2 <= edge) ?
+                                                                                                                                                                  Math.round(y2 == y1 ? x2 : x1 + (edge - y1) * (x2 - x1) / (y2 - y1)) :
+                                                                                                                                                                    Integer.MAX_VALUE));
   }
 
   private static Point getTabBounds(Component c, Tab tab, Direction orientation, int x, int y, int width, int height) {
@@ -156,9 +157,9 @@ public class OpenContentBorder implements Border, Serializable {
 
     if (shape != null) {
       int edge = orientation == Direction.UP ? tab.getHeight() :
-                 orientation == Direction.RIGHT ? -1 :
-                 orientation == Direction.DOWN ? -1 :
-                 tab.getWidth();
+        orientation == Direction.RIGHT ? -1 :
+          orientation == Direction.DOWN ? -1 :
+            tab.getWidth();
 
       float[] coords = new float[6];
       PathIterator it = shape.getPathIterator(null);
@@ -172,7 +173,6 @@ public class OpenContentBorder implements Border, Serializable {
       for (; !it.isDone(); it.next()) {
         float lastX = coords[0];
         float lastY = coords[1];
-        int type = it.currentSegment(coords);
         int li = getLineIntersection(edge, lastX, lastY, coords[0], coords[1], orientation);
 
         if (li != Integer.MAX_VALUE) {

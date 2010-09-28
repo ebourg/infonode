@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowBar.java,v 1.68 2007/01/28 21:25:10 jesper Exp $
+// $Id: WindowBar.java,v 1.69 2007/05/18 11:23:32 johan Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.internal.HeavyWeightContainer;
@@ -56,8 +56,8 @@ import java.io.ObjectOutputStream;
  * It's a tabbed panel where the content panel is dynamically shown and hidden.
  * A window bar is enabled and disabled using the {@link Component#setEnabled} method.
  *
- * @author $Author: jesper $
- * @version $Revision: 1.68 $
+ * @author $Author: johan $
+ * @version $Revision: 1.69 $
  */
 public class WindowBar extends AbstractTabWindow {
   private RootWindow rootWindow;
@@ -197,7 +197,14 @@ public class WindowBar extends AbstractTabWindow {
 
     if (heavyWeightEdgePanel == null) {
       //edgePanel.setOpaque(true);
-      heavyWeightEdgePanel = new HeavyWeightContainer(edgePanel);
+      heavyWeightEdgePanel = new HeavyWeightContainer(edgePanel) {
+        // 2007-05-18: Overrided as workaround for repaint problem while using heavyweight in Java 1.6.
+        public void setVisible(boolean v) {
+          if (getRootWindow() != null)
+            getRootWindow().paintImmediately(0, 0, getRootWindow().getWidth(), getRootWindow().getHeight());
+          super.setVisible(v);
+        }
+      };
       heavyWeightEdgePanel.setVisible(false);
     }
 

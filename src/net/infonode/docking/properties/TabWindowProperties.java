@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabWindowProperties.java,v 1.20 2007/01/28 21:25:10 jesper Exp $
+// $Id: TabWindowProperties.java,v 1.21 2008/04/03 23:17:57 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.propertymap.*;
@@ -31,7 +31,7 @@ import net.infonode.tabbedpanel.TabbedPanelProperties;
  * Properties and property values for tab windows.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.20 $
+ * @version $Revision: 1.21 $
  */
 public class TabWindowProperties extends PropertyMapContainer {
   /**
@@ -127,7 +127,7 @@ public class TabWindowProperties extends PropertyMapContainer {
   public static final BooleanProperty RESPECT_CHILD_WINDOW_MINIMUM_SIZE =
       new BooleanProperty(PROPERTIES,
                           "Respect Child Window Minimum Size",
-                          "When enabled the Tab Window will repsect its child windows minimum sizes.",
+                          "When enabled the Tab Window will respect its child windows minimum sizes.",
                           PropertyMapValueHandler.INSTANCE);
 
   /**

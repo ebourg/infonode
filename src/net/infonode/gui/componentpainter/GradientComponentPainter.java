@@ -20,8 +20,12 @@
  */
 
 
-// $Id: GradientComponentPainter.java,v 1.11 2005/12/04 13:46:03 jesper Exp $
+// $Id: GradientComponentPainter.java,v 1.12 2009/02/05 15:57:56 jesper Exp $
 package net.infonode.gui.componentpainter;
+
+import java.awt.*;
+import java.awt.image.MemoryImageSource;
+import java.lang.ref.SoftReference;
 
 import net.infonode.gui.colorprovider.ColorProvider;
 import net.infonode.gui.colorprovider.FixedColorProvider;
@@ -29,23 +33,18 @@ import net.infonode.util.ColorUtil;
 import net.infonode.util.Direction;
 import net.infonode.util.ImageUtils;
 
-import java.awt.*;
-import java.awt.image.MemoryImageSource;
-import java.io.Serializable;
-import java.lang.ref.SoftReference;
-
 /**
  * A painter that paints an gradient area specified by four corner colors.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.12 $
  */
-public class GradientComponentPainter extends AbstractComponentPainter implements Serializable {
+public class GradientComponentPainter extends AbstractComponentPainter {
   private static final long serialVersionUID = 1;
 
-  private ColorProvider[] colorProviders = new ColorProvider[4];
+  private final ColorProvider[] colorProviders = new ColorProvider[4];
   private transient Color[] colors;
-  private int size = 128;
+  private final int size = 128;
   private transient SoftReference[] images;
   private transient boolean hasAlpha;
 
@@ -61,7 +60,7 @@ public class GradientComponentPainter extends AbstractComponentPainter implement
                                   Color bottomRightColor) {
     this(new FixedColorProvider(topLeftColor), new FixedColorProvider(topRightColor), new FixedColorProvider(
         bottomLeftColor),
-         new FixedColorProvider(bottomRightColor));
+        new FixedColorProvider(bottomRightColor));
   }
 
   /**
@@ -112,24 +111,24 @@ public class GradientComponentPainter extends AbstractComponentPainter implement
 
   }
 
-/*
- * private Image createLineImage(Direction direction, Color c1, Color c2) {
- * BufferedImage image = new BufferedImage(direction.isHorizontal() ? size : 1,
- * direction.isHorizontal() ? 1 : size, BufferedImage.TYPE_INT_RGB);
- * 
- * int dx = direction == Direction.RIGHT ? 1 : direction == Direction.LEFT ? -1 :
- * 0; int dy = direction == Direction.DOWN ? 1 : direction == Direction.UP ? -1 :
- * 0;
- * 
- * int x = direction == Direction.LEFT ? size - 1 : 0; int y = direction ==
- * Direction.UP ? size - 1 : 0;
- * 
- * for (int i = 0; i < size; i++) { Color c = ColorUtil.blend(c1, c2, (double) i /
- * size); image.setRGB(x, y, c.getRGB()); x += dx; y += dy; }
- * 
- * return image; }
- */
-/*  private static void drawLines(Direction direction, Graphics g, int x, int y, int width, int height, Color c1, Color c2) {
+  /*
+   * private Image createLineImage(Direction direction, Color c1, Color c2) {
+   * BufferedImage image = new BufferedImage(direction.isHorizontal() ? size : 1,
+   * direction.isHorizontal() ? 1 : size, BufferedImage.TYPE_INT_RGB);
+   * 
+   * int dx = direction == Direction.RIGHT ? 1 : direction == Direction.LEFT ? -1 :
+   * 0; int dy = direction == Direction.DOWN ? 1 : direction == Direction.UP ? -1 :
+   * 0;
+   * 
+   * int x = direction == Direction.LEFT ? size - 1 : 0; int y = direction ==
+   * Direction.UP ? size - 1 : 0;
+   * 
+   * for (int i = 0; i < size; i++) { Color c = ColorUtil.blend(c1, c2, (double) i /
+   * size); image.setRGB(x, y, c.getRGB()); x += dx; y += dy; }
+   * 
+   * return image; }
+   */
+  /*  private static void drawLines(Direction direction, Graphics g, int x, int y, int width, int height, Color c1, Color c2) {
     int size = direction.isHorizontal() ? width : height;
     Int4 c = ImageUtils.toInt4(c1);
     Int4 dc = ImageUtils.toInt4(c2).sub(ImageUtils.toInt4(c1)).div(size);
@@ -209,12 +208,12 @@ public class GradientComponentPainter extends AbstractComponentPainter implement
 
   private Image createGradientImage(Color[] colors) {
     return Toolkit.getDefaultToolkit().createImage(new MemoryImageSource(size,
-                                                                         size,
-                                                                         ImageUtils.createGradientPixels(colors,
-                                                                                                         size,
-                                                                                                         size),
-                                                                         0,
-                                                                         size));
+        size,
+        ImageUtils.createGradientPixels(colors,
+            size,
+            size),
+            0,
+            size));
   }
 
   private void updateColors(Component component) {
@@ -247,7 +246,7 @@ public class GradientComponentPainter extends AbstractComponentPainter implement
   public Color getColor(Component component) {
     updateColors(component);
     return ColorUtil.blend(ColorUtil.blend(colors[0], colors[1], 0.5),
-                           ColorUtil.blend(colors[2], colors[3], 0.5),
-                           0.5);
+        ColorUtil.blend(colors[2], colors[3], 0.5),
+        0.5);
   }
 }

@@ -20,26 +20,11 @@
  */
 
 
-// $Id: TitledTab.java,v 1.88 2007/01/28 21:25:49 jesper Exp $
+// $Id: TitledTab.java,v 1.89 2009/02/05 15:57:56 jesper Exp $
 package net.infonode.tabbedpanel.titledtab;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Insets;
-import java.awt.KeyboardFocusManager;
-import java.awt.LayoutManager;
-import java.awt.Point;
-import java.awt.Shape;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
@@ -73,14 +58,7 @@ import net.infonode.properties.gui.util.ShapedPanelProperties;
 import net.infonode.properties.propertymap.PropertyMapTreeListener;
 import net.infonode.properties.propertymap.PropertyMapWeakListenerManager;
 import net.infonode.properties.util.PropertyChangeListener;
-import net.infonode.tabbedpanel.Tab;
-import net.infonode.tabbedpanel.TabAdapter;
-import net.infonode.tabbedpanel.TabEvent;
-import net.infonode.tabbedpanel.TabRemovedEvent;
-import net.infonode.tabbedpanel.TabSelectTrigger;
-import net.infonode.tabbedpanel.TabbedPanel;
-import net.infonode.tabbedpanel.TabbedPanelProperties;
-import net.infonode.tabbedpanel.TabbedUtils;
+import net.infonode.tabbedpanel.*;
 import net.infonode.util.Alignment;
 import net.infonode.util.Direction;
 import net.infonode.util.ValueChange;
@@ -116,7 +94,7 @@ import net.infonode.util.ValueChange;
  * enters or exits the tab. The hover event's source will be the affected titled tab.</p>
  *
  * @author $Author: jesper $
- * @version $Revision: 1.88 $
+ * @version $Revision: 1.89 $
  * @see TitledTabProperties
  * @see TitledTabStateProperties
  */
@@ -125,9 +103,9 @@ public class TitledTab extends Tab implements IconProvider {
   };
 
   private class StatePanel extends SimplePanel {
-    private ShapedPanel panel = new ShapedPanel();
-    private SimplePanel titleComponentPanel = new SimplePanel();
-    private RotatableLabel label = new RotatableLabel(null, null) {
+    private final ShapedPanel panel = new ShapedPanel();
+    private final SimplePanel titleComponentPanel = new SimplePanel();
+    private final RotatableLabel label = new RotatableLabel(null, null) {
       public Dimension getPreferredSize() {
         Dimension d = super.getPreferredSize();
         String text = this.getText();
@@ -307,9 +285,9 @@ public class TitledTab extends Tab implements IconProvider {
       ShapedPanelProperties shapedPanelProperties = stateProperties.getShapedPanelProperties();
       InternalPropertiesUtil.applyTo(shapedPanelProperties, panel, tabAreaOrientation.getNextCW());
       panel
-          .setHorizontalFlip(tabAreaOrientation == Direction.DOWN || tabAreaOrientation == Direction.LEFT ? !shapedPanelProperties
-                                                                                                             .getHorizontalFlip()
-                             : shapedPanelProperties.getHorizontalFlip());
+      .setHorizontalFlip(tabAreaOrientation == Direction.DOWN || tabAreaOrientation == Direction.LEFT ? !shapedPanelProperties
+                                                                                                      .getHorizontalFlip()
+                                                                                                      : shapedPanelProperties.getHorizontalFlip());
     }
 
     public void setBorders(Border outerBorder, Border innerBorder) {
@@ -332,17 +310,17 @@ public class TitledTab extends Tab implements IconProvider {
 
         Alignment alignment = stateProperties.getIconTextRelativeAlignment();
         label.setHorizontalTextPosition(alignment == Alignment.LEFT ? JLabel.RIGHT :
-                                        JLabel.LEFT);
+          JLabel.LEFT);
 
         alignment = stateProperties.getHorizontalAlignment();
         label.setHorizontalAlignment(alignment == Alignment.LEFT ? JLabel.LEFT :
-                                     alignment == Alignment.CENTER ? JLabel.CENTER :
-                                     JLabel.RIGHT);
+          alignment == Alignment.CENTER ? JLabel.CENTER :
+            JLabel.RIGHT);
 
         alignment = stateProperties.getVerticalAlignment();
         label.setVerticalAlignment(alignment == Alignment.TOP ? JLabel.TOP :
-                                   alignment == Alignment.CENTER ? JLabel.CENTER :
-                                   JLabel.BOTTOM);
+          alignment == Alignment.CENTER ? JLabel.CENTER :
+            JLabel.BOTTOM);
 
         toolTipText = stateProperties.getToolTipEnabled() ? stateProperties.getToolTipText() : null;
         if (toolTipText != null && toolTipText.length() == 0)
@@ -392,14 +370,14 @@ public class TitledTab extends Tab implements IconProvider {
             Alignment alignment = (Alignment) ((ValueChange) m.get(TitledTabStateProperties.HORIZONTAL_ALIGNMENT)).getNewValue();
             label.setHorizontalAlignment(
                 alignment == Alignment.LEFT ?
-                JLabel.LEFT : alignment == Alignment.CENTER ? JLabel.CENTER : JLabel.RIGHT);
+                                             JLabel.LEFT : alignment == Alignment.CENTER ? JLabel.CENTER : JLabel.RIGHT);
           }
 
           if (keySet.contains(TitledTabStateProperties.VERTICAL_ALIGNMENT)) {
             Alignment alignment = (Alignment) ((ValueChange) m.get(TitledTabStateProperties.VERTICAL_ALIGNMENT)).getNewValue();
             label.setVerticalAlignment(
                 alignment == Alignment.TOP ?
-                JLabel.TOP : alignment == Alignment.CENTER ? JLabel.CENTER : JLabel.BOTTOM);
+                                            JLabel.TOP : alignment == Alignment.CENTER ? JLabel.CENTER : JLabel.BOTTOM);
           }
 
           if (keySet.contains(TitledTabStateProperties.TOOL_TIP_TEXT) || keySet.contains(
@@ -416,8 +394,8 @@ public class TitledTab extends Tab implements IconProvider {
               TitledTabStateProperties.TITLE_COMPONENT_TEXT_RELATIVE_ALIGNMENT)
               || keySet.contains(TitledTabStateProperties.TITLE_COMPONENT_VISIBLE) || keySet.contains(
                   TitledTabStateProperties.TEXT_TITLE_COMPONENT_GAP)
-              || keySet.contains(TitledTabStateProperties.ICON_VISIBLE) || keySet.contains(
-                  TitledTabStateProperties.TEXT_VISIBLE)) {
+                  || keySet.contains(TitledTabStateProperties.ICON_VISIBLE) || keySet.contains(
+                      TitledTabStateProperties.TEXT_VISIBLE)) {
             label.setDirection(stateProperties.getDirection());
 
             updateLayout(stateProperties, keySet.contains(TitledTabStateProperties.TITLE_COMPONENT_VISIBLE));
@@ -462,7 +440,7 @@ public class TitledTab extends Tab implements IconProvider {
     }
   }
 
-  private TitledTabProperties properties = TitledTabProperties.getDefaultProperties();
+  private final TitledTabProperties properties = TitledTabProperties.getDefaultProperties();
 
   private HoverListener hoverListener = properties.getHoverListener();
 
@@ -486,7 +464,7 @@ public class TitledTab extends Tab implements IconProvider {
     }
   }
 
-  private HoverablePanel eventPanel = new HoverablePanel(new BorderLayout()) {
+  private final HoverablePanel eventPanel = new HoverablePanel(new BorderLayout()) {
 
     public boolean contains(int x, int y) {
       return getComponentCount() > 0 && getComponent(0).contains(x, y);
@@ -508,31 +486,31 @@ public class TitledTab extends Tab implements IconProvider {
     return eventPanel.inside(p.x, p.y);
   }
 
-  private StatePanel normalStatePanel;
-  private StatePanel highlightedStatePanel;
-  private StatePanel disabledStatePanel;
+  private final StatePanel normalStatePanel;
+  private final StatePanel highlightedStatePanel;
+  private final StatePanel disabledStatePanel;
 
   private ArrayList mouseListeners;
   private ArrayList mouseMotionListeners;
-  private StackableLayout layout;
+  private final StackableLayout layout;
   private StatePanel currentStatePanel;
-  private FocusBorder focusBorder;
+  private final FocusBorder focusBorder;
 
   private Direction lastTabAreaOrientation = Direction.UP;
 
-  private PropertyMapTreeListener propertiesListener = new PropertyMapTreeListener() {
+  private final PropertyMapTreeListener propertiesListener = new PropertyMapTreeListener() {
     public void propertyValuesChanged(Map changes) {
       doUpdateTab(changes);
     }
   };
 
-  private PropertyChangeListener tabbedPanelPropertiesListener = new PropertyChangeListener() {
+  private final PropertyChangeListener tabbedPanelPropertiesListener = new PropertyChangeListener() {
     public void propertyChanged(Property property, Object valueContainer, Object oldValue, Object newValue) {
       updateTabAreaOrientation((Direction) newValue);
     }
   };
 
-  private FocusListener focusListener = new FocusListener() {
+  /*  private FocusListener focusListener = new FocusListener() {
     public void focusGained(FocusEvent e) {
       if (properties.getFocusable())
         repaint();
@@ -542,7 +520,7 @@ public class TitledTab extends Tab implements IconProvider {
       if (properties.getFocusable())
         repaint();
     }
-  };
+  };*/
 
   /**
    * Constructs a TitledTab with a text, icon, content component and title component.
@@ -694,8 +672,8 @@ public class TitledTab extends Tab implements IconProvider {
     addTabListener(new TabAdapter() {
       public void tabAdded(TabEvent event) {
         PropertyMapWeakListenerManager.addWeakPropertyChangeListener(getTabbedPanel().getProperties().getMap(),
-                                                                     TabbedPanelProperties.TAB_AREA_ORIENTATION,
-                                                                     tabbedPanelPropertiesListener);
+            TabbedPanelProperties.TAB_AREA_ORIENTATION,
+            tabbedPanelPropertiesListener);
         updateTabAreaOrientation(getTabbedPanel().getProperties().getTabAreaOrientation());
       }
 
@@ -788,7 +766,7 @@ public class TitledTab extends Tab implements IconProvider {
    * @param highlighted true for highlight, otherwise false
    */
   public void setHighlighted(boolean highlighted) {
-    super.setHighlighted(highlighted);  
+    super.setHighlighted(highlighted);
     updateCurrentStatePanel();
   }
 
@@ -798,8 +776,8 @@ public class TitledTab extends Tab implements IconProvider {
    * </p>
    * 
    * <p>
-   * <strong>Note:</strong> since ITP 1.5.0 this method will change the enabled property 
-   * in the {@link TitledTabProperties} for this tab. Enabled/disabled can be controlled by 
+   * <strong>Note:</strong> since ITP 1.5.0 this method will change the enabled property
+   * in the {@link TitledTabProperties} for this tab. Enabled/disabled can be controlled by
    * modifying the property or this method.
    * </p>
    *
@@ -992,39 +970,39 @@ public class TitledTab extends Tab implements IconProvider {
     Border normalBorder = new EmptyBorder(notRaised);
 
     Insets maxInsets = properties.getBorderSizePolicy() == TitledTabBorderSizePolicy.INDIVIDUAL_SIZE ?
-                       null :
-                       InsetsUtil.max(
-                           getBorderInsets(properties.getNormalProperties().getComponentProperties().getBorder()),
-                           InsetsUtil.max(getBorderInsets(
-                               properties.getHighlightedProperties().getComponentProperties().getBorder()),
-                                          getBorderInsets(
-                                              properties.getDisabledProperties().getComponentProperties().getBorder())));
+                                                                                                      null :
+                                                                                                        InsetsUtil.max(
+                                                                                                            getBorderInsets(properties.getNormalProperties().getComponentProperties().getBorder()),
+                                                                                                            InsetsUtil.max(getBorderInsets(
+                                                                                                                properties.getHighlightedProperties().getComponentProperties().getBorder()),
+                                                                                                                getBorderInsets(
+                                                                                                                    properties.getDisabledProperties().getComponentProperties().getBorder())));
 
     Insets normalInsets = InsetsUtil.rotate(properties.getNormalProperties().getDirection(),
-                                            properties.getNormalProperties().getComponentProperties().getInsets());
+        properties.getNormalProperties().getComponentProperties().getInsets());
 
     Insets disabledInsets = InsetsUtil.rotate(properties.getDisabledProperties().getDirection(),
-                                              properties.getDisabledProperties().getComponentProperties().getInsets());
+        properties.getDisabledProperties().getComponentProperties().getInsets());
 
     int edgeInset = Math.min(InsetsUtil.getInset(normalInsets,
-                                                 tabAreaOrientation.getOpposite()),
-                             InsetsUtil.getInset(disabledInsets,
-                                                 tabAreaOrientation.getOpposite()));
+        tabAreaOrientation.getOpposite()),
+        InsetsUtil.getInset(disabledInsets,
+            tabAreaOrientation.getOpposite()));
 
     int normalLowered = Math.min(edgeInset, raised);
 
     Border innerNormalBorder = getInnerBorder(properties.getNormalProperties(),
-                                              tabAreaOrientation,
-                                              -normalLowered,
-                                              maxInsets);
+        tabAreaOrientation,
+        -normalLowered,
+        maxInsets);
     Border innerHighlightBorder = getInnerBorder(properties.getHighlightedProperties(),
-                                                 tabAreaOrientation,
-                                                 raised - normalLowered,
-                                                 maxInsets);
+        tabAreaOrientation,
+        raised - normalLowered,
+        maxInsets);
     Border innerDisabledBorder = getInnerBorder(properties.getDisabledProperties(),
-                                                tabAreaOrientation,
-                                                -normalLowered,
-                                                maxInsets);
+        tabAreaOrientation,
+        -normalLowered,
+        maxInsets);
 
     normalStatePanel.setBorders(normalBorder, innerNormalBorder);
     highlightedStatePanel.setBorders(null, innerHighlightBorder);
@@ -1106,20 +1084,20 @@ public class TitledTab extends Tab implements IconProvider {
 
     if (maxInsets != null)
       insets = InsetsUtil.add(insets,
-                              InsetsUtil.sub(maxInsets,
-                                             getBorderInsets(properties.getComponentProperties().getBorder())));
+          InsetsUtil.sub(maxInsets,
+              getBorderInsets(properties.getComponentProperties().getBorder())));
 
     Border border = properties.getComponentProperties().getBorder();
     Border innerBorder = new EmptyBorder(InsetsUtil.add(insets,
-                                                        InsetsUtil.setInset(InsetsUtil.EMPTY_INSETS,
-                                                                            tabOrientation.getOpposite(),
-                                                                            raised)));
+        InsetsUtil.setInset(InsetsUtil.EMPTY_INSETS,
+            tabOrientation.getOpposite(),
+            raised)));
     return border == null ? innerBorder : new CompoundBorder(border, innerBorder);
   }
 
   private Direction getTabAreaOrientation() {
     return getTabbedPanel() == null ?
-           lastTabAreaOrientation : getTabbedPanel().getProperties().getTabAreaOrientation();
+                                     lastTabAreaOrientation : getTabbedPanel().getProperties().getTabAreaOrientation();
   }
 
   private void updateTabAreaOrientation(Direction newDirection) {
@@ -1154,10 +1132,10 @@ public class TitledTab extends Tab implements IconProvider {
   private MouseEvent convertMouseEvent(MouseEvent e) {
     Point p = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), TitledTab.this);
     return new MouseEvent(TitledTab.this, e.getID(), e.getWhen(), e.getModifiers(),
-                          (int) p.getX(), (int) p.getY(), e.getClickCount(),
-                          !e.isConsumed() && e.isPopupTrigger(), e.getButton());
+        (int) p.getX(), (int) p.getY(), e.getClickCount(),
+        !e.isConsumed() && e.isPopupTrigger(), e.getButton());
   }
-  
+
   private void doSetEnabled(boolean enabled) {
     super.setEnabled(enabled);
     updateCurrentStatePanel();

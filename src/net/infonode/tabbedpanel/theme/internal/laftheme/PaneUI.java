@@ -20,8 +20,18 @@
  */
 
 
-// $Id: PaneUI.java,v 1.20 2005/12/04 13:46:05 jesper Exp $
+// $Id: PaneUI.java,v 1.21 2009/02/05 15:57:56 jesper Exp $
 package net.infonode.tabbedpanel.theme.internal.laftheme;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.FilteredImageSource;
+import java.awt.image.RGBImageFilter;
+
+import javax.swing.Icon;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import net.infonode.gui.InsetsUtil;
 import net.infonode.gui.draggable.DraggableComponentBox;
@@ -29,12 +39,6 @@ import net.infonode.tabbedpanel.Tab;
 import net.infonode.tabbedpanel.TabbedPanel;
 import net.infonode.tabbedpanel.TabbedPanelContentPanel;
 import net.infonode.util.Direction;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.FilteredImageSource;
-import java.awt.image.RGBImageFilter;
 
 public class PaneUI {
   private static final boolean PAINT_TAB_AREA = true;
@@ -56,31 +60,31 @@ public class PaneUI {
   // Order is IMPORTANT!!!
   private static final Direction[] DIRECTIONS = new Direction[]{Direction.UP, Direction.LEFT, Direction.DOWN, Direction.RIGHT};
 
-  private Insets[] areaInsets = new Insets[DIRECTIONS.length];
+  private final Insets[] areaInsets = new Insets[DIRECTIONS.length];
 
-  private Insets[] normalInsets = new Insets[DIRECTIONS.length];
+  private final Insets[] normalInsets = new Insets[DIRECTIONS.length];
 
-  private Insets[] selectedInsets = new Insets[DIRECTIONS.length];
+  private final Insets[] selectedInsets = new Insets[DIRECTIONS.length];
 
-  private Insets[] adjustedContentInsets = new Insets[DIRECTIONS.length];
+  private final Insets[] adjustedContentInsets = new Insets[DIRECTIONS.length];
 
-  private Insets[] adjustedContentInsetsTabAreaHidden = new Insets[DIRECTIONS.length];
+  private final Insets[] adjustedContentInsetsTabAreaHidden = new Insets[DIRECTIONS.length];
 
-  private Insets[] contentInsets = new Insets[DIRECTIONS.length];
+  private final Insets[] contentInsets = new Insets[DIRECTIONS.length];
 
-  private Dimension[] minimumSizes = new Dimension[DIRECTIONS.length];
+  private final Dimension[] minimumSizes = new Dimension[DIRECTIONS.length];
 
-  private Dimension[] tabMinimumSizes = new Dimension[DIRECTIONS.length];
+  private final Dimension[] tabMinimumSizes = new Dimension[DIRECTIONS.length];
 
-  private int[] spacings = new int[DIRECTIONS.length];
+  private final int[] spacings = new int[DIRECTIONS.length];
 
-  private int[] raiseds = new int[DIRECTIONS.length];
+  private final int[] raiseds = new int[DIRECTIONS.length];
 
-  private Insets[] tabInsets = new Insets[DIRECTIONS.length];
+  private final Insets[] tabInsets = new Insets[DIRECTIONS.length];
 
-  private Color[] contentTabAreaBorderColors = new Color[DIRECTIONS.length];
+  private final Color[] contentTabAreaBorderColors = new Color[DIRECTIONS.length];
 
-  private boolean[] swapWidthHeights = new boolean[DIRECTIONS.length];
+  private final boolean[] swapWidthHeights = new boolean[DIRECTIONS.length];
 
   private boolean tabAreaNotVisibleFix = false;
 
@@ -88,11 +92,11 @@ public class PaneUI {
 
   private int textIconGap;
 
-  private PaneUIListener listener;
+  private final PaneUIListener listener;
 
   private static ComponentCache componentCache = new ComponentCache();
 
-  private PaneHandler paneHandler = new PaneHandler(new PaneHandlerListener() {
+  private final PaneHandler paneHandler = new PaneHandler(new PaneHandlerListener() {
     public void updating() {
       setEnabled(false);
       listener.updating();
@@ -107,7 +111,7 @@ public class PaneUI {
 
   private Tab hoveredTab;
 
-  private TabData tabData = new TabData();
+  private final TabData tabData = new TabData();
 
   private boolean tabAreaOpaque;
 
@@ -328,11 +332,11 @@ public class PaneUI {
       adjustedContentInsets[index] = adjustedInsets;
       adjustedContentInsetsTabAreaHidden[index] = new Insets(
           direction == Direction.UP ? adjustedInsets.left : adjustedInsets.top,
-          direction == Direction.LEFT ?
-          adjustedInsets.top : adjustedInsets.left, direction == Direction.DOWN ? adjustedInsets.right
-                                                    : adjustedInsets.bottom, direction == Direction.RIGHT ?
-                                                                             adjustedInsets.bottom :
-                                                                             adjustedInsets.right);
+                                    direction == Direction.LEFT ?
+                                                                 adjustedInsets.top : adjustedInsets.left, direction == Direction.DOWN ? adjustedInsets.right
+                                                                                                                                       : adjustedInsets.bottom, direction == Direction.RIGHT ?
+                                                                                                                                                                                              adjustedInsets.bottom :
+                                                                                                                                                                                                adjustedInsets.right);
 
       pane.removeTabAt(pane.getTabCount() - 1);
       pane.setSelectedIndex(DEFAULT_SELECTED_INDEX);
@@ -345,7 +349,7 @@ public class PaneUI {
       Rectangle bounds = pane.getBoundsAt(DEFAULT_SELECTED_INDEX);
       tabMinimumSizes[index] = new Dimension(bounds.width, bounds.height);
       minimumSizes[index] = new Dimension(bounds.width - tabInsets[index].left - tabInsets[index].right, bounds.height
-                                                                                                         - tabInsets[index].top - tabInsets[index].bottom);
+          - tabInsets[index].top - tabInsets[index].bottom);
     }
 
     calculateAreaInsets(pane, index, direction);
@@ -376,7 +380,7 @@ public class PaneUI {
         left = Math.min(selectedBounds.x, normalBounds.x);
         top = 0;
         bottom = pane.getHeight() - Math.max(selectedBounds.y + selectedBounds.height,
-                                             normalBounds.y + normalBounds.height);
+            normalBounds.y + normalBounds.height);
         // right = left;
       }
       else if (direction == Direction.LEFT) {
@@ -389,7 +393,7 @@ public class PaneUI {
         top = Math.min(selectedBounds.y, normalBounds.y);
         left = 0;
         right = pane.getWidth() - Math.max(selectedBounds.x + selectedBounds.width,
-                                           normalBounds.x + normalBounds.width);
+            normalBounds.x + normalBounds.width);
         // bottom = top;
       }
 
@@ -585,7 +589,7 @@ public class PaneUI {
 
   public Insets getContentInsets(Direction d, boolean tabAreaVisible) {
     return tabAreaVisible ?
-           adjustedContentInsets[getDirectionIndex(d)] : adjustedContentInsetsTabAreaHidden[getDirectionIndex(d)];
+                           adjustedContentInsets[getDirectionIndex(d)] : adjustedContentInsetsTabAreaHidden[getDirectionIndex(d)];
   }
 
   public Insets getTabAreaInsets(Direction d) {
@@ -720,11 +724,11 @@ public class PaneUI {
             Shape originalClip = g.getClip();
 
             int tx = -x
-                     - (tabData.getAreaOrientation() == Direction.RIGHT ?
-                        -tabData.getTabbedPanelWidth() + getTabbedPanelExtraSize() : 0);
+            - (tabData.getAreaOrientation() == Direction.RIGHT ?
+                                                                -tabData.getTabbedPanelWidth() + getTabbedPanelExtraSize() : 0);
             int ty = -y
-                     - (tabData.getAreaOrientation() == Direction.DOWN ?
-                        -tabData.getTabbedPanelHeight() + getTabbedPanelExtraSize() : 0);
+            - (tabData.getAreaOrientation() == Direction.DOWN ?
+                                                               -tabData.getTabbedPanelHeight() + getTabbedPanelExtraSize() : 0);
 
             Rectangle firstVisibleRect = (Rectangle) tabData.getVisibleTabRects().get(0);
             Rectangle lastVisibleRect = (Rectangle) tabData.getVisibleTabRects().get(tabData.getTabCount() - 1);
@@ -732,8 +736,8 @@ public class PaneUI {
 
             if (tabData.isHorizontalLayout()) {
               int extraWidth = lastTab.getWidth() == lastVisibleRect.width ? 0 : 2 * tabData.getTabbedPanelSize()
-                  .width
-                                                                                 - tabData.getTabAreaWidth();
+                                                                           .width
+                                                                           - tabData.getTabAreaWidth();
               pane.setSize(pane.getWidth() + extraWidth, pane.getHeight());
 
               pane.doValidation();
@@ -748,14 +752,14 @@ public class PaneUI {
 
               int clipExtraWidth = extraWidth == 0 ? 1 : 0;
               g.clipRect(aInsets.left + tabData.getTabAreaWidth() - clipExtraWidth, 0, width - aInsets.left - tabData.getTabAreaWidth()
-                                                                                       + clipExtraWidth, height);
+                  + clipExtraWidth, height);
               pane.paint(g, tx, ty);
               g.setClip(originalClip);
             }
             else {
               int extraHeight = lastTab.getHeight() == lastVisibleRect.height ? 0 : 2 * tabData.getTabbedPanelSize()
-                  .height
-                                                                                    - tabData.getTabAreaHeight();
+                                                                              .height
+                                                                              - tabData.getTabAreaHeight();
               pane.setSize(pane.getWidth(), pane.getHeight() + extraHeight);
 
               pane.doValidation();
@@ -770,7 +774,7 @@ public class PaneUI {
 
               int clipExtraHeight = extraHeight == 0 ? 1 : 0;
               g.clipRect(0, aInsets.top + tabData.getTabAreaHeight() - clipExtraHeight, width, height - aInsets.top
-                                                                                               - tabData.getTabAreaHeight() + clipExtraHeight);
+                  - tabData.getTabAreaHeight() + clipExtraHeight);
               pane.paint(g, tx, ty);
               g.setClip(originalClip);
             }
@@ -810,7 +814,7 @@ public class PaneUI {
         }
         else {
           int h = aInsets.top + aInsets.bottom + Math.max(0,
-                                                          tabData.getTabAreaHeight() - l.y - lastVisibleRect.height) + EXTRA_SIZE;
+              tabData.getTabAreaHeight() - l.y - lastVisibleRect.height) + EXTRA_SIZE;
 
           for (int i = 0; i < tabData.getTabList().size(); i++)
             h += ((Tab) tabData.getTabList().get(i)).getHeight();
@@ -825,9 +829,9 @@ public class PaneUI {
         Shape originalClip = g.getClip();
 
         int tx = -x - (tabData.getAreaOrientation() == Direction.RIGHT ?
-                       -tabData.getTabbedPanelWidth() + getTabbedPanelExtraSize() : 0);
+                                                                        -tabData.getTabbedPanelWidth() + getTabbedPanelExtraSize() : 0);
         int ty = -y - (tabData.getAreaOrientation() == Direction.DOWN ?
-                       -tabData.getTabbedPanelHeight() + getTabbedPanelExtraSize() : 0);
+                                                                       -tabData.getTabbedPanelHeight() + getTabbedPanelExtraSize() : 0);
 
         Rectangle visibleRect = (Rectangle) tabData.getVisibleTabRects().get(index);
         Tab tab = (Tab) tabData.getTabList().get(index);
@@ -900,24 +904,24 @@ public class PaneUI {
           if (tabAreaNotVisibleFix && !tabData.getTabbedPanel().isTabAreaVisible()) {
             extraWidth = !tabData.isHorizontalLayout() ? tabMinimumSizes[getDirectionIndex(
                 tabData.getAreaOrientation())].width
-                                                         - raiseds[getDirectionIndex(tabData.getAreaOrientation())]
-                                                         + (tabData.getAreaOrientation() == Direction.LEFT ? areaInsets[getDirectionIndex(
-                                                             Direction.LEFT)].left
-                                                            : areaInsets[getDirectionIndex(Direction.RIGHT)].right) : 0;
-            extraHeight = tabData.isHorizontalLayout() ? tabMinimumSizes[getDirectionIndex(
-                tabData.getAreaOrientation())].height
-                                                         - raiseds[getDirectionIndex(tabData.getAreaOrientation())]
-                                                         + (tabData.getAreaOrientation() == Direction.UP ? areaInsets[getDirectionIndex(
-                                                             Direction.UP)].top
-                                                            : areaInsets[getDirectionIndex(Direction.DOWN)].bottom) : 0;
+                - raiseds[getDirectionIndex(tabData.getAreaOrientation())]
+                          + (tabData.getAreaOrientation() == Direction.LEFT ? areaInsets[getDirectionIndex(
+                              Direction.LEFT)].left
+                              : areaInsets[getDirectionIndex(Direction.RIGHT)].right) : 0;
+                          extraHeight = tabData.isHorizontalLayout() ? tabMinimumSizes[getDirectionIndex(
+                              tabData.getAreaOrientation())].height
+                              - raiseds[getDirectionIndex(tabData.getAreaOrientation())]
+                                        + (tabData.getAreaOrientation() == Direction.UP ? areaInsets[getDirectionIndex(
+                                            Direction.UP)].top
+                                            : areaInsets[getDirectionIndex(Direction.DOWN)].bottom) : 0;
           }
 
           tx -= tabData.getAreaOrientation() == Direction.LEFT ? extraWidth : 0;
           ty -= tabData.getAreaOrientation() == Direction.UP ? extraHeight : 0;
 
           pane.setSize(tabData.getTabbedPanelSize().width - Math.abs(xComp) + extraWidth, tabData.getTabbedPanelSize()
-                                                                                          .height
-                                                                                          - Math.abs(yComp) + extraHeight);
+              .height
+              - Math.abs(yComp) + extraHeight);
 
           pane.doValidation();
         }
@@ -985,9 +989,9 @@ public class PaneUI {
 
       SizeIcon icon = new SizeIcon(getInternalTabWidth(tab) - getWidthCompensate(tabData.getAreaOrientation()), getInternalTabHeight(
           tab)
-                                                                                                                - getHeightCompensate(
-                                                                                                                    tabData.getAreaOrientation()), isSwapWidthHeight(
-                                                                                                                        tabData.getAreaOrientation()));
+          - getHeightCompensate(
+              tabData.getAreaOrientation()), isSwapWidthHeight(
+                  tabData.getAreaOrientation()));
 
       pane.addTab(EMPTY_STRING, icon, getComponent());
 
@@ -1075,33 +1079,37 @@ public class PaneUI {
         final Tab tab = (Tab) tabData.getTabList().get(i);
         final Rectangle visibleRect = (Rectangle) tabData.getVisibleTabRects().get(i);
         Insets insets = getTabInsets(tabData.getAreaOrientation());
+
         int iconWidth = Math.max(-insets.left - insets.right,
-                                 getInternalTabWidth(tab) - (tab.getWidth() - visibleRect.width));
+            getInternalTabWidth(tab) - (tab.getWidth() - visibleRect.width));
+
         int iconHeight = Math.max(-insets.top - insets.bottom,
-                                  getInternalTabHeight(tab) - (tab.getHeight() - visibleRect.height));
+            getInternalTabHeight(tab) - (tab.getHeight() - visibleRect.height));
 
         Point l = getLocationInTabbedPanel(tab, tabData.getTabbedPanel());
 
         if ((tabData.isHorizontalLayout() && (visibleRect.width >= minSize.width || minSize.width < tabData.getTabbedPanelWidth() - l.x
-                                                                                                    - aInsets.right))
+            - aInsets.right))
             || (!tabData.isHorizontalLayout() && (visibleRect.height >= minSize.height || minSize.height < tabData.getTabbedPanelHeight()
-                                                                                                           - l.y - aInsets.bottom))) {
+                - l.y - aInsets.bottom))) {
           final int iWidth = iconWidth;
           final int iHeight = iconHeight;
 
           SizeIcon icon = new SizeIcon(iWidth - getWidthCompensate(tabData.getAreaOrientation()), iHeight
-                                                                                                  - getHeightCompensate(
-                                                                                                      tabData.getAreaOrientation()), isSwapWidthHeight(
-                                                                                                          tabData.getAreaOrientation()));
+              - getHeightCompensate(
+                  tabData.getAreaOrientation()), isSwapWidthHeight(
+                      tabData.getAreaOrientation()));
+
+          int j = pane.getTabCount();
           pane.addTab(EMPTY_STRING, icon, getComponent());
 
           if (i == tabData.getSelectedTabPainterIndex()) {
-            selectedIndex = i;
+            selectedIndex = j;
           }
 
           if (!tab.isEnabled()) {
-            pane.setEnabledAt(i, false);
-            pane.setDisabledIconAt(i, icon);
+            pane.setEnabledAt(j, false);
+            pane.setDisabledIconAt(j, icon);
           }
         }
       }
@@ -1112,6 +1120,7 @@ public class PaneUI {
 
     if (pane.getTabCount() > 0)
       pane.setSelectedIndex(selectedIndex);
+
     pane.doValidation();
   }
 

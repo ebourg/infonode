@@ -20,8 +20,17 @@
  */
 
 
-// $Id: InternalDockingUtil.java,v 1.27 2007/01/28 21:25:10 jesper Exp $
+// $Id: InternalDockingUtil.java,v 1.28 2009/02/05 15:57:55 jesper Exp $
 package net.infonode.docking.internalutil;
+
+import java.awt.Container;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Map;
+
+import javax.swing.AbstractButton;
+import javax.swing.JPopupMenu;
 
 import net.infonode.docking.DockingWindow;
 import net.infonode.docking.RootWindow;
@@ -35,16 +44,9 @@ import net.infonode.properties.propertymap.PropertyMap;
 import net.infonode.util.IntList;
 import net.infonode.util.Printer;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Map;
-
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.27 $
+ * @version $Revision: 1.28 $
  */
 public class InternalDockingUtil {
   private InternalDockingUtil() {
@@ -76,9 +78,9 @@ public class InternalDockingUtil {
    */
   public static DockingWindow getWindow(DockingWindow relativeToWindow, IntList windowPath) {
     return windowPath.isEmpty() ?
-           relativeToWindow :
-           windowPath.getValue() >= relativeToWindow.getChildWindowCount() ? null :
-           getWindow(relativeToWindow.getChildWindow(windowPath.getValue()), windowPath.getNext());
+                                 relativeToWindow :
+                                   windowPath.getValue() >= relativeToWindow.getChildWindowCount() ? null :
+                                     getWindow(relativeToWindow.getChildWindow(windowPath.getValue()), windowPath.getNext());
   }
 
   private static IntList getWindowPath(DockingWindow window, IntList tail) {
@@ -100,12 +102,12 @@ public class InternalDockingUtil {
     String clName = window.getClass().getName();
 
     printer.println(clName.substring(clName.lastIndexOf('.') + 1) + ", " +
-                    System.identityHashCode(window) + " (" +
-                    (parent == null ? "null" : String.valueOf(System.identityHashCode(parent))) + "), '" +
-                    window.getTitle() + "', " +
-                    (window.isVisible() ? "visible" : "not visible") + ", " +
-                    (window.isMaximized() ? "maximized" : "not maximized") + ", " +
-                    (window.getChildWindowCount() > 0 ? ":" : ""));
+        System.identityHashCode(window) + " (" +
+        (parent == null ? "null" : String.valueOf(System.identityHashCode(parent))) + "), '" +
+        window.getTitle() + "', " +
+        (window.isVisible() ? "visible" : "not visible") + ", " +
+        (window.isMaximized() ? "maximized" : "not maximized") + ", " +
+        (window.getChildWindowCount() > 0 ? ":" : ""));
 
     if (window.getChildWindowCount() > 0) {
       printer.beginSection();
@@ -137,21 +139,21 @@ public class InternalDockingUtil {
                                       DockingWindow window,
                                       PropertyMap map,
                                       Map changes) {
-//    DockingWindow window = w.getOptimizedWindow();
+    //    DockingWindow window = w.getOptimizedWindow();
     boolean updateContainer = false;
 
     for (int i = 0; i < buttonInfos.length; i++) {
       WindowTabButtonProperties p = new WindowTabButtonProperties(buttonInfos[i].getProperty().get(map));
       DockingWindowAction action = p.getAction();
       Map propertyChanges = changes == null ? null : (Map) changes.get(p.getMap());
-      boolean v = p.isVisible();
-      boolean b = action != null && action.isPerformable(window);
+      //      boolean v = p.isVisible();
+      //      boolean b = action != null && action.isPerformable(window);
       boolean visible = p.isVisible() && action != null && action.getAction(window).isEnabled();
 
       if ((buttons[i] == null || (propertyChanges != null && propertyChanges.containsKey(
           WindowTabButtonProperties.FACTORY))) &&
-                                               p.getFactory() != null &&
-                                               action != null) {
+          p.getFactory() != null &&
+          action != null) {
         buttons[i] = p.getFactory().createButton(window);
         buttons[i].setFocusable(false);
         buttons[i].addActionListener(action.getAction(window).toSwingAction());

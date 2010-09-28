@@ -20,26 +20,26 @@
  */
 
 
-// $Id: ColorBlender.java,v 1.5 2005/02/16 11:28:10 jesper Exp $
+// $Id: ColorBlender.java,v 1.6 2009/02/05 15:57:56 jesper Exp $
 package net.infonode.gui.colorprovider;
 
-import net.infonode.util.ColorUtil;
+import java.awt.Color;
+import java.awt.Component;
 
-import java.awt.*;
-import java.io.Serializable;
+import net.infonode.util.ColorUtil;
 
 /**
  * Blends two colors according to the given blend amount.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
-public class ColorBlender extends AbstractColorProvider implements Serializable {
+public class ColorBlender extends AbstractColorProvider {
   private static final long serialVersionUID = 1;
 
-  private ColorProvider color1;
-  private ColorProvider color2;
-  private float blendAmount;
+  private final ColorProvider color1;
+  private final ColorProvider color2;
+  private final float blendAmount;
 
   /**
    * Constructor.

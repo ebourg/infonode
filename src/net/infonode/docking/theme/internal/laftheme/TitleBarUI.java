@@ -20,8 +20,16 @@
  */
 
 
-// $Id: TitleBarUI.java,v 1.12 2007/01/28 21:25:10 jesper Exp $
+// $Id: TitleBarUI.java,v 1.13 2009/02/05 15:57:55 jesper Exp $
 package net.infonode.docking.theme.internal.laftheme;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.FilteredImageSource;
+import java.awt.image.RGBImageFilter;
+import java.beans.PropertyVetoException;
+
+import javax.swing.*;
 
 import net.infonode.docking.View;
 import net.infonode.docking.internal.ViewTitleBar;
@@ -34,13 +42,6 @@ import net.infonode.tabbedpanel.theme.internal.laftheme.SizeIcon;
 import net.infonode.util.ColorUtil;
 import net.infonode.util.Direction;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.FilteredImageSource;
-import java.awt.image.RGBImageFilter;
-import java.beans.PropertyVetoException;
-
 public class TitleBarUI {
   private static final int NUM_FADE_COLORS = 25;
 
@@ -48,11 +49,11 @@ public class TitleBarUI {
 
   private static final int RIGHT_INSET = 4;
 
-  private boolean showing = true;
+  private final boolean showing = true;
 
   private boolean enabled;
 
-  private DynamicUIManagerListener uiListener = new DynamicUIManagerListener() {
+  private final DynamicUIManagerListener uiListener = new DynamicUIManagerListener() {
 
     public void lookAndFeelChanged() {
       doUpdate();
@@ -99,13 +100,11 @@ public class TitleBarUI {
     }
   }
 
-  ;
+  private final Color[] fadeSelectedColors = new Color[NUM_FADE_COLORS];
 
-  private Color[] fadeSelectedColors = new Color[NUM_FADE_COLORS];
+  private final Color[] fadeNormalColors = new Color[NUM_FADE_COLORS];
 
-  private Color[] fadeNormalColors = new Color[NUM_FADE_COLORS];
-
-  private IFrame iFrame = new IFrame();
+  private final IFrame iFrame = new IFrame();
 
   private JFrame frame;
 
@@ -123,7 +122,7 @@ public class TitleBarUI {
 
   private boolean skipIFrame = false;
 
-  private ComponentPainter activeComponentPainter = new ComponentPainter() {
+  private final ComponentPainter activeComponentPainter = new ComponentPainter() {
     public void paint(Component component, Graphics g, int x, int y, int width, int height) {
     }
 
@@ -150,7 +149,7 @@ public class TitleBarUI {
     }
   };
 
-  private ComponentPainter inactiveComponentPainter = new ComponentPainter() {
+  private final ComponentPainter inactiveComponentPainter = new ComponentPainter() {
     public void paint(Component component, Graphics g, int x, int y, int width, int height) {
     }
 
@@ -177,7 +176,7 @@ public class TitleBarUI {
     }
   };
 
-  private TitleBarUIListener listener;
+  private final TitleBarUIListener listener;
 
   public TitleBarUI(TitleBarUIListener listener, boolean enabled) {
     this.enabled = enabled;
@@ -241,12 +240,12 @@ public class TitleBarUI {
           // Size
           reportedMinimumSize = iFrame.getPreferredSize();
           minimumSize = new Dimension(Math.max(0, reportedMinimumSize.width - iFrameInsets.left - iFrameInsets.right),
-                                      reportedMinimumSize.height - iFrameInsets.top - iFrameInsets.bottom);
+              reportedMinimumSize.height - iFrameInsets.top - iFrameInsets.bottom);
         }
 
         String lafName = UIManager.getLookAndFeel().getClass().getName();
         skipIFrame = lafName.indexOf("GTKLookAndFeel") != -1
-                     || (lafName.indexOf(".WindowsLookAndFeel") != -1 || UIManager.getLookAndFeel().getClass().getName()
+        || (lafName.indexOf(".WindowsLookAndFeel") != -1 || UIManager.getLookAndFeel().getClass().getName()
             .indexOf(".Office2003LookAndFeel") != -1) && Toolkit.getDefaultToolkit().getDesktopProperty(
             "win.xpstyle.themeActive") != null;
 
@@ -269,11 +268,11 @@ public class TitleBarUI {
     for (int i = 0; i < fadeSelectedColors.length; i++) {
       if (activeBackgroundColor != null)
         fadeSelectedColors[i] = new Color(activeBackgroundColor.getRed(), activeBackgroundColor.getGreen(),
-                                          activeBackgroundColor.getBlue(), (int) ((i + 1) * factor));
+            activeBackgroundColor.getBlue(), (int) ((i + 1) * factor));
       if (inactiveBackgroundColor != null)
         fadeNormalColors[i] =
-            new Color(inactiveBackgroundColor.getRed(), inactiveBackgroundColor.getGreen(), inactiveBackgroundColor
-                .getBlue(), (int) ((i + 1) * factor));
+          new Color(inactiveBackgroundColor.getRed(), inactiveBackgroundColor.getGreen(), inactiveBackgroundColor
+              .getBlue(), (int) ((i + 1) * factor));
     }
   }
 
@@ -329,8 +328,8 @@ public class TitleBarUI {
         return;
 
       setTitleAndIcon(view.getViewProperties().getViewTitleBarProperties().getNormalProperties().getTitle(),
-                      view.getViewProperties()
-                          .getViewTitleBarProperties().getNormalProperties().getIcon());
+          view.getViewProperties()
+          .getViewTitleBarProperties().getNormalProperties().getIcon());
 
       iFrame.setSelectedActivated(selected);
 
@@ -371,9 +370,9 @@ public class TitleBarUI {
 
       g.setColor(background);
       g.fillRect(c.getWidth() - width - RIGHT_INSET,
-                 BUTTON_OFFSET,
-                 width + RIGHT_INSET,
-                 c.getHeight() - 2 * BUTTON_OFFSET);
+          BUTTON_OFFSET,
+          width + RIGHT_INSET,
+          c.getHeight() - 2 * BUTTON_OFFSET);
     }
   }
 

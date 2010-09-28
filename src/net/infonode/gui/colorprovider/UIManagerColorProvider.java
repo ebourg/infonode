@@ -20,20 +20,20 @@
  */
 
 
-// $Id: UIManagerColorProvider.java,v 1.10 2005/12/04 13:46:03 jesper Exp $
+// $Id: UIManagerColorProvider.java,v 1.11 2009/02/05 15:57:56 jesper Exp $
 package net.infonode.gui.colorprovider;
 
-import javax.swing.*;
-import java.awt.*;
-import java.io.Serializable;
+import java.awt.Color;
+
+import javax.swing.UIManager;
 
 /**
  * A {@link ColorProvider} which returns a property color from the {@link UIManager}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  */
-public class UIManagerColorProvider extends AbstractColorProvider implements Serializable {
+public class UIManagerColorProvider extends AbstractColorProvider {
   private static final long serialVersionUID = 1;
 
   /**
@@ -45,19 +45,19 @@ public class UIManagerColorProvider extends AbstractColorProvider implements Ser
    * A provider for the 'controlDkShadow' color.
    */
   public static final UIManagerColorProvider CONTROL_DARK_SHADOW = new UIManagerColorProvider("controlDkShadow",
-                                                                                              Color.BLACK);
+      Color.BLACK);
 
   /**
    * A provider for the 'TabbedPane.highlight' color.
    */
   public static final UIManagerColorProvider TABBED_PANE_HIGHLIGHT = new UIManagerColorProvider("TabbedPane.highlight",
-                                                                                                Color.WHITE);
+      Color.WHITE);
 
   /**
    * A provider for the 'TabbedPane.shadow' color.
    */
   public static final UIManagerColorProvider TABBED_PANE_SHADOW = new UIManagerColorProvider("TabbedPane.shadow",
-                                                                                             Color.BLACK);
+      Color.BLACK);
 
   /**
    * A provider for the 'TabbedPane.darkShadow' color.
@@ -75,7 +75,7 @@ public class UIManagerColorProvider extends AbstractColorProvider implements Ser
    * A provider for the 'Desktop.background' color.
    */
   public static final UIManagerColorProvider DESKTOP_BACKGROUND = new UIManagerColorProvider("Desktop.background",
-                                                                                             Color.BLUE);
+      Color.BLUE);
 
   private final String propertyName;
   private Color defaultColor;

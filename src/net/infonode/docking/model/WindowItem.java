@@ -20,8 +20,14 @@
  */
 
 
-// $Id: WindowItem.java,v 1.18 2007/01/28 21:25:10 jesper Exp $
+// $Id: WindowItem.java,v 1.20 2009/02/05 15:57:55 jesper Exp $
 package net.infonode.docking.model;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 
 import net.infonode.docking.DockingWindow;
 import net.infonode.docking.internal.ReadContext;
@@ -31,15 +37,9 @@ import net.infonode.properties.propertymap.PropertyMap;
 import net.infonode.properties.propertymap.PropertyMapUtil;
 import net.infonode.util.Direction;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.18 $
+ * @version $Revision: 1.20 $
  */
 abstract public class WindowItem {
   public static final DockingWindowProperties emptyProperties = new DockingWindowProperties();
@@ -50,7 +50,7 @@ abstract public class WindowItem {
 
   private WindowItem parent;
   private WeakReference connectedWindow = new WeakReference(null);
-  private ArrayList windows = new ArrayList();
+  private final ArrayList windows = new ArrayList();
   private DockingWindowProperties dockingWindowProperties;
   private DockingWindowProperties parentProperties = emptyProperties;
   private Direction lastMinimizedDirection;
@@ -61,9 +61,9 @@ abstract public class WindowItem {
 
   protected WindowItem(WindowItem windowItem) {
     dockingWindowProperties =
-        new DockingWindowProperties(windowItem.getDockingWindowProperties().getMap().copy(true, true));
+      new DockingWindowProperties(windowItem.getDockingWindowProperties().getMap().copy(true, true));
     dockingWindowProperties.getMap().replaceSuperMap(windowItem.getParentDockingWindowProperties().getMap(),
-                                                     emptyProperties.getMap());
+        emptyProperties.getMap());
     lastMinimizedDirection = windowItem.getLastMinimizedDirection();
   }
 
@@ -72,7 +72,8 @@ abstract public class WindowItem {
   }
 
   public void addWindow(WindowItem item) {
-    addWindow(item, windows.size());
+    if (item.parent != this)
+      addWindow(item, windows.size());
   }
 
   public void addWindow(WindowItem item, int index) {
@@ -246,7 +247,7 @@ abstract public class WindowItem {
 
   public void setParentDockingWindowProperties(DockingWindowProperties parentProperties) {
     dockingWindowProperties.getMap().replaceSuperMap(this.parentProperties.getMap(),
-                                                     parentProperties.getMap());
+        parentProperties.getMap());
     this.parentProperties = parentProperties;
   }
 
@@ -293,7 +294,7 @@ abstract public class WindowItem {
 
     DockingWindow window = getConnectedWindow();
     writeSettings(out, context);
-    boolean b = window != null && !window.isMinimized() && !window.isUndocked() && window.getRootWindow() != null;
+    //    boolean b = window != null && !window.isMinimized() && !window.isUndocked() && window.getRootWindow() != null;
     out.writeBoolean(window != null && !window.isMinimized() && !window.isUndocked() && window.getRootWindow() != null);
   }
 
@@ -301,12 +302,12 @@ abstract public class WindowItem {
     ArrayList childWindows = readChildWindows(in, context, viewReader);
     readSettings(in, context);
     return in.readBoolean() ?
-           createWindow(viewReader, childWindows) :
-           childWindows.size() > 0 ? (DockingWindow) childWindows.get(0) : null;
+                             createWindow(viewReader, childWindows) :
+                               childWindows.size() > 0 ? (DockingWindow) childWindows.get(0) : null;
   }
 
   public ArrayList readChildWindows(ObjectInputStream in, ReadContext context, ViewReader viewReader) throws
-                                                                                                      IOException {
+  IOException {
     int count = in.readInt();
     removeAll();
     ArrayList childWindows = new ArrayList();

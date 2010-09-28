@@ -20,27 +20,29 @@
  */
 
 
-// $Id: RectangleComponentPainter.java,v 1.7 2005/02/16 11:28:11 jesper Exp $
+// $Id: RectangleComponentPainter.java,v 1.8 2009/02/05 15:57:56 jesper Exp $
 package net.infonode.gui.componentpainter;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Insets;
 
 import net.infonode.gui.InsetsUtil;
 import net.infonode.gui.colorprovider.ColorProvider;
 import net.infonode.gui.colorprovider.FixedColorProvider;
 import net.infonode.util.Direction;
 
-import java.awt.*;
-import java.io.Serializable;
-
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
-public class RectangleComponentPainter extends AbstractComponentPainter implements Serializable {
+public class RectangleComponentPainter extends AbstractComponentPainter {
   private static final long serialVersionUID = 1;
 
-  private ColorProvider color;
-  private ColorProvider xorColor;
-  private Insets insets;
+  private final ColorProvider color;
+  private final ColorProvider xorColor;
+  private final Insets insets;
 
   public RectangleComponentPainter(Color color, int lineWidth) {
     this(new FixedColorProvider(color), lineWidth);
@@ -84,9 +86,9 @@ public class RectangleComponentPainter extends AbstractComponentPainter implemen
     }
 
     Insets i = InsetsUtil.rotate(direction, new Insets(verticalFlip ? insets.bottom : insets.top,
-                                                       horizontalFlip ? insets.right : insets.left,
-                                                       verticalFlip ? insets.top : insets.bottom,
-                                                       horizontalFlip ? insets.left : insets.right));
+                                                                    horizontalFlip ? insets.right : insets.left,
+                                                                                   verticalFlip ? insets.top : insets.bottom,
+                                                                                                horizontalFlip ? insets.left : insets.right));
 
     g.fillRect(x + i.left, y, width - i.left - i.right, i.top);
     g.fillRect(x + i.left, y + height - i.bottom, width - i.left - i.right, i.bottom);

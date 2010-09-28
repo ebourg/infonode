@@ -20,21 +20,22 @@
  */
 
 
-// $Id: BackgroundColorProvider.java,v 1.9 2005/02/16 11:28:10 jesper Exp $
+// $Id: BackgroundColorProvider.java,v 1.10 2009/02/05 15:57:56 jesper Exp $
 package net.infonode.gui.colorprovider;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
 import java.io.ObjectStreamException;
-import java.io.Serializable;
+
+import javax.swing.UIManager;
 
 /**
  * Returns the background color of a component.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
-public class BackgroundColorProvider extends AbstractColorProvider implements Serializable {
+public class BackgroundColorProvider extends AbstractColorProvider {
   private static final long serialVersionUID = 1;
 
   /**

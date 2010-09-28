@@ -20,41 +20,25 @@
  */
 
 
-// $Id: ContentTitleBar.java,v 1.9 2005/12/04 13:46:04 jesper Exp $
+// $Id: ContentTitleBar.java,v 1.10 2009/02/05 15:57:56 jesper Exp $
 
 package net.infonode.gui;
+
+import java.awt.*;
+
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 
 import net.infonode.gui.hover.panel.HoverableShapedPanel;
 import net.infonode.util.Alignment;
 import net.infonode.util.Direction;
 
-import javax.swing.*;
-import java.awt.*;
-
 /**
  * @author johan
  */
 public class ContentTitleBar extends HoverableShapedPanel {
-  private ComponentPaintChecker repaintChecker;
-
-  private class ComponentData {
-    private JComponent component;
-    private Insets insets;
-
-    public ComponentData(JComponent component, Insets insets) {
-      this.component = component;
-      this.insets = insets;
-    }
-
-    public JComponent getComponent() {
-      return component;
-    }
-
-    public Insets getInsets() {
-      return insets;
-    }
-  }
-
+  private final ComponentPaintChecker repaintChecker;
   private JComponent[] leftTitleComponents;
   private JComponent[] rightTitleComponents;
   private Insets[] leftTitleComponentsInsets;
@@ -67,7 +51,7 @@ public class ContentTitleBar extends HoverableShapedPanel {
   private Insets labelInsets = InsetsUtil.EMPTY_INSETS;
   private Alignment labelAlignment = Alignment.LEFT;
 
-  private RotatableLabel label = new RotatableLabel("") {
+  private final RotatableLabel label = new RotatableLabel("") {
     public Dimension getMinimumSize() {
       Dimension d = super.getMinimumSize();
       if (getDirection().isHorizontal())
@@ -158,7 +142,7 @@ public class ContentTitleBar extends HoverableShapedPanel {
 
   public void setLeftTitleComponents(JComponent[] leftTitleComponents) {
     setLeftTitleComponents(leftTitleComponents,
-                           leftTitleComponents == null ? null : createEmptyInsets(leftTitleComponents.length));
+        leftTitleComponents == null ? null : createEmptyInsets(leftTitleComponents.length));
   }
 
   public void setLeftTitleComponents(JComponent[] leftTitleComponents, Insets[] leftTitleComponentsInsets) {
@@ -174,7 +158,7 @@ public class ContentTitleBar extends HoverableShapedPanel {
 
   public void setRightTitleComponents(JComponent[] rightTitleComponents) {
     setRightTitleComponents(rightTitleComponents,
-                            rightTitleComponents == null ? null : createEmptyInsets(rightTitleComponents.length));
+        rightTitleComponents == null ? null : createEmptyInsets(rightTitleComponents.length));
   }
 
   public void setRightTitleComponents(JComponent[] rightTitleComponents, Insets[] rightTitleComponentsInsets) {
@@ -196,7 +180,7 @@ public class ContentTitleBar extends HoverableShapedPanel {
   private void updateLabelAlignment() {
     label.setHorizontalAlignment(
         labelAlignment == Alignment.LEFT ?
-        JLabel.LEFT : labelAlignment == Alignment.RIGHT ? JLabel.RIGHT : JLabel.CENTER);
+                                          JLabel.LEFT : labelAlignment == Alignment.RIGHT ? JLabel.RIGHT : JLabel.CENTER);
   }
 
   private void updateTitleComponents(JComponent[] oldComponents, JComponent[] newComponents) {
@@ -240,15 +224,15 @@ public class ContentTitleBar extends HoverableShapedPanel {
         for (int i = 0; i < leftComponents.length; i++) {
           int index = direction == Direction.RIGHT ? i : leftComponents.length - i - 1;
           setConstraints(leftComponents[index],
-                         leftInsets[index],
-                         x++,
-                         0,
-                         1,
-                         1,
-                         GridBagConstraints.NONE,
-                         0,
-                         0,
-                         GridBagConstraints.CENTER);
+              leftInsets[index],
+              x++,
+              0,
+              1,
+              1,
+              GridBagConstraints.NONE,
+              0,
+              0,
+              GridBagConstraints.CENTER);
         }
       }
 
@@ -258,15 +242,15 @@ public class ContentTitleBar extends HoverableShapedPanel {
         for (int i = 0; i < rightComponents.length; i++) {
           int index = direction == Direction.RIGHT ? i : rightComponents.length - i - 1;
           setConstraints(rightComponents[index],
-                         rightInsets[index],
-                         x++,
-                         0,
-                         1,
-                         1,
-                         GridBagConstraints.NONE,
-                         0,
-                         0,
-                         GridBagConstraints.CENTER);
+              rightInsets[index],
+              x++,
+              0,
+              1,
+              1,
+              GridBagConstraints.NONE,
+              0,
+              0,
+              GridBagConstraints.CENTER);
         }
       }
     }
@@ -277,15 +261,15 @@ public class ContentTitleBar extends HoverableShapedPanel {
         for (int i = 0; i < leftComponents.length; i++) {
           int index = direction == Direction.DOWN ? i : leftComponents.length - i - 1;
           setConstraints(leftComponents[index],
-                         leftInsets[index],
-                         0,
-                         y++,
-                         1,
-                         1,
-                         GridBagConstraints.NONE,
-                         0,
-                         0,
-                         GridBagConstraints.CENTER);
+              leftInsets[index],
+              0,
+              y++,
+              1,
+              1,
+              GridBagConstraints.NONE,
+              0,
+              0,
+              GridBagConstraints.CENTER);
         }
       }
 
@@ -295,15 +279,15 @@ public class ContentTitleBar extends HoverableShapedPanel {
         for (int i = 0; i < rightComponents.length; i++) {
           int index = direction == Direction.DOWN ? i : rightComponents.length - i - 1;
           setConstraints(rightComponents[index],
-                         rightInsets[index],
-                         0,
-                         y++,
-                         1,
-                         1,
-                         GridBagConstraints.NONE,
-                         0,
-                         0,
-                         GridBagConstraints.CENTER);
+              rightInsets[index],
+              0,
+              y++,
+              1,
+              1,
+              GridBagConstraints.NONE,
+              0,
+              0,
+              GridBagConstraints.CENTER);
         }
       }
     }
