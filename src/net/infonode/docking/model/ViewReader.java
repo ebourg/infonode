@@ -20,15 +20,31 @@
  */
 
 
-// $Id: WindowProvider.java,v 1.2 2004/06/21 16:39:00 jesper Exp $
-package net.infonode.docking;
+// $Id: ViewReader.java,v 1.3 2005/02/16 11:28:14 jesper Exp $
+package net.infonode.docking.model;
 
-import java.awt.*;
+import net.infonode.docking.DockingWindow;
+import net.infonode.docking.SplitWindow;
+import net.infonode.docking.TabWindow;
+import net.infonode.docking.View;
+import net.infonode.docking.internal.ReadContext;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
-interface WindowProvider {
-  DockingWindow getWindow(Point point);
+public interface ViewReader {
+  ViewItem readViewItem(ObjectInputStream in, ReadContext context) throws IOException;
+
+  View readView(ObjectInputStream in, ReadContext context) throws IOException;
+
+  TabWindow createTabWindow(DockingWindow[] childWindows, TabWindowItem windowItem);
+
+  SplitWindow createSplitWindow(DockingWindow leftWindow, DockingWindow rightWindow, SplitWindowItem windowItem);
+
+  WindowItem readWindowItem(ObjectInputStream in, ReadContext context) throws IOException;
+
 }

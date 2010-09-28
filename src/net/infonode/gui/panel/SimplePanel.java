@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SimplePanel.java,v 1.4 2004/10/15 14:22:32 jesper Exp $
+// $Id: SimplePanel.java,v 1.6 2005/02/16 11:28:13 jesper Exp $
 package net.infonode.gui.panel;
 
 import javax.swing.*;

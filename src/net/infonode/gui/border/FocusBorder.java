@@ -20,10 +20,11 @@
  */
 
 
-// $Id: FocusBorder.java,v 1.4 2004/11/11 09:51:46 jesper Exp $
+// $Id: FocusBorder.java,v 1.7 2005/02/16 11:28:10 jesper Exp $
 package net.infonode.gui.border;
 
 import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
+import net.infonode.gui.UIManagerUtil;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -35,7 +36,7 @@ import java.io.Serializable;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.7 $
  */
 public class FocusBorder implements Border, Serializable {
   private static final long serialVersionUID = 1;
@@ -67,12 +68,7 @@ public class FocusBorder implements Border, Serializable {
 
   public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
     if (c.hasFocus()) {
-      Color color = UIManager.getColor("Button.focus");
-
-      if (color == null)
-        color = UIManager.getColor("TabbedPane.focus");
-
-      g.setColor(color == null ? Color.BLACK : color);
+      g.setColor(UIManagerUtil.getColor("Button.focus", "TabbedPane.focus"));
 
       if (UIManager.getLookAndFeel().getClass() == WindowsLookAndFeel.class)
         BasicGraphicsUtils.drawDashedRect(g, x, y, width, height);

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SolidColorComponentPainter.java,v 1.7 2004/11/11 14:11:14 jesper Exp $
+// $Id: SolidColorComponentPainter.java,v 1.9 2005/02/16 11:28:11 jesper Exp $
 package net.infonode.gui.componentpainter;
 
 import net.infonode.gui.colorprovider.BackgroundColorProvider;
@@ -33,7 +33,7 @@ import java.awt.*;
  * Paints an area with a solid color.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.9 $
  */
 public class SolidColorComponentPainter extends AbstractComponentPainter {
   private static final long serialVersionUID = 1;
@@ -55,7 +55,15 @@ public class SolidColorComponentPainter extends AbstractComponentPainter {
     this.colorProvider = colorProvider;
   }
 
-  public void paint(Component component, Graphics g, int x, int y, int width, int height, Direction direction, boolean horizontalFlip, boolean verticalFlip) {
+  public void paint(Component component,
+                    Graphics g,
+                    int x,
+                    int y,
+                    int width,
+                    int height,
+                    Direction direction,
+                    boolean horizontalFlip,
+                    boolean verticalFlip) {
     g.setColor(colorProvider.getColor(component));
     g.fillRect(x, y, width, height);
   }

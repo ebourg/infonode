@@ -20,7 +20,7 @@
  */
 
 
-// $Id: FixedInsetsShapedBorder.java,v 1.4 2004/11/09 16:33:02 jesper Exp $
+// $Id: FixedInsetsShapedBorder.java,v 1.6 2005/02/16 11:28:13 jesper Exp $
 package net.infonode.gui.shaped.border;
 
 import net.infonode.gui.shaped.ShapedUtil;
@@ -29,7 +29,7 @@ import java.awt.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.6 $
  */
 public class FixedInsetsShapedBorder extends AbstractShapedBorderWrapper {
   private static final long serialVersionUID = 1;

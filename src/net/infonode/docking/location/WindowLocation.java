@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowLocation.java,v 1.4 2004/09/22 14:31:39 jesper Exp $
+// $Id: WindowLocation.java,v 1.6 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.location;
 
 import net.infonode.docking.DockingWindow;
@@ -30,7 +30,7 @@ import java.io.ObjectOutputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.6 $
  */
 public interface WindowLocation {
   boolean set(DockingWindow window);

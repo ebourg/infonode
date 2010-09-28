@@ -20,14 +20,14 @@
  */
 
 
-// $Id: WindowIcon.java,v 1.2 2004/08/20 15:07:10 jesper Exp $
+// $Id: WindowIcon.java,v 1.4 2005/02/16 11:28:11 jesper Exp $
 package net.infonode.gui.icon.button;
 
 import java.awt.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.4 $
  */
 public class WindowIcon extends AbstractButtonIcon {
   public WindowIcon() {

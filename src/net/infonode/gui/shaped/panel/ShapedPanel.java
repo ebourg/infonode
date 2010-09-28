@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ShapedPanel.java,v 1.20 2004/11/11 14:11:14 jesper Exp $
+// $Id: ShapedPanel.java,v 1.24 2005/02/16 11:28:13 jesper Exp $
 package net.infonode.gui.shaped.panel;
 
 import net.infonode.gui.BackgroundPainter;
@@ -163,6 +163,12 @@ public class ShapedPanel extends JPanel implements BackgroundPainter {
         g2.clip(shape);
         super.paintChildren(g);
         g2.setClip(clip);
+
+/*        ShapedBorder sb = getShapedBorder();
+
+        if (sb != null)
+          sb.paintBorder(this, g, shapedInsets.left, shapedInsets.top, getWidth() - shapedInsets.left -shapedInsets.right, getHeight() - shapedInsets.top - shapedInsets.bottom);
+*/
         return;
       }
     }
@@ -192,15 +198,19 @@ public class ShapedPanel extends JPanel implements BackgroundPainter {
   }
 
   public boolean contains(int x, int y) {
+    if (x < 0 || y < 0 || x >= getWidth() || y >= getHeight())
+      return false;
+
     Shape shape = getShape();
-    return shape == null ?
-           super.contains(x, y) : x >= 0 && y >= 0 && x < getWidth() && y < getHeight() && shape.contains(x, y);
+    return shape == null ? super.contains(x, y) : shape.contains(x, y);
   }
 
   public boolean inside(int x, int y) {
+    if (x < 0 || y < 0 || x >= getWidth() || y >= getHeight())
+      return false;
+
     Shape shape = getShape();
-    return shape == null ?
-           super.inside(x, y) : x >= 0 && y >= 0 && x < getWidth() && y < getHeight() && shape.contains(x, y);
+    return shape == null ? super.inside(x, y) : shape.contains(x, y);
   }
 
   private boolean findShapedBorder(Border border, Insets i) {

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: FlatButtonFactory.java,v 1.3 2004/09/28 15:07:29 jesper Exp $
+// $Id: FlatButtonFactory.java,v 1.5 2005/02/16 11:28:10 jesper Exp $
 package net.infonode.gui.button;
 
 import javax.swing.*;
@@ -30,7 +30,7 @@ import java.io.Serializable;
  * Creates a flat button with mouse over highlighting.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.5 $
  */
 public class FlatButtonFactory implements ButtonFactory, Serializable {
   private static final long serialVersionUID = 1;

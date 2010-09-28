@@ -20,7 +20,7 @@
  */
 
 
-// $Id: Tab.java,v 1.24 2004/11/11 14:10:33 jesper Exp $
+// $Id: Tab.java,v 1.28 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.gui.draggable.DraggableComponent;
@@ -69,7 +69,7 @@ import java.util.ArrayList;
  * </ul></p>
  *
  * @author $Author: jesper $
- * @version $Revision: 1.24 $
+ * @version $Revision: 1.28 $
  * @see TabListener
  * @see TabbedPanel
  * @see TitledTab
@@ -402,7 +402,14 @@ public class Tab extends JPanel {
     return null;
   }
 
-  void setTabbedPanel(TabbedPanel tabbedPanel) {
+  /**
+   * Called by the tabbed panel when the tab becomes a member or is no longer a member of the
+   * tabbed panel
+   *
+   * @param tabbedPanel tabbed panel that this tab is a member of or null if this tab is no
+   *                    longer a member o a tabbed panel
+   */
+  protected void setTabbedPanel(TabbedPanel tabbedPanel) {
     this.tabbedPanel = tabbedPanel;
     if (this.tabbedPanel != null)
       this.tabbedPanel.addTabListener(tabbedPanelListener);
@@ -466,7 +473,7 @@ public class Tab extends JPanel {
 
   private void fireDraggedEvent(TabDragEvent event) {
     if (listeners != null) {
-      TabDragEvent e = new TabDragEvent(this, this, event.getPoint());
+      TabDragEvent e = new TabDragEvent(this, event.getMouseEvent());
       Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
         ((TabListener) l[i]).tabDragged(e);

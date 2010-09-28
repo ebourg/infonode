@@ -20,40 +20,17 @@
  */
 
 
-// $Id: CloseButtonInfo.java,v 1.5 2004/10/28 14:16:41 jesper Exp $
+// $Id: CloseButtonInfo.java,v 1.7 2004/12/22 10:15:52 jesper Exp $
 package net.infonode.docking.internalutil;
 
-import net.infonode.docking.DockingWindow;
-import net.infonode.docking.OperationAbortedException;
 import net.infonode.properties.propertymap.PropertyMapProperty;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.7 $
  */
 public class CloseButtonInfo extends AbstractButtonInfo {
   public CloseButtonInfo(PropertyMapProperty property) {
     super(property);
   }
-
-  public boolean isVisible(DockingWindow window) {
-    return window.isClosable();
-  }
-
-  public ActionListener getActionListener(final DockingWindow window) {
-    return new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        try {
-          window.closeWithAbort();
-        }
-        catch (OperationAbortedException e1) {
-          // Ignore
-        }
-      }
-    };
-  }
-
 }

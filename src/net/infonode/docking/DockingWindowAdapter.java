@@ -20,17 +20,32 @@
  */
 
 
-// $Id: DockingWindowAdapter.java,v 1.6 2004/09/28 15:07:29 jesper Exp $
+// $Id: DockingWindowAdapter.java,v 1.7 2004/11/19 16:02:08 jesper Exp $
 package net.infonode.docking;
 
 /**
- * Adapter class which implements {@link DockingWindowListener} with empty methods.
+ * Adapter class which implements the {@link DockingWindowListener} methods with empty bodies.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  * @since IDW 1.1.0
  */
 public class DockingWindowAdapter implements DockingWindowListener {
+  public void windowShown(DockingWindow window) {
+  }
+
+  public void windowHidden(DockingWindow window) {
+  }
+
+  public void viewFocusChanged(View previouslyFocusedView, View focusedView) {
+  }
+
+  public void windowAdded(DockingWindow addedToWindow, DockingWindow addedWindow) {
+  }
+
+  public void windowRemoved(DockingWindow removedFromWindow, DockingWindow removedWindow) {
+  }
+
   public void windowClosing(DockingWindow window) throws OperationAbortedException {
   }
 

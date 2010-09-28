@@ -20,7 +20,7 @@
  */
 
 
-// $Id: RectangleComponentPainter.java,v 1.5 2004/11/09 16:32:53 jesper Exp $
+// $Id: RectangleComponentPainter.java,v 1.7 2005/02/16 11:28:11 jesper Exp $
 package net.infonode.gui.componentpainter;
 
 import net.infonode.gui.InsetsUtil;
@@ -33,7 +33,7 @@ import java.io.Serializable;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.7 $
  */
 public class RectangleComponentPainter extends AbstractComponentPainter implements Serializable {
   private static final long serialVersionUID = 1;
@@ -64,7 +64,15 @@ public class RectangleComponentPainter extends AbstractComponentPainter implemen
     this.insets = (Insets) insets.clone();
   }
 
-  public void paint(Component component, Graphics g, int x, int y, int width, int height, Direction direction, boolean horizontalFlip, boolean verticalFlip) {
+  public void paint(Component component,
+                    Graphics g,
+                    int x,
+                    int y,
+                    int width,
+                    int height,
+                    Direction direction,
+                    boolean horizontalFlip,
+                    boolean verticalFlip) {
     Color xc = null;
     g.setColor(color.getColor(component));
 

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PolygonBorder.java,v 1.6 2004/11/05 17:53:08 johan Exp $
+// $Id: PolygonBorder.java,v 1.8 2005/02/16 11:28:13 jesper Exp $
 package net.infonode.gui.shaped.border;
 
 import net.infonode.gui.colorprovider.ColorProvider;
@@ -28,8 +28,8 @@ import net.infonode.gui.colorprovider.ColorProvider;
 import java.awt.*;
 
 /**
- * @author $Author: johan $
- * @version $Revision: 1.6 $
+ * @author $Author: jesper $
+ * @version $Revision: 1.8 $
  */
 public class PolygonBorder extends AbstractPolygonBorder {
   private static final long serialVersionUID = 1;
@@ -45,14 +45,24 @@ public class PolygonBorder extends AbstractPolygonBorder {
     this.heightFactors = heightFactors;
   }
 
-  public PolygonBorder(ColorProvider lineColor, ColorProvider highlightColor, int[] coords, float[] widthFactors, float[] heightFactors) {
+  public PolygonBorder(ColorProvider lineColor,
+                       ColorProvider highlightColor,
+                       int[] coords,
+                       float[] widthFactors,
+                       float[] heightFactors) {
     super(lineColor, highlightColor);
     this.coords = coords;
     this.widthFactors = widthFactors;
     this.heightFactors = heightFactors;
   }
 
-  public PolygonBorder(ColorProvider lineColor, ColorProvider highlightColor, ColorProvider middleColor, ColorProvider shadowColor, int[] coords, float[] widthFactors, float[] heightFactors) {
+  public PolygonBorder(ColorProvider lineColor,
+                       ColorProvider highlightColor,
+                       ColorProvider middleColor,
+                       ColorProvider shadowColor,
+                       int[] coords,
+                       float[] widthFactors,
+                       float[] heightFactors) {
     super(lineColor, highlightColor, middleColor, shadowColor);
     this.coords = coords;
     this.widthFactors = widthFactors;

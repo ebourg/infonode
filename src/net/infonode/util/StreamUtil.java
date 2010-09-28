@@ -20,7 +20,7 @@
  */
 
 
-// $Id: StreamUtil.java,v 1.4 2004/09/23 15:32:13 jesper Exp $
+// $Id: StreamUtil.java,v 1.7 2005/02/16 11:28:14 jesper Exp $
 
 package net.infonode.util;
 
@@ -28,7 +28,7 @@ import java.io.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.7 $
  */
 public class StreamUtil {
   public static final void readAll(InputStream in, byte[] data, int offset, int length) throws IOException {
@@ -80,5 +80,15 @@ public class StreamUtil {
 
   public static void readAll(InputStream in, byte[] data) throws IOException {
     readAll(in, data, 0, data.length);
+  }
+
+  public static void write(InputStream in, OutputStream out, int length) throws IOException {
+    byte[] data = new byte[10000];
+
+    while (length > 0) {
+      int read = in.read(data, 0, Math.min(data.length, length));
+      out.write(data, 0, read);
+      length -= read;
+    }
   }
 }

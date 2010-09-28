@@ -20,7 +20,7 @@
  */
 
 
-// $Id: BackgroundPainterColorProvider.java,v 1.5 2004/11/11 14:11:14 jesper Exp $
+// $Id: BackgroundPainterColorProvider.java,v 1.7 2005/02/16 11:28:10 jesper Exp $
 package net.infonode.gui.colorprovider;
 
 import net.infonode.gui.ComponentUtil;
@@ -37,7 +37,7 @@ import java.io.Serializable;
  * color is taken from this painter, otherwise the component background color is used.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.7 $
  */
 public class BackgroundPainterColorProvider extends AbstractColorProvider implements Serializable {
   private static final long serialVersionUID = 1;

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabSelectTriggerProperty.java,v 1.7 2004/09/28 14:50:49 jesper Exp $
+// $Id: TabSelectTriggerProperty.java,v 1.8 2005/02/16 11:28:15 jesper Exp $
 
 package net.infonode.tabbedpanel;
 
@@ -32,7 +32,7 @@ import net.infonode.properties.util.PropertyValueHandler;
  * Property for TabSelectTrigger
  *
  * @author $Author: jesper $
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  * @see TabbedPanel
  * @see TabbedPanelProperties
  * @since ITP 1.1.0
@@ -46,7 +46,10 @@ public class TabSelectTriggerProperty extends EnumProperty {
    * @param description  property description
    * @param valueStorage storage for property
    */
-  public TabSelectTriggerProperty(PropertyGroup group, String name, String description, PropertyValueHandler valueStorage) {
+  public TabSelectTriggerProperty(PropertyGroup group,
+                                  String name,
+                                  String description,
+                                  PropertyValueHandler valueStorage) {
     super(group, name, TabSelectTrigger.class, description, valueStorage, TabSelectTrigger.getSelectTriggers());
   }
 

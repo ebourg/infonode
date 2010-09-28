@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowTabProperties.java,v 1.12 2004/10/14 15:28:36 jesper Exp $
+// $Id: WindowTabProperties.java,v 1.18 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.base.Property;
@@ -32,7 +32,7 @@ import net.infonode.tabbedpanel.titledtab.TitledTabStateProperties;
  * Properties and property values for window tabs.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.18 $
  */
 public class WindowTabProperties extends PropertyMapContainer {
   /**
@@ -153,9 +153,22 @@ public class WindowTabProperties extends PropertyMapContainer {
    *
    * @return this
    * @since IDW 1.1.0
+   * @deprecated Use {@link #removeSuperObject(WindowTabProperties)} instead.
    */
   public WindowTabProperties removeSuperObject() {
     getMap().removeSuperMap();
+    return this;
+  }
+
+  /**
+   * Removes a super object.
+   *
+   * @param superObject the super object to remove
+   * @return this
+   * @since IDW 1.3.0
+   */
+  public WindowTabProperties removeSuperObject(WindowTabProperties superObject) {
+    getMap().removeSuperMap(superObject.getMap());
     return this;
   }
 
@@ -205,4 +218,5 @@ public class WindowTabProperties extends PropertyMapContainer {
   public WindowTabStateProperties getFocusedButtonProperties() {
     return new WindowTabStateProperties(FOCUSED_BUTTON_PROPERTIES.get(getMap()));
   }
+
 }

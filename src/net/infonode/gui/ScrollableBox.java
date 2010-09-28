@@ -19,7 +19,7 @@
  * MA 02111-1307, USA.
  */
 
-//$Id: ScrollableBox.java,v 1.19 2004/11/11 14:11:14 jesper Exp $
+//$Id: ScrollableBox.java,v 1.21 2005/02/16 11:28:13 jesper Exp $
 
 package net.infonode.gui;
 
@@ -243,10 +243,10 @@ public class ScrollableBox extends JPanel {
       leftEnd = leftIndex == 0;
       rightEnd = !(leftIndex < fitIndex);
 
-      scrollingComponent.setLocation(
-          createPos(
-              ((count == 0) ? 0 : (-getPos(getScrollingComponents()[leftIndex].getLocation()))) + getScrollOffset(
-                  leftIndex)));
+      scrollingComponent.setLocation(createPos(((count == 0) ?
+                                                0 :
+                                                (-getPos(getScrollingComponents()[leftIndex].getLocation()))) + getScrollOffset(
+                                                    leftIndex)));
       Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
         if (oldLeftIndex < index)

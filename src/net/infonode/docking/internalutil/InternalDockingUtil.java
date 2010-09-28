@@ -20,13 +20,14 @@
  */
 
 
-// $Id: InternalDockingUtil.java,v 1.16 2004/11/11 16:41:58 jesper Exp $
+// $Id: InternalDockingUtil.java,v 1.22 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.internalutil;
 
 import net.infonode.docking.DockingWindow;
 import net.infonode.docking.RootWindow;
 import net.infonode.docking.TabWindow;
 import net.infonode.docking.View;
+import net.infonode.docking.action.DockingWindowAction;
 import net.infonode.docking.properties.WindowTabButtonProperties;
 import net.infonode.docking.util.DockingUtil;
 import net.infonode.docking.util.ViewMap;
@@ -38,13 +39,27 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.16 $
+ * @version $Revision: 1.22 $
  */
 public class InternalDockingUtil {
   private InternalDockingUtil() {
+  }
+
+  public static final int DEFAULT_BUTTON_ICON_SIZE = 10;
+
+  public static void getViews(DockingWindow window, ArrayList views) {
+    if (window == null)
+      return;
+    else if (window instanceof View)
+      views.add(window);
+    else {
+      for (int i = 0; i < window.getChildWindowCount(); i++)
+        getViews(window.getChildWindow(i), views);
+    }
   }
 
   public static IntList getWindowPath(DockingWindow window) {
@@ -81,13 +96,14 @@ public class InternalDockingUtil {
   public static void dump(DockingWindow window, Printer printer) {
     DockingWindow parent = window.getWindowParent();
 
-    printer.println(window.getClass().getName() + ", '" +
+    String clName = window.getClass().getName();
+
+    printer.println(clName.substring(clName.lastIndexOf('.') + 1) + ", " +
+                    System.identityHashCode(window) + " (" +
+                    (parent == null ? "null" : String.valueOf(System.identityHashCode(parent))) + "), '" +
                     window.getTitle() + "', " +
                     (window.isVisible() ? "visible" : "not visible") + ", " +
                     (window.isMaximized() ? "maximized" : "not maximized") + ", " +
-                    System.identityHashCode(window) +
-                    ", parent: " +
-                    (parent == null ? "null" : String.valueOf(System.identityHashCode(parent))) +
                     (window.getChildWindowCount() > 0 ? ":" : ""));
 
     if (window.getChildWindowCount() > 0) {
@@ -124,18 +140,19 @@ public class InternalDockingUtil {
 
     for (int i = 0; i < buttonInfos.length; i++) {
       WindowTabButtonProperties p = new WindowTabButtonProperties(buttonInfos[i].getProperty().get(map));
+      DockingWindowAction action = p.getAction();
 
-      if (buttons[i] == null && p.getFactory() != null) {
+      if (buttons[i] == null && p.getFactory() != null && action != null) {
         buttons[i] = p.getFactory().createButton(window);
         buttons[i].setFocusable(false);
-        buttons[i].addActionListener(buttonInfos[i].getActionListener(window));
+        buttons[i].addActionListener(action.getAction(window).toSwingAction());
         updateContainer = true;
       }
 
       if (buttons[i] != null) {
         buttons[i].setToolTipText(p.getToolTipText());
         buttons[i].setIcon(p.getIcon());
-        buttons[i].setVisible(p.isVisible() && buttonInfos[i].isVisible(window));
+        buttons[i].setVisible(p.isVisible() && action != null && action.getAction(window).isEnabled());
       }
     }
 

@@ -20,23 +20,26 @@
  */
 
 
-// $Id: TabbedPanelContentPanel.java,v 1.24 2004/11/11 14:10:33 jesper Exp $
+// $Id: TabbedPanelContentPanel.java,v 1.37 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.gui.componentpainter.ComponentPainter;
 import net.infonode.gui.componentpainter.SolidColorComponentPainter;
 import net.infonode.gui.draggable.DraggableComponentBoxAdapter;
 import net.infonode.gui.draggable.DraggableComponentBoxEvent;
-import net.infonode.gui.shaped.panel.ShapedPanel;
-import net.infonode.properties.base.Property;
+import net.infonode.gui.hover.HoverListener;
+import net.infonode.gui.hover.panel.HoverableShapedPanel;
 import net.infonode.properties.gui.util.ShapedPanelProperties;
 import net.infonode.properties.propertymap.PropertyMapTreeListener;
 import net.infonode.properties.propertymap.PropertyMapWeakListenerManager;
-import net.infonode.properties.util.PropertyChangeListener;
+import net.infonode.tabbedpanel.internal.TabbedHoverUtil;
 import net.infonode.util.Direction;
+import net.infonode.util.ValueChange;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -45,24 +48,52 @@ import java.util.Map;
  * the content panel.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.24 $
+ * @version $Revision: 1.37 $
  * @see TabbedPanel
  * @see Tab
  */
 public class TabbedPanelContentPanel extends JPanel {
   private TabbedPanel tabbedPanel;
-  private ShapedPanel shapedPanel = new ShapedPanel();
+  private HoverableShapedPanel shapedPanel;
+
   private PropertyMapTreeListener propertiesListener = new PropertyMapTreeListener() {
     public void propertyValuesChanged(Map changes) {
-      update();
-      repaint();
-    }
-  };
+      boolean update = false;
 
-  private PropertyChangeListener tabbedPanelPropertyListener = new PropertyChangeListener() {
-    public void propertyChanged(Property property, Object valueContainer, Object oldValue, Object newValue) {
-      shapedPanel.setDirection(((Direction) newValue).getNextCW());
-      repaint();
+      Map m = (Map) changes.get(tabbedPanel.getProperties().getContentPanelProperties().getMap());
+      if (m != null) {
+        update = true;
+
+        if (m.keySet().contains(TabbedPanelContentPanelProperties.HOVER_LISTENER)) {
+          HoverListener oldHoverListener = shapedPanel.getHoverListener();
+          shapedPanel.setHoverListener(
+              (HoverListener) ((ValueChange) m.get(TabbedPanelContentPanelProperties.HOVER_LISTENER)).getNewValue());
+        }
+
+        repaint();
+      }
+
+      m = (Map) changes.get(tabbedPanel.getProperties().getContentPanelProperties().getComponentProperties().getMap());
+      if (m != null)
+        update = true;
+
+      m =
+      (Map) changes.get(tabbedPanel.getProperties().getContentPanelProperties().getShapedPanelProperties().getMap());
+      if (m != null)
+        update = true;
+
+      m = (Map) changes.get(tabbedPanel.getProperties().getMap());
+      if (m != null && m.keySet().contains(TabbedPanelProperties.TAB_AREA_ORIENTATION)) {
+        shapedPanel.setDirection(
+            ((Direction) ((ValueChange) m.get(TabbedPanelProperties.TAB_AREA_ORIENTATION)).getNewValue()).getNextCW());
+
+        repaint();
+      }
+
+      if (update) {
+        update();
+        repaint();
+      }
     }
   };
 
@@ -76,15 +107,41 @@ public class TabbedPanelContentPanel extends JPanel {
   public TabbedPanelContentPanel(TabbedPanel tabbedPanel, JComponent component) {
     super(new BorderLayout());
     setOpaque(false);
+    this.tabbedPanel = tabbedPanel;
+
+    shapedPanel = new HoverableShapedPanel(new BorderLayout(),
+                                           tabbedPanel.getProperties().getContentPanelProperties().getHoverListener(),
+                                           tabbedPanel) {
+      public boolean acceptHover(ArrayList enterableHoverables) {
+        return TabbedHoverUtil.acceptTabbedPanelHover(getTabbedPanel().getProperties().getHoverPolicy(),
+                                                      enterableHoverables,
+                                                      getTabbedPanel(),
+                                                      this);
+      }
+
+      protected void processMouseEvent(MouseEvent event) {
+        super.processMouseEvent(event);
+        if (getTabbedPanel().hasContentArea())
+          getTabbedPanel().doProcessMouseEvent(event);
+        else
+          doProcessMouseEvent(SwingUtilities.convertMouseEvent(this, event, TabbedPanelContentPanel.this));
+      }
+
+      protected void processMouseMotionEvent(MouseEvent event) {
+        super.processMouseMotionEvent(event);
+
+        if (getTabbedPanel().hasContentArea())
+          getTabbedPanel().doProcessMouseMotionEvent(event);
+        else
+          doProcessMouseMotionEvent(SwingUtilities.convertMouseEvent(this, event, TabbedPanelContentPanel.this));
+      }
+    };
+
     shapedPanel.add(component, BorderLayout.CENTER);
     add(shapedPanel, BorderLayout.CENTER);
-    this.tabbedPanel = tabbedPanel;
     update();
 
-    PropertyMapWeakListenerManager.addWeakTreeListener(getProperties().getMap(), propertiesListener);
-    PropertyMapWeakListenerManager.addWeakPropertyChangeListener(tabbedPanel.getProperties().getMap(),
-                                                                 TabbedPanelProperties.TAB_AREA_ORIENTATION,
-                                                                 tabbedPanelPropertyListener);
+    PropertyMapWeakListenerManager.addWeakTreeListener(tabbedPanel.getProperties().getMap(), propertiesListener);
 
     tabbedPanel.getDraggableComponentBox().addListener(new DraggableComponentBoxAdapter() {
       public void changed(DraggableComponentBoxEvent event) {
@@ -180,5 +237,13 @@ public class TabbedPanelContentPanel extends JPanel {
                         shapedPanel.getHeight());
 
     shapedPanel.repaint(r);
+  }
+
+  private void doProcessMouseEvent(MouseEvent event) {
+    processMouseEvent(event);
+  }
+
+  private void doProcessMouseMotionEvent(MouseEvent event) {
+    processMouseMotionEvent(event);
   }
 }

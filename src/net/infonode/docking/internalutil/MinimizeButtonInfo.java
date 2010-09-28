@@ -20,34 +20,18 @@
  */
 
 
-// $Id: MinimizeButtonInfo.java,v 1.3 2004/09/23 15:32:13 jesper Exp $
+// $Id: MinimizeButtonInfo.java,v 1.5 2004/12/22 10:15:52 jesper Exp $
 package net.infonode.docking.internalutil;
 
-import net.infonode.docking.DockingWindow;
 import net.infonode.properties.propertymap.PropertyMapProperty;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.5 $
  */
 public class MinimizeButtonInfo extends AbstractButtonInfo {
   public MinimizeButtonInfo(PropertyMapProperty property) {
     super(property);
-  }
-
-  public boolean isVisible(DockingWindow window) {
-    return !window.isMinimized() && window.isMinimizable();
-  }
-
-  public ActionListener getActionListener(final DockingWindow window) {
-    return new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        window.minimize();
-      }
-    };
   }
 
 }

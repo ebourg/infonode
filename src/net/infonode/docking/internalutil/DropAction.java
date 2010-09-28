@@ -20,17 +20,19 @@
  */
 
 
-// $Id: DropAction.java,v 1.3 2004/11/09 16:30:28 jesper Exp $
+// $Id: DropAction.java,v 1.6 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.internalutil;
 
 import net.infonode.docking.DockingWindow;
 
+import java.awt.event.MouseEvent;
+
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.6 $
  */
 abstract public class DropAction {
-  abstract public void execute(DockingWindow window);
+  abstract public void execute(DockingWindow window, MouseEvent mouseEvent);
 
   protected DropAction() {
   }

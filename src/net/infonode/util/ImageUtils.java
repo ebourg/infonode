@@ -20,7 +20,7 @@
  */
 
 
-//$Id: ImageUtils.java,v 1.5 2004/11/11 14:11:14 jesper Exp $
+//$Id: ImageUtils.java,v 1.7 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.util; // Generated package name
 
 import net.infonode.util.math.Int4;
@@ -150,7 +150,11 @@ public final class ImageUtils {
     return pixels;
   }
 
-  public static AffineTransform createTransform(Direction direction, boolean horizontalFlip, boolean verticalFlip, int width, int height) {
+  public static AffineTransform createTransform(Direction direction,
+                                                boolean horizontalFlip,
+                                                boolean verticalFlip,
+                                                int width,
+                                                int height) {
     int hf = horizontalFlip ? -1 : 1;
     int vf = verticalFlip ? -1 : 1;
     int m00 = direction == Direction.RIGHT ? hf : direction == Direction.LEFT ? -hf : 0;

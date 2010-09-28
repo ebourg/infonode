@@ -20,7 +20,7 @@
  */
 
 
-// $Id: NullLocation.java,v 1.6 2004/09/28 15:07:29 jesper Exp $
+// $Id: NullLocation.java,v 1.8 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.location;
 
 import net.infonode.docking.DockingWindow;
@@ -32,7 +32,7 @@ import java.io.ObjectOutputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.8 $
  */
 public class NullLocation implements WindowLocation {
   public static final NullLocation INSTANCE = new NullLocation();

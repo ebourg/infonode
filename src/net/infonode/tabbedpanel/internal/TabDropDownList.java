@@ -20,26 +20,22 @@
  */
 
 
-// $Id: TabDropDownList.java,v 1.14 2004/11/11 14:10:33 jesper Exp $
+// $Id: TabDropDownList.java,v 1.16 2005/02/16 11:28:14 jesper Exp $
 
 package net.infonode.tabbedpanel.internal;
 
-import net.infonode.gui.ButtonFactory;
 import net.infonode.gui.PopupList;
 import net.infonode.gui.PopupListListener;
 import net.infonode.gui.TextIconListCellRenderer;
-import net.infonode.gui.icon.button.DropDownIcon;
 import net.infonode.tabbedpanel.*;
-import net.infonode.util.Direction;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import java.awt.*;
 
 /**
  * @author Bjorn Lind
- * @version $Revision: 1.14 $ $Date: 2004/11/11 14:10:33 $
+ * @version $Revision: 1.16 $ $Date: 2005/02/16 11:28:14 $
  * @since ITP 1.1.0
  */
 public class TabDropDownList extends PopupList {
@@ -58,10 +54,8 @@ public class TabDropDownList extends PopupList {
     }
   };
 
-  public TabDropDownList(final TabbedPanel tabbedPanel) {
-    super(
-        ButtonFactory.createFlatHighlightButton(
-            new DropDownIcon(Color.black, TabbedUIDefaults.getButtonIconSize(), Direction.DOWN), null, 0, null));
+  public TabDropDownList(final TabbedPanel tabbedPanel, AbstractButton button) {
+    super(button);
     this.tabbedPanel = tabbedPanel;
 
     addPopupListListener(new PopupListListener() {
@@ -84,7 +78,8 @@ public class TabDropDownList extends PopupList {
       }
     });
 
-    if (tabbedPanel.getProperties().getTabDropDownListVisiblePolicy() == TabDropDownListVisiblePolicy.MORE_THAN_ONE_TAB) {
+    if (tabbedPanel.getProperties().getTabDropDownListVisiblePolicy() ==
+        TabDropDownListVisiblePolicy.MORE_THAN_ONE_TAB) {
       tabbedPanel.addTabListener(tabListener);
       setVisible(tabbedPanel.getTabCount() > 1);
     }

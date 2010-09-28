@@ -20,12 +20,16 @@
  */
 
 
-// $Id: View.java,v 1.29 2004/11/11 14:09:46 jesper Exp $
+// $Id: View.java,v 1.39 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking;
 
+import net.infonode.docking.internal.ReadContext;
+import net.infonode.docking.internal.WriteContext;
 import net.infonode.docking.internalutil.DropAction;
 import net.infonode.docking.location.NullLocation;
 import net.infonode.docking.location.WindowLocation;
+import net.infonode.docking.model.ViewItem;
+import net.infonode.docking.model.ViewWriter;
 import net.infonode.docking.properties.ViewProperties;
 import net.infonode.gui.ComponentUtil;
 import net.infonode.gui.panel.SimplePanel;
@@ -34,21 +38,20 @@ import net.infonode.properties.propertymap.PropertyMap;
 import net.infonode.properties.propertymap.PropertyMapManager;
 import net.infonode.properties.propertymap.PropertyMapWeakListenerManager;
 import net.infonode.properties.util.PropertyChangeListener;
+import net.infonode.util.StreamUtil;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.lang.ref.WeakReference;
 
 /**
  * A view is a docking window containing a component.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.29 $
+ * @version $Revision: 1.39 $
  */
 public class View extends DockingWindow {
   private Component lastFocusedComponent;
@@ -59,14 +62,12 @@ public class View extends DockingWindow {
   };
   private SimplePanel contentPanel = new SimplePanel();
   private ViewProperties rootProperties = new ViewProperties();
-  private ViewProperties viewProperties = new ViewProperties(rootProperties);
   private WeakReference lastRootWindow;
   private PropertyChangeListener listener = new PropertyChangeListener() {
     public void propertyChanged(Property property, Object valueContainer, Object oldValue, Object newValue) {
       fireTitleChanged();
     }
   };
-
 
   /**
    * Constructor.
@@ -76,18 +77,38 @@ public class View extends DockingWindow {
    * @param component the component to place inside the view
    */
   public View(String title, Icon icon, Component component) {
+    super(new ViewItem());
+
     rootProperties.setTitle(title);
     rootProperties.setIcon(icon);
+    getViewProperties().addSuperObject(rootProperties);
     super.setComponent(contentPanel);
     contentPanel.setComponent(component);
 
-    PropertyMapWeakListenerManager.addWeakPropertyChangeListener(viewProperties.getMap(),
+    PropertyMapWeakListenerManager.addWeakPropertyChangeListener(getViewProperties().getMap(),
                                                                  ViewProperties.TITLE,
                                                                  listener);
-    PropertyMapWeakListenerManager.addWeakPropertyChangeListener(viewProperties.getMap(),
+    PropertyMapWeakListenerManager.addWeakPropertyChangeListener(getViewProperties().getMap(),
                                                                  ViewProperties.ICON,
                                                                  listener);
     init();
+  }
+
+  /**
+   * <p>
+   * Returns a list containing the custom window tab components. Changes to the list will be propagated to the tab.
+   * </p>
+   * <p>
+   * The custom tab components will be shown after the window title when the window tab is highlighted. The
+   * components are shown in the same order as they appear in the list. The custom tab components container layout is
+   * rotated with the tab direction.
+   * </p>
+   *
+   * @return a list containing the custom tab components, list elements are of type {@link JComponent}
+   * @since IDW 1.3.0
+   */
+  public java.util.List getCustomTabComponents() {
+    return getTab().getCustomTabComponentsList();
   }
 
   /**
@@ -116,7 +137,7 @@ public class View extends DockingWindow {
    * @return the property values for this view
    */
   public ViewProperties getViewProperties() {
-    return viewProperties;
+    return ((ViewItem) getWindowItem()).getViewProperties();
   }
 
   protected void update() {
@@ -133,10 +154,6 @@ public class View extends DockingWindow {
 
   protected WindowLocation getWindowLocation(DockingWindow window) {
     return NullLocation.INSTANCE;
-  }
-
-  public String getTitle() {
-    return getViewProperties().getTitle();
   }
 
   void setLastFocusedComponent(Component component) {
@@ -193,17 +210,26 @@ public class View extends DockingWindow {
   }
 
   protected void write(ObjectOutputStream out, WriteContext context) throws IOException {
-    out.writeInt(WindowIds.VIEW);
-
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     ObjectOutputStream oos = new ObjectOutputStream(baos);
-
     context.getViewSerializer().writeView(this, oos);
-    super.write(oos, context);
-
+    getWindowItem().writeSettings(oos, context);
     oos.close();
     out.writeInt(baos.size());
     baos.writeTo(out);
+  }
+
+  static View read(ObjectInputStream in, ReadContext context) throws IOException {
+    int size = in.readInt();
+    byte[] viewData = new byte[size];
+    StreamUtil.readAll(in, viewData);
+    ObjectInputStream viewIn = new ObjectInputStream(new ByteArrayInputStream(viewData));
+    View view = context.getViewSerializer().readView(viewIn);
+
+    if (view != null)
+      view.getWindowItem().readSettings(viewIn, context);
+
+    return view;
   }
 
   protected DropAction doAcceptDrop(Point p, DockingWindow window) {
@@ -238,7 +264,7 @@ public class View extends DockingWindow {
     PropertyMapManager.runBatch(new Runnable() {
       public void run() {
         if (oldRoot != null)
-          rootProperties.getMap().removeSuperMap();
+          rootProperties.removeSuperObject(oldRoot.getRootWindowProperties().getViewProperties());
 
         if (newRoot != null) {
           rootProperties.addSuperObject(newRoot.getRootWindowProperties().getViewProperties());
@@ -248,7 +274,7 @@ public class View extends DockingWindow {
   }
 
   protected PropertyMap getPropertyObject() {
-    return viewProperties.getMap();
+    return getViewProperties().getMap();
   }
 
   protected PropertyMap createPropertyObject() {
@@ -256,7 +282,7 @@ public class View extends DockingWindow {
   }
 
   protected boolean needsTitleWindow() {
-    return viewProperties.getAlwaysShowTitle();
+    return getViewProperties().getAlwaysShowTitle();
   }
 
   private void checkLastFocusedComponent() {
@@ -271,4 +297,10 @@ public class View extends DockingWindow {
 
   void restoreWindowComponent(DockingWindow window) {
   }
+
+  protected void write(ObjectOutputStream out, WriteContext context, ViewWriter viewWriter) throws IOException {
+    out.writeInt(WindowIds.VIEW);
+    viewWriter.writeView(this, out, context);
+  }
+
 }

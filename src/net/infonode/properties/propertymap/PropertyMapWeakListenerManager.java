@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyMapWeakListenerManager.java,v 1.4 2004/11/11 14:10:12 jesper Exp $
+// $Id: PropertyMapWeakListenerManager.java,v 1.6 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.properties.propertymap;
 
 import net.infonode.properties.base.Property;
@@ -40,7 +40,7 @@ import java.util.WeakHashMap;
  * object on which it listens when there are no strong or soft references to the listeners.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.6 $
  * @since IDW 1.2.0
  */
 public class PropertyMapWeakListenerManager {
@@ -218,7 +218,9 @@ public class PropertyMapWeakListenerManager {
    * @param property the property to listen to changes on
    * @param listener the listener
    */
-  public static void addWeakPropertyChangeListener(PropertyMap map, Property property, PropertyChangeListener listener) {
+  public static void addWeakPropertyChangeListener(PropertyMap map,
+                                                   Property property,
+                                                   PropertyChangeListener listener) {
     PropertyChangeListenerRef l = new PropertyChangeListenerRef(listener, refQueue, map, property);
     addToMap(propertyChangeListenerMap, listener, l);
   }
@@ -252,7 +254,9 @@ public class PropertyMapWeakListenerManager {
    * @param property the property on which the listener listens to changes
    * @param listener the listener
    */
-  public static void removeWeakPropertyChangeListener(PropertyMap map, Property property, PropertyChangeListener listener) {
+  public static void removeWeakPropertyChangeListener(PropertyMap map,
+                                                      Property property,
+                                                      PropertyChangeListener listener) {
     removeFromMap(propertyChangeListenerMap, listener, map, property);
   }
 

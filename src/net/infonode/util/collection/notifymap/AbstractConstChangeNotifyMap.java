@@ -20,19 +20,17 @@
  */
 
 
-// $Id: AbstractConstChangeNotifyMap.java,v 1.8 2004/11/11 14:11:14 jesper Exp $
+// $Id: AbstractConstChangeNotifyMap.java,v 1.12 2005/02/16 11:28:13 jesper Exp $
 package net.infonode.util.collection.notifymap;
 
 import net.infonode.util.ValueChange;
-import net.infonode.util.collection.map.MapAdapter;
+import net.infonode.util.collection.map.SingleValueMap;
 import net.infonode.util.collection.map.base.ConstMap;
-import net.infonode.util.collection.map.base.Map;
 
 import java.util.ArrayList;
 
 abstract public class AbstractConstChangeNotifyMap implements ConstChangeNotifyMap {
   private ArrayList listeners;
-//  private WeakSet weakListeners;
 
   public void addListener(ChangeNotifyMapListener listener) {
     removeListener(listener);
@@ -56,26 +54,15 @@ abstract public class AbstractConstChangeNotifyMap implements ConstChangeNotifyM
     return false;
   }
 
-/*  public void addWeakListener(ChangeNotifyMapListener listener) {
-    removeListener(listener);
-
-    if (weakListeners == null)
-      weakListeners = new WeakSet(2);
-
-    weakListeners.add(listener);
-  }
-*/
   protected void fireEntryRemoved(Object key, Object value) {
     fireEntryChanged(key, value, null);
   }
 
   protected void fireEntryChanged(Object key, Object oldValue, Object newValue) {
-    Map map = new MapAdapter();
-    map.put(key, new ValueChange(oldValue, newValue));
-    fireEntriesChanged(map);
+    fireEntriesChanged(new SingleValueMap(key, new ValueChange(oldValue, newValue)));
   }
 
-  protected void fireEntriesChanged(final ConstMap changes) {
+  protected void fireEntriesChanged(ConstMap changes) {
     if (changes.isEmpty())
       return;
 
@@ -86,19 +73,10 @@ abstract public class AbstractConstChangeNotifyMap implements ConstChangeNotifyM
       for (int i = 0; i < l.length; i++)
         l[i].entriesChanged(changes);
     }
-
-/*    if (weakListeners != null) {
-      weakListeners.each(new Closure() {
-        public void apply(Object object) {
-          ((ChangeNotifyMapListener) object).entriesChanged(changes);
-        }
-      });
-    }*/
   }
 
   protected boolean hasListeners() {
     return (listeners != null && !listeners.isEmpty());
-    //||    (weakListeners != null && !weakListeners.isEmpty());
   }
 
 }

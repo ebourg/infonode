@@ -19,16 +19,18 @@
  * MA 02111-1307, USA.
  */
 
-// $Id: TitledTabProperties.java,v 1.22 2004/11/11 14:10:33 jesper Exp $
+// $Id: TitledTabProperties.java,v 1.27 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.tabbedpanel.titledtab;
 
 import net.infonode.gui.DynamicUIManager;
 import net.infonode.gui.DynamicUIManagerListener;
+import net.infonode.gui.hover.HoverListener;
 import net.infonode.properties.base.Property;
 import net.infonode.properties.gui.util.ComponentProperties;
 import net.infonode.properties.gui.util.ShapedPanelProperties;
 import net.infonode.properties.propertymap.*;
 import net.infonode.properties.types.BooleanProperty;
+import net.infonode.properties.types.HoverListenerProperty;
 import net.infonode.properties.types.IntegerProperty;
 import net.infonode.tabbedpanel.TabbedUIDefaults;
 import net.infonode.tabbedpanel.border.TabAreaLineBorder;
@@ -67,7 +69,7 @@ import javax.swing.border.CompoundBorder;
  * </p>
  *
  * @author $Author: jesper $
- * @version $Revision: 1.22 $
+ * @version $Revision: 1.27 $
  * @see TitledTab
  * @see TitledTabStateProperties
  */
@@ -151,6 +153,19 @@ public class TitledTabProperties extends PropertyMapContainer {
                                                                                                  "Number of raised pixels for highlighted tab.",
                                                                                                  2,
                                                                                                  PropertyMapValueHandler.INSTANCE);
+
+  /**
+   * Hover listener property
+   *
+   * @see #setHoverListener
+   * @see #getHoverListener
+   * @since ITP 1.3.0
+   */
+  public static final HoverListenerProperty HOVER_LISTENER = new HoverListenerProperty(PROPERTIES,
+                                                                                       "Hover Listener",
+                                                                                       "Hover Listener to be used for tracking mouse hovering over the tab.",
+                                                                                       PropertyMapValueHandler.INSTANCE);
+
   private static final TitledTabProperties DEFAULT_VALUES = new TitledTabProperties(PROPERTIES.getDefaultMap());
 
   static {
@@ -244,39 +259,37 @@ public class TitledTabProperties extends PropertyMapContainer {
     super(PropertyMapFactory.create(inheritFrom.getMap()));
   }
 
-  private static void updateVisualProperties() {
-    PropertyMapManager.runBatch(new Runnable() {
-      public void run() {
-        int gap = TabbedUIDefaults.getIconTextGap();
-
-        DEFAULT_VALUES.getNormalProperties().setIconTextGap(gap).setTextTitleComponentGap(gap)
-            .setIconVisible(true).setTextVisible(true).setTitleComponentVisible(true).getComponentProperties()
-            .setFont(TabbedUIDefaults.getFont())
-            .setForegroundColor(TabbedUIDefaults.getNormalStateForeground())
-            .setBackgroundColor(TabbedUIDefaults.getNormalStateBackground())
-            .setBorder(new TabAreaLineBorder())
-            .setInsets(TabbedUIDefaults.getTabInsets());
-
-        DEFAULT_VALUES.getHighlightedProperties().getComponentProperties()
-            .setBackgroundColor(TabbedUIDefaults.getHighlightedStateBackground())
-            .setBorder(
-                new CompoundBorder(new TabAreaLineBorder(),
-                                   new TabHighlightBorder(TabbedUIDefaults.getHighlight(), true)));
-
-        DEFAULT_VALUES.getDisabledProperties().getComponentProperties()
-            .setForegroundColor(TabbedUIDefaults.getDisabledForeground()).setBackgroundColor(
-                TabbedUIDefaults.getDisabledBackground());
-      }
-    });
+  /**
+   * Adds a super object from which property values are inherited.
+   *
+   * @param superObject the object from which to inherit property values
+   * @return this
+   */
+  public TitledTabProperties addSuperObject(TitledTabProperties superObject) {
+    getMap().addSuperMap(superObject.getMap());
+    return this;
   }
 
-  private static void updateFunctionalProperties() {
-    DEFAULT_VALUES.setFocusable(true).setSizePolicy(TitledTabSizePolicy.EQUAL_SIZE)
-        .setBorderSizePolicy(TitledTabBorderSizePolicy.EQUAL_SIZE).setHighlightedRaised(2);
+  /**
+   * Removes the last added super object.
+   *
+   * @return this
+   */
+  public TitledTabProperties removeSuperObject() {
+    getMap().removeSuperMap();
+    return this;
+  }
 
-    DEFAULT_VALUES.getNormalProperties().setHorizontalAlignment(Alignment.LEFT).setVerticalAlignment(Alignment.CENTER)
-        .setIconTextRelativeAlignment(Alignment.LEFT).setTitleComponentTextRelativeAlignment(Alignment.RIGHT)
-        .setDirection(Direction.RIGHT);
+  /**
+   * Removes the given super object.
+   *
+   * @param superObject super object to remove
+   * @return this
+   * @since ITP 1.3.0
+   */
+  public TitledTabProperties removeSuperObject(TitledTabProperties superObject) {
+    getMap().removeSuperMap(superObject.getMap());
+    return this;
   }
 
   /**
@@ -286,28 +299,6 @@ public class TitledTabProperties extends PropertyMapContainer {
    */
   public static TitledTabProperties getDefaultProperties() {
     return new TitledTabProperties(DEFAULT_VALUES);
-  }
-
-  /**
-   * Adds a super object from which property values are inherited.
-   *
-   * @param superObject the object from which to inherit property values
-   * @return this
-   */
-  public TitledTabProperties addSuperObject(TitledTabProperties superObject) {
-    getMap().addSuperMap(superObject.getMap());
-
-    return this;
-  }
-
-  /**
-   * Removes a super object.
-   *
-   * @return this
-   */
-  public TitledTabProperties removeSuperObject() {
-    getMap().removeSuperMap();
-    return this;
   }
 
   /**
@@ -421,5 +412,65 @@ public class TitledTabProperties extends PropertyMapContainer {
    */
   public int getHighlightedRaised() {
     return HIGHLIGHTED_RAISED_AMOUNT.get(getMap());
+  }
+
+  /**
+   * <p>Sets the hover listener that will be triggered when the tab is hovered by the mouse.</p>
+   *
+   * <p>The hovered titled tab will be the source of the hover event sent to the hover listener.</p>
+   *
+   * @param listener the hover listener
+   * @return this TitledTabProperties
+   * @since ITP 1.3.0
+   */
+  public TitledTabProperties setHoverListener(HoverListener listener) {
+    HOVER_LISTENER.set(getMap(), listener);
+    return this;
+  }
+
+  /**
+   * <p>Gets the hover listener that will be triggered when the tab is hovered by the mouse.</p>
+   *
+   * <p>The hovered titled tab will be the source of the hover event sent to the hover listener.</p>
+   *
+   * @return the hover listener
+   * @since ITP 1.3.0
+   */
+  public HoverListener getHoverListener() {
+    return HOVER_LISTENER.get(getMap());
+  }
+
+  private static void updateVisualProperties() {
+    PropertyMapManager.runBatch(new Runnable() {
+      public void run() {
+        int gap = TabbedUIDefaults.getIconTextGap();
+
+        DEFAULT_VALUES.getNormalProperties().setIconTextGap(gap).setTextTitleComponentGap(gap)
+            .setIconVisible(true).setTextVisible(true).setTitleComponentVisible(true).getComponentProperties()
+            .setFont(TabbedUIDefaults.getFont())
+            .setForegroundColor(TabbedUIDefaults.getNormalStateForeground())
+            .setBackgroundColor(TabbedUIDefaults.getNormalStateBackground())
+            .setBorder(new TabAreaLineBorder())
+            .setInsets(TabbedUIDefaults.getTabInsets());
+
+        DEFAULT_VALUES.getHighlightedProperties().getComponentProperties()
+            .setBackgroundColor(TabbedUIDefaults.getHighlightedStateBackground())
+            .setBorder(new CompoundBorder(new TabAreaLineBorder(),
+                                          new TabHighlightBorder(TabbedUIDefaults.getHighlight(), true)));
+
+        DEFAULT_VALUES.getDisabledProperties().getComponentProperties()
+            .setForegroundColor(TabbedUIDefaults.getDisabledForeground()).setBackgroundColor(
+                TabbedUIDefaults.getDisabledBackground());
+      }
+    });
+  }
+
+  private static void updateFunctionalProperties() {
+    DEFAULT_VALUES.setFocusable(true).setSizePolicy(TitledTabSizePolicy.EQUAL_SIZE)
+        .setBorderSizePolicy(TitledTabBorderSizePolicy.EQUAL_SIZE).setHighlightedRaised(2);
+
+    DEFAULT_VALUES.getNormalProperties().setHorizontalAlignment(Alignment.LEFT).setVerticalAlignment(Alignment.CENTER)
+        .setIconTextRelativeAlignment(Alignment.LEFT).setTitleComponentTextRelativeAlignment(Alignment.RIGHT)
+        .setDirection(Direction.RIGHT);
   }
 }

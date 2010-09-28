@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyMapRef.java,v 1.4 2004/09/22 14:32:50 jesper Exp $
+// $Id: PropertyMapRef.java,v 1.6 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.properties.propertymap.ref;
 
 import net.infonode.properties.propertymap.PropertyMapImpl;
@@ -30,7 +30,7 @@ import java.io.ObjectOutputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.6 $
  */
 public interface PropertyMapRef {
   PropertyMapImpl getMap(PropertyMapImpl map);

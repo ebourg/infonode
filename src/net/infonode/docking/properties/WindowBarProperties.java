@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowBarProperties.java,v 1.25 2004/11/10 16:53:01 jesper Exp $
+// $Id: WindowBarProperties.java,v 1.31 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.gui.util.ComponentProperties;
@@ -32,7 +32,7 @@ import net.infonode.util.Direction;
  * Properties and property values for window bars.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.25 $
+ * @version $Revision: 1.31 $
  */
 public class WindowBarProperties extends PropertyMapContainer {
   /**
@@ -87,6 +87,11 @@ public class WindowBarProperties extends PropertyMapContainer {
       properties.getTabWindowProperties().getTabbedPanelProperties().setTabAreaOrientation(dir);
       properties.getTabWindowProperties().getTabProperties().getTitledTabProperties().
           getNormalProperties().setDirection(dir.isHorizontal() ? Direction.DOWN : Direction.RIGHT);
+/*      properties.getTabWindowProperties().getTabbedPanelProperties().getContentPanelProperties().
+          getComponentProperties().setInsets(new Insets(dir == Direction.DOWN ? 40 : 0,
+                                                        dir == Direction.RIGHT ? 40 : 0,
+                                                        dir == Direction.UP ? 40 : 0,
+                                                        dir == Direction. LEFT ? 40 : 0));*/
       DEFAULT_VALUES[dir.getValue()] = properties;
     }
   }
@@ -142,9 +147,22 @@ public class WindowBarProperties extends PropertyMapContainer {
    *
    * @return this
    * @since IDW 1.1.0
+   * @deprecated Use {@link #removeSuperObject(WindowBarProperties)} instead.
    */
   public WindowBarProperties removeSuperObject() {
     getMap().removeSuperMap();
+    return this;
+  }
+
+  /**
+   * Removes a super object.
+   *
+   * @param superObject the super object to remove
+   * @return this
+   * @since IDW 1.3.0
+   */
+  public WindowBarProperties removeSuperObject(WindowBarProperties superObject) {
+    getMap().removeSuperMap(superObject.getMap());
     return this;
   }
 

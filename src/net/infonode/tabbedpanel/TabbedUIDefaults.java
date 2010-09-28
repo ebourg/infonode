@@ -20,11 +20,10 @@
  */
 
 
-// $Id: TabbedUIDefaults.java,v 1.11 2004/09/22 14:33:49 jesper Exp $
+// $Id: TabbedUIDefaults.java,v 1.14 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.tabbedpanel;
 
-import net.infonode.gui.FontUtil;
-import net.infonode.gui.InsetsUtil;
+import net.infonode.gui.UIManagerUtil;
 import net.infonode.util.ColorUtil;
 
 import javax.swing.*;
@@ -35,7 +34,7 @@ import java.awt.*;
  * UIManager. The values are adapted to be used with classes in the TabbedPanel package.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.14 $
  */
 public class TabbedUIDefaults {
   private static final int BUTTON_ICON_SIZE = 11;
@@ -49,7 +48,7 @@ public class TabbedUIDefaults {
    * @return a copy of the color
    */
   public static Color getContentAreaBackground() {
-    return ColorUtil.copy(UIManager.getColor("Panel.background"));
+    return UIManagerUtil.getColor("Panel.background", "control");
   }
 
   /**
@@ -58,7 +57,7 @@ public class TabbedUIDefaults {
    * @return a copy of the color
    */
   public static Color getNormalStateForeground() {
-    return ColorUtil.copy(UIManager.getColor("TabbedPane.foreground"));
+    return UIManagerUtil.getColor("TabbedPane.foreground", "controlText");
   }
 
   /**
@@ -67,7 +66,7 @@ public class TabbedUIDefaults {
    * @return a copy of the color
    */
   public static Color getNormalStateBackground() {
-    return ColorUtil.copy(UIManager.getColor("TabbedPane.background"));
+    return UIManagerUtil.getColor("TabbedPane.background", "control");
   }
 
   /**
@@ -85,7 +84,7 @@ public class TabbedUIDefaults {
    * @return a copy of the color
    */
   public static Color getHighlightedStateBackground() {
-    return ColorUtil.copy(UIManager.getColor("Panel.background"));
+    return UIManagerUtil.getColor("Panel.background", "control");
   }
 
   /**
@@ -94,7 +93,7 @@ public class TabbedUIDefaults {
    * @return a copy of the color
    */
   public static Color getDisabledForeground() {
-    return ColorUtil.copy(UIManager.getColor("inactiveCaptionText"));
+    return UIManagerUtil.getColor("inactiveCaptionText", "controlText");
   }
 
   /**
@@ -103,7 +102,7 @@ public class TabbedUIDefaults {
    * @return a copy of the color
    */
   public static Color getDisabledBackground() {
-    return ColorUtil.mult(UIManager.getColor("TabbedPane.background"), 0.9);
+    return ColorUtil.mult(getNormalStateBackground(), 0.9);
   }
 
   /**
@@ -112,7 +111,7 @@ public class TabbedUIDefaults {
    * @return a copy of the color
    */
   public static Color getDarkShadow() {
-    return ColorUtil.copy(UIManager.getColor("TabbedPane.darkShadow"));
+    return UIManagerUtil.getColor("TabbedPane.darkShadow", "controlDkShadow");
   }
 
   /**
@@ -121,7 +120,7 @@ public class TabbedUIDefaults {
    * @return a copy of the color
    */
   public static Color getHighlight() {
-    return ColorUtil.copy(UIManager.getColor("TabbedPane.highlight"));
+    return UIManagerUtil.getColor("TabbedPane.highlight", "controlHighlight", Color.WHITE);
   }
 
   /**
@@ -130,7 +129,7 @@ public class TabbedUIDefaults {
    * @return a copy of the font
    */
   public static Font getFont() {
-    return FontUtil.copy(UIManager.getFont("TabbedPane.font"));
+    return UIManagerUtil.getFont("TabbedPane.font");
   }
 
   /**
@@ -148,7 +147,7 @@ public class TabbedUIDefaults {
    * @return a copy of the insets
    */
   public static Insets getTabInsets() {
-    return InsetsUtil.copy(UIManager.getInsets("TabbedPane.tabInsets"));
+    return UIManagerUtil.getInsets("TabbedPane.tabInsets", new Insets(0, 0, 0, 0));
   }
 
   /**
@@ -157,7 +156,7 @@ public class TabbedUIDefaults {
    * @return a copy of the insets
    */
   public static Insets getContentAreaInsets() {
-    return InsetsUtil.copy(UIManager.getInsets("TabbedPane.contentBorderInsets"));
+    return UIManagerUtil.getInsets("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0));
   }
 
   /**

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabFactory.java,v 1.8 2004/09/22 14:33:49 jesper Exp $
+// $Id: TabFactory.java,v 1.10 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.tabbedpanel.titledtab.TitledTab;
@@ -31,7 +31,7 @@ import javax.swing.*;
  * Factory methods for creating different tabs
  *
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.10 $
  * @see Tab
  * @see TitledTab
  */

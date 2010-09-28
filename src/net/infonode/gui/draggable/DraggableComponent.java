@@ -20,11 +20,12 @@
  */
 
 
-// $Id: DraggableComponent.java,v 1.13 2004/11/11 14:11:14 jesper Exp $
+// $Id: DraggableComponent.java,v 1.19 2005/02/16 11:28:11 jesper Exp $
 
 package net.infonode.gui.draggable;
 
 import net.infonode.gui.ComponentUtil;
+import net.infonode.gui.EventUtil;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputAdapter;
@@ -42,14 +43,14 @@ public class DraggableComponent {
 
   private boolean reorderEnabled = true;
   private boolean enabled = true;
-  private boolean reorderRestoreOnDrag = false;
+  private boolean reorderRestoreOnDrag;
   private boolean detectOuterAreaAsLine = true;
-  private boolean enableInsideDrag = false;
-  private boolean selectOnMousePress = false;
+  private boolean enableInsideDrag;
+  private boolean selectOnMousePress;
 
-  private boolean mousePressed = false;
-  private boolean dragEventFired = false;
-  private boolean dragStarted = false;
+  private boolean mousePressed;
+  private boolean dragEventFired;
+  private boolean dragStarted;
 
   private int dragIndex;
   private int dragFromIndex;
@@ -212,6 +213,11 @@ public class DraggableComponent {
     }
   }
 
+  public void abortDrag() {
+    if (dragStarted)
+      dragCompleted(null);
+  }
+
   public void setLayoutOrderList(ArrayList layoutOrderList) {
     this.layoutOrderList = layoutOrderList;
   }
@@ -227,7 +233,7 @@ public class DraggableComponent {
 
   private void pressed(MouseEvent e) {
     if (enabled && e.getButton() == MouseEvent.BUTTON1) {
-      if (selectOnMousePress)
+      if (selectOnMousePress && !e.isShiftDown())
         select();
       dragStarted = false;
       KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(abortDragKeyDispatcher);
@@ -256,8 +262,10 @@ public class DraggableComponent {
       if (dragStarted || enableInsideDrag || !component.contains(p)) {
         if (reorderEnabled)
           doDrag(p);
+        else
+          dragStarted = true;
 
-        fireDraggedEvent(p);
+        fireDraggedEvent(EventUtil.convert(e, component, p));
       }
     }
   }
@@ -268,25 +276,19 @@ public class DraggableComponent {
 
     KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(abortDragKeyDispatcher);
 
-    Point p = null;
-    Point p2 = null;
-    if (e != null) {
-      p = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), component);
-      p2 = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), component.getParent());
-    }
-
     if (e == null) {
       restoreComponentOrder();
       fireNotDroppedEvent();
     }
-    else if (!checkParentContains(p2)) {
+    else if (!checkParentContains(
+        SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), component.getParent()))) {
       restoreComponentOrder();
-      fireDroppedEvent(p);
+      fireDroppedEvent(EventUtil.convert(e, component));
     }
     else {
-      fireDroppedEvent(p);
+      fireDroppedEvent(EventUtil.convert(e, component));
       //if (component.contains(p))
-      if (!selectOnMousePress)
+      if (!selectOnMousePress && !e.isShiftDown())
         fireSelectedEvent();
     }
 
@@ -327,7 +329,8 @@ public class DraggableComponent {
         toDimension = getComponent(parent, toIndex).getWidth();
       }
 
-      if ((toIndex > dragIndex && toDimension - toPos > fromDimension) || ((dragIndex == -1 || toIndex < dragIndex) && toPos > fromDimension))
+      if ((toIndex > dragIndex && toDimension - toPos > fromDimension) ||
+          ((dragIndex == -1 || toIndex < dragIndex) && toPos > fromDimension))
         return;
 
       if (dragIndex != -1 && dragIndex != toIndex) {
@@ -360,11 +363,13 @@ public class DraggableComponent {
     if (detectOuterAreaAsLine) {
       Insets i = new Insets(0, 0, 0, 0);//outerParentArea.getInsets();
       return component.getParent().contains(p)
-             || (outerParentArea.contains(p2) && (isVerticalDrag()
-                                                  ?
-                                                  (p2.getX() >= i.left && p2.getX() < (outerParentArea.getWidth() - i.right))
-                                                  :
-                                                  (p2.getY() >= i.top && p2.getY() < (outerParentArea.getHeight() - i.bottom))));
+             ||
+             (outerParentArea.contains(p2) &&
+              (isVerticalDrag()
+               ?
+               (p2.getX() >= i.left && p2.getX() < (outerParentArea.getWidth() - i.right))
+               :
+               (p2.getY() >= i.top && p2.getY() < (outerParentArea.getHeight() - i.bottom))));
     }
 
     return component.getParent().contains(p) || outerParentArea.contains(p2);
@@ -454,7 +459,7 @@ public class DraggableComponent {
 
     if (listeners != null) {
       DraggableComponentEvent event = new DraggableComponentEvent(this, type);
-      Object l[] = listeners.toArray();
+      Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
         ((DraggableComponentListener) l[i]).changed(event);
     }
@@ -465,30 +470,30 @@ public class DraggableComponent {
 
     if (listeners != null) {
       DraggableComponentEvent event = new DraggableComponentEvent(this);
-      Object l[] = listeners.toArray();
+      Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
         ((DraggableComponentListener) l[i]).selected(event);
     }
   }
 
-  private void fireDraggedEvent(Point p) {
+  private void fireDraggedEvent(MouseEvent mouseEvent) {
     dragEventFired = true;
     if (listeners != null) {
-      DraggableComponentEvent event = new DraggableComponentEvent(this, p);
-      Object l[] = listeners.toArray();
+      DraggableComponentEvent event = new DraggableComponentEvent(this, mouseEvent);
+      Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
         ((DraggableComponentListener) l[i]).dragged(event);
     }
   }
 
-  private void fireDroppedEvent(Point p) {
+  private void fireDroppedEvent(MouseEvent mouseEvent) {
     updateParent();
 
     if (dragEventFired) {
       dragEventFired = false;
       if (listeners != null) {
-        DraggableComponentEvent event = new DraggableComponentEvent(this, p);
-        Object l[] = listeners.toArray();
+        DraggableComponentEvent event = new DraggableComponentEvent(this, mouseEvent);
+        Object[] l = listeners.toArray();
         for (int i = 0; i < l.length; i++)
           ((DraggableComponentListener) l[i]).dropped(event);
       }
@@ -502,7 +507,7 @@ public class DraggableComponent {
       dragEventFired = false;
       if (listeners != null) {
         DraggableComponentEvent event = new DraggableComponentEvent(this);
-        Object l[] = listeners.toArray();
+        Object[] l = listeners.toArray();
         for (int i = 0; i < l.length; i++)
           ((DraggableComponentListener) l[i]).dragAborted(event);
       }

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ValueHandlerProperty.java,v 1.5 2004/09/22 14:32:50 jesper Exp $
+// $Id: ValueHandlerProperty.java,v 1.6 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.properties.util;
 
 import net.infonode.properties.base.PropertyGroup;
@@ -29,7 +29,7 @@ import net.infonode.properties.base.PropertyGroup;
  * Base class for properties that use a {@link PropertyValueHandler}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class ValueHandlerProperty extends AbstractProperty {
   private PropertyValueHandler valueHandler;
@@ -43,7 +43,11 @@ public class ValueHandlerProperty extends AbstractProperty {
    * @param description  the property description
    * @param valueHandler handles values for this property
    */
-  public ValueHandlerProperty(PropertyGroup group, String name, Class type, String description, PropertyValueHandler valueHandler) {
+  public ValueHandlerProperty(PropertyGroup group,
+                              String name,
+                              Class type,
+                              String description,
+                              PropertyValueHandler valueHandler) {
     super(group, name, type, description);
     this.valueHandler = valueHandler;
   }

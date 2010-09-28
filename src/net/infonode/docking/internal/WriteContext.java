@@ -20,16 +20,18 @@
  */
 
 
-// $Id: WriteContext.java,v 1.7 2004/09/22 14:31:39 jesper Exp $
-package net.infonode.docking;
+// $Id: WriteContext.java,v 1.1 2004/12/14 16:39:59 jesper Exp $
+package net.infonode.docking.internal;
+
+import net.infonode.docking.ViewSerializer;
 
 /**
  * Contains information used when writing a docking window state.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.1 $
  */
-class WriteContext {
+public class WriteContext {
   private boolean writePropertiesEnabled;
   private ViewSerializer viewSerializer;
 
@@ -38,7 +40,7 @@ class WriteContext {
    *
    * @param writePropertiesEnabled true if property values should be written
    */
-  WriteContext(boolean writePropertiesEnabled, ViewSerializer viewSerializer) {
+  public WriteContext(boolean writePropertiesEnabled, ViewSerializer viewSerializer) {
     this.writePropertiesEnabled = writePropertiesEnabled;
     this.viewSerializer = viewSerializer;
   }
@@ -48,7 +50,7 @@ class WriteContext {
    *
    * @return true if property values should be written
    */
-  boolean getWritePropertiesEnabled() {
+  public boolean getWritePropertiesEnabled() {
     return writePropertiesEnabled;
   }
 

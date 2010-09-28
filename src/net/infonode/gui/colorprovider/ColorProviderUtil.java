@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ColorProviderUtil.java,v 1.3 2004/09/28 15:07:29 jesper Exp $
+// $Id: ColorProviderUtil.java,v 1.5 2005/02/16 11:28:10 jesper Exp $
 package net.infonode.gui.colorprovider;
 
 import java.awt.*;
@@ -29,7 +29,7 @@ import java.awt.*;
  * Utility methods for {@link ColorProvider}'s.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.5 $
  */
 public class ColorProviderUtil {
   private ColorProviderUtil() {

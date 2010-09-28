@@ -20,7 +20,7 @@
  */
 
 
-// $Id: DirectionLayout.java,v 1.11 2004/11/11 14:11:14 jesper Exp $
+// $Id: DirectionLayout.java,v 1.13 2005/02/16 11:28:12 jesper Exp $
 package net.infonode.gui.layout;
 
 import net.infonode.util.Direction;

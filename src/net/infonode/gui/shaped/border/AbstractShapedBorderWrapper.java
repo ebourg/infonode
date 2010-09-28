@@ -20,14 +20,14 @@
  */
 
 
-// $Id: AbstractShapedBorderWrapper.java,v 1.5 2004/11/11 09:51:41 jesper Exp $
+// $Id: AbstractShapedBorderWrapper.java,v 1.7 2005/02/16 11:28:13 jesper Exp $
 package net.infonode.gui.shaped.border;
 
 import java.awt.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.7 $
  */
 public class AbstractShapedBorderWrapper extends AbstractShapedBorder {
   private static final long serialVersionUID = 1;

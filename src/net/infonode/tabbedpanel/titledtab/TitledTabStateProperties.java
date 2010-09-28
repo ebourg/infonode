@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TitledTabStateProperties.java,v 1.21 2004/11/11 14:10:33 jesper Exp $
+// $Id: TitledTabStateProperties.java,v 1.24 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.tabbedpanel.titledtab;
 
 import net.infonode.properties.gui.util.ComponentProperties;
@@ -36,7 +36,7 @@ import javax.swing.*;
  * TitledTabStateProperties holds all properties that are unique for a titled tab state.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.21 $
+ * @version $Revision: 1.24 $
  * @see TitledTab
  * @see TitledTabProperties
  */
@@ -173,7 +173,9 @@ public class TitledTabStateProperties extends PropertyMapContainer {
                                                                                              "Icon Text Relative Alignment",
                                                                                              "Icon horizontal alignment relative to text.",
                                                                                              PropertyMapValueHandler.INSTANCE,
-                                                                                             new Alignment[]{Alignment.LEFT, Alignment.RIGHT});
+                                                                                             new Alignment[]{
+                                                                                               Alignment.LEFT,
+                                                                                               Alignment.RIGHT});
 
   /**
    * Text title component gap property
@@ -197,7 +199,9 @@ public class TitledTabStateProperties extends PropertyMapContainer {
                                                                                                         "Title Component Text Relative Alignment",
                                                                                                         "Title component horizontal alignment relative to text and icon.",
                                                                                                         PropertyMapValueHandler.INSTANCE,
-                                                                                                        new Alignment[]{Alignment.LEFT, Alignment.RIGHT});
+                                                                                                        new Alignment[]{
+                                                                                                          Alignment.LEFT,
+                                                                                                          Alignment.RIGHT});
 
   /**
    * Direction property
@@ -245,6 +249,15 @@ public class TitledTabStateProperties extends PropertyMapContainer {
   }
 
   /**
+   * Constructs a TitledTabStateProperties object that inherits its properties from the given TitledTabStateProperties object
+   *
+   * @param inheritFrom TitledTabStateProperties object to inherit properties from
+   */
+  public TitledTabStateProperties(TitledTabStateProperties inheritFrom) {
+    super(PropertyMapFactory.create(inheritFrom.getMap()));
+  }
+
+  /**
    * Adds a super object from which property values are inherited.
    *
    * @param superObject the object from which to inherit property values
@@ -257,12 +270,24 @@ public class TitledTabStateProperties extends PropertyMapContainer {
 
 
   /**
-   * Removes a super object.
+   * Removes the last added super object.
    *
    * @return this
    */
   public TitledTabStateProperties removeSuperObject() {
     getMap().removeSuperMap();
+    return this;
+  }
+
+  /**
+   * Removes the given super object.
+   *
+   * @param superObject super object to remove
+   * @return this
+   * @since ITP 1.3.0
+   */
+  public TitledTabStateProperties removeSuperObject(TitledTabStateProperties superObject) {
+    getMap().removeSuperMap(superObject.getMap());
     return this;
   }
 

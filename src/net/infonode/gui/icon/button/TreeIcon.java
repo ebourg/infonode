@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TreeIcon.java,v 1.2 2004/08/20 15:07:10 jesper Exp $
+// $Id: TreeIcon.java,v 1.4 2005/02/16 11:28:11 jesper Exp $
 
 package net.infonode.gui.icon.button;
 
@@ -29,7 +29,7 @@ import java.awt.*;
 
 /**
  * @author Jesper Nordenberg
- * @version $Revision: 1.2 $ $Date: 2004/08/20 15:07:10 $
+ * @version $Revision: 1.4 $ $Date: 2005/02/16 11:28:11 $
  */
 public class TreeIcon implements Icon {
   public static final int PLUS = 1;

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: UIManagerColorProvider.java,v 1.5 2004/11/11 14:11:14 jesper Exp $
+// $Id: UIManagerColorProvider.java,v 1.8 2005/02/16 11:28:10 jesper Exp $
 package net.infonode.gui.colorprovider;
 
 import javax.swing.*;
@@ -31,7 +31,7 @@ import java.io.Serializable;
  * A {@link ColorProvider} which returns a property color from the {@link UIManager}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.8 $
  */
 public class UIManagerColorProvider extends AbstractColorProvider implements Serializable {
   private static final long serialVersionUID = 1;
@@ -40,6 +40,11 @@ public class UIManagerColorProvider extends AbstractColorProvider implements Ser
    * A provider for the 'control' color.
    */
   public static final UIManagerColorProvider CONTROL_COLOR = new UIManagerColorProvider("control");
+
+  /**
+   * A provider for the 'controlDkShadow' color.
+   */
+  public static final UIManagerColorProvider CONTROL_DARK_SHADOW = new UIManagerColorProvider("controlDkShadow");
 
   /**
    * A provider for the 'TabbedPane.highlight' color.

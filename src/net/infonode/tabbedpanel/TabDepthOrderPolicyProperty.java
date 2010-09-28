@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabDepthOrderPolicyProperty.java,v 1.3 2004/11/11 14:10:33 jesper Exp $
+// $Id: TabDepthOrderPolicyProperty.java,v 1.4 2005/02/16 11:28:15 jesper Exp $
 
 package net.infonode.tabbedpanel;
 
@@ -32,7 +32,7 @@ import net.infonode.properties.util.PropertyValueHandler;
  * Property for TabDepthOrderPolicy
  *
  * @author johan
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  * @see TabDepthOrderPolicy
  * @since ITP 1.2.0
  */
@@ -45,7 +45,10 @@ public class TabDepthOrderPolicyProperty extends EnumProperty {
    * @param description  property description
    * @param valueStorage storage for property
    */
-  public TabDepthOrderPolicyProperty(PropertyGroup group, String name, String description, PropertyValueHandler valueStorage) {
+  public TabDepthOrderPolicyProperty(PropertyGroup group,
+                                     String name,
+                                     String description,
+                                     PropertyValueHandler valueStorage) {
     super(group,
           name,
           TabDepthOrderPolicy.class,

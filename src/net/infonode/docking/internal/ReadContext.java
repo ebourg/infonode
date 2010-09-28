@@ -20,45 +20,47 @@
  */
 
 
-// $Id: ReadContext.java,v 1.8 2004/09/22 14:31:39 jesper Exp $
-package net.infonode.docking;
+// $Id: ReadContext.java,v 1.2 2005/02/16 11:28:14 jesper Exp $
+package net.infonode.docking.internal;
+
+import net.infonode.docking.ViewSerializer;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.2 $
  */
-class ReadContext {
+public class ReadContext {
   private ViewSerializer viewSerializer;
   private int version;
   private boolean propertyValuesAvailable;
   private boolean readPropertiesEnabled;
 
-  ReadContext(ViewSerializer viewSerializer,
-              int version,
-              boolean propertyValuesAvailable,
-              boolean readPropertiesEnabled) {
+  public ReadContext(ViewSerializer viewSerializer,
+                     int version,
+                     boolean propertyValuesAvailable,
+                     boolean readPropertiesEnabled) {
     this.viewSerializer = viewSerializer;
     this.version = version;
     this.propertyValuesAvailable = propertyValuesAvailable;
     this.readPropertiesEnabled = readPropertiesEnabled;
   }
 
-  ViewSerializer getViewSerializer() {
+  public ViewSerializer getViewSerializer() {
     return viewSerializer;
   }
 
-  boolean isPropertyValuesAvailable() {
+  public boolean isPropertyValuesAvailable() {
     return propertyValuesAvailable;
   }
 
-  boolean getReadPropertiesEnabled() {
+  public boolean getReadPropertiesEnabled() {
     return readPropertiesEnabled;
   }
 
   /**
    * @return returns the serialized version
    */
-  int getVersion() {
+  public int getVersion() {
     return version;
   }
 }

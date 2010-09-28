@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabDropDownListVisiblePolicyProperty.java,v 1.6 2004/11/11 14:10:33 jesper Exp $
+// $Id: TabDropDownListVisiblePolicyProperty.java,v 1.7 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.properties.base.PropertyGroup;
@@ -31,7 +31,7 @@ import net.infonode.properties.util.PropertyValueHandler;
  * Property for TabDropDownListVisiblePolicy
  *
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  * @see TabDropDownListVisiblePolicy
  * @since ITP 1.1.0
  */
@@ -44,7 +44,10 @@ public class TabDropDownListVisiblePolicyProperty extends EnumProperty {
    * @param description  property description
    * @param valueStorage storage for property
    */
-  public TabDropDownListVisiblePolicyProperty(PropertyGroup group, String name, String description, PropertyValueHandler valueStorage) {
+  public TabDropDownListVisiblePolicyProperty(PropertyGroup group,
+                                              String name,
+                                              String description,
+                                              PropertyValueHandler valueStorage) {
     super(group,
           name,
           TabDropDownListVisiblePolicy.class,

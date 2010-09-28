@@ -20,7 +20,7 @@
  */
 
 
-// $Id: InfoNodeLookAndFeelTheme.java,v 1.11 2004/11/11 14:11:14 jesper Exp $
+// $Id: InfoNodeLookAndFeelTheme.java,v 1.13 2005/02/16 11:28:12 jesper Exp $
 package net.infonode.gui.laf;
 
 import net.infonode.gui.Colors;
@@ -47,7 +47,7 @@ import java.awt.*;
  * affect other, unmodified colors.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.13 $
  */
 public class InfoNodeLookAndFeelTheme {
   private static final float PRIMARY_HUE = Colors.ROYAL_BLUE_HUE;
@@ -287,18 +287,17 @@ public class InfoNodeLookAndFeelTheme {
                                                                             0.5f));
     inactiveInternalFrameTitleBackgroundColor.setDefaultColor(controlLightShadowColor);
 
-    menuBarBorder.setDefaultBorder(
-        new BorderUIResource(
-            new EtchedLineBorder(false, false, true, false, controlHighlightColor, controlDarkShadowColor)));
+    menuBarBorder.setDefaultBorder(new BorderUIResource(
+        new EtchedLineBorder(false, false, true, false, controlHighlightColor, controlDarkShadowColor)));
     popupMenuBorder.setDefaultBorder(
         new BorderUIResource(new PopupMenuBorder(controlHighlightColor, controlDarkShadowColor)));
     textFieldBorder.setDefaultBorder(
         new BorderUIResource(new CompoundBorder(new LineBorder(controlDarkShadowColor), new EmptyBorder(1, 2, 1, 2))));
 
-    tableHeaderCellBorder.setDefaultBorder(new BorderUIResource(new CompoundBorder(
-        new CompoundBorder(new EdgeBorder(controlDarkShadowColor, false, true, false, true),
-                           new HighlightBorder(false, controlHighlightColor)),
-        new EmptyBorder(1, 4, 1, 4))));
+    tableHeaderCellBorder.setDefaultBorder(new BorderUIResource(new CompoundBorder(new CompoundBorder(
+        new EdgeBorder(controlDarkShadowColor, false, true, false, true),
+        new HighlightBorder(false, controlHighlightColor)),
+                                                                                   new EmptyBorder(1, 4, 1, 4))));
 
     listFocusedItemBorder.setDefaultBorder(new CompoundBorder(new LineBorder(focusColor.getColor()),
                                                               new EmptyBorder(0, 3, 0, 3)));

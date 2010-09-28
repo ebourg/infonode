@@ -20,9 +20,11 @@
  */
 
 
-// $Id: WindowTabButtonProperties.java,v 1.10 2004/10/14 15:28:36 jesper Exp $
+// $Id: WindowTabButtonProperties.java,v 1.16 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.properties;
 
+import net.infonode.docking.action.DockingWindowAction;
+import net.infonode.docking.action.DockingWindowActionProperty;
 import net.infonode.gui.button.ButtonFactory;
 import net.infonode.properties.propertymap.*;
 import net.infonode.properties.types.BooleanProperty;
@@ -36,7 +38,7 @@ import javax.swing.*;
  * Properties and property values for a button in a window tab.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.16 $
  */
 public class WindowTabButtonProperties extends PropertyMapContainer {
   /**
@@ -71,6 +73,17 @@ public class WindowTabButtonProperties extends PropertyMapContainer {
                                                                         PropertyMapValueHandler.INSTANCE);
 
   /**
+   * The {@link DockingWindowAction} that is performed when the button is clicked.
+   *
+   * @since IDW 1.3.0
+   */
+  public static final DockingWindowActionProperty ACTION =
+      new DockingWindowActionProperty(PROPERTIES,
+                                      "Action",
+                                      "The action that is performed when the button is clicked.",
+                                      PropertyMapValueHandler.INSTANCE);
+
+  /**
    * The button factory.
    * This factory is used to create the button when it's first needed. Modifying this property will NOT cause already
    * created buttons to be replaced. The created button will be set to non-focusable and will be assigned the icon from
@@ -84,8 +97,11 @@ public class WindowTabButtonProperties extends PropertyMapContainer {
                                 "The button factory. This factory is used to create the button when it's first needed. " +
                                 "Modifying this property will NOT cause already created buttons to be replaced. The " +
                                 "created button will be set to non-focusable and will be assigned the icon from the '" +
-                                ICON.getName() + "' property and the tool tip from the '" + TOOL_TIP_TEXT.getName() + "' " +
-                                "property. An action listener is also added to the button.",
+                                ICON.getName() + "' property and the tool tip from the '" + TOOL_TIP_TEXT.getName() +
+                                "' " +
+                                "property. An action listener that performs the action in set in the '" +
+                                ACTION.getName() +
+                                "' property is added to the button.",
                                 PropertyMapValueHandler.INSTANCE);
 
 
@@ -130,9 +146,22 @@ public class WindowTabButtonProperties extends PropertyMapContainer {
    *
    * @return this
    * @since IDW 1.1.0
+   * @deprecated Use {@link #removeSuperObject(WindowTabButtonProperties)} instead.
    */
   public WindowTabButtonProperties removeSuperObject() {
     getMap().removeSuperMap();
+    return this;
+  }
+
+  /**
+   * Removes a super object.
+   *
+   * @param superObject the super object to remove
+   * @return this
+   * @since IDW 1.3.0
+   */
+  public WindowTabButtonProperties removeSuperObject(WindowTabButtonProperties superObject) {
+    getMap().removeSuperMap(superObject.getMap());
     return this;
   }
 
@@ -223,6 +252,44 @@ public class WindowTabButtonProperties extends PropertyMapContainer {
    */
   public WindowTabButtonProperties setFactory(ButtonFactory factory) {
     FACTORY.set(getMap(), factory);
+    return this;
+  }
+
+  /**
+   * Gets the {@link DockingWindowAction} that is performed when the button is clicked.
+   *
+   * @return the {@link DockingWindowAction} that is performed when the button is clicked
+   * @since IDW 1.3.0
+   */
+  public DockingWindowAction getAction() {
+    return ACTION.get(getMap());
+  }
+
+  /**
+   * Sets the {@link DockingWindowAction} that will be performed when the button is clicked.
+   *
+   * @param action the {@link DockingWindowAction} that is performed when the button is clicked
+   * @return this
+   * @since IDW 1.3.0
+   */
+  public WindowTabButtonProperties setAction(DockingWindowAction action) {
+    ACTION.set(getMap(), action);
+    return this;
+  }
+
+  /**
+   * Sets the action is performed when the button is clicked.
+   * Also sets the icon and tooltip text of the button using the values from
+   * {@link DockingWindowAction}.
+   *
+   * @param action the action that is performed when the button is clicked
+   * @return this
+   * @since IDW 1.3.0
+   */
+  public WindowTabButtonProperties setTo(DockingWindowAction action) {
+    setAction(action);
+    setIcon(action.getIcon());
+    setToolTipText(action.getName());
     return this;
   }
 

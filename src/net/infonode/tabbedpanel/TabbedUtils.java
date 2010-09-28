@@ -20,8 +20,10 @@
  */
 
 
-// $Id: TabbedUtils.java,v 1.6 2004/09/22 14:33:49 jesper Exp $
+// $Id: TabbedUtils.java,v 1.10 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.tabbedpanel;
+
+import net.infonode.gui.hover.hoverable.HoverManager;
 
 import java.awt.*;
 
@@ -29,7 +31,7 @@ import java.awt.*;
  * Utility methods
  *
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.10 $
  */
 public class TabbedUtils {
   private TabbedUtils() {
@@ -86,5 +88,23 @@ public class TabbedUtils {
     }
 
     return null;
+  }
+
+  /**
+   * <p>
+   * Checks to see if hover is enabled i.e. if the AWTPermission "listenToAllAWTEvents" has been
+   * granted so that hover can be used.
+   * </p>
+   *
+   * <p>
+   * Note: This method is not meant to be used for permission checks, only as a convenience to
+   * check if hover is enabled or not.
+   * </p>
+   *
+   * @return true if hover is enabled, otherwise false
+   * @since ITP 1.3.0
+   */
+  public static boolean isHoverEnabled() {
+    return HoverManager.getInstance().isEventListeningActive();
   }
 }

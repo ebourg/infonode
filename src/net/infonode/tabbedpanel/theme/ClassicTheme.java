@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ClassicTheme.java,v 1.8 2004/11/11 14:10:33 jesper Exp $
+// $Id: ClassicTheme.java,v 1.11 2005/02/16 11:28:15 jesper Exp $
 
 package net.infonode.tabbedpanel.theme;
 
@@ -44,7 +44,7 @@ import java.awt.*;
  * A theme with a "classic" look and with round edges for the titled tabs.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.11 $
  * @since ITP 1.2.0
  */
 public class ClassicTheme extends TabbedPanelTitledTabTheme {
@@ -145,10 +145,15 @@ public class ClassicTheme extends TabbedPanelTitledTabTheme {
         TabbedPanel tp = TabbedUtils.getParentTabbedPanel(c);
         if (tp != null) {
           Direction d = tp.getProperties().getTabAreaOrientation();
-          return new Insets(d == Direction.RIGHT || d == Direction.LEFT ? raised : 0, d == Direction.UP || d == Direction.DOWN ?
-                                                                                      raised : 0, d == Direction.RIGHT || d == Direction.LEFT
+          return new Insets(d == Direction.RIGHT || d == Direction.LEFT ? raised : 0, d == Direction.UP ||
+                                                                                      d == Direction.DOWN ?
+                                                                                      raised : 0, d == Direction.RIGHT ||
+                                                                                                  d == Direction.LEFT
                                                                                                   ? 1
-                                                                                                  : 0, d == Direction.UP || d == Direction.DOWN ?
+                                                                                                  : 0, d ==
+                                                                                                       Direction.UP ||
+                                                                                                       d ==
+                                                                                                       Direction.DOWN ?
                                                                                                        1 : 0);
         }
         return new Insets(0, 0, 0, 0);
@@ -173,7 +178,8 @@ public class ClassicTheme extends TabbedPanelTitledTabTheme {
     return new ColorProvider() {
       public Color getColor() {
         Color highlightBackground = TabbedUIDefaults.getHighlightedStateBackground();
-        highlightBackground = new Color(highlightBackground.getRed() == 0 ? 1 : highlightBackground.getRed(), highlightBackground.getGreen() == 0 ?
+        highlightBackground = new Color(highlightBackground.getRed() == 0 ? 1 : highlightBackground.getRed(), highlightBackground.getGreen() ==
+                                                                                                              0 ?
                                                                                                               1 :
                                                                                                               highlightBackground.getGreen(),
                                         highlightBackground.getBlue() == 0 ? 1 : highlightBackground.getBlue());
@@ -182,18 +188,16 @@ public class ClassicTheme extends TabbedPanelTitledTabTheme {
 
         Color color = highlightColor.getColor();
 
-        int r = (int) (normalBackgroundColor.getRed() * ((float) (color.getRed()) / (float) (highlightBackground.getRed())));
-        int g = (int) (normalBackgroundColor.getGreen() * ((float) (color.getGreen()) / (float) (highlightBackground.getGreen())));
-        int b = (int) (normalBackgroundColor.getBlue() * ((float) (color.getBlue()) / (float) (highlightBackground.getBlue())));
+        int r = (int) (normalBackgroundColor.getRed() *
+                       ((float) (color.getRed()) / (float) (highlightBackground.getRed())));
+        int g = (int) (normalBackgroundColor.getGreen() *
+                       ((float) (color.getGreen()) / (float) (highlightBackground.getGreen())));
+        int b = (int) (normalBackgroundColor.getBlue() *
+                       ((float) (color.getBlue()) / (float) (highlightBackground.getBlue())));
 
         r = (r + color.getRed()) / 2;
         g = (g + color.getGreen()) / 2;
         b = (b + color.getBlue()) / 2;
-        //System.out.println(r + "  " + g + "  " + b);
-
-        //Color c = new Color(r > 255 ? 255 : r, g > 255 ? 255 : g, b > 255 ? 255 : b);
-
-        //System.out.println(c + "  " + normalBackgroundColor + "  " + color + "  " + highlightBackground);
 
         return new Color(r > 255 ? 255 : r, g > 255 ? 255 : g, b > 255 ? 255 : b);
       }

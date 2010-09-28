@@ -20,12 +20,13 @@
  */
 
 
-// $Id: InfoNodeLookAndFeel.java,v 1.10 2004/11/11 14:11:14 jesper Exp $
+// $Id: InfoNodeLookAndFeel.java,v 1.13 2005/02/16 11:28:11 jesper Exp $
 package net.infonode.gui.laf;
 
 import net.infonode.gui.icon.button.TreeIcon;
 import net.infonode.gui.laf.ui.SlimComboBoxUI;
 import net.infonode.gui.laf.ui.SlimInternalFrameUI;
+import net.infonode.gui.laf.ui.SlimMenuItemUI;
 import net.infonode.gui.laf.ui.SlimSplitPaneUI;
 import net.infonode.util.ArrayUtil;
 import net.infonode.util.ColorUtil;
@@ -35,7 +36,9 @@ import javax.swing.border.Border;
 import javax.swing.plaf.ColorUIResource;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.plaf.IconUIResource;
+import javax.swing.plaf.UIResource;
 import javax.swing.plaf.metal.DefaultMetalTheme;
+import javax.swing.plaf.metal.MetalBorders;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.MetalTheme;
 import java.awt.*;
@@ -60,7 +63,7 @@ import java.lang.reflect.InvocationTargetException;
  * Do not modify the theme after it has been used in the look and feel!
  *
  * @author $Author: jesper $
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.13 $
  */
 public class InfoNodeLookAndFeel extends MetalLookAndFeel {
   public static final UIManager.LookAndFeelInfo LOOK_AND_FEEL_INFO =
@@ -276,6 +279,12 @@ public class InfoNodeLookAndFeel extends MetalLookAndFeel {
         table.put("ComboBoxUI", cl.getName());
         table.put(cl.getName(), cl);
       }
+
+      {
+        Class cl = SlimMenuItemUI.class;
+        table.put("MenuItemUI", cl.getName());
+        table.put(cl.getName(), cl);
+      }
     }
     catch (Exception ex) {
       throw new RuntimeException(ex);
@@ -310,6 +319,11 @@ public class InfoNodeLookAndFeel extends MetalLookAndFeel {
     super.initComponentDefaults(table);
 
     Class iconClass = MetalLookAndFeel.class;
+    UIResource menuItemBorder = new MetalBorders.MenuItemBorder() {
+      public Insets getBorderInsets(Component c) {
+        return new Insets(2, 0, 2, 0);
+      }
+    };
 
     Object[] defaults = {
       "SplitPane.dividerSize", new Integer(theme.getSplitPaneDividerSize()),
@@ -367,6 +381,11 @@ public class InfoNodeLookAndFeel extends MetalLookAndFeel {
       "InternalFrame.titleFont", theme.getInternalFrameTitleFont(),
 
       "MenuBar.border", theme.getMenuBarBorder(),
+
+      "MenuItem.border", menuItemBorder,
+      "Menu.border", menuItemBorder,
+//      "CheckBoxMenuItem.border", menuItemBorder,
+//      "RadioButtonMenuItem.border", menuItemBorder,
 
       "Spinner.border", theme.getTextFieldBorder(),
       "Spinner.background", new ColorUIResource(theme.getBackgroundColor()),

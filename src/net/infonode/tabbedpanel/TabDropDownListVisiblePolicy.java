@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabDropDownListVisiblePolicy.java,v 1.10 2004/11/11 14:10:33 jesper Exp $
+// $Id: TabDropDownListVisiblePolicy.java,v 1.11 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.util.Enum;
@@ -30,7 +30,7 @@ import net.infonode.util.Enum;
  * list of tabs.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  * @see TabbedPanel
  * @see TabbedPanelProperties
  * @since ITP 1.1.0
@@ -58,7 +58,8 @@ public final class TabDropDownListVisiblePolicy extends Enum {
   public static final TabDropDownListVisiblePolicy TABS_NOT_VISIBLE = new TabDropDownListVisiblePolicy(1,
                                                                                                        "Some Tabs Not Visible");
 
-  private static final TabDropDownListVisiblePolicy[] DROP_DOWN_LIST_VISIBLE_POLICIES = new TabDropDownListVisiblePolicy[]{NEVER, MORE_THAN_ONE_TAB, TABS_NOT_VISIBLE};
+  private static final TabDropDownListVisiblePolicy[] DROP_DOWN_LIST_VISIBLE_POLICIES = new TabDropDownListVisiblePolicy[]{
+    NEVER, MORE_THAN_ONE_TAB, TABS_NOT_VISIBLE};
 
   private TabDropDownListVisiblePolicy(int value, String name) {
     super(value, name);

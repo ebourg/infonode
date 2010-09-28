@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowSplitLocation.java,v 1.3 2004/09/13 15:51:21 jesper Exp $
+// $Id: WindowSplitLocation.java,v 1.5 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.location;
 
 import net.infonode.docking.DockingWindow;
@@ -33,13 +33,16 @@ import java.io.ObjectOutputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.5 $
  */
 public class WindowSplitLocation extends AbstractWindowLocation {
   private Direction direction;
   private float dividerLocation;
 
-  public WindowSplitLocation(DockingWindow splitWith, WindowLocation parentLocation, Direction direction, float dividerLocation) {
+  public WindowSplitLocation(DockingWindow splitWith,
+                             WindowLocation parentLocation,
+                             Direction direction,
+                             float dividerLocation) {
     super(splitWith, parentLocation);
     this.direction = direction;
     this.dividerLocation = dividerLocation;

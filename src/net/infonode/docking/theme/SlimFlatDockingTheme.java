@@ -20,7 +20,7 @@
  */
 
 
-//$Id: SlimFlatDockingTheme.java,v 1.14 2004/11/11 14:09:46 jesper Exp $
+//$Id: SlimFlatDockingTheme.java,v 1.16 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.theme;
 
 import net.infonode.docking.properties.RootWindowProperties;
@@ -42,7 +42,7 @@ import java.awt.*;
  * A theme very slim theme that doesn't waste any screen space.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.14 $
+ * @version $Revision: 1.16 $
  */
 public final class SlimFlatDockingTheme extends DockingWindowsTheme {
   private RootWindowProperties rootWindowProperties;

@@ -20,36 +20,51 @@
  */
 
 
-// $Id: TabDragEvent.java,v 1.10 2004/09/22 14:33:49 jesper Exp $
+// $Id: TabDragEvent.java,v 1.13 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import java.awt.*;
+import java.awt.event.MouseEvent;
 
 /**
- * TabDragEvent is an event that contains information about the tab that is
+ * TabDragEvent is an mouseEvent that contains information about the tab that is
  * beeing dragged from a tabbed panel and a point specifying the mouse
  * coordinates.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.13 $
  * @see TabbedPanel
  * @see Tab
  */
 public class TabDragEvent extends TabEvent {
-  private Point point;
+  private MouseEvent mouseEvent;
 
   /**
    * Constructs a TabDragEvent
    *
    * @param source the Tab or TabbedPanel that is the source for this
-   *               event
-   * @param tab    the Tab that is beeing dragged
-   * @param point  the mouse coordinates relative to the Tab that is beeing
+   *               mouseEvent
+   * @param tab    the Tab that is being dragged
+   * @param point  the mouse coordinates relative to the Tab that is being
    *               dragged
+   * @deprecated Use {@link #TabDragEvent(Object, java.awt.event.MouseEvent)} instead.
    */
   public TabDragEvent(Object source, Tab tab, Point point) {
-    super(source, tab);
-    this.point = point;
+    this(source,
+         new MouseEvent(tab, MouseEvent.MOUSE_DRAGGED, System.currentTimeMillis(), 0, point.x, point.y, 0, false));
+  }
+
+  /**
+   * Constructs a TabDragEvent
+   *
+   * @param source     the Tab or TabbedPanel that is the source for this
+   * @param mouseEvent the mouse mouseEvent that triggered the drag, the event source should be the tab and the event
+   *                   point should be relative to the tab
+   * @since ITP 1.3.0
+   */
+  public TabDragEvent(Object source, MouseEvent mouseEvent) {
+    super(source, (Tab) mouseEvent.getSource());
+    this.mouseEvent = mouseEvent;
   }
 
   /**
@@ -59,6 +74,18 @@ public class TabDragEvent extends TabEvent {
    *         dragged
    */
   public Point getPoint() {
-    return point;
+    return mouseEvent.getPoint();
   }
+
+  /**
+   * Returns the mouse event that triggered this drag. The event source is set to the tab and the event point is
+   * relative to the tab.
+   *
+   * @return the mouse event that triggered this drag
+   * @since ITP 1.3.0
+   */
+  public MouseEvent getMouseEvent() {
+    return mouseEvent;
+  }
+
 }

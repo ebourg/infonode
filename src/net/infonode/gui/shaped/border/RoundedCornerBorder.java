@@ -20,7 +20,7 @@
  */
 
 
-// $Id: RoundedCornerBorder.java,v 1.7 2004/11/11 14:11:14 jesper Exp $
+// $Id: RoundedCornerBorder.java,v 1.9 2005/02/16 11:28:13 jesper Exp $
 package net.infonode.gui.shaped.border;
 
 import net.infonode.gui.colorprovider.ColorProvider;
@@ -68,7 +68,12 @@ public class RoundedCornerBorder extends PolygonBorder {
     this(lineColor, cType, true, true, true, true);
   }
 
-  public RoundedCornerBorder(ColorProvider lineColor, int cType, boolean drawTop, boolean drawLeft, boolean drawBottom, boolean drawRight) {
+  public RoundedCornerBorder(ColorProvider lineColor,
+                             int cType,
+                             boolean drawTop,
+                             boolean drawLeft,
+                             boolean drawBottom,
+                             boolean drawRight) {
     this(lineColor, FixedColorProvider.WHITE, cType, cType, cType, cType, drawTop, drawLeft, drawBottom, drawRight);
   }
 
@@ -96,7 +101,14 @@ public class RoundedCornerBorder extends PolygonBorder {
     return insets;
   }
 
-  private static int[] createCoordinates(int cType1, int cType2, int cType3, int cType4, boolean drawTop, boolean drawLeft, boolean drawBottom, boolean drawRight) {
+  private static int[] createCoordinates(int cType1,
+                                         int cType2,
+                                         int cType3,
+                                         int cType4,
+                                         boolean drawTop,
+                                         boolean drawLeft,
+                                         boolean drawBottom,
+                                         boolean drawRight) {
     int c1[] = corner1[cType1];
     int c2[] = corner2[cType2];
     int c3[] = corner3[cType3];

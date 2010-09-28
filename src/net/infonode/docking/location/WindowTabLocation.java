@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowTabLocation.java,v 1.3 2004/09/13 15:51:21 jesper Exp $
+// $Id: WindowTabLocation.java,v 1.5 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.location;
 
 import net.infonode.docking.AbstractTabWindow;
@@ -33,7 +33,7 @@ import java.io.ObjectOutputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.5 $
  */
 public class WindowTabLocation extends AbstractWindowLocation {
   private int index;

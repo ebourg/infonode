@@ -20,7 +20,7 @@
  */
 
 
-// $Id: InsetsUtil.java,v 1.9 2004/10/29 13:05:26 jesper Exp $
+// $Id: InsetsUtil.java,v 1.12 2005/02/16 11:28:13 jesper Exp $
 package net.infonode.gui;
 
 import net.infonode.util.Direction;
@@ -106,7 +106,7 @@ public class InsetsUtil {
   }
 
   public static Insets copy(Insets insets) {
-    return new Insets(insets.top, insets.left, insets.bottom, insets.right);
+    return insets == null ? null : new Insets(insets.top, insets.left, insets.bottom, insets.right);
   }
 
   public static void addTo(Insets insets, Insets addition) {

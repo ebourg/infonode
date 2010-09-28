@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SlopedTabLineBorder.java,v 1.1 2004/11/11 13:06:53 jesper Exp $
+// $Id: SlopedTabLineBorder.java,v 1.3 2005/02/16 11:28:14 jesper Exp $
 
 package net.infonode.tabbedpanel.internal;
 

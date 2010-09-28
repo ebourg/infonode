@@ -20,19 +20,21 @@
  */
 
 
-// $Id: SimplePropertyValue.java,v 1.6 2004/11/05 13:03:34 jesper Exp $
+// $Id: SimplePropertyValue.java,v 1.13 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.properties.propertymap.value;
 
 import net.infonode.properties.propertymap.PropertyMapImpl;
 import net.infonode.util.Printer;
+import net.infonode.util.Utils;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.13 $
  */
 public class SimplePropertyValue implements PropertyValue {
   private final Object value;
@@ -72,7 +74,9 @@ public class SimplePropertyValue implements PropertyValue {
   }
 
   public boolean equals(Object obj) {
-    return obj != null && obj instanceof SimplePropertyValue && ((SimplePropertyValue) obj).value.equals(value);
+    return obj != null &&
+           obj instanceof SimplePropertyValue &&
+           Utils.equals(((SimplePropertyValue) obj).value, value);
   }
 
   public int hashCode() {
@@ -84,6 +88,10 @@ public class SimplePropertyValue implements PropertyValue {
     out.writeObject(value);
   }
 
+  public boolean isSerializable() {
+    return value instanceof Serializable;
+  }
+
   public static PropertyValue decode(ObjectInputStream in) throws IOException {
     try {
       return new SimplePropertyValue(in.readObject());
@@ -92,4 +100,18 @@ public class SimplePropertyValue implements PropertyValue {
       throw new IOException(e.getMessage());
     }
   }
+
+  public static void skip(ObjectInputStream in) throws IOException {
+    try {
+      in.readObject();
+    }
+    catch (ClassNotFoundException e) {
+      throw new IOException(e.getMessage());
+    }
+  }
+
+  public PropertyValue copyTo(PropertyMapImpl propertyMap) {
+    return this;
+  }
+
 }

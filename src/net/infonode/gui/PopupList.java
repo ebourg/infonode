@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PopupList.java,v 1.8 2004/11/11 14:11:14 jesper Exp $
+// $Id: PopupList.java,v 1.12 2005/02/16 11:28:13 jesper Exp $
 package net.infonode.gui;
 
 import net.infonode.gui.panel.SimplePanel;
@@ -36,7 +36,7 @@ import java.awt.event.*;
 import java.util.ArrayList;
 
 public class PopupList extends SimplePanel {
-  private static class PopupButtonModel extends DefaultButtonModel {
+  private class PopupButtonModel extends DefaultButtonModel {
     private boolean pressed;
 
     public boolean isPressed() {
@@ -64,7 +64,7 @@ public class PopupList extends SimplePanel {
       setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
       scrollPane.setBorder(null);
       setBorderPainted(true);
-      setBorder(new LineBorder(UIManager.getColor("controlDkShadow"), 1));
+      setBorder(new LineBorder(UIManagerUtil.getColor("controlDkShadow", Color.BLACK), 1));
 
       add(scrollPane);
       scrollPane.getViewport().setOpaque(false);
@@ -85,7 +85,9 @@ public class PopupList extends SimplePanel {
             Component c = (Component) e.getSource();
             Point p = SwingUtilities.convertPoint(c, e.getPoint(), scrollPane);
             int index = list.locationToIndex(SwingUtilities.convertPoint(scrollPane, p, list));
-            if (!c.contains(e.getPoint()) && (scrollPane.contains(p) || (p.getY() > scrollPane.getY() + scrollPane.getHeight()) || p.getY() < scrollPane.getY())) {
+            if (!c.contains(e.getPoint()) &&
+                (scrollPane.contains(p) || (p.getY() > scrollPane.getY() + scrollPane.getHeight()) ||
+                 p.getY() < scrollPane.getY())) {
               list.setSelectedIndex(index);
               list.ensureIndexIsVisible(index);
             }
@@ -139,17 +141,17 @@ public class PopupList extends SimplePanel {
 
     public void updateUI() {
       super.updateUI();
-      setBorder(new LineBorder(UIManager.getColor("controlDkShadow"), 1));
+      setBorder(new LineBorder(UIManagerUtil.getColor("controlDkShadow", Color.BLACK), 1));
       if (list != null)
         update();
     }
 
     private void update() {
       list.setFont(UIManager.getFont("ComboBox.font"));
-      list.setForeground(UIManager.getColor("ComboBox.foreground"));
-      list.setBackground(UIManager.getColor("ComboBox.background"));
-      list.setSelectionForeground(UIManager.getColor("ComboBox.selectionForeground"));
-      list.setSelectionBackground(UIManager.getColor("ComboBox.selectionBackground"));
+      list.setForeground(UIManagerUtil.getColor("ComboBox.foreground"));
+      list.setBackground(UIManagerUtil.getColor("ComboBox.background", "control"));
+      list.setSelectionForeground(UIManagerUtil.getColor("ComboBox.selectionForeground"));
+      list.setSelectionBackground(UIManagerUtil.getColor("ComboBox.selectionBackground"));
       list.setBorder(null);
       scrollPane.getViewport().setOpaque(false);
       scrollPane.setBorder(null);
@@ -158,33 +160,47 @@ public class PopupList extends SimplePanel {
 
   private Popup popup = new Popup();
   private ArrayList listeners = new ArrayList(1);
-  private PopupButtonModel buttonModel = new PopupButtonModel();
 
   public PopupList(AbstractButton component) {
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-    add(component);
-    component.setModel(buttonModel);
-    component.setAutoscrolls(true);
-    component.setFocusable(false);
-    component.addMouseListener(popup.getMouseListener());
-    component.addMouseMotionListener(popup.getMouseMotionListener());
+    setButton(component);
 
     popup.addPopupMenuListener(new PopupMenuListener() {
       public void popupMenuCanceled(PopupMenuEvent e) {
       }
 
       public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-        buttonModel.setPressedInternal(false);
+        ((PopupButtonModel) ((AbstractButton) getComponent(0)).getModel()).setPressedInternal(false);
       }
 
       public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-        buttonModel.setPressedInternal(true);
+        ((PopupButtonModel) ((AbstractButton) getComponent(0)).getModel()).setPressedInternal(true);
       }
     });
   }
 
   public JList getList() {
     return popup.getList();
+  }
+
+  public void setButton(AbstractButton component) {
+    if (getComponentCount() > 0) {
+      AbstractButton c = (AbstractButton) getComponent(0);
+      c.removeMouseListener(popup.getMouseListener());
+      c.removeMouseMotionListener(popup.getMouseMotionListener());
+      remove(c);
+    }
+
+    add(component);
+    component.setModel(new PopupButtonModel());
+    component.setAutoscrolls(true);
+    component.setFocusable(false);
+    component.addMouseListener(popup.getMouseListener());
+    component.addMouseMotionListener(popup.getMouseMotionListener());
+  }
+
+  public AbstractButton getButton() {
+    return getComponentCount() == 0 ? null : (AbstractButton) getComponent(0);
   }
 
   public void updateUI() {

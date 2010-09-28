@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ShapedGradientTheme.java,v 1.8 2004/11/11 14:10:33 jesper Exp $
+// $Id: ShapedGradientTheme.java,v 1.10 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.tabbedpanel.theme;
 
 import net.infonode.gui.HighlightPainter;
@@ -44,7 +44,7 @@ import java.awt.*;
  * slopes on left/right side of tab.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.10 $
  * @since ITP 1.2.0
  */
 public class ShapedGradientTheme extends TabbedPanelTitledTabTheme {
@@ -175,7 +175,11 @@ public class ShapedGradientTheme extends TabbedPanelTitledTabTheme {
    * @param lineColor      color provider for the lines
    * @param highlightColor color provider for the highlighting, null for no highlighting
    */
-  public ShapedGradientTheme(float leftSlope, float rightSlope, int slopeHeight, ColorProvider lineColor, ColorProvider highlightColor) {
+  public ShapedGradientTheme(float leftSlope,
+                             float rightSlope,
+                             int slopeHeight,
+                             ColorProvider lineColor,
+                             ColorProvider highlightColor) {
     this.leftSlopeHeight = slopeHeight;
     this.rightSlopeHeight = slopeHeight;
     this.highlightColor = highlightColor;
@@ -243,7 +247,8 @@ public class ShapedGradientTheme extends TabbedPanelTitledTabTheme {
 
     Insets insets = normalBorder.getBorderInsets(null);
     int tabSpacing = 1 + insets.left + insets.right - (topLeftRounded ? CORNER_INSET : 0) - (topRightRounded ?
-                                                                                             CORNER_INSET : 0) - (int) (0.2 * (leftSlopeWidth + rightSlopeWidth));
+                                                                                             CORNER_INSET : 0) -
+                     (int) (0.2 * (leftSlopeWidth + rightSlopeWidth));
     tabbedPanelProperties.setTabSpacing(-tabSpacing).setShadowEnabled(false);
 
     tabbedPanelProperties.getTabAreaComponentsProperties().getComponentProperties().setBorder(new SlopedTabLineBorder(
@@ -362,9 +367,17 @@ public class ShapedGradientTheme extends TabbedPanelTitledTabTheme {
    * @param raised                     raised
    * @return the created border
    */
-  public Border createTabBorder(ColorProvider lineColor, ColorProvider highlightColor, float leftSlope, float rightSlope,
-                                boolean bottomLeftRounded, boolean topLeftRounded, boolean topRightRounded,
-                                boolean bottomRightRounded, boolean isNormal, boolean highlightBottomLeftRounded, int raised) {
+  public Border createTabBorder(ColorProvider lineColor,
+                                ColorProvider highlightColor,
+                                float leftSlope,
+                                float rightSlope,
+                                boolean bottomLeftRounded,
+                                boolean topLeftRounded,
+                                boolean topRightRounded,
+                                boolean bottomRightRounded,
+                                boolean isNormal,
+                                boolean highlightBottomLeftRounded,
+                                int raised) {
     return new TabBorder(lineColor,
                          highlightColor,
                          leftSlope,

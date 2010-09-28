@@ -20,16 +20,18 @@
  */
 
 
-// $Id: RootWindowProperties.java,v 1.45 2004/11/11 14:09:46 jesper Exp $
+// $Id: RootWindowProperties.java,v 1.54 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.docking.DefaultButtonFactories;
+import net.infonode.docking.action.CloseWithAbortWindowAction;
+import net.infonode.docking.action.MaximizeWindowAction;
+import net.infonode.docking.action.MinimizeWindowAction;
+import net.infonode.docking.action.RestoreWindowAction;
+import net.infonode.docking.internalutil.InternalDockingUtil;
 import net.infonode.gui.DynamicUIManager;
 import net.infonode.gui.DynamicUIManagerListener;
-import net.infonode.gui.icon.button.CloseIcon;
-import net.infonode.gui.icon.button.MaximizeIcon;
-import net.infonode.gui.icon.button.MinimizeIcon;
-import net.infonode.gui.icon.button.RestoreIcon;
+import net.infonode.gui.UIManagerUtil;
 import net.infonode.properties.gui.util.ComponentProperties;
 import net.infonode.properties.gui.util.ShapedPanelProperties;
 import net.infonode.properties.propertymap.*;
@@ -42,9 +44,7 @@ import net.infonode.tabbedpanel.TabbedUIDefaults;
 import net.infonode.tabbedpanel.border.TabAreaLineBorder;
 import net.infonode.tabbedpanel.titledtab.TitledTabProperties;
 import net.infonode.tabbedpanel.titledtab.TitledTabSizePolicy;
-import net.infonode.util.ColorUtil;
 
-import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.util.Map;
@@ -53,13 +53,13 @@ import java.util.Map;
  * Properties and property values for a root window.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.45 $
+ * @version $Revision: 1.54 $
  */
 public class RootWindowProperties extends PropertyMapContainer {
   /**
    * The size of the default window tab button icons.
    */
-  public static final int DEFAULT_WINDOW_TAB_BUTTON_ICON_SIZE = 10;
+  public static final int DEFAULT_WINDOW_TAB_BUTTON_ICON_SIZE = InternalDockingUtil.DEFAULT_BUTTON_ICON_SIZE;
 
   /**
    * Property group containing all root window properties.
@@ -120,7 +120,8 @@ public class RootWindowProperties extends PropertyMapContainer {
       IntegerProperty.createPositive(PROPERTIES,
                                      "Drag Rectangle Border Width",
                                      "The width of the drag rectangle border. The drag rectangle will only " +
-                                     "be painted if the painter of the '" + DRAG_RECTANGLE_SHAPED_PANEL_PROPERTIES.getName() +
+                                     "be painted if the painter of the '" +
+                                     DRAG_RECTANGLE_SHAPED_PANEL_PROPERTIES.getName() +
                                      "' property is not set.",
                                      2,
                                      PropertyMapValueHandler.INSTANCE);
@@ -236,21 +237,17 @@ public class RootWindowProperties extends PropertyMapContainer {
 
     tabProperties.getNormalButtonProperties().getCloseButtonProperties()
         .setFactory(DefaultButtonFactories.getCloseButtonFactory())
-        .setVisible(false)
-        .setToolTipText("Close")
-        .setIcon(new CloseIcon(DEFAULT_WINDOW_TAB_BUTTON_ICON_SIZE));
+        .setTo(CloseWithAbortWindowAction.INSTANCE);
 
     tabProperties.getNormalButtonProperties().getRestoreButtonProperties()
         .setFactory(DefaultButtonFactories.getRestoreButtonFactory())
         .setVisible(false)
-        .setToolTipText("Restore")
-        .setIcon(new RestoreIcon(DEFAULT_WINDOW_TAB_BUTTON_ICON_SIZE));
+        .setTo(RestoreWindowAction.INSTANCE);
 
     tabProperties.getNormalButtonProperties().getMinimizeButtonProperties()
         .setFactory(DefaultButtonFactories.getMinimizeButtonFactory())
         .setVisible(false)
-        .setToolTipText("Minimize")
-        .setIcon(new MinimizeIcon(DEFAULT_WINDOW_TAB_BUTTON_ICON_SIZE));
+        .setTo(MinimizeWindowAction.INSTANCE);
 
     tabProperties.getTitledTabProperties().setFocusable(false);
     tabProperties.getHighlightedButtonProperties().getCloseButtonProperties().setVisible(true);
@@ -275,26 +272,22 @@ public class RootWindowProperties extends PropertyMapContainer {
     tabWindowProperties.getCloseButtonProperties()
         .setFactory(DefaultButtonFactories.getCloseButtonFactory())
         .setVisible(true)
-        .setToolTipText("Close")
-        .setIcon(new CloseIcon(DEFAULT_WINDOW_TAB_BUTTON_ICON_SIZE));
+        .setTo(CloseWithAbortWindowAction.INSTANCE);
 
     tabWindowProperties.getRestoreButtonProperties()
         .setFactory(DefaultButtonFactories.getRestoreButtonFactory())
         .setVisible(true)
-        .setToolTipText("Restore")
-        .setIcon(new RestoreIcon(DEFAULT_WINDOW_TAB_BUTTON_ICON_SIZE));
+        .setTo(RestoreWindowAction.INSTANCE);
 
     tabWindowProperties.getMinimizeButtonProperties()
         .setFactory(DefaultButtonFactories.getMinimizeButtonFactory())
         .setVisible(true)
-        .setToolTipText("Minimize")
-        .setIcon(new MinimizeIcon(DEFAULT_WINDOW_TAB_BUTTON_ICON_SIZE));
+        .setTo(MinimizeWindowAction.INSTANCE);
 
     tabWindowProperties.getMaximizeButtonProperties()
         .setFactory(DefaultButtonFactories.getMaximizeButtonFactory())
         .setVisible(true)
-        .setToolTipText("Maximize")
-        .setIcon(new MaximizeIcon(DEFAULT_WINDOW_TAB_BUTTON_ICON_SIZE));
+        .setTo(MaximizeWindowAction.INSTANCE);
   }
 
   private static void setWindowBarProperties() {
@@ -349,13 +342,15 @@ public class RootWindowProperties extends PropertyMapContainer {
     DEFAULT_VALUES.getComponentProperties()
         .setBackgroundColor(TabbedUIDefaults.getNormalStateBackground());
 
+    Color shadowColor = UIManagerUtil.getColor("controlDkShadow", Color.BLACK);
+
     DEFAULT_VALUES.getWindowAreaProperties()
-        .setBorder(new LineBorder(UIManager.getColor("controlDkShadow")))
-        .setBackgroundColor(ColorUtil.copy(UIManager.getColor("Desktop.background")));
+        .setBorder(new LineBorder(shadowColor))
+        .setBackgroundColor(UIManagerUtil.getColor("Desktop.background", "control"));
 
     DEFAULT_VALUES.getDragLabelProperties()
-        .setBorder(new LineBorder(UIManager.getColor("controlDkShadow")))
-        .setBackgroundColor(ColorUtil.setAlpha(UIManager.getColor("ToolTip.background"), 200));
+        .setBorder(new LineBorder(shadowColor))
+        .setBackgroundColor(UIManagerUtil.getColor("ToolTip.background", "control"));
 
     DEFAULT_VALUES
         .setRecursiveTabsEnabled(true);
@@ -374,7 +369,7 @@ public class RootWindowProperties extends PropertyMapContainer {
 
     DEFAULT_VALUES
         .setAbortDragKey(TabbedPanelProperties.getDefaultProperties().getAbortDragKey())
-        .setEdgeSplitDistance(4)
+        .setEdgeSplitDistance(6)
         .setDragRectangleBorderWidth(5);
 
     DEFAULT_VALUES.getDockingWindowProperties()
@@ -473,9 +468,36 @@ public class RootWindowProperties extends PropertyMapContainer {
    *
    * @return this
    * @since IDW 1.1.0
+   * @deprecated Use {@link #removeSuperObject(RootWindowProperties)} instead.
    */
   public RootWindowProperties removeSuperObject() {
     getMap().removeSuperMap();
+    return this;
+  }
+
+  /**
+   * Removes a super object.
+   *
+   * @param superObject the super object to remove
+   * @return this
+   * @since IDW 1.3.0
+   */
+  public RootWindowProperties removeSuperObject(RootWindowProperties superObject) {
+    getMap().removeSuperMap(superObject.getMap());
+    return this;
+  }
+
+  /**
+   * Replaces a super object.
+   *
+   * @param oldSuperObject the super object to be replaced
+   * @param newSuperObject the super object to replace it with
+   * @return this
+   * @since IDW 1.3.0
+   */
+  public RootWindowProperties replaceSuperObject(RootWindowProperties oldSuperObject,
+                                                 RootWindowProperties newSuperObject) {
+    getMap().replaceSuperMap(oldSuperObject.getMap(), newSuperObject.getMap());
     return this;
   }
 

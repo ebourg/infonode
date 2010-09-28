@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ViewFactory.java,v 1.3 2004/09/22 14:31:39 jesper Exp $
+// $Id: ViewFactory.java,v 1.5 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.util;
 
 import net.infonode.docking.View;
@@ -31,7 +31,7 @@ import javax.swing.*;
  * A factory that creates a view.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.5 $
  */
 public interface ViewFactory {
   /**

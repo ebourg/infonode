@@ -20,28 +20,36 @@
  */
 
 
-// $Id: TabbedPanel.java,v 1.98 2004/11/11 14:10:33 jesper Exp $
+// $Id: TabbedPanel.java,v 1.122 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.gui.ComponentUtil;
 import net.infonode.gui.DimensionUtil;
+import net.infonode.gui.EventUtil;
 import net.infonode.gui.ScrollButtonBox;
 import net.infonode.gui.componentpainter.ComponentPainter;
 import net.infonode.gui.componentpainter.SolidColorComponentPainter;
 import net.infonode.gui.draggable.*;
+import net.infonode.gui.hover.HoverEvent;
+import net.infonode.gui.hover.HoverListener;
+import net.infonode.gui.hover.panel.HoverableShapedPanel;
 import net.infonode.gui.layout.DirectionLayout;
 import net.infonode.gui.shaped.panel.ShapedPanel;
+import net.infonode.properties.gui.util.ButtonProperties;
 import net.infonode.properties.gui.util.ShapedPanelProperties;
 import net.infonode.properties.propertymap.PropertyMapTreeListener;
 import net.infonode.properties.propertymap.PropertyMapWeakListenerManager;
 import net.infonode.tabbedpanel.internal.ShadowPainter;
 import net.infonode.tabbedpanel.internal.TabDropDownList;
+import net.infonode.tabbedpanel.internal.TabbedHoverUtil;
 import net.infonode.tabbedpanel.titledtab.TitledTab;
 import net.infonode.util.Direction;
+import net.infonode.util.ValueChange;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -110,20 +118,94 @@ import java.util.Map;
  * tab is null (no selected tab), i.e. null will be treated as if it was a tab.
  * </p>
  *
+ * <p>
+ * A tabbed panel supports several mouse hover alternatives. It is possible to
+ * specify {@link HoverListener}s for the entire tabbed panel, the tab area, the
+ * tab area components area and the content area. The listeners are set in the
+ * TabbedPanelProperties, TabAreaProperties, TabAreaComponentsProperties and the
+ * TabbedPanelContentPanelProperties. A hover listener is called when the mouse
+ * enter or exits the area. The hover listener is called with a {@link HoverEvent}
+ * and the source for the event is always the hovered tabbed panel.
+ * </p>
+ *
+ * <p>
+ * A tabbed panel calls the hover listeners in the following order:
+ * <ol>
+ * <li>The hover listener for the tabbed panel itself.
+ * <li>The hover listener for the tab area or the content area depending on where the
+ * mouse pointer is located.
+ * <li>The hover listener for the tab area components area if the mouse pointer is over
+ * that area.
+ * </ol>
+ * When the tabbed panel is no longer hovered, the hover listenrs are called in the
+ * reverse order.
+ * </p>
+ *
+ * <p>
+ * It is possible to specify different hover policies ({@link TabbedPanelHoverPolicy})
+ * in the TabbedPanelProperties that affects all hover areas of the tabbed panel.
+ * </p>
+ *
  * @author $Author: jesper $
- * @version $Revision: 1.98 $
+ * @version $Revision: 1.122 $
  * @see Tab
  * @see TitledTab
  * @see TabbedPanelProperties
  * @see TabListener
+ * @see TabbedPanelHoverPolicy
+ * @see HoverListener
  */
 public class TabbedPanel extends JPanel {
+  private static boolean hoverActivated = false;
   // Shadow property values
   private int shadowSize = 4;
 
   private TabDropDownList dropDownList;
 
   private JComponent contentPanel;
+
+  private JComponent[] tabAreaComponents;
+
+  private Direction tabAreaOrientation;
+  private TabDropDownListVisiblePolicy listVisiblePolicy = TabDropDownListVisiblePolicy.NEVER;
+  private TabLayoutPolicy listTabLayoutPolicy = TabLayoutPolicy.SCROLLING;
+  private DraggableComponentBox draggableComponentBox = new DraggableComponentBox(TabbedUIDefaults.getButtonIconSize(),
+                                                                                  false);
+  private ArrayList listeners;
+  private ArrayList tabs = new ArrayList(4);
+  private TabbedPanelProperties properties = new TabbedPanelProperties(TabbedPanelProperties.getDefaultProperties());
+  private Tab highlightedTab;
+
+  private boolean settingHighlighted;
+  private boolean mouseEntered = false;
+  private boolean removingSelected = false;
+
+  private class HoverablePanel extends HoverableShapedPanel {
+    public HoverablePanel(LayoutManager l, HoverListener listener) {
+      super(l, listener, TabbedPanel.this);
+    }
+
+    protected void processMouseEvent(MouseEvent event) {
+      super.processMouseEvent(event);
+      doProcessMouseEvent(event);
+    }
+
+    protected void processMouseMotionEvent(MouseEvent event) {
+      super.processMouseMotionEvent(event);
+      doProcessMouseMotionEvent(event);
+    }
+
+    public boolean acceptHover(ArrayList enterableHoverables) {
+      return TabbedHoverUtil.acceptTabbedPanelHover(properties.getHoverPolicy(),
+                                                    enterableHoverables,
+                                                    TabbedPanel.this,
+                                                    this);
+    }
+  }
+
+  private ShadowPanel componentsPanel = new ShadowPanel();
+
+  private ScrollButtonBox scrollButtonBox;
 
   private GridBagConstraints constraints = new GridBagConstraints();
   private GridBagLayout tabAreaLayoutManager = new GridBagLayout() {
@@ -153,7 +235,9 @@ public class TabbedPanel extends JPanel {
     }
   };
 
-  private ShapedPanel tabAreaContainer = new ShapedPanel(tabAreaLayoutManager) {
+  private HoverableShapedPanel tabAreaContainer = new HoverablePanel(tabAreaLayoutManager,
+                                                                     properties.getTabAreaProperties()
+                                                                     .getHoverListener()) {
     public Dimension getPreferredSize() {
       if (getTabCount() == 0)
         return super.getPreferredSize();
@@ -169,15 +253,18 @@ public class TabbedPanel extends JPanel {
             d = DimensionUtil.add(d, c[i].getPreferredSize(), !vertical);
         }
         Dimension d3 = tabAreaComponentsPanel.getPreferredSize();
-        d = new Dimension(vertical ? Math.max(d.width, d2.width) : d.width,
-                          vertical ? d.height : Math.max(d.height, d3.height));
+        d =
+        new Dimension(vertical ? Math.max(d.width, d2.width) : d.width,
+                      vertical ? d.height : Math.max(d.height, d3.height));
       }
 
       return d;
     }
   };
 
-  private ShapedPanel tabAreaComponentsPanel = new ShapedPanel(new DirectionLayout()) {
+  private HoverableShapedPanel tabAreaComponentsPanel = new HoverablePanel(new DirectionLayout(),
+                                                                           properties.getTabAreaComponentsProperties()
+                                                                           .getHoverListener()) {
     public Dimension getMaximumSize() {
       return getPreferredSize();
     }
@@ -201,21 +288,6 @@ public class TabbedPanel extends JPanel {
     }
   };
 
-  private JComponent[] tabAreaComponents;
-
-  private Direction tabAreaOrientation;
-  private TabDropDownListVisiblePolicy listVisiblePolicy = TabDropDownListVisiblePolicy.NEVER;
-  private TabLayoutPolicy listTabLayoutPolicy = TabLayoutPolicy.SCROLLING;
-  private DraggableComponentBox draggableComponentBox = new DraggableComponentBox(TabbedUIDefaults.getButtonIconSize());
-  private ArrayList listeners;
-  private ArrayList tabs = new ArrayList(4);
-  private TabbedPanelProperties properties = new TabbedPanelProperties(TabbedPanelProperties.getDefaultProperties());
-  private Tab highlightedTab;
-  private boolean settingHighlighted;
-  private ShadowPanel componentsPanel = new ShadowPanel();
-
-  private ScrollButtonBox scrollButtonBox;
-
   private DraggableComponentBoxListener draggableComponentBoxListener = new DraggableComponentBoxListener() {
     private boolean selectedMoved;
 
@@ -227,7 +299,13 @@ public class TabbedPanel extends JPanel {
       else {
         Tab tab = findTab(event.getDraggableComponent());
         setHighlightedTab(tab);
-        fireSelectedEvent(tab, findTab(event.getOldDraggableComponent()));
+        Tab oldTab = findTab(event.getOldDraggableComponent());
+        fireSelectedEvent(tab, oldTab);
+        if (removingSelected) {
+          removingSelected = false;
+          if (oldTab != null)
+            oldTab.setTabbedPanel(null);
+        }
       }
     }
 
@@ -236,8 +314,8 @@ public class TabbedPanel extends JPanel {
       tabs.remove(tab);
       if (highlightedTab == tab)
         highlightedTab = null;
-      tab.setTabbedPanel(null);
 
+      setScrollButtonsVisible();
       revalidate();
       repaint();
       fireRemovedEvent(tab);
@@ -250,13 +328,15 @@ public class TabbedPanel extends JPanel {
     }
 
     public void componentDragged(DraggableComponentBoxEvent event) {
-      fireDraggedEvent(findTab(event.getDraggableComponent()), event.getDraggableComponentBoxPoint());
+      fireDraggedEvent(findTab(event.getDraggableComponent()),
+                       event.getDraggableComponentEvent().getMouseEvent());
     }
 
     public void componentDropped(DraggableComponentBoxEvent event) {
       if (!draggableComponentBox.contains(event.getDraggableComponentBoxPoint()))
         setHighlightedTab(findTab(draggableComponentBox.getSelectedDraggableComponent()));
-      fireDroppedEvent(findTab(event.getDraggableComponent()), event.getDraggableComponentBoxPoint());
+      fireDroppedEvent(findTab(event.getDraggableComponent()),
+                       event.getDraggableComponentEvent().getMouseEvent());
     }
 
     public void componentDragAborted(DraggableComponentBoxEvent event) {
@@ -267,15 +347,19 @@ public class TabbedPanel extends JPanel {
       if (event.getDraggableComponentEvent() != null) {
         int type = event.getDraggableComponentEvent().getType();
 
-        if (type == DraggableComponentEvent.TYPE_PRESSED && getProperties().getHighlightPressedTab())
-          setHighlightedTab(findTab(event.getDraggableComponent()));
+        if (type == DraggableComponentEvent.TYPE_PRESSED && properties.getHighlightPressedTab()) {
+          if (highlightedTab != null) // ***
+            setHighlightedTab(findTab(event.getDraggableComponent()));
+        }
         else if (type == DraggableComponentEvent.TYPE_RELEASED) {
           selectedMoved = false;
           setHighlightedTab(getSelectedTab());
         }
-        else if (type == DraggableComponentEvent.TYPE_DISABLED && highlightedTab != null && highlightedTab.getDraggableComponent() == event.getDraggableComponent())
+        else if (type == DraggableComponentEvent.TYPE_DISABLED && highlightedTab != null &&
+                 highlightedTab.getDraggableComponent() == event.getDraggableComponent())
           setHighlightedTab(null);
-        else if (type == DraggableComponentEvent.TYPE_ENABLED && draggableComponentBox.getSelectedDraggableComponent() == event.getDraggableComponent())
+        else if (type == DraggableComponentEvent.TYPE_ENABLED &&
+                 draggableComponentBox.getSelectedDraggableComponent() == event.getDraggableComponent())
           setHighlightedTab(findTab(event.getDraggableComponent()));
         else if (type == DraggableComponentEvent.TYPE_MOVED) {
           selectedMoved = event.getDraggableComponent() == draggableComponentBox.getSelectedDraggableComponent();
@@ -290,6 +374,77 @@ public class TabbedPanel extends JPanel {
   private PropertyMapTreeListener propertyChangedListener = new PropertyMapTreeListener() {
     public void propertyValuesChanged(Map changes) {
       updateProperties();
+
+      TabbedPanelButtonProperties buttonProps = properties.getButtonProperties();
+      Map m = (Map) changes.get(buttonProps.getTabDropDownListButtonProperties().getMap());
+      {
+        if (m != null) {
+          if (dropDownList != null) {
+            AbstractButton b = dropDownList.getButton();
+            if (m.keySet().contains(ButtonProperties.FACTORY)) {
+              b =
+              properties.getButtonProperties().getTabDropDownListButtonProperties().getFactory().createButton(
+                  TabbedPanel.this);
+              dropDownList.setButton(b);
+            }
+
+            properties.getButtonProperties().getTabDropDownListButtonProperties().applyTo(b);
+          }
+        }
+      }
+
+      if (scrollButtonBox != null) {
+        AbstractButton buttons[] = new AbstractButton[]{scrollButtonBox.getUpButton(),
+                                                        scrollButtonBox.getDownButton(),
+                                                        scrollButtonBox.getLeftButton(),
+                                                        scrollButtonBox.getRightButton()
+        };
+
+        ButtonProperties props[] = new ButtonProperties[]{buttonProps.getScrollUpButtonProperties(),
+                                                          buttonProps.getScrollDownButtonProperties(),
+                                                          buttonProps.getScrollLeftButtonProperties(),
+                                                          buttonProps.getScrollRightButtonProperties()
+        };
+
+        for (int i = 0; i < buttons.length; i++) {
+          m = (Map) changes.get(props[i].getMap());
+          if (m != null) {
+            if (m.keySet().contains(ButtonProperties.FACTORY))
+              buttons[i] = props[i].getFactory().createButton(TabbedPanel.this);
+
+            props[i].applyTo(buttons[i]);
+          }
+        }
+
+        scrollButtonBox.setButtons(buttons[0], buttons[1], buttons[2], buttons[3]);
+      }
+
+      {
+        m = (Map) changes.get(properties.getTabAreaProperties().getMap());
+        if (m != null && m.keySet().contains(TabAreaProperties.HOVER_LISTENER)) {
+          HoverListener oldHoverListener = tabAreaContainer.getHoverListener();
+          tabAreaContainer.setHoverListener(
+              (HoverListener) ((ValueChange) m.get(TabAreaProperties.HOVER_LISTENER)).getNewValue());
+        }
+      }
+
+      {
+        m = (Map) changes.get(properties.getTabAreaComponentsProperties().getMap());
+        if (m != null && m.keySet().contains(TabAreaComponentsProperties.HOVER_LISTENER)) {
+          HoverListener oldHoverListener = tabAreaComponentsPanel.getHoverListener();
+          tabAreaComponentsPanel.setHoverListener(
+              (HoverListener) ((ValueChange) m.get(TabAreaComponentsProperties.HOVER_LISTENER)).getNewValue());
+        }
+      }
+
+      {
+        m = (Map) changes.get(properties.getMap());
+        if (m != null && m.keySet().contains(TabbedPanelProperties.HOVER_LISTENER)) {
+          HoverListener oldHoverListener = componentsPanel.getHoverListener();
+          componentsPanel.setHoverListener(
+              (HoverListener) ((ValueChange) m.get(TabbedPanelProperties.HOVER_LISTENER)).getNewValue());
+        }
+      }
     }
   };
 
@@ -425,8 +580,15 @@ public class TabbedPanel extends JPanel {
    * @param tab tab to be removed from this TabbedPanel
    */
   public void removeTab(Tab tab) {
-    if (tab != null)
+    if (tab != null && tab.getTabbedPanel() == this) {
+      if (getSelectedTab() != tab) {
+        tab.setTabbedPanel(null);
+      }
+      else {
+        removingSelected = true;
+      }
       draggableComponentBox.removeDraggableComponent(tab.getDraggableComponent());
+    }
     checkOnlyOneTab(false);
   }
 
@@ -661,6 +823,16 @@ public class TabbedPanel extends JPanel {
     return properties;
   }
 
+  /**
+   * Checks if this tabbed panel has a content area
+   *
+   * @return true if content area exist, otherwise false
+   * @since ITP 1.3.0
+   */
+  public boolean hasContentArea() {
+    return contentPanel != null;
+  }
+
   DraggableComponentBox getDraggableComponentBox() {
     return draggableComponentBox;
   }
@@ -712,8 +884,8 @@ public class TabbedPanel extends JPanel {
   }
 
   private void updateTabDropDownList() {
-    TabDropDownListVisiblePolicy newListVisiblePolicy = getProperties().getTabDropDownListVisiblePolicy();
-    TabLayoutPolicy newListTabLayoutPolicy = getProperties().getTabLayoutPolicy();
+    TabDropDownListVisiblePolicy newListVisiblePolicy = properties.getTabDropDownListVisiblePolicy();
+    TabLayoutPolicy newListTabLayoutPolicy = properties.getTabLayoutPolicy();
 
     if (newListVisiblePolicy != listVisiblePolicy || newListTabLayoutPolicy != listTabLayoutPolicy) {
       if (dropDownList != null) {
@@ -723,8 +895,14 @@ public class TabbedPanel extends JPanel {
       }
 
       if (newListVisiblePolicy == TabDropDownListVisiblePolicy.MORE_THAN_ONE_TAB ||
-          (newListVisiblePolicy == TabDropDownListVisiblePolicy.TABS_NOT_VISIBLE && newListTabLayoutPolicy == TabLayoutPolicy.SCROLLING)) {
-        dropDownList = new TabDropDownList(this);
+          (newListVisiblePolicy == TabDropDownListVisiblePolicy.TABS_NOT_VISIBLE &&
+           newListTabLayoutPolicy == TabLayoutPolicy.SCROLLING)) {
+        dropDownList = new TabDropDownList(this, properties.getButtonProperties().getTabDropDownListButtonProperties()
+                                                 .applyTo(
+                                                     properties.getButtonProperties()
+                                                     .getTabDropDownListButtonProperties()
+                                                     .getFactory()
+                                                     .createButton(this)));
         tabAreaComponentsPanel.add(dropDownList, scrollButtonBox == null ? 0 : 1);
 
         if (newListVisiblePolicy == TabDropDownListVisiblePolicy.TABS_NOT_VISIBLE)
@@ -735,7 +913,8 @@ public class TabbedPanel extends JPanel {
     listVisiblePolicy = newListVisiblePolicy;
     listTabLayoutPolicy = newListTabLayoutPolicy;
 
-    if (dropDownList != null && !draggableComponentBox.isScrollEnabled() && listVisiblePolicy == TabDropDownListVisiblePolicy.TABS_NOT_VISIBLE)
+    if (dropDownList != null && !draggableComponentBox.isScrollEnabled() &&
+        listVisiblePolicy == TabDropDownListVisiblePolicy.TABS_NOT_VISIBLE)
       dropDownList.setVisible(false);
   }
 
@@ -848,7 +1027,9 @@ public class TabbedPanel extends JPanel {
     ((DirectionLayout) tabAreaComponentsPanel.getLayout()).setDirection(direction);
   }
 
-  private void updateShapedPanelProperties(ShapedPanel panel, Color backgroundColor, ShapedPanelProperties shapedPanelProperties) {
+  private void updateShapedPanelProperties(ShapedPanel panel,
+                                           Color backgroundColor,
+                                           ShapedPanelProperties shapedPanelProperties) {
     panel.setOpaque(false);
     ComponentPainter painter = shapedPanelProperties.getComponentPainter();
     if (painter != null)
@@ -859,12 +1040,18 @@ public class TabbedPanel extends JPanel {
       panel.setComponentPainter(null);
     panel.setVerticalFlip(shapedPanelProperties.getVerticalFlip());
     panel.setHorizontalFlip(shapedPanelProperties.getHorizontalFlip());
-    panel.setDirection(getProperties().getTabAreaOrientation().getNextCW());
+    panel.setDirection(properties.getTabAreaOrientation().getNextCW());
     panel.setClipChildren(shapedPanelProperties.getClipChildren());
-    //panel.setDirection(shapedPanelProperties.getDirection() == null ? getProperties().getTabAreaOrientation().getNextCW() : shapedPanelProperties.getDirection());
+    //panel.setDirection(shapedPanelProperties.getDirection() == null ? properties.getTabAreaOrientation().getNextCW() : shapedPanelProperties.getDirection());
   }
 
-  private void setTabAreaLayoutConstraints(JComponent c, int gridx, int gridy, int fill, double weightx, double weighty, int anchor) {
+  private void setTabAreaLayoutConstraints(JComponent c,
+                                           int gridx,
+                                           int gridy,
+                                           int fill,
+                                           double weightx,
+                                           double weighty,
+                                           int anchor) {
     constraints.gridx = gridx;
     constraints.gridy = gridy;
     constraints.fill = fill;
@@ -938,9 +1125,10 @@ public class TabbedPanel extends JPanel {
     int componentsPanelWidth = tabAreaComponentsPanel.isVisible() ?
                                ((int) tabAreaComponentsPanel.getPreferredSize().getWidth() - insetsWidth - (scrollButtonBox.isVisible()
                                                                                                             ?
-                                                                                                            scrollButtonBox.getWidth() + (includeDropDownWidth ?
-                                                                                                                                          dropDownList.getWidth() :
-                                                                                                                                          0)
+                                                                                                            scrollButtonBox.getWidth() +
+                                                                                                            (includeDropDownWidth ?
+                                                                                                             dropDownList.getWidth() :
+                                                                                                             0)
                                                                                                             :
                                                                                                             0)) :
                                0;
@@ -959,9 +1147,10 @@ public class TabbedPanel extends JPanel {
     int componentsPanelHeight = tabAreaComponentsPanel.isVisible() ?
                                 ((int) tabAreaComponentsPanel.getPreferredSize().getHeight() - insetsHeight - (scrollButtonBox.isVisible()
                                                                                                                ?
-                                                                                                               scrollButtonBox.getHeight() + (includeDropDownHeight ?
-                                                                                                                                              dropDownList.getHeight() :
-                                                                                                                                              0)
+                                                                                                               scrollButtonBox.getHeight() +
+                                                                                                               (includeDropDownHeight ?
+                                                                                                                dropDownList.getHeight() :
+                                                                                                                0)
                                                                                                                :
                                                                                                                0)) :
                                 0;
@@ -973,10 +1162,20 @@ public class TabbedPanel extends JPanel {
     ScrollButtonBox oldScrollButtonBox = scrollButtonBox;
     scrollButtonBox = draggableComponentBox.getScrollButtonBox();
     if (oldScrollButtonBox != scrollButtonBox) {
-      if (oldScrollButtonBox != null)
+      if (oldScrollButtonBox != null) {
         tabAreaComponentsPanel.remove(oldScrollButtonBox);
+      }
 
       if (scrollButtonBox != null) {
+        scrollButtonBox.setButtons(
+            properties.getButtonProperties().getScrollUpButtonProperties().applyTo(
+                properties.getButtonProperties().getScrollUpButtonProperties().getFactory().createButton(this)),
+            properties.getButtonProperties().getScrollDownButtonProperties().applyTo(
+                properties.getButtonProperties().getScrollDownButtonProperties().getFactory().createButton(this)),
+            properties.getButtonProperties().getScrollLeftButtonProperties().applyTo(
+                properties.getButtonProperties().getScrollLeftButtonProperties().getFactory().createButton(this)),
+            properties.getButtonProperties().getScrollRightButtonProperties().applyTo(
+                properties.getButtonProperties().getScrollRightButtonProperties().getFactory().createButton(this)));
         scrollButtonBox.setVisible(false);
         tabAreaComponentsPanel.add(scrollButtonBox, 0);
       }
@@ -992,18 +1191,18 @@ public class TabbedPanel extends JPanel {
     }
   }
 
-  private void fireDraggedEvent(Tab tab, Point p) {
+  private void fireDraggedEvent(Tab tab, MouseEvent mouseEvent) {
     if (listeners != null) {
-      TabDragEvent event = new TabDragEvent(this, tab, SwingUtilities.convertPoint(draggableComponentBox, p, tab));
+      TabDragEvent event = new TabDragEvent(this, EventUtil.convert(mouseEvent, tab));
       Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
         ((TabListener) l[i]).tabDragged(event);
     }
   }
 
-  private void fireDroppedEvent(Tab tab, Point p) {
+  private void fireDroppedEvent(Tab tab, MouseEvent mouseEvent) {
     if (listeners != null) {
-      TabDragEvent event = new TabDragEvent(this, tab, SwingUtilities.convertPoint(draggableComponentBox, p, tab));
+      TabDragEvent event = new TabDragEvent(this, EventUtil.convert(mouseEvent, tab));
       Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
         ((TabListener) l[i]).tabDropped(event);
@@ -1071,6 +1270,31 @@ public class TabbedPanel extends JPanel {
     }
   }
 
+  protected void processMouseEvent(MouseEvent event) {
+    if (event.getID() == MouseEvent.MOUSE_ENTERED) {
+      if (!mouseEntered) {
+        mouseEntered = true;
+        super.processMouseEvent(event);
+      }
+    }
+    else if (event.getID() == MouseEvent.MOUSE_EXITED) {
+      if (!contains(event.getPoint())) {
+        mouseEntered = false;
+        super.processMouseEvent(event);
+      }
+    }
+    else
+      super.processMouseEvent(event);
+  }
+
+  void doProcessMouseEvent(MouseEvent event) {
+    processMouseEvent(SwingUtilities.convertMouseEvent((Component) event.getSource(), event, this));
+  }
+
+  void doProcessMouseMotionEvent(MouseEvent event) {
+    processMouseMotionEvent(SwingUtilities.convertMouseEvent((Component) event.getSource(), event, this));
+  }
+
   private void updateShadow() {
     if (contentPanel != null && properties.getShadowEnabled()) {
       Point p = SwingUtilities.convertPoint(tabAreaContainer, new Point(0, 0), this);
@@ -1078,11 +1302,24 @@ public class TabbedPanel extends JPanel {
     }
   }
 
-  private class ShadowPanel extends JPanel {
+  private class ShadowPanel extends HoverablePanel {
     ShadowPanel() {
-      super(new BorderLayout());
+      super(new BorderLayout(), properties.getHoverListener());
       setOpaque(false);
       setCursor(null);
+    }
+
+    public boolean contains(int x, int y) {
+      return properties.getShadowEnabled() ? doContains(x, y) : super.contains(x, y);
+    }
+
+    public boolean inside(int x, int y) {
+      return properties.getShadowEnabled() ? doContains(x, y) : super.inside(x, y);
+    }
+
+    private boolean doContains(int x, int y) {
+      Dimension d = DimensionUtil.getInnerDimension(getSize(), getInsets());
+      return x >= 0 && y >= 0 && x < d.getWidth() && y < d.getHeight();
     }
 
     public void paint(Graphics g) {
@@ -1098,12 +1335,12 @@ public class TabbedPanel extends JPanel {
                         tabAreaComponentsPanel,
                         tabAreaContainer,
                         draggableComponentBox,
-                        getProperties().getTabAreaOrientation(),
-                        getProperties().getPaintTabAreaShadow(),
+                        properties.getTabAreaOrientation(),
+                        properties.getPaintTabAreaShadow(),
                         shadowSize,
-                        getProperties().getShadowBlendAreaSize(),
-                        getProperties().getShadowColor(),
-                        getProperties().getShadowStrength(),
+                        properties.getShadowBlendAreaSize(),
+                        properties.getShadowColor(),
+                        properties.getShadowStrength(),
                         getTabIndex(getHighlightedTab()) == getTabCount() - 1).paint(g);
     }
   }

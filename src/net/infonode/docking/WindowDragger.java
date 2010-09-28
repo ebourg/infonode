@@ -20,28 +20,42 @@
  */
 
 
-// $Id: WindowDragger.java,v 1.10 2004/11/11 14:09:46 jesper Exp $
+// $Id: WindowDragger.java,v 1.15 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking;
 
+import net.infonode.docking.drag.DockingWindowDragger;
 import net.infonode.docking.internalutil.DropAction;
 import net.infonode.gui.CursorManager;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.dnd.DragSource;
+import java.awt.event.MouseEvent;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.15 $
  */
-class WindowDragger {
+class WindowDragger implements DockingWindowDragger {
   private DockingWindow dragWindow;
   private DropAction dropAction;
   private RootWindow rootWindow;
 
   WindowDragger(DockingWindow dragWindow) {
+    this(dragWindow, dragWindow.getRootWindow());
+  }
+
+  WindowDragger(DockingWindow dragWindow, RootWindow rootWindow) {
     this.dragWindow = dragWindow;
-    rootWindow = dragWindow.getRootWindow();
+    this.rootWindow = rootWindow;
+  }
+
+  public DockingWindow getDragWindow() {
+    return dragWindow;
+  }
+
+  public RootWindow getDropTarget() {
+    return rootWindow;
   }
 
   void undoDrag(DropAction newAction) {
@@ -57,20 +71,22 @@ class WindowDragger {
     rootWindow.setDragRectangle(null);
   }
 
-  void abort() {
+  public void abortDrag() {
     stopDrag();
     undoDrag(null);
   }
 
-  void drop(Point point) {
+  public void dropWindow(MouseEvent mouseEvent) {
     stopDrag();
 
     if (dragWindow != null && dropAction != null) {
-      dropAction.execute(dragWindow);
+      dropAction.execute(dragWindow, mouseEvent);
     }
   }
 
-  void dragTo(Point point) {
+  public void dragWindow(MouseEvent mouseEvent) {
+    rootWindow.setDragRectangle(null);
+    Point point = SwingUtilities.convertPoint((Component) mouseEvent.getSource(), mouseEvent.getPoint(), rootWindow);
     DockingWindow dropWindow = getDeepestWindowAt(rootWindow, point.x, point.y);
 
     while (dropWindow != null && dropWindow.getWindowParent() != null) {

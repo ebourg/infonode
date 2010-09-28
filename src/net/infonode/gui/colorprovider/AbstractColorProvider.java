@@ -20,7 +20,7 @@
  */
 
 
-// $Id: AbstractColorProvider.java,v 1.4 2004/09/28 14:56:26 jesper Exp $
+// $Id: AbstractColorProvider.java,v 1.6 2005/02/16 11:28:10 jesper Exp $
 package net.infonode.gui.colorprovider;
 
 import java.awt.*;
@@ -29,7 +29,7 @@ import java.awt.*;
  * Base class for color providers. It returns the color black.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.6 $
  */
 abstract public class AbstractColorProvider implements ColorProvider {
   public Color getColor() {

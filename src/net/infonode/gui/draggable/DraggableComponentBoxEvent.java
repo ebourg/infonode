@@ -20,7 +20,7 @@
  */
 
 
-// $Id: DraggableComponentBoxEvent.java,v 1.2 2004/06/17 13:01:11 johan Exp $
+// $Id: DraggableComponentBoxEvent.java,v 1.4 2005/02/16 11:28:11 jesper Exp $
 package net.infonode.gui.draggable;
 
 import java.awt.*;
@@ -40,18 +40,25 @@ public class DraggableComponentBoxEvent {
     this(source, component, null, null);
   }
 
-  public DraggableComponentBoxEvent(DraggableComponentBox source, DraggableComponent component, DraggableComponentEvent event) {
+  public DraggableComponentBoxEvent(DraggableComponentBox source,
+                                    DraggableComponent component,
+                                    DraggableComponentEvent event) {
     this(source, component, event, null);
   }
 
-  public DraggableComponentBoxEvent(DraggableComponentBox source, DraggableComponent component, DraggableComponentEvent event, Point point) {
+  public DraggableComponentBoxEvent(DraggableComponentBox source,
+                                    DraggableComponent component,
+                                    DraggableComponentEvent event,
+                                    Point point) {
     this.source = source;
     this.draggableComponent = component;
     this.draggableComponentEvent = event;
     this.draggableComponentBoxPoint = point;
   }
 
-  public DraggableComponentBoxEvent(DraggableComponentBox source, DraggableComponent component, DraggableComponent oldDraggableComponent) {
+  public DraggableComponentBoxEvent(DraggableComponentBox source,
+                                    DraggableComponent component,
+                                    DraggableComponent oldDraggableComponent) {
     this(source, component);
     this.oldDraggableComponent = oldDraggableComponent;
   }

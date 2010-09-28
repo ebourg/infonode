@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabWindowMover.java,v 1.11 2004/11/11 14:09:46 jesper Exp $
+// $Id: TabWindowMover.java,v 1.15 2004/12/22 10:15:52 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.tabbedpanel.TabAdapter;
@@ -28,11 +28,9 @@ import net.infonode.tabbedpanel.TabDragEvent;
 import net.infonode.tabbedpanel.TabEvent;
 import net.infonode.tabbedpanel.TabbedPanel;
 
-import javax.swing.*;
-
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.15 $
  */
 class TabWindowMover extends TabAdapter {
   private AbstractTabWindow window;
@@ -58,19 +56,19 @@ class TabWindowMover extends TabAdapter {
 /*    if (tabbedPanel.tabAreaContainsPoint(SwingUtilities.convertPoint(event.getTab(), event.getPoint(), tabbedPanel)))
       dragger.abort();
     else*/
-    dragger.dragTo(SwingUtilities.convertPoint(event.getTab(), event.getPoint(), window.getRootWindow()));
+    dragger.dragWindow(event.getMouseEvent());
   }
 
   public void tabDropped(TabDragEvent event) {
     if (dragger != null) {
-      dragger.drop(SwingUtilities.convertPoint(event.getTab(), event.getPoint(), window.getRootWindow()));
+      dragger.dropWindow(event.getMouseEvent());
       dragger = null;
     }
   }
 
   public void tabDragAborted(TabEvent event) {
     if (dragger != null) {
-      dragger.abort();
+      dragger.abortDrag();
       dragger = null;
     }
   }

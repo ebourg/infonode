@@ -20,7 +20,7 @@
  */
 
 
-// $Id: AbstractButtonIcon.java,v 1.7 2004/09/08 14:53:06 jesper Exp $
+// $Id: AbstractButtonIcon.java,v 1.10 2005/02/16 11:28:11 jesper Exp $
 package net.infonode.gui.icon.button;
 
 import net.infonode.gui.ComponentUtil;
@@ -37,6 +37,7 @@ public abstract class AbstractButtonIcon implements Icon, Serializable {
   private Color defaultColor = null;
   private boolean shadowEnabled = true;
   private float shadowStrength = 0.3f;
+  private boolean enabled = true;
 
   public AbstractButtonIcon() {
   }
@@ -51,8 +52,13 @@ public abstract class AbstractButtonIcon implements Icon, Serializable {
   }
 
   public AbstractButtonIcon(int size) {
+    this(size, true);
+  }
+
+  public AbstractButtonIcon(int size, boolean enabled) {
     this();
     this.size = size;
+    this.enabled = enabled;
   }
 
   public int getIconWidth() {
@@ -81,7 +87,11 @@ public abstract class AbstractButtonIcon implements Icon, Serializable {
 
   public void paintIcon(Component c, Graphics g, int x, int y) {
     Color oldColor = g.getColor();
-    Color color = defaultColor == null ? c.getForeground() : defaultColor;
+    Color color = defaultColor == null ?
+                  (enabled ? c.getForeground() : UIManager.getColor("Button.disabledForeground")) :
+                  defaultColor;
+    if (color == null)
+      color = ColorUtil.blend(ComponentUtil.getBackgroundColor(c), c.getForeground(), 0.5f);
 
     if (shadowEnabled) {
       Color background = ComponentUtil.getBackgroundColor(c);

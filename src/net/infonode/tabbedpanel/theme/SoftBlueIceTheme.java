@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SoftBlueIceTheme.java,v 1.11 2004/11/11 14:10:33 jesper Exp $
+// $Id: SoftBlueIceTheme.java,v 1.13 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.tabbedpanel.theme;
 
 import net.infonode.gui.colorprovider.ColorBlender;
@@ -43,7 +43,7 @@ import java.awt.*;
  * A light blue theme with gradients and rounded corners.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.13 $
  * @since ITP 1.2.0
  */
 public class SoftBlueIceTheme extends TabbedPanelTitledTabTheme {

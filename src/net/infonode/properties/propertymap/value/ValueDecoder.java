@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ValueDecoder.java,v 1.4 2004/09/03 15:39:57 jesper Exp $
+// $Id: ValueDecoder.java,v 1.7 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.properties.propertymap.value;
 
 import net.infonode.properties.base.Property;
@@ -31,7 +31,7 @@ import java.io.ObjectInputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.7 $
  */
 public class ValueDecoder {
   public static final int SIMPLE = 0;
@@ -49,6 +49,23 @@ public class ValueDecoder {
 
       case REF:
         return PropertyRefValue.decode(in, propertyObject, property);
+
+      default:
+        throw new IOException("Invalid value type!");
+    }
+  }
+
+  public static void skip(ObjectInputStream in) throws IOException {
+    int type = in.readInt();
+
+    switch (type) {
+      case SIMPLE:
+        SimplePropertyValue.skip(in);
+        break;
+
+      case REF:
+        PropertyRefValue.skip(in);
+        break;
 
       default:
         throw new IOException("Invalid value type!");

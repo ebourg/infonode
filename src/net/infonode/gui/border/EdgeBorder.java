@@ -20,7 +20,7 @@
  */
 
 
-// $Id: EdgeBorder.java,v 1.9 2004/11/11 14:11:14 jesper Exp $
+// $Id: EdgeBorder.java,v 1.12 2005/02/16 11:28:10 jesper Exp $
 package net.infonode.gui.border;
 
 import net.infonode.gui.ComponentUtil;
@@ -34,7 +34,7 @@ import java.io.Serializable;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.12 $
  */
 public class EdgeBorder implements Border, Serializable {
   private static final long serialVersionUID = 1;
@@ -47,6 +47,10 @@ public class EdgeBorder implements Border, Serializable {
   private boolean drawRight;
   private Insets insets;
 
+  public EdgeBorder() {
+    this(true, true, true, true);
+  }
+
   public EdgeBorder(boolean drawTop, boolean drawBottom, boolean drawLeft, boolean drawRight) {
     this(null, drawTop, drawBottom, drawLeft, drawRight);
   }
@@ -56,11 +60,25 @@ public class EdgeBorder implements Border, Serializable {
     init(c, c, drawTop, drawBottom, drawLeft, drawRight);
   }
 
-  public EdgeBorder(ColorProvider topLeftColor, ColorProvider bottomRightColor, boolean drawTop, boolean drawBottom, boolean drawLeft, boolean drawRight) {
+  public EdgeBorder(ColorProvider color) {
+    init(color, color, true, true, true, true);
+  }
+
+  public EdgeBorder(ColorProvider topLeftColor,
+                    ColorProvider bottomRightColor,
+                    boolean drawTop,
+                    boolean drawBottom,
+                    boolean drawLeft,
+                    boolean drawRight) {
     init(topLeftColor, bottomRightColor, drawTop, drawBottom, drawLeft, drawRight);
   }
 
-  private void init(ColorProvider topLeftColor, ColorProvider bottomRightColor, boolean drawTop, boolean drawBottom, boolean drawLeft, boolean drawRight) {
+  private void init(ColorProvider topLeftColor,
+                    ColorProvider bottomRightColor,
+                    boolean drawTop,
+                    boolean drawBottom,
+                    boolean drawLeft,
+                    boolean drawRight) {
     this.topLeftColor = topLeftColor;
     this.bottomRightColor = bottomRightColor;
     this.drawTop = drawTop;
@@ -102,7 +120,7 @@ public class EdgeBorder implements Border, Serializable {
 
   private Color getColor(ColorProvider color, Component c) {
     Color col = color != null ? color.getColor() : null;
-    ;
+
     if (col == null) {
       Color background = ComponentUtil.getBackgroundColor(c);
       return background == null ? null : ColorUtil.mult(background, 0.7f);

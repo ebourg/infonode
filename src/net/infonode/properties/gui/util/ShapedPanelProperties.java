@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ShapedPanelProperties.java,v 1.6 2004/11/11 13:00:46 jesper Exp $
+// $Id: ShapedPanelProperties.java,v 1.8 2005/02/16 11:28:15 jesper Exp $
 
 package net.infonode.properties.gui.util;
 
@@ -36,7 +36,7 @@ import net.infonode.util.Direction;
  * {@link net.infonode.gui.shaped.border.ShapedBorder} and a {@link ComponentPainter}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.8 $
  */
 public class ShapedPanelProperties extends PropertyMapContainer {
   /**
@@ -135,6 +135,27 @@ public class ShapedPanelProperties extends PropertyMapContainer {
   public ShapedPanelProperties addSuperObject(ShapedPanelProperties properties) {
     getMap().addSuperMap(properties.getMap());
 
+    return this;
+  }
+
+  /**
+   * Removes the last added super object.
+   *
+   * @return this
+   */
+  public ShapedPanelProperties removeSuperObject() {
+    getMap().removeSuperMap();
+    return this;
+  }
+
+  /**
+   * Removes the given super object.
+   *
+   * @param superObject super object to remove
+   * @return this
+   */
+  public ShapedPanelProperties removeSuperObject(ShapedPanelProperties superObject) {
+    getMap().removeSuperMap(superObject.getMap());
     return this;
   }
 

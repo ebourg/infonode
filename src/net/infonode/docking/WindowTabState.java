@@ -20,25 +20,46 @@
  */
 
 
-// $Id: WindowTabState.java,v 1.3 2004/09/23 15:32:13 jesper Exp $
+// $Id: WindowTabState.java,v 1.4 2004/11/19 16:02:09 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.util.Enum;
 
 /**
+ * The states that a window tab can be in.
+ *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 final class WindowTabState extends Enum {
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Normal state means that the tab is not highlighted or focused.
+   */
   static final WindowTabState NORMAL = new WindowTabState(0, "Normal");
+
+  /**
+   * Highlighted state occurs when the tab is selected or otherwise highlighted.
+   */
   static final WindowTabState HIGHLIGHTED = new WindowTabState(1, "Highlighted");
+
+  /**
+   * Focused state is when the window that the tab is connected to contains the focus owner.
+   */
   static final WindowTabState FOCUSED = new WindowTabState(2, "Focused");
 
-  static final WindowTabState[] STATES = {NORMAL, HIGHLIGHTED, FOCUSED};
+  private static final WindowTabState[] STATES = {NORMAL, HIGHLIGHTED, FOCUSED};
 
   WindowTabState(int value, String name) {
     super(value, name);
+  }
+
+  static WindowTabState[] getStates() {
+    return (WindowTabState[]) STATES.clone();
+  }
+
+  static int getStateCount() {
+    return STATES.length;
   }
 }

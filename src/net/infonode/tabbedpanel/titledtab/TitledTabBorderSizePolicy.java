@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TitledTabBorderSizePolicy.java,v 1.7 2004/09/28 15:07:29 jesper Exp $
+// $Id: TitledTabBorderSizePolicy.java,v 1.8 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.tabbedpanel.titledtab;
 
 import net.infonode.util.Enum;
@@ -34,7 +34,7 @@ import net.infonode.util.Enum;
  * of the borders.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  * @see TitledTab
  * @see TitledTabProperties
  */
@@ -61,7 +61,8 @@ public final class TitledTabBorderSizePolicy extends Enum {
   /**
    * An array with all size policies
    */
-  public static final TitledTabBorderSizePolicy[] SIZE_POLICIES = new TitledTabBorderSizePolicy[]{EQUAL_SIZE, INDIVIDUAL_SIZE};
+  public static final TitledTabBorderSizePolicy[] SIZE_POLICIES = new TitledTabBorderSizePolicy[]{EQUAL_SIZE,
+                                                                                                  INDIVIDUAL_SIZE};
 
   private TitledTabBorderSizePolicy(int value, String name) {
     super(value, name);

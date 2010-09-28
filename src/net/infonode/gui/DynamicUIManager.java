@@ -20,7 +20,7 @@
  */
 
 
-// $Id: DynamicUIManager.java,v 1.4 2004/08/26 14:45:49 jesper Exp $
+// $Id: DynamicUIManager.java,v 1.6 2005/02/16 11:28:13 jesper Exp $
 package net.infonode.gui;
 
 import javax.swing.*;

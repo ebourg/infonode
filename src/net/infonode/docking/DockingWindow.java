@@ -20,15 +20,26 @@
  */
 
 
-// $Id: DockingWindow.java,v 1.54 2004/11/11 14:09:46 jesper Exp $
+// $Id: DockingWindow.java,v 1.81 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking;
 
+import net.infonode.docking.drag.DockingWindowDragger;
+import net.infonode.docking.internal.ReadContext;
+import net.infonode.docking.internal.WriteContext;
 import net.infonode.docking.internalutil.DropAction;
 import net.infonode.docking.location.LocationDecoder;
 import net.infonode.docking.location.NullLocation;
 import net.infonode.docking.location.WindowLocation;
+import net.infonode.docking.model.SplitWindowItem;
+import net.infonode.docking.model.TabWindowItem;
+import net.infonode.docking.model.ViewWriter;
+import net.infonode.docking.model.WindowItem;
 import net.infonode.docking.properties.DockingWindowProperties;
+import net.infonode.docking.title.DockingWindowTitleProvider;
+import net.infonode.docking.title.SimpleDockingWindowTitleProvider;
 import net.infonode.gui.ComponentUtil;
+import net.infonode.gui.EventUtil;
+import net.infonode.gui.mouse.MouseButtonListener;
 import net.infonode.gui.panel.BasePanel;
 import net.infonode.properties.propertymap.*;
 import net.infonode.util.ArrayUtil;
@@ -41,6 +52,7 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -53,7 +65,7 @@ import java.util.Map;
  * <b>Warning: </b> the non-public methods in this class can be changed in non-compatible ways in future versions.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.54 $
+ * @version $Revision: 1.81 $
  */
 abstract public class DockingWindow extends BasePanel {
   /**
@@ -103,14 +115,11 @@ abstract public class DockingWindow extends BasePanel {
   abstract void restoreWindowComponent(DockingWindow window);
 
   private DockingWindow windowParent;
-  private DockingWindowProperties rootProperties = new DockingWindowProperties();
-  private DockingWindowProperties properties = new DockingWindowProperties(rootProperties);
-  private WindowLocation lastLocation = NullLocation.INSTANCE;
   private WindowTab tab;
   private DockingWindow lastFocusedChildWindow;
   private WindowPopupMenuFactory popupMenuFactory;
+  private ArrayList mouseButtonListeners;
   private ArrayList listeners;
-  private Direction lastMinimizedDirection;
 
   private PropertyMapListener propertiesListener = new PropertyMapListener() {
     public void propertyValuesChanged(PropertyMap propertyMap, Map changes) {
@@ -127,14 +136,27 @@ abstract public class DockingWindow extends BasePanel {
   private static HashSet optimizeWindows = new HashSet();
   private static int optimizeDepth;
 
+  private WindowItem windowItem;
+  private WeakReference lastRootWindow = new WeakReference(null);
+
+  private static int updateModelDepth;
+
   /**
  *
    */
-  protected DockingWindow() {
+  protected DockingWindow(WindowItem windowItem) {
+    DockingWindow window = windowItem.getConnectedWindow();
+
+    if (window != null)
+      window.setWindowItem(windowItem.copy());
+
+    this.windowItem = windowItem;
+    this.windowItem.setConnectedWindow(this);
+
     addMouseListener(new MouseAdapter() {
       public void mousePressed(MouseEvent e) {
         if (e.isPopupTrigger()) {
-          showMenu(e);
+          showPopupMenu(e);
         }
       }
 
@@ -142,7 +164,6 @@ abstract public class DockingWindow extends BasePanel {
         mousePressed(e);
       }
     });
-
   }
 
   /**
@@ -152,6 +173,7 @@ abstract public class DockingWindow extends BasePanel {
     PropertyMapWeakListenerManager.addWeakListener(getWindowProperties().getMap(), propertiesListener);
     PropertyMapWeakListenerManager.addWeakTreeListener(getPropertyObject(), propertyObjectTreeListener);
     doUpdate();
+    updateWindowItem(getRootWindow());
   }
 
   /**
@@ -160,8 +182,117 @@ abstract public class DockingWindow extends BasePanel {
   private void doUpdate() {
     update();
 
+    if (tab != null)
+      tab.windowTitleChanged();
+
     if (windowParent != null && windowParent.getChildWindowCount() == 1)
       windowParent.doUpdate();
+  }
+
+  /**
+   * <p>
+   * Sets the preferred minimize direction of this window. If the {@link WindowBar} in this direction is enabled this
+   * window will be placed on that bar when {@link #minimize()} is called.
+   * </p>
+   *
+   * <p>
+   * Note that a window will "remember" the last {@link WindowBar} it was added to so the preferred minimize direction
+   * is changed when the window is added to another {@link WindowBar}.
+   * </p>
+   *
+   * @param direction the preferred minimize direction of this window, null (which is default value) means use the
+   *                  closest, enabled {@link WindowBar}
+   * @since IDW 1.3.0
+   */
+  public void setPreferredMinimizeDirection(Direction direction) {
+    windowItem.setLastMinimizedDirection(direction);
+  }
+
+  /**
+   * <p>
+   * Gets the preferred minimize direction of this window. See {@link #setPreferredMinimizeDirection(net.infonode.util.Direction)}
+   * for more information.
+   * </p>
+   *
+   * @return the preferred minimize direction of this window, null if the closest {@link WindowBar} is used
+   * @since IDW 1.3.0
+   */
+  public Direction getPreferredMinimizeDirection() {
+    return windowItem.getLastMinimizedDirection();
+  }
+
+  private ArrayList getMouseButtonListeners() {
+    return mouseButtonListeners;
+  }
+
+  private void setMouseButtonListeners(ArrayList listeners) {
+    mouseButtonListeners = listeners;
+  }
+
+  private ArrayList getListeners() {
+    return listeners;
+  }
+
+  private void setListeners(ArrayList listeners) {
+    this.listeners = listeners;
+  }
+
+  /**
+   * <p>
+   * Adds a listener that receives mouse button events for window tabs. The listener will be called when a mouse
+   * button is pressed, clicked or released on a window tab of this window or a descendant of this window.
+   * </p>
+   *
+   * <p>
+   * The listeners are called in the reverse order they were added, so the last added listener will be called first.
+   * When all the listeners of this window has been called, the event is propagated up to the window parent of this
+   * window, if there is one.
+   * </p>
+   *
+   * <p>
+   * The {@link MouseEvent} source is the docking window connected to the tab in which the mouse event occured. The
+   * event point is the mouse coordinate where the event occured relative to the window.
+   * </p>
+   *
+   * @param listenerDocking the listener
+   * @since IDW 1.3.0
+   */
+  public void addTabMouseButtonListener(MouseButtonListener listenerDocking) {
+    if (getMouseButtonListeners() == null)
+      setMouseButtonListeners(new ArrayList(2));
+
+    getMouseButtonListeners().add(listenerDocking);
+  }
+
+  /**
+   * Removes a mouse button listener that has been previously added using the
+   * {@link #addTabMouseButtonListener(MouseButtonListener)}.
+   *
+   * @param listenerDocking the listener
+   * @since IDW 1.3.0
+   */
+  public void removeTabMouseButtonListener(MouseButtonListener listenerDocking) {
+    if (getMouseButtonListeners() != null) {
+      if (getMouseButtonListeners().remove(listenerDocking) && getMouseButtonListeners().size() == 0)
+        setMouseButtonListeners(null);
+    }
+  }
+
+  void fireTabWindowMouseButtonEvent(MouseEvent event) {
+    fireTabWindowMouseButtonEvent(this, EventUtil.convert(event, this));
+  }
+
+  void fireTabWindowMouseButtonEvent(DockingWindow window, MouseEvent event) {
+    if (getMouseButtonListeners() != null) {
+      MouseButtonListener[] l = (MouseButtonListener[]) getMouseButtonListeners().toArray(
+          new MouseButtonListener[getMouseButtonListeners().size()]);
+
+      for (int i = l.length - 1; i >= 0; i--)
+        l[i].mouseButtonEvent(event);
+    }
+
+    if (windowParent != null)
+      windowParent.fireTabWindowMouseButtonEvent(window, event);
   }
 
   /**
@@ -171,10 +302,10 @@ abstract public class DockingWindow extends BasePanel {
    * @since IDW 1.1.0
    */
   public void addListener(DockingWindowListener listener) {
-    if (listeners == null)
-      listeners = new ArrayList(2);
+    if (getListeners() == null)
+      setListeners(new ArrayList(2));
 
-    listeners.add(listener);
+    getListeners().add(listener);
   }
 
   /**
@@ -184,11 +315,11 @@ abstract public class DockingWindow extends BasePanel {
    * @since IDW 1.1.0
    */
   public void removeListener(DockingWindowListener listener) {
-    if (listeners != null) {
-      listeners.remove(listener);
+    if (getListeners() != null) {
+      getListeners().remove(listener);
 
-      if (listeners.size() == 0)
-        listeners = null;
+      if (getListeners().size() == 0)
+        setListeners(null);
     }
   }
 
@@ -230,12 +361,23 @@ abstract public class DockingWindow extends BasePanel {
   }
 
   /**
+   * Starts a drag and drop operation for this window.
+   *
+   * @param dropTarget the {@link RootWindow} in which the window can be dropped
+   * @return an {@link DockingWindowDragger} object which controls the drag and drop operation
+   * @since IDW 1.3.0
+   */
+  public DockingWindowDragger startDrag(RootWindow dropTarget) {
+    return new WindowDragger(this, dropTarget);
+  }
+
+  /**
    * Returns the properties for this window.
    *
    * @return the properties for this window
    */
   public DockingWindowProperties getWindowProperties() {
-    return properties;
+    return getWindowItem().getDockingWindowProperties();
   }
 
   /**
@@ -253,16 +395,12 @@ abstract public class DockingWindow extends BasePanel {
    * that the window is shown anywhere after this method has returned.
    */
   public void restore() {
-    if (isMaximized()) {
+    if (isMaximized())
       getRootWindow().setMaximizedWindow(null);
-    }
-    else {
-      DockingWindow w = this;
-
-      while (w.lastLocation == NullLocation.INSTANCE && w.windowParent != null)
-        w = w.windowParent;
-
-      w.lastLocation.set(this);
+    else if (isMinimized() || getRootWindow() == null) {
+      ArrayList views = new ArrayList();
+      findViews(views);
+      restoreViews(views);
     }
 
     if (getRootWindow() != null)
@@ -285,13 +423,12 @@ abstract public class DockingWindow extends BasePanel {
       DockingWindow[] ancestors = getAncestors();
       optimizeAfter(windowParent, new Runnable() {
         public void run() {
-          storeLocation();
           windowParent.removeChildWindow(DockingWindow.this);
         }
       });
 
       for (int i = ancestors.length - 1; i >= 0; i--)
-        ancestors[i].fireClosed(this);
+        ancestors[i].fireWindowClosed(this);
     }
   }
 
@@ -306,7 +443,7 @@ abstract public class DockingWindow extends BasePanel {
    * @since IDW 1.1.0
    */
   public void closeWithAbort() throws OperationAbortedException {
-    fireClosing(this);
+    fireWindowClosing(this);
     close();
   }
 
@@ -392,8 +529,10 @@ abstract public class DockingWindow extends BasePanel {
   }
 
   /**
-   * Minimizes this window. The window is minimized to the {@link WindowBar} where it was last placed.
-   * If it hasn't been minimized before it is placed on the closest enabled {@link WindowBar}.
+   * Minimizes this window. The window is minimized to the {@link WindowBar} in the preferred minimize direction,
+   * see {@link #setPreferredMinimizeDirection(net.infonode.util.Direction)} and {@link #getPreferredMinimizeDirection()}.
+   * If the {@link WindowBar} in that direction is not enabled, or the direction is null, thiw window is placed on the
+   * closest enabled {@link WindowBar}.
    * If no suitable {@link WindowBar} was found or this window already is minimized, no action is performed.
    *
    * <p>The location of this window is saved and the window can be restored to that location using the
@@ -404,9 +543,9 @@ abstract public class DockingWindow extends BasePanel {
   }
 
   private void doMinimize() {
-    doMinimize(lastMinimizedDirection != null &&
-               getRootWindow().getWindowBar(lastMinimizedDirection).isEnabled() ?
-               lastMinimizedDirection :
+    doMinimize(windowItem.getLastMinimizedDirection() != null &&
+               getRootWindow().getWindowBar(windowItem.getLastMinimizedDirection()).isEnabled() ?
+               windowItem.getLastMinimizedDirection() :
                getRootWindow().getClosestWindowBar(this));
   }
 
@@ -446,7 +585,6 @@ abstract public class DockingWindow extends BasePanel {
            getRootWindow().windowBarEnabled();
   }
 
-
   /**
    * Returns true if this window can be maximized by the user.
    *
@@ -455,7 +593,7 @@ abstract public class DockingWindow extends BasePanel {
    * @since IDW 1.2.0
    */
   public boolean isMaximizable() {
-    return getOptimizedWindow().getWindowProperties().getMaximizeEnabled();
+    return !isMinimized() && getOptimizedWindow().getWindowProperties().getMaximizeEnabled();
   }
 
   /**
@@ -487,25 +625,55 @@ abstract public class DockingWindow extends BasePanel {
    * @param oldWindow the child window to replaceChildWindow
    * @param newWindow the window to replaceChildWindow it with
    */
-  public void replaceChildWindow(final DockingWindow oldWindow,
-                                 final DockingWindow newWindow) {
+  public void replaceChildWindow(DockingWindow oldWindow,
+                                 DockingWindow newWindow) {
+    if (oldWindow == newWindow)
+      return;
+
+    DockingWindow nw = internalReplaceChildWindow(oldWindow, newWindow);
+
+    if (getUpdateModel()) {
+      oldWindow.windowItem.replaceWith(nw.getWindowItem());
+      cleanUpModel();
+    }
+  }
+
+  protected DockingWindow internalReplaceChildWindow(final DockingWindow oldWindow,
+                                                     DockingWindow newWindow) {
+    final DockingWindow nw = newWindow.getContentWindow(DockingWindow.this);
+
     optimizeAfter(newWindow, new Runnable() {
       public void run() {
-        DockingWindow nw = newWindow.getContentWindow(DockingWindow.this);
+        if (nw == oldWindow)
+          return;
 
         if (nw.getWindowParent() != null)
           nw.getWindowParent().removeChildWindow(nw);
 
         nw.setWindowParent(DockingWindow.this);
+
+        if (oldWindow.isShowingInRootWindow())
+          oldWindow.fireWindowHidden(oldWindow);
+
         oldWindow.setWindowParent(null);
 
         if (oldWindow == lastFocusedChildWindow)
           lastFocusedChildWindow = null;
 
         doReplace(oldWindow, nw);
+
         fireTitleChanged();
+
+        oldWindow.fireWindowRemoved(DockingWindow.this, oldWindow);
+        fireWindowRemoved(DockingWindow.this, oldWindow);
+        nw.fireWindowAdded(DockingWindow.this, nw);
+
+        if (nw.isShowingInRootWindow())
+          nw.fireWindowShown(nw);
       }
     });
+
+    return nw;
   }
 
   /**
@@ -514,23 +682,20 @@ abstract public class DockingWindow extends BasePanel {
    * @return the window title
    */
   public String getTitle() {
-    StringBuffer title = new StringBuffer(40);
-
-    DockingWindow window;
-    for (int i = 0; i < getChildWindowCount(); i++) {
-      window = getChildWindow(i);
-
-      if (i > 0)
-        title.append(", ");
-
-      title.append(window != null ? window.getTitle() : "");
-    }
-
-    return title.toString();
+    DockingWindowTitleProvider titleProvider = getWindowProperties().getTitleProvider();
+    return (titleProvider == null ? SimpleDockingWindowTitleProvider.INSTANCE : titleProvider).getTitle(this);
   }
 
   public String toString() {
     return getTitle();
+  }
+
+  protected boolean isShowingInRootWindow() {
+    return windowParent != null && windowParent.isChildShowingInRootWindow(this);
+  }
+
+  protected boolean isChildShowingInRootWindow(DockingWindow child) {
+    return isShowingInRootWindow();
   }
 
   /**
@@ -573,6 +738,10 @@ abstract public class DockingWindow extends BasePanel {
    * @return the result after removing unnecessary tab windows which contains only one tab
    */
   protected DockingWindow getOptimizedWindow() {
+    return this;
+  }
+
+  protected DockingWindow getBestFittedWindow(DockingWindow parentWindow) {
     return this;
   }
 
@@ -623,23 +792,23 @@ abstract public class DockingWindow extends BasePanel {
     return windows;
   }
 
-  private void fireClosing(DockingWindow window) throws OperationAbortedException {
-    if (listeners != null) {
-      DockingWindowListener[] l = (DockingWindowListener[]) listeners.toArray(
-          new DockingWindowListener[listeners.size()]);
+  private void fireWindowClosing(DockingWindow window) throws OperationAbortedException {
+    if (getListeners() != null) {
+      DockingWindowListener[] l = (DockingWindowListener[]) getListeners().toArray(
+          new DockingWindowListener[getListeners().size()]);
 
       for (int i = 0; i < l.length; i++)
         l[i].windowClosing(window);
     }
 
     if (windowParent != null)
-      windowParent.fireClosing(window);
+      windowParent.fireWindowClosing(window);
   }
 
-  private void fireClosed(DockingWindow window) {
-    if (listeners != null) {
-      DockingWindowListener[] l = (DockingWindowListener[]) listeners.toArray(
-          new DockingWindowListener[listeners.size()]);
+  private void fireWindowClosed(DockingWindow window) {
+    if (getListeners() != null) {
+      DockingWindowListener[] l = (DockingWindowListener[]) getListeners().toArray(
+          new DockingWindowListener[getListeners().size()]);
 
       for (int i = 0; i < l.length; i++)
         l[i].windowClosed(window);
@@ -647,7 +816,7 @@ abstract public class DockingWindow extends BasePanel {
   }
 
   protected void setLastMinimizedDirection(Direction direction) {
-    lastMinimizedDirection = direction;
+    windowItem.setLastMinimizedDirection(direction);
   }
 
   protected void maximized(boolean maximized) {
@@ -688,6 +857,68 @@ abstract public class DockingWindow extends BasePanel {
       lastFocusedChildWindow = null;
   }
 
+  private void fireWindowRemoved(DockingWindow removedFromWindow, DockingWindow removedWindow) {
+    if (getListeners() != null) {
+      DockingWindowListener[] l = (DockingWindowListener[]) getListeners().toArray(
+          new DockingWindowListener[getListeners().size()]);
+
+      for (int i = 0; i < l.length; i++)
+        l[i].windowRemoved(removedFromWindow, removedWindow);
+    }
+
+    if (windowParent != null)
+      windowParent.fireWindowRemoved(removedFromWindow, removedWindow);
+  }
+
+  protected void fireWindowShown(DockingWindow window) {
+    if (getListeners() != null) {
+      DockingWindowListener[] l = (DockingWindowListener[]) getListeners().toArray(
+          new DockingWindowListener[getListeners().size()]);
+
+      for (int i = 0; i < l.length; i++)
+        l[i].windowShown(window);
+    }
+
+    if (windowParent != null)
+      windowParent.fireWindowShown(window);
+  }
+
+  protected void fireViewFocusChanged(View previouslyFocusedView, View focusedView) {
+    if (getListeners() != null) {
+      DockingWindowListener[] l = (DockingWindowListener[]) getListeners().toArray(
+          new DockingWindowListener[getListeners().size()]);
+
+      for (int i = 0; i < l.length; i++)
+        l[i].viewFocusChanged(previouslyFocusedView, focusedView);
+    }
+  }
+
+  protected void fireWindowHidden(DockingWindow window) {
+    if (getListeners() != null) {
+      DockingWindowListener[] l = (DockingWindowListener[]) getListeners().toArray(
+          new DockingWindowListener[getListeners().size()]);
+
+      for (int i = 0; i < l.length; i++)
+        l[i].windowHidden(window);
+    }
+
+    if (windowParent != null)
+      windowParent.fireWindowHidden(window);
+  }
+
+  private void fireWindowAdded(DockingWindow addedToWindow, DockingWindow addedWindow) {
+    if (getListeners() != null) {
+      DockingWindowListener[] l = (DockingWindowListener[]) getListeners().toArray(
+          new DockingWindowListener[getListeners().size()]);
+
+      for (int i = 0; i < l.length; i++)
+        l[i].windowAdded(addedToWindow, addedWindow);
+    }
+
+    if (windowParent != null)
+      windowParent.fireWindowAdded(addedToWindow, addedWindow);
+  }
+
   /**
  *
    */
@@ -710,9 +941,10 @@ abstract public class DockingWindow extends BasePanel {
   /**
  *
    */
-  protected void readLocations(ObjectInputStream in, RootWindow rootWindow,
-                               int version) throws IOException {
-    lastLocation = LocationDecoder.decode(in, rootWindow);
+  protected final void readLocations(ObjectInputStream in, RootWindow rootWindow,
+                                     int version) throws IOException {
+    if (version < 3)
+      LocationDecoder.decode(in, rootWindow);  // Just skip location
 
     if (version > 1) {
       int index = in.readInt();
@@ -727,7 +959,6 @@ abstract public class DockingWindow extends BasePanel {
  *
    */
   protected void writeLocations(ObjectOutputStream out) throws IOException {
-    lastLocation.write(out);
     out.writeInt(lastFocusedChildWindow == null ? -1 : getChildWindowIndex(lastFocusedChildWindow));
 
     for (int i = 0; i < getChildWindowCount(); i++)
@@ -742,12 +973,16 @@ abstract public class DockingWindow extends BasePanel {
 
     if (window != null)
       optimizeWindows.add(window);
+
+    PropertyMapManager.getInstance().beginBatch();
   }
 
   /**
  *
    */
   protected static void endOptimize() {
+    PropertyMapManager.getInstance().endBatch();
+
     if (--optimizeDepth == 0) {
       while (optimizeWindows.size() > 0) {
         HashSet s = optimizeWindows;
@@ -817,13 +1052,16 @@ abstract public class DockingWindow extends BasePanel {
       windowParent.fireTitleChanged();
   }
 
-  private DockingWindow getContentWindow(DockingWindow parent) {
+  protected DockingWindow getContentWindow(DockingWindow parent) {
     return needsTitleWindow() && !parent.showsWindowTitle() ? new TabWindow(this) : this;
   }
 
   protected final void removeChildWindow(final DockingWindow window) {
     optimizeAfter(window.getWindowParent(), new Runnable() {
       public void run() {
+        if (window.isShowingInRootWindow())
+          window.fireWindowHidden(window);
+
         window.setWindowParent(null);
 
         if (lastFocusedChildWindow == window)
@@ -831,8 +1069,26 @@ abstract public class DockingWindow extends BasePanel {
 
         doRemoveWindow(window);
         fireTitleChanged();
+        window.fireWindowRemoved(DockingWindow.this, window);
+        fireWindowRemoved(DockingWindow.this, window);
       }
     });
+  }
+
+  final protected void removeWindow(DockingWindow window) {
+    window.setWindowParent(null);
+
+    if (getUpdateModel()) {
+      windowItem.removeWindow(windowItem.getChildWindowContaining(window.getWindowItem()));
+      cleanUpModel();
+    }
+  }
+
+  final protected void detach() {
+    DockingWindow oldParent = getWindowParent();
+
+    if (oldParent != null)
+      oldParent.removeChildWindow(this);
   }
 
   final protected DockingWindow addWindow(DockingWindow window) {
@@ -840,32 +1096,25 @@ abstract public class DockingWindow extends BasePanel {
       return null;
 
     DockingWindow w = window.getContentWindow(this);
-    DockingWindow oldParent = w.getWindowParent();
-
-    if (oldParent != null) {
-      oldParent.removeChildWindow(w);
-    }
-
+    w.detach();
     w.setWindowParent(this);
     fireTitleChanged();
+    w.fireWindowAdded(this, w);
+
+    if (w.isShowingInRootWindow())
+      fireWindowShown(w);
+
     return w;
   }
 
   /**
  *
    */
-  protected void rootChanged(final RootWindow oldRoot, final RootWindow newRoot) {
-    PropertyMapManager.runBatch(new Runnable() {
-      public void run() {
-        if (oldRoot != null)
-          rootProperties.getMap().removeSuperMap();
+  protected void rootChanged(RootWindow oldRoot, RootWindow newRoot) {
+    updateWindowItem(newRoot);
 
-        if (newRoot != null) {
-          rootProperties.addSuperObject(newRoot.getRootWindowProperties()
-                                        .getDockingWindowProperties());
-        }
-      }
-    });
+    if (newRoot != null)
+      lastRootWindow = new WeakReference(newRoot);
 
     for (int i = 0; i < getChildWindowCount(); i++)
       if (getChildWindow(i) != null)
@@ -905,20 +1154,19 @@ abstract public class DockingWindow extends BasePanel {
     }
   }
 
-  /**
- *
-   */
-  protected Direction getSplitDirection(Point p, int splitDistance) {
-    int[] dist = new int[]{p.x, getWidth() - p.x, p.y, getHeight() - p.y};
-
-    if (dist[ArrayUtil.findSmallest(dist)] > splitDistance)
-      return null;
-
+  private Direction getSplitDirection(Point p) {
     double[] relativeDist = {p.getX() / getWidth(),
                              (getWidth() - p.getX()) / getWidth(), p.getY() / getHeight(),
                              (getHeight() - p.getY()) / getHeight()};
     int index = ArrayUtil.findSmallest(relativeDist);
     return index == 0 ? Direction.LEFT : index == 1 ? Direction.RIGHT : index == 2 ? Direction.UP : Direction.DOWN;
+  }
+
+  private int getEdgeDistance(Point p, Direction dir) {
+    return dir == Direction.RIGHT ? getWidth() - p.x :
+           dir == Direction.DOWN ? getHeight() - p.y :
+           dir == Direction.LEFT ? p.x :
+           p.y;
   }
 
   DropAction acceptDrop(Point p, DockingWindow window) {
@@ -927,6 +1175,10 @@ abstract public class DockingWindow extends BasePanel {
            hasParent(window) ||
            (!getRootWindow().getRootWindowProperties().getRecursiveTabsEnabled() && insideTab()) ? null :
            doAcceptDrop(p, window);
+  }
+
+  protected boolean acceptsSplitWith(DockingWindow window) {
+    return window != this;
   }
 
   protected DropAction doAcceptDrop(Point p, DockingWindow window) {
@@ -945,16 +1197,17 @@ abstract public class DockingWindow extends BasePanel {
     if (da != null)
       return da;
 
-    return acceptSplitDrop(p, window, Integer.MAX_VALUE);
+    return acceptSplitDrop(p, window, -1);
   }
 
-  protected DropAction acceptSplitDrop(Point p, DockingWindow window, int edgeDistance) {
-    if (!isSplittable())
+  protected DropAction acceptSplitDrop(Point p, DockingWindow window, int splitDistance) {
+    if (!acceptsSplitWith(window))
       return null;
 
-    Direction splitDir = getSplitDirection(p, edgeDistance);
+    Direction splitDir = getSplitDirection(p);
+    int dist = getEdgeDistance(p, splitDir);
 
-    if (splitDir == null)
+    if (splitDistance != -1 && dist > splitDistance * getEdgeDepth(splitDir))
       return null;
 
     return split(window, splitDir);
@@ -970,7 +1223,7 @@ abstract public class DockingWindow extends BasePanel {
     getRootWindow().setDragRectangle(SwingUtilities.convertRectangle(this, rect, getRootWindow()));
 
     return new DropAction() {
-      public void execute(DockingWindow window) {
+      public void execute(DockingWindow window, MouseEvent mouseEvent) {
         split(window, splitDir, splitDir == Direction.UP || splitDir == Direction.LEFT ? 0.33f : 0.66f);
         window.restoreFocus();
       }
@@ -981,7 +1234,7 @@ abstract public class DockingWindow extends BasePanel {
     getRootWindow().setDragRectangle(SwingUtilities.convertRectangle(getParent(), getBounds(), getRootWindow()));
 
     return new DropAction() {
-      public void execute(final DockingWindow window) {
+      public void execute(final DockingWindow window, MouseEvent mouseEvent) {
         optimizeAfter(window.getWindowParent(), new Runnable() {
           public void run() {
             TabWindow tabWindow = new TabWindow();
@@ -1008,46 +1261,9 @@ abstract public class DockingWindow extends BasePanel {
   /**
  *
    */
-  protected boolean isSplittable() {
-    return true;//!isMaximized();
-  }
-
-  /**
- *
-   */
-  protected void write(ObjectOutputStream out, WriteContext context) throws IOException {
-    out.writeInt(lastMinimizedDirection == null ? -1 : lastMinimizedDirection.getValue());
-
-    if (context.getWritePropertiesEnabled()) {
-      properties.getMap().write(out, true);
-      getPropertyObject().write(out, true);
-    }
-  }
-
-  /**
- *
-   */
-  protected DockingWindow read(ObjectInputStream in, ReadContext context) throws IOException {
-    if (context.getVersion() > 1) {
-      int dir = in.readInt();
-      lastMinimizedDirection = dir == -1 ? null : Direction.getDirections()[dir];
-    }
-
-    if (context.isPropertyValuesAvailable()) {
-      (context.getReadPropertiesEnabled() ? properties : new DockingWindowProperties()).getMap().read(in);
-      (context.getReadPropertiesEnabled() ? getPropertyObject() : createPropertyObject()).read(in);
-    }
-
+  protected DockingWindow oldRead(ObjectInputStream in, ReadContext context) throws IOException {
+    windowItem.readSettings(in, context);
     return this;
-  }
-
-  protected void storeLocation() {
-    if (!isMinimized() && windowParent != null) {
-      lastLocation = windowParent.getWindowLocation(this);
-
-      for (int i = 0; i < getChildWindowCount(); i++)
-        getChildWindow(i).storeLocation();
-    }
   }
 
   /**
@@ -1060,17 +1276,20 @@ abstract public class DockingWindow extends BasePanel {
    */
   abstract protected PropertyMap createPropertyObject();
 
-  void showMenu(MouseEvent event) {
+  void showPopupMenu(MouseEvent event) {
+    if (event.isConsumed())
+      return;
+
     DockingWindow w = this;
 
-    while (w.popupMenuFactory == null) {
+    while (w.getPopupMenuFactory() == null) {
       w = w.getWindowParent();
 
       if (w == null)
         return;
     }
 
-    JPopupMenu popupMenu = w.popupMenuFactory.createPopupMenu(this);
+    JPopupMenu popupMenu = w.getPopupMenuFactory().createPopupMenu(this);
 
     if (popupMenu != null && popupMenu.getComponentCount() > 0)
       popupMenu.show(event.getComponent(), event.getX(), event.getY());
@@ -1079,6 +1298,14 @@ abstract public class DockingWindow extends BasePanel {
   protected void setFocused(boolean focused) {
     if (tab != null)
       tab.setFocused(focused);
+  }
+
+  protected int getEdgeDepth(Direction dir) {
+    return 1 + (windowParent == null ? 0 : windowParent.getChildEdgeDepth(this, dir));
+  }
+
+  protected int getChildEdgeDepth(DockingWindow window, Direction dir) {
+    return windowParent == null ? 0 : windowParent.getChildEdgeDepth(this, dir);
   }
 
   protected DropAction acceptChildDrop(Point p, DockingWindow window) {
@@ -1091,6 +1318,208 @@ abstract public class DockingWindow extends BasePanel {
     }
 
     return null;
+  }
+
+  protected WindowItem getWindowItem() {
+    return windowItem;
+  }
+
+  protected static boolean getUpdateModel() {
+    return updateModelDepth == 0;
+  }
+
+  private void findViews(ArrayList views) {
+    if (this instanceof View)
+      views.add(this);
+
+    for (int i = 0; i < getChildWindowCount(); i++)
+      getChildWindow(i).findViews(views);
+  }
+
+  private void restoreViews(ArrayList views) {
+    for (int i = 0; i < views.size(); i++)
+      ((DockingWindow) views.get(i)).restoreItem();
+  }
+
+  protected static void beginUpdateModel() {
+    updateModelDepth++;
+  }
+
+  protected static void endUpdateModel() {
+    updateModelDepth--;
+  }
+
+  private void restoreItem() {
+    beginUpdateModel();
+
+    try {
+      if (windowItem != null) {
+        WindowItem item = windowItem;
+
+        while (item.getParent() != null) {
+          DockingWindow parentWindow = item.getParent().getConnectedWindow();
+
+          if (parentWindow != null && parentWindow.getRootWindow() != null && !parentWindow.isMinimized()) {
+            if (parentWindow instanceof TabWindow)
+              insertTab((TabWindow) parentWindow, this);
+            else if (parentWindow instanceof RootWindow) {
+              DockingWindow w = getContainer(item.getParent(), windowItem);
+              ((RootWindow) parentWindow).setWindow(w);
+            }
+
+            return;
+          }
+          else {
+            DockingWindow w = null;
+
+            for (int i = 0; i < item.getParent().getWindowCount(); i++) {
+              WindowItem child = item.getParent().getWindow(i);
+
+              if (child != item) {
+                w = child.getVisibleDockingWindow();
+
+                if (w != null)
+                  break;
+              }
+            }
+
+            if (w != null) {
+              final DockingWindow w1 = w;
+              final WindowItem fitem = item;
+
+              optimizeAfter(w.getWindowParent(), new Runnable() {
+                public void run() {
+                  if (fitem.getParent() instanceof SplitWindowItem) {
+                    SplitWindowItem splitWindowItem = (SplitWindowItem) fitem.getParent();
+                    boolean isLeft = splitWindowItem.getWindow(0) == fitem;
+                    SplitWindow newWindow = new SplitWindow(splitWindowItem.isHorizontal(),
+                                                            splitWindowItem.getDividerLocation(),
+                                                            null,
+                                                            null,
+                                                            splitWindowItem);
+                    w1.getWindowParent().internalReplaceChildWindow(w1, newWindow);
+                    DockingWindow w = getContainer(splitWindowItem, windowItem);
+                    DockingWindow w2 = w1.getContainer(splitWindowItem, w1.windowItem);
+                    newWindow.setWindows(isLeft ? w : w2, isLeft ? w2 : w);
+                  }
+                  else if (fitem.getParent() instanceof TabWindowItem) {
+                    TabWindowItem tabWindowItem = (TabWindowItem) fitem.getParent();
+                    TabWindow newWindow = new TabWindow(null, tabWindowItem);
+                    w1.getWindowParent().internalReplaceChildWindow(w1, newWindow);
+                    insertTab(newWindow, DockingWindow.this);
+                    insertTab(newWindow, w1.getOptimizedWindow());
+                  }
+                }
+              });
+
+              return;
+            }
+          }
+
+          item = item.getParent();
+        }
+      }
+
+      final RootWindow rootWindow = (RootWindow) lastRootWindow.get();
+
+      if (rootWindow != null) {
+        final WindowItem topItem = getWindowItem().getTopItem();
+
+        optimizeAfter(null, new Runnable() {
+          public void run() {
+            DockingWindow w = rootWindow.getWindow();
+
+            if (w == null) {
+              WindowItem wi = rootWindow.getWindowItem();
+
+              if (wi.getWindowCount() == 0)
+                wi.addWindow(topItem);
+              else {
+                SplitWindowItem splitWindowItem = new SplitWindowItem();
+                splitWindowItem.addWindow(wi.getWindow(0));
+                splitWindowItem.addWindow(topItem);
+                wi.addWindow(splitWindowItem);
+              }
+
+              rootWindow.setWindow(getContainer(topItem, getWindowItem()));
+            }
+            else {
+              SplitWindow newWindow = new SplitWindow(true);
+              newWindow.getWindowItem().addWindow(rootWindow.getWindowItem().getWindow(0));
+              newWindow.getWindowItem().addWindow(topItem);
+              rootWindow.setWindow(newWindow);
+              newWindow.setWindows(w, getContainer(topItem, getWindowItem()));
+              rootWindow.getWindowItem().addWindow(newWindow.getWindowItem());
+            }
+          }
+        });
+      }
+    }
+    finally {
+      endUpdateModel();
+    }
+  }
+
+  private static void insertTab(TabWindow tabWindow, DockingWindow window) {
+    int index = 0;
+    WindowItem item = tabWindow.getWindowItem();
+    WindowItem childItem = item.getChildWindowContaining(window.getWindowItem());
+
+    for (int i = 0; i < item.getWindowCount(); i++) {
+      WindowItem wi = item.getWindow(i);
+
+      if (wi == childItem)
+        break;
+
+      DockingWindow w = wi.getVisibleDockingWindow();
+
+      if (w != null)
+        index++;
+    }
+
+    tabWindow.addTabNoSelect(window, index);
+    tabWindow.updateSelectedTab();
+  }
+
+  private DockingWindow getContainer(WindowItem topItem, WindowItem item) {
+    if (!needsTitleWindow())
+      return this;
+
+    while (item != topItem) {
+      if (item instanceof TabWindowItem) {
+        TabWindow w = new TabWindow(null, (TabWindowItem) item);
+        w.addTabNoSelect(this, 0);
+        return w;
+      }
+
+      item = item.getParent();
+    }
+
+    TabWindow w = new TabWindow();
+    w.addTabNoSelect(this, 0);
+    item.replaceWith(w.getWindowItem());
+    w.getWindowItem().addWindow(item);
+    return w;
+  }
+
+  private void setWindowItem(WindowItem windowItem) {
+    this.windowItem = windowItem;
+    windowItem.setConnectedWindow(this);
+    updateWindowItem(getRootWindow());
+  }
+
+  protected void updateWindowItem(RootWindow rootWindow) {
+    windowItem.setParentDockingWindowProperties(rootWindow == null ?
+                                                WindowItem.emptyProperties :
+                                                rootWindow.getRootWindowProperties().getDockingWindowProperties());
+  }
+
+  protected void write(ObjectOutputStream out, WriteContext context, ViewWriter viewWriter) throws IOException {
+  }
+
+  protected void cleanUpModel() {
+    if (windowParent != null)
+      windowParent.cleanUpModel();
   }
 
 }

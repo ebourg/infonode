@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyMap.java,v 1.14 2004/11/11 14:10:12 jesper Exp $
+// $Id: PropertyMap.java,v 1.20 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.properties.propertymap;
 
 import net.infonode.properties.base.Property;
@@ -50,7 +50,7 @@ import java.io.ObjectOutputStream;
  * Property maps are created using the factory methods in {@link PropertyMapFactory}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.14 $
+ * @version $Revision: 1.20 $
  */
 public interface PropertyMap extends ReadWritable {
   /**
@@ -118,6 +118,25 @@ public interface PropertyMap extends ReadWritable {
    * @return the super map removed
    */
   PropertyMap removeSuperMap();
+
+  /**
+   * Removes a super map that has previously been added using {@link #addSuperMap(PropertyMap)}.
+   *
+   * @param superMap the super map to remove
+   * @return true if the super map was found and removed, otherwise false
+   * @since IDW 1.3.0
+   */
+  boolean removeSuperMap(PropertyMap superMap);
+
+  /**
+   * Replaces a super map that has previously been added using {@link #addSuperMap(PropertyMap)}.
+   *
+   * @param oldSuperMap the super map to replace
+   * @param newSuperMap the super map to replace it with
+   * @return true if the super map was found and replaced, otherwise false
+   * @since IDW 1.3.0
+   */
+  boolean replaceSuperMap(PropertyMap oldSuperMap, PropertyMap newSuperMap);
 
   /**
    * Returns the most recently added super map.
@@ -193,8 +212,8 @@ public interface PropertyMap extends ReadWritable {
   boolean valuesEqualTo(PropertyMap propertyMap, boolean recursive);
 
   /**
-   * Serializes the values of this property map.
-   * The properties are identified using their names.
+   * Serializes the serializable values of this property map. Values not implementing the {@link java.io.Serializable}
+   * interface will not be written to the stream. The properties are identified using their names.
    *
    * @param out       the stream on which to serialize this map
    * @param recursive true if child maps should be recursively serialized
@@ -203,8 +222,13 @@ public interface PropertyMap extends ReadWritable {
   void write(ObjectOutputStream out, boolean recursive) throws IOException;
 
   /**
-   * Writes this object to an ObjectOutputStream.
+   * <p>
+   * Serializes the serializable values of this property map. Values not implementing the {@link java.io.Serializable}
+   * interface will not be written to the stream. The properties are identified using their names.
+   * </p>
+   * <p>
    * This method recursively writes all child maps.
+   * </p>
    *
    * @param out the stream
    * @throws IOException if there is a stream error
@@ -224,4 +248,13 @@ public interface PropertyMap extends ReadWritable {
    */
   void read(ObjectInputStream in) throws IOException;
 
+  /**
+   * Creates a copy of this map. The method copies the values and optionally the references to super maps.
+   *
+   * @param copySuperMapRefs if true, copies the references to super maps
+   * @param recursive        if true, copies all child maps as well
+   * @return a copy of this map
+   * @since IDW 1.3.0
+   */
+  PropertyMap copy(boolean copySuperMapRefs, boolean recursive);
 }

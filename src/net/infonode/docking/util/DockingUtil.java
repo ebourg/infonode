@@ -20,19 +20,20 @@
  */
 
 
-// $Id: DockingUtil.java,v 1.15 2004/09/28 15:07:29 jesper Exp $
+// $Id: DockingUtil.java,v 1.19 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.util;
 
 import net.infonode.docking.DockingWindow;
 import net.infonode.docking.RootWindow;
 import net.infonode.docking.TabWindow;
+import net.infonode.docking.ViewSerializer;
 import net.infonode.docking.internalutil.InternalDockingUtil;
 
 /**
  * Class that contains utility methods for docking windows.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.19 $
  */
 public final class DockingUtil {
   private DockingUtil() {
@@ -47,13 +48,28 @@ public final class DockingUtil {
    * @return the created root window
    */
   public static RootWindow createRootWindow(AbstractViewMap views, boolean createWindowPopupMenu) {
+    return createRootWindow(views, views, createWindowPopupMenu);
+  }
+
+  /**
+   * Creates a root window with support for view serialization and popup menues.
+   * All the views are added to a tab window which is placed in the root window.
+   *
+   * @param views                 contains all the static views
+   * @param viewSerializer        the view serializer used in the created {@link RootWindow}
+   * @param createWindowPopupMenu true if a standard window popup menu should be created
+   * @return the created root window
+   */
+  public static RootWindow createRootWindow(AbstractViewMap views,
+                                            ViewSerializer viewSerializer,
+                                            boolean createWindowPopupMenu) {
     TabWindow tabWindow = new TabWindow();
 
     for (int i = 0; i < views.getViewCount(); i++)
       tabWindow.addTab(views.getViewAtIndex(i));
 
     tabWindow.setSelectedTab(0);
-    RootWindow rootWindow = new RootWindow(views, tabWindow);
+    RootWindow rootWindow = new RootWindow(viewSerializer, tabWindow);
 
     if (createWindowPopupMenu)
       rootWindow.setPopupMenuFactory(WindowMenuUtil.createWindowMenuFactory(views, true));
@@ -98,5 +114,18 @@ public final class DockingUtil {
     }
 
     InternalDockingUtil.addToRootWindow(window, rootWindow);
+  }
+
+  /**
+   * Returns the {@link TabWindow} for a window. This is either the window itself or the parent window.
+   *
+   * @param window the window
+   * @return the {@link TabWindow} for the window
+   * @since IDW 1.3.0
+   */
+  public static TabWindow getTabWindowFor(DockingWindow window) {
+    return window instanceof TabWindow ? (TabWindow) window :
+           window.getWindowParent() != null && window.getWindowParent() instanceof TabWindow ? (TabWindow) window.getWindowParent() :
+           null;
   }
 }

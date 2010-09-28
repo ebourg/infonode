@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TitledTab.java,v 1.39 2004/11/11 14:10:33 jesper Exp $
+// $Id: TitledTab.java,v 1.69 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.tabbedpanel.titledtab;
 
 import net.infonode.gui.InsetsUtil;
@@ -29,6 +29,10 @@ import net.infonode.gui.TranslatingShape;
 import net.infonode.gui.border.FocusBorder;
 import net.infonode.gui.componentpainter.ComponentPainter;
 import net.infonode.gui.componentpainter.SolidColorComponentPainter;
+import net.infonode.gui.hover.HoverEvent;
+import net.infonode.gui.hover.HoverListener;
+import net.infonode.gui.hover.hoverable.HoverManager;
+import net.infonode.gui.hover.hoverable.Hoverable;
 import net.infonode.gui.icon.IconProvider;
 import net.infonode.gui.layout.StackableLayout;
 import net.infonode.gui.shaped.panel.ShapedPanel;
@@ -36,12 +40,10 @@ import net.infonode.properties.gui.util.ComponentProperties;
 import net.infonode.properties.gui.util.ShapedPanelProperties;
 import net.infonode.properties.propertymap.PropertyMapTreeListener;
 import net.infonode.properties.propertymap.PropertyMapWeakListenerManager;
-import net.infonode.tabbedpanel.Tab;
-import net.infonode.tabbedpanel.TabAdapter;
-import net.infonode.tabbedpanel.TabEvent;
-import net.infonode.tabbedpanel.TabRemovedEvent;
+import net.infonode.tabbedpanel.*;
 import net.infonode.util.Alignment;
 import net.infonode.util.Direction;
+import net.infonode.util.ValueChange;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -80,22 +82,48 @@ import java.util.Map;
  * overloads toString() so that both text and icon for the normal state is shown in the
  * tab drop down list in a tabbed panel.</p>
  *
+ * <p>TitledTab supports mouse hovering. A {@link HoverListener} can be set in the
+ * {@link TitledTabProperties}. The hover listener receives a {@link HoverEvent} when the mouse
+ * enters or exits the tab. The hover event's source will be the affected titled tab.</p>
+ *
  * @author $Author: jesper $
- * @version $Revision: 1.39 $
+ * @version $Revision: 1.69 $
  * @see TitledTabProperties
  * @see TitledTabStateProperties
  */
 public class TitledTab extends Tab implements IconProvider {
+
   private class StatePanel extends JPanel {
     private ShapedPanel panel = new ShapedPanel();
     private JPanel titleComponentPanel = new JPanel(new BorderLayout());
-    private RotatableLabel label = new RotatableLabel(null, null);
+    private RotatableLabel label = new RotatableLabel(null, null) {
+      public Dimension getPreferredSize() {
+        Dimension d = super.getPreferredSize();
+        String text = getText();
+        Icon tmpIcon = getIcon();
+
+        if (text == null || tmpIcon == null) {
+          setText(" ");
+          setIcon(icon);
+          if (getDirection().isHorizontal())
+            d = new Dimension(d.width, super.getPreferredSize().height);
+          else
+            d = new Dimension(super.getPreferredSize().width, d.height);
+
+          setText(text);
+          setIcon(tmpIcon);
+        }
+
+        return d;
+      }
+    };
     private JComponent titleComponent;
     private boolean titleComponentChanged = true;
     private Direction currentLayoutDirection;
     private int currentLayoutGap = -1;
     private Alignment currentLayoutAlignment;
     private String toolTipText;
+    private Icon icon;
 
     public StatePanel() {
       super(new BorderLayout());
@@ -238,8 +266,9 @@ public class TitledTab extends Tab implements IconProvider {
     }
 
     private void updateLabel(TitledTabStateProperties properties) {
+      icon = properties.getIcon();
       if (properties.getIconVisible())
-        label.setIcon(properties.getIcon());
+        label.setIcon(icon);
       else
         label.setIcon(null);
       if (properties.getTextVisible())
@@ -286,9 +315,8 @@ public class TitledTab extends Tab implements IconProvider {
         panel.setComponentPainter(SolidColorComponentPainter.BACKGROUND_COLOR_PAINTER);
       else
         panel.setComponentPainter(null);
-      panel.setHorizontalFlip(
-          d == Direction.DOWN || d == Direction.LEFT ?
-          !shapedPanelProperties.getHorizontalFlip() : shapedPanelProperties.getHorizontalFlip());
+      panel.setHorizontalFlip(d == Direction.DOWN || d == Direction.LEFT ?
+                              !shapedPanelProperties.getHorizontalFlip() : shapedPanelProperties.getHorizontalFlip());
       panel.setVerticalFlip(shapedPanelProperties.getVerticalFlip());
       panel.setClipChildren(shapedPanelProperties.getClipChildren());
     }
@@ -296,21 +324,49 @@ public class TitledTab extends Tab implements IconProvider {
 
   private TitledTabProperties properties = TitledTabProperties.getDefaultProperties();
 
-  private JPanel eventPanel = new JPanel(new BorderLayout()) {
-    public boolean contains(int x, int y) {
-      Component c = getComponent(0);
-      //System.out.println("contains x=" + x + "  y=" + y);
+  private HoverListener hoverListener = properties.getHoverListener();
 
-      //System.out.println((c != null ? c.contains(x, y) : false) + "  " + c);
-      return c != null ? c.contains(x, y) : false;
+  private class HoverablePanel extends JPanel implements Hoverable {
+    public HoverablePanel(LayoutManager l) {
+      super(l);
+    }
+
+    public void hoverEnter() {
+      if (hoverListener != null && getTabbedPanel() != null)
+        hoverListener.mouseEntered(new HoverEvent(TitledTab.this));
+    }
+
+    public void hoverExit() {
+      if (hoverListener != null)
+        hoverListener.mouseExited(new HoverEvent(TitledTab.this));
+    }
+
+    public boolean acceptHover(ArrayList enterableHoverables) {
+      return true;
+    }
+  }
+
+  private HoverablePanel eventPanel = new HoverablePanel(new BorderLayout()) {
+
+    public boolean contains(int x, int y) {
+      return getComponentCount() > 0 && getComponent(0).contains(x, y);
     }
 
     public boolean inside(int x, int y) {
-      //System.out.println("inside x=" + x + "  y=" + y);
-      Component c = getComponent(0);
-      return c != null ? c.inside(x, y) : false;
+      return getComponentCount() > 0 && getComponent(0).inside(x, y);
     }
+
   };
+
+  public boolean contains(int x, int y) {
+    Point p = SwingUtilities.convertPoint(this, new Point(x, y), eventPanel);
+    return eventPanel.contains(p.x, p.y);
+  }
+
+  public boolean inside(int x, int y) {
+    Point p = SwingUtilities.convertPoint(this, new Point(x, y), eventPanel);
+    return eventPanel.inside(p.x, p.y);
+  }
 
   private StatePanel normalStatePanel = new StatePanel();
   private StatePanel highlightedStatePanel = new StatePanel();
@@ -321,7 +377,28 @@ public class TitledTab extends Tab implements IconProvider {
   private StackableLayout layout;
   private StatePanel currentStatePanel;
 
+  private static TitledTab pressedTab;
+
   private PropertyMapTreeListener propertiesListener = new PropertyMapTreeListener() {
+    public void propertyValuesChanged(Map changes) {
+      updateTab();
+
+      Map m = (Map) changes.get(properties.getMap());
+      if (m != null && m.keySet().contains(TitledTabProperties.HOVER_LISTENER)) {
+        HoverListener oldHoverListener = hoverListener;
+        hoverListener = (HoverListener) ((ValueChange) m.get(TitledTabProperties.HOVER_LISTENER)).getNewValue();
+        HoverListener reportedHoverListener = (HoverListener) ((ValueChange) m.get(TitledTabProperties.HOVER_LISTENER)).getOldValue();
+        if (HoverManager.getInstance().isHovered(eventPanel)) {
+          if (oldHoverListener != null)
+            oldHoverListener.mouseExited(new HoverEvent(TitledTab.this));
+          if (hoverListener != null)
+            hoverListener.mouseEntered(new HoverEvent(TitledTab.this));
+        }
+      }
+    }
+  };
+
+  private PropertyMapTreeListener tabbedPanelPropertiesListener = new PropertyMapTreeListener() {
     public void propertyValuesChanged(Map changes) {
       updateTab();
     }
@@ -341,9 +418,7 @@ public class TitledTab extends Tab implements IconProvider {
    */
   public TitledTab(String text, Icon icon, JComponent contentComponent, JComponent titleComponent) {
     super(contentComponent);
-
     eventPanel.setOpaque(false);
-
     layout = new StackableLayout(this) {
       public void layoutContainer(Container parent) {
         super.layoutContainer(parent);
@@ -352,6 +427,7 @@ public class TitledTab extends Tab implements IconProvider {
         setFocusableComponent(properties.getFocusable() ? visibleStatePanel.getFocusableComponent() : null);
       }
     };
+
     setLayout(layout);
 
     add(normalStatePanel);
@@ -362,6 +438,8 @@ public class TitledTab extends Tab implements IconProvider {
     setIcon(icon);
     setTitleComponent(titleComponent);
     setEventComponent(eventPanel);
+
+    updateCurrentStatePanel();
 
     MouseListener mouseListener = new MouseListener() {
       public void mouseClicked(MouseEvent e) {
@@ -438,13 +516,13 @@ public class TitledTab extends Tab implements IconProvider {
     addTabListener(new TabAdapter() {
       public void tabAdded(TabEvent event) {
         PropertyMapWeakListenerManager.addWeakTreeListener(getTabbedPanel().getProperties().getMap(),
-                                                           propertiesListener);
+                                                           tabbedPanelPropertiesListener);
         updateTab();
       }
 
       public void tabRemoved(TabRemovedEvent event) {
         PropertyMapWeakListenerManager.removeWeakTreeListener(event.getTabbedPanel().getProperties().getMap(),
-                                                              propertiesListener);
+                                                              tabbedPanelPropertiesListener);
         updateTab();
       }
     });
@@ -690,7 +768,6 @@ public class TitledTab extends Tab implements IconProvider {
     return listeners;
   }
 
-
   /**
    * Gets the Shape for the current active rendering state.
    *
@@ -705,6 +782,16 @@ public class TitledTab extends Tab implements IconProvider {
 
     Point p = SwingUtilities.convertPoint(currentStatePanel, 0, 0, this);
     return new TranslatingShape(shape, p.x, p.y);
+  }
+
+  protected void setTabbedPanel(TabbedPanel tabbedPanel) {
+    if (tabbedPanel == null)
+      HoverManager.getInstance().removeHoverable(eventPanel);
+
+    super.setTabbedPanel(tabbedPanel);
+
+    if (tabbedPanel != null)
+      HoverManager.getInstance().addHoverable(eventPanel);
   }
 
   private Insets getBorderInsets(Border border) {
@@ -724,11 +811,10 @@ public class TitledTab extends Tab implements IconProvider {
                          null :
                          InsetsUtil.max(
                              getBorderInsets(properties.getNormalProperties().getComponentProperties().getBorder()),
-                             InsetsUtil.max(
-                                 getBorderInsets(
-                                     properties.getHighlightedProperties().getComponentProperties().getBorder()),
-                                 getBorderInsets(
-                                     properties.getDisabledProperties().getComponentProperties().getBorder())));
+                             InsetsUtil.max(getBorderInsets(
+                                 properties.getHighlightedProperties().getComponentProperties().getBorder()),
+                                            getBorderInsets(
+                                                properties.getDisabledProperties().getComponentProperties().getBorder())));
 
       Insets normalInsets = InsetsUtil.rotate(properties.getNormalProperties().getDirection(),
                                               properties.getNormalProperties().getComponentProperties().getInsets());

@@ -20,12 +20,10 @@
  */
 
 
-// $Id: TabAreaLineBorder.java,v 1.13 2004/09/28 14:55:27 jesper Exp $
+// $Id: TabAreaLineBorder.java,v 1.16 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.tabbedpanel.border;
 
-import net.infonode.gui.colorprovider.ColorProvider;
-import net.infonode.gui.colorprovider.ColorProviderUtil;
-import net.infonode.gui.colorprovider.UIManagerColorProvider;
+import net.infonode.gui.colorprovider.*;
 import net.infonode.tabbedpanel.*;
 import net.infonode.util.Direction;
 
@@ -40,7 +38,7 @@ import java.io.Serializable;
  *
  * @author $Author: jesper $
  * @author $Author: jesper $
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.16 $
  * @see Tab
  * @see TabbedPanel
  * @see TabbedPanelProperties
@@ -99,7 +97,10 @@ public class TabAreaLineBorder implements Border, Serializable {
    *                      the other lines
    */
   public TabAreaLineBorder(Color color, boolean drawTop, boolean drawLeft, boolean drawRight, boolean flipLeftRight) {
-    this(ColorProviderUtil.getColorProvider(color, UIManagerColorProvider.TABBED_PANE_DARK_SHADOW),
+    this(ColorProviderUtil.getColorProvider(color, new ColorProviderList(
+        UIManagerColorProvider.TABBED_PANE_DARK_SHADOW,
+        UIManagerColorProvider.CONTROL_DARK_SHADOW,
+        FixedColorProvider.BLACK)),
          drawTop, drawLeft, drawRight, flipLeftRight);
   }
 

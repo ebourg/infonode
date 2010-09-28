@@ -20,7 +20,7 @@
  */
 
 
-// $Id: AbstractPolygonBorder.java,v 1.14 2004/11/10 10:22:01 jesper Exp $
+// $Id: AbstractPolygonBorder.java,v 1.16 2005/02/16 11:28:13 jesper Exp $
 
 package net.infonode.gui.shaped.border;
 
@@ -54,7 +54,10 @@ abstract public class AbstractPolygonBorder extends AbstractShapedBorder {
     this(lineColor, highlightColor, BackgroundPainterColorProvider.INSTANCE, null);
   }
 
-  protected AbstractPolygonBorder(ColorProvider lineColor, ColorProvider highlightColor, ColorProvider middleColor, ColorProvider shadowColor) {
+  protected AbstractPolygonBorder(ColorProvider lineColor,
+                                  ColorProvider highlightColor,
+                                  ColorProvider middleColor,
+                                  ColorProvider shadowColor) {
     this.lineColor = lineColor;
     this.highlightColor = highlightColor;
     this.middleColor = middleColor;

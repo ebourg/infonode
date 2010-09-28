@@ -20,7 +20,7 @@
  */
 
 
-// $Id: InfoNodeLookAndFeelThemes.java,v 1.7 2004/11/11 14:11:14 jesper Exp $
+// $Id: InfoNodeLookAndFeelThemes.java,v 1.9 2005/02/16 11:28:12 jesper Exp $
 package net.infonode.gui.laf;
 
 import net.infonode.gui.Colors;
@@ -32,7 +32,7 @@ import java.awt.*;
  * Contains some predefined InfoNode look and feel themes.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.9 $
  */
 public class InfoNodeLookAndFeelThemes {
   private InfoNodeLookAndFeelThemes() {

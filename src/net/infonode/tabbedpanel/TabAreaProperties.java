@@ -20,22 +20,21 @@
  */
 
 
-// $Id: TabAreaProperties.java,v 1.20 2004/11/11 14:10:33 jesper Exp $
+// $Id: TabAreaProperties.java,v 1.25 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.tabbedpanel;
 
+import net.infonode.gui.hover.HoverListener;
 import net.infonode.properties.gui.util.ComponentProperties;
 import net.infonode.properties.gui.util.ShapedPanelProperties;
-import net.infonode.properties.propertymap.PropertyMap;
-import net.infonode.properties.propertymap.PropertyMapContainer;
-import net.infonode.properties.propertymap.PropertyMapGroup;
-import net.infonode.properties.propertymap.PropertyMapProperty;
+import net.infonode.properties.propertymap.*;
+import net.infonode.properties.types.HoverListenerProperty;
 
 /**
  * TabAreaProperties holds all visual properties for a tabbed panel's tab area.
  * TabbedPanelProperties contains TabAreaProperties.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.20 $
+ * @version $Revision: 1.25 $
  * @see TabbedPanel
  * @see TabbedPanelProperties
  */
@@ -68,6 +67,25 @@ public class TabAreaProperties extends PropertyMapContainer {
                                                                                             ShapedPanelProperties.PROPERTIES);
 
   /**
+   * Hover listener property
+   *
+   * @see #setHoverListener
+   * @see #getHoverListener
+   * @since ITP 1.3.0
+   */
+  public static final HoverListenerProperty HOVER_LISTENER = new HoverListenerProperty(PROPERTIES,
+                                                                                       "Hover Listener",
+                                                                                       "Hover Listener to be used for tracking mouse hovering over the tab area components area.",
+                                                                                       PropertyMapValueHandler.INSTANCE);
+
+  /**
+   * Constructs an empty TabAreaProperties object
+   */
+  public TabAreaProperties() {
+    super(PROPERTIES);
+  }
+
+  /**
    * Constructs a TabAreaProperties object with the given object
    * as property storage
    *
@@ -75,6 +93,16 @@ public class TabAreaProperties extends PropertyMapContainer {
    */
   public TabAreaProperties(PropertyMap object) {
     super(object);
+  }
+
+  /**
+   * Constructs a TabAreaProperties object that inherits its properties
+   * from the given TabAreaProperties object
+   *
+   * @param inheritFrom TabAreaProperties object to inherit properties from
+   */
+  public TabAreaProperties(TabAreaProperties inheritFrom) {
+    super(PropertyMapFactory.create(inheritFrom.getMap()));
   }
 
   /**
@@ -89,12 +117,24 @@ public class TabAreaProperties extends PropertyMapContainer {
   }
 
   /**
-   * Removes a super object.
+   * Removes the last added super object.
    *
    * @return this
    */
   public TabAreaProperties removeSuperObject() {
     getMap().removeSuperMap();
+    return this;
+  }
+
+  /**
+   * Removes the given super object.
+   *
+   * @param superObject super object to remove
+   * @return this
+   * @since ITP 1.3.0
+   */
+  public TabAreaProperties removeSuperObject(TabAreaProperties superObject) {
+    getMap().removeSuperMap(superObject.getMap());
     return this;
   }
 
@@ -115,5 +155,33 @@ public class TabAreaProperties extends PropertyMapContainer {
    */
   public ShapedPanelProperties getShapedPanelProperties() {
     return new ShapedPanelProperties(SHAPED_PANEL_PROPERTIES.get(getMap()));
+  }
+
+  /**
+   * <p>Sets the hover listener that will be triggered when the tab area is hoverd by the mouse.</p>
+   *
+   * <p>The tabbed panel that the hovered tab area is part of will be the source of the hover event sent to the
+   * hover listener.</p>
+   *
+   * @param listener the hover listener
+   * @return this TabAreaProperties
+   * @since ITP 1.3.0
+   */
+  public TabAreaProperties setHoverListener(HoverListener listener) {
+    HOVER_LISTENER.set(getMap(), listener);
+    return this;
+  }
+
+  /**
+   * <p>Sets the hover listener that will be triggered when the tab area is hovered by the mouse.</p>
+   *
+   * <p>The tabbed panel that the hovered tab area is part of will be the source of the hover event sent to the
+   * hover listener.</p>
+   *
+   * @return the hover listener
+   * @since ITP 1.3.0
+   */
+  public HoverListener getHoverListener() {
+    return HOVER_LISTENER.get(getMap());
   }
 }

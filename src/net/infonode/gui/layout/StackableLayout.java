@@ -20,7 +20,7 @@
  */
 
 
-// $Id: StackableLayout.java,v 1.16 2004/11/11 14:11:14 jesper Exp $
+// $Id: StackableLayout.java,v 1.18 2005/02/16 11:28:12 jesper Exp $
 package net.infonode.gui.layout;
 
 import net.infonode.gui.ComponentUtil;

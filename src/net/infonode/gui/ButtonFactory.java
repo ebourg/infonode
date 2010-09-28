@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ButtonFactory.java,v 1.14 2004/09/22 14:35:04 jesper Exp $
+// $Id: ButtonFactory.java,v 1.19 2005/02/16 11:28:13 jesper Exp $
 package net.infonode.gui;
 
 import net.infonode.gui.border.HighlightBorder;
@@ -33,6 +33,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.plaf.ButtonUI;
 import java.awt.*;
 import java.awt.event.*;
 import java.net.URL;
@@ -115,7 +116,7 @@ public class ButtonFactory {
       if (button.isEnabled() && (rollover || pressed)) {
         button.setOpaque(true);
         Color backgroundColor = ComponentUtil.getBackgroundColor(button.getParent());
-        backgroundColor = backgroundColor == null ? UIManager.getColor("control") : backgroundColor;
+        backgroundColor = backgroundColor == null ? UIManagerUtil.getColor("control", Color.WHITE) : backgroundColor;
         button.setBackground(ColorUtil.mult(backgroundColor, pressed ? 0.8 : 1.15));
 
         button.setBorder(pressed ?
@@ -174,7 +175,12 @@ public class ButtonFactory {
   }
 
   public static final JButton createButton(String text, ActionListener action) {
+    return createButton(text, true, action);
+  }
+
+  public static final JButton createButton(String text, boolean opaque, ActionListener action) {
     JButton b = newButton(text);
+    b.setOpaque(opaque);
     b.addActionListener(action);
     return b;
   }
@@ -209,7 +215,11 @@ public class ButtonFactory {
 
   public static final JButton createFlatHighlightButton(Icon icon, String tooltipText, int padding,
                                                         ActionListener action) {
-    final JButton b = new JButton(icon);
+    final JButton b = new JButton(icon) {
+      public void setUI(ButtonUI ui) {
+        super.setUI(new FlatIconButtonUI());
+      }
+    };
     b.setVerticalAlignment(SwingConstants.CENTER);
     b.setToolTipText(tooltipText);
     b.setMargin(new Insets(0, 0, 0, 0));
@@ -221,6 +231,14 @@ public class ButtonFactory {
       b.addActionListener(action);
 
     return b;
+  }
+
+  public static final void applyButtonHighlighter(JButton b, int padding) {
+    b.setVerticalAlignment(SwingConstants.CENTER);
+    b.setMargin(new Insets(0, 0, 0, 0));
+    new ButtonHighlighter(b, padding);
+
+    b.setRolloverEnabled(true);
   }
 
   public static final JButton createFlatHighlightButton(Icon icon, String tooltipText, int padding,

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SplitWindowProperties.java,v 1.15 2004/11/11 14:09:46 jesper Exp $
+// $Id: SplitWindowProperties.java,v 1.18 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.propertymap.*;
@@ -31,7 +31,7 @@ import net.infonode.properties.types.IntegerProperty;
  * Properties and property values for split windows.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.18 $
  */
 public class SplitWindowProperties extends PropertyMapContainer {
   /**
@@ -112,9 +112,22 @@ public class SplitWindowProperties extends PropertyMapContainer {
    *
    * @return this
    * @since IDW 1.1.0
+   * @deprecated Use {@link #removeSuperObject(SplitWindowProperties)} instead.
    */
   public SplitWindowProperties removeSuperObject() {
     getMap().removeSuperMap();
+    return this;
+  }
+
+  /**
+   * Removes a super object.
+   *
+   * @param superObject the super object to remove
+   * @return this
+   * @since IDW 1.3.0
+   */
+  public SplitWindowProperties removeSuperObject(SplitWindowProperties superObject) {
+    getMap().removeSuperMap(superObject.getMap());
     return this;
   }
 

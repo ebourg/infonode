@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyValue.java,v 1.5 2004/11/05 13:03:34 jesper Exp $
+// $Id: PropertyValue.java,v 1.9 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.properties.propertymap.value;
 
 import net.infonode.properties.propertymap.PropertyMapImpl;
@@ -31,7 +31,7 @@ import java.io.ObjectOutputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.9 $
  */
 public interface PropertyValue {
   Object get(PropertyMapImpl map);
@@ -49,4 +49,8 @@ public interface PropertyValue {
   void write(ObjectOutputStream out) throws IOException;
 
   void updateListener(boolean enable);
+
+  boolean isSerializable();
+
+  PropertyValue copyTo(PropertyMapImpl propertyMap);
 }

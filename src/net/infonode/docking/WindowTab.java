@@ -20,13 +20,14 @@
  */
 
 
-// $Id: WindowTab.java,v 1.36 2004/11/11 14:09:46 jesper Exp $
+// $Id: WindowTab.java,v 1.48 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.internalutil.*;
 import net.infonode.docking.properties.WindowTabProperties;
 import net.infonode.docking.properties.WindowTabStateProperties;
-import net.infonode.gui.layout.DirectionLayout;
+import net.infonode.gui.ContainerList;
+import net.infonode.gui.panel.DirectionPanel;
 import net.infonode.gui.panel.SimplePanel;
 import net.infonode.properties.propertymap.PropertyMap;
 import net.infonode.properties.propertymap.PropertyMapListener;
@@ -44,22 +45,24 @@ import java.util.Map;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.36 $
+ * @version $Revision: 1.48 $
  */
 class WindowTab extends TitledTab {
   private static final TitledTabStateProperties EMPTY_PROPERTIES = new TitledTabStateProperties();
+  private static final WindowTabProperties EMPTY_TAB_PROPERTIES = new WindowTabProperties();
 
-  private static final ButtonInfo[] buttonInfos = {new MinimizeButtonInfo(
-      WindowTabStateProperties.MINIMIZE_BUTTON_PROPERTIES),
-                                                   new RestoreButtonInfo(
-                                                       WindowTabStateProperties.RESTORE_BUTTON_PROPERTIES),
-                                                   new CloseButtonInfo(
-                                                       WindowTabStateProperties.CLOSE_BUTTON_PROPERTIES)};
+  private static final ButtonInfo[] buttonInfos = {
+    new MinimizeButtonInfo(WindowTabStateProperties.MINIMIZE_BUTTON_PROPERTIES),
+    new RestoreButtonInfo(WindowTabStateProperties.RESTORE_BUTTON_PROPERTIES),
+    new CloseButtonInfo(WindowTabStateProperties.CLOSE_BUTTON_PROPERTIES)};
 
   private final DockingWindow window;
-  private AbstractButton[][] buttons = new AbstractButton[WindowTabState.STATES.length][];
-  private SimplePanel[] buttonBoxes = new SimplePanel[WindowTabState.STATES.length];
-  private WindowTabProperties windowTabProperties = new WindowTabProperties(new WindowTabProperties());
+  private AbstractButton[][] buttons = new AbstractButton[WindowTabState.getStateCount()][];
+  private DirectionPanel[] buttonBoxes = new DirectionPanel[WindowTabState.getStateCount()];
+  private DirectionPanel customComponents = new DirectionPanel();
+  private DirectionPanel highlightedFocusedPanel = new DirectionPanel();
+  private WindowTabProperties windowTabProperties = new WindowTabProperties(EMPTY_TAB_PROPERTIES);
+  private ContainerList tabComponentsList;
   private boolean isFocused;
 
   private PropertyMapListener windowPropertiesListener = new PropertyMapListener() {
@@ -78,35 +81,40 @@ class WindowTab extends TitledTab {
     super(window.getTitle(), window.getIcon(), emptyContent ? null : new SimplePanel(window), null);
     this.window = window;
 
-    for (int i = 0; i < WindowTabState.STATES.length; i++) {
-      buttonBoxes[i] = new SimplePanel(new DirectionLayout(Direction.RIGHT));
+    for (int i = 0; i < WindowTabState.getStateCount(); i++) {
+      buttonBoxes[i] = new DirectionPanel();
       buttons[i] = new AbstractButton[buttonInfos.length];
     }
 
-    setHighlightedStateTitleComponent(buttonBoxes[WindowTabState.HIGHLIGHTED.getValue()]);
+    highlightedFocusedPanel.add(customComponents);
+    highlightedFocusedPanel.add(buttonBoxes[WindowTabState.HIGHLIGHTED.getValue()]);
+    setHighlightedStateTitleComponent(highlightedFocusedPanel);
     setNormalStateTitleComponent(buttonBoxes[WindowTabState.NORMAL.getValue()]);
 
     addMouseListener(new MouseAdapter() {
       public void mousePressed(MouseEvent e) {
+        getWindow().fireTabWindowMouseButtonEvent(e);
         checkPopupMenu(e);
+      }
 
-        if (e.getButton() == MouseEvent.BUTTON1 && isSelected() && WindowTab.this.window.getRootWindow() != null)
-          WindowTab.this.window.restoreFocus();
+      public void mouseClicked(MouseEvent e) {
+        getWindow().fireTabWindowMouseButtonEvent(e);
       }
 
       public void mouseReleased(MouseEvent e) {
+        getWindow().fireTabWindowMouseButtonEvent(e);
         checkPopupMenu(e);
       }
 
       private void checkPopupMenu(MouseEvent e) {
         if (e.isPopupTrigger() && contains(e.getPoint())) {
-          WindowTab.this.window.showMenu(e);
+          WindowTab.this.window.showPopupMenu(e);
         }
       }
 
     });
 
-    super.getProperties().addSuperObject(windowTabProperties.getTitledTabProperties());
+    getProperties().addSuperObject(windowTabProperties.getTitledTabProperties());
 
     PropertyMapWeakListenerManager.addWeakTreeListener(windowTabProperties.getMap(), windowTabPropertiesListener);
 
@@ -120,7 +128,7 @@ class WindowTab extends TitledTab {
     super.updateUI();
 
     if (buttonBoxes != null)
-      for (int i = 0; i < WindowTabState.STATES.length; i++)
+      for (int i = 0; i < WindowTabState.getStateCount(); i++)
         if (buttonBoxes[i] != null)
           SwingUtilities.updateComponentTreeUI(buttonBoxes[i]);
   }
@@ -129,35 +137,44 @@ class WindowTab extends TitledTab {
     if (isFocused != focused) {
       isFocused = focused;
       TitledTabStateProperties properties = focused ? windowTabProperties.getFocusedProperties() : EMPTY_PROPERTIES;
-      windowTabProperties.getTitledTabProperties().getHighlightedProperties().getMap().removeSuperMap();
-      windowTabProperties.getTitledTabProperties().getHighlightedProperties().addSuperObject(properties);
-      setHighlightedStateTitleComponent(buttonBoxes[focused ?
-                                                    WindowTabState.FOCUSED.getValue() :
-                                                    WindowTabState.HIGHLIGHTED.getValue()]);
+      windowTabProperties.getTitledTabProperties().getHighlightedProperties().getMap().
+          replaceSuperMap(
+              windowTabProperties.getTitledTabProperties().getHighlightedProperties().getMap().getSuperMap(),
+              properties.getMap());
+      highlightedFocusedPanel.remove(1);
+      highlightedFocusedPanel.add(
+          buttonBoxes[focused ? WindowTabState.FOCUSED.getValue() : WindowTabState.HIGHLIGHTED.getValue()]);
+      highlightedFocusedPanel.revalidate();
     }
   }
 
   void setProperties(WindowTabProperties properties) {
-    windowTabProperties.getMap().removeSuperMap();
-    windowTabProperties.addSuperObject(properties);
+    windowTabProperties.getMap().replaceSuperMap(windowTabProperties.getMap().getSuperMap(), properties.getMap());
+  }
+
+  void unsetProperties() {
+    setProperties(EMPTY_TAB_PROPERTIES);
   }
 
   void updateButtons() {
-    for (int i = 0; i < WindowTabState.STATES.length; i++) {
-      WindowTabState state = WindowTabState.STATES[i];
+    WindowTabState[] states = WindowTabState.getStates();
+
+    for (int i = 0; i < states.length; i++) {
+      WindowTabState state = states[i];
       WindowTabStateProperties buttonProperties =
           state == WindowTabState.FOCUSED ? windowTabProperties.getFocusedButtonProperties() :
           state == WindowTabState.HIGHLIGHTED ? windowTabProperties.getHighlightedButtonProperties() :
           windowTabProperties.getNormalButtonProperties();
 
       InternalDockingUtil.updateButtons(buttonInfos, buttons[i], buttonBoxes[i], window, buttonProperties.getMap());
-      Direction dir = (state == WindowTabState.NORMAL ? getProperties().getNormalProperties() :
-                       getProperties().getHighlightedProperties()).getDirection();
-
-      if (dir != ((DirectionLayout) buttonBoxes[i].getLayout()).getDirection()) {
-        ((DirectionLayout) buttonBoxes[i].getLayout()).setDirection(dir);
-      }
+      buttonBoxes[i].setDirection((state == WindowTabState.NORMAL ?
+                                   getProperties().getNormalProperties() :
+                                   getProperties().getHighlightedProperties()).getDirection());
     }
+
+    Direction dir = getProperties().getHighlightedProperties().getDirection();
+    highlightedFocusedPanel.setDirection(dir);
+    customComponents.setDirection(dir);
   }
 
   DockingWindow getWindow() {
@@ -175,5 +192,12 @@ class WindowTab extends TitledTab {
 
   void setContentComponent(Component component) {
     ((SimplePanel) getContentComponent()).setComponent(component);
+  }
+
+  java.util.List getCustomTabComponentsList() {
+    if (tabComponentsList == null)
+      tabComponentsList = new ContainerList(customComponents);
+
+    return tabComponentsList;
   }
 }

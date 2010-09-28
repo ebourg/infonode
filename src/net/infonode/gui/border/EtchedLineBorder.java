@@ -20,7 +20,7 @@
  */
 
 
-// $Id: EtchedLineBorder.java,v 1.6 2004/11/11 09:51:46 jesper Exp $
+// $Id: EtchedLineBorder.java,v 1.8 2005/02/16 11:28:10 jesper Exp $
 package net.infonode.gui.border;
 
 import net.infonode.gui.ComponentUtil;
@@ -32,7 +32,7 @@ import java.io.Serializable;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.8 $
  */
 public class EtchedLineBorder implements Border, Serializable {
   private static final long serialVersionUID = 1;

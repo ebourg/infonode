@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SlimInternalFrameUI.java,v 1.2 2004/09/22 14:35:04 jesper Exp $
+// $Id: SlimInternalFrameUI.java,v 1.4 2005/02/16 11:28:11 jesper Exp $
 package net.infonode.gui.laf.ui;
 
 import javax.swing.*;
@@ -29,7 +29,7 @@ import javax.swing.plaf.basic.BasicInternalFrameUI;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.4 $
  */
 public class SlimInternalFrameUI extends BasicInternalFrameUI {
 

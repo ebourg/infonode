@@ -20,7 +20,7 @@
  */
 
 
-// $Id: GradientTheme.java,v 1.20 2004/11/12 08:57:36 jesper Exp $
+// $Id: GradientTheme.java,v 1.22 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.tabbedpanel.theme;
 
 import net.infonode.gui.Colors;
@@ -42,7 +42,7 @@ import java.awt.*;
  * A theme that draws gradient tab backgrounds.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.20 $
+ * @version $Revision: 1.22 $
  * @since ITP 1.1.0
  */
 public class GradientTheme extends TabbedPanelTitledTabTheme {

@@ -20,13 +20,19 @@
  */
 
 
-// $Id: ArrayUtil.java,v 1.5 2004/09/22 14:35:05 jesper Exp $
+// $Id: ArrayUtil.java,v 1.7 2005/01/28 13:50:29 jesper Exp $
 package net.infonode.util;
 
 import java.util.ArrayList;
 
 public class ArrayUtil {
   private ArrayUtil() {
+  }
+
+  static final public Object[] add(Object[] objects, Object object, Object[] newObjects) {
+    System.arraycopy(objects, 0, newObjects, 0, objects.length);
+    newObjects[objects.length] = object;
+    return newObjects;
   }
 
   static final public byte[] part(byte[] array, int offset, int length) {
@@ -98,6 +104,14 @@ public class ArrayUtil {
     return -1;
   }
 
+  static final public int indexOf(byte[] array, byte value) {
+    for (int i = 0; i < array.length; i++)
+      if (array[i] == value)
+        return i;
+
+    return -1;
+  }
+
   static final public String[] append(String[] a1, String[] a2) {
     String[] n = new String[a1.length + a2.length];
     System.arraycopy(a1, 0, n, 0, a1.length);
@@ -154,6 +168,14 @@ public class ArrayUtil {
 
   public static int indexOf(Object[] values, Object value) {
     for (int i = 0; i < values.length; i++)
+      if (values[i] == value)
+        return i;
+
+    return -1;
+  }
+
+  public static int indexOf(Object[] values, Object value, int startIndex, int length) {
+    for (int i = startIndex; i < length; i++)
       if (values[i] == value)
         return i;
 

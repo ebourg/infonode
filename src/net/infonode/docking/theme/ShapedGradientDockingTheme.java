@@ -20,11 +20,12 @@
  */
 
 
-// $Id: ShapedGradientDockingTheme.java,v 1.6 2004/11/11 14:09:46 jesper Exp $
+// $Id: ShapedGradientDockingTheme.java,v 1.23 2005/02/16 11:28:14 jesper Exp $
 
 package net.infonode.docking.theme;
 
 import net.infonode.docking.properties.RootWindowProperties;
+import net.infonode.gui.colorprovider.ColorBlender;
 import net.infonode.gui.colorprovider.ColorMultiplier;
 import net.infonode.gui.colorprovider.ColorProvider;
 import net.infonode.gui.colorprovider.UIManagerColorProvider;
@@ -46,7 +47,7 @@ import java.awt.*;
  * slopes on left/right side of tab.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.23 $
  * @since IDW 1.2.0
  */
 public class ShapedGradientDockingTheme extends DockingWindowsTheme {
@@ -121,6 +122,7 @@ public class ShapedGradientDockingTheme extends DockingWindowsTheme {
     TabbedPanelProperties tabbedPanelProperties = theme.getTabbedPanelProperties();
     TitledTabProperties titledTabProperties = theme.getTitledTabProperties();
 
+
     // Tab window
     rootWindowProperties.getTabWindowProperties().getTabbedPanelProperties().addSuperObject(tabbedPanelProperties);
     rootWindowProperties.getTabWindowProperties().getTabProperties().getTitledTabProperties().addSuperObject(
@@ -147,12 +149,6 @@ public class ShapedGradientDockingTheme extends DockingWindowsTheme {
               theme.getControlColor(),
               topColor));
     }
-
-    // Window bar
-    rootWindowProperties.getWindowBarProperties().getTabWindowProperties().getTabbedPanelProperties().addSuperObject(
-        tabbedPanelProperties);
-    rootWindowProperties.getWindowBarProperties().getTabWindowProperties().getTabProperties().getTitledTabProperties()
-        .addSuperObject(titledTabProperties);
 
     Border highlightBorder = theme.createTabBorder(theme.getLineColor(),
                                                    theme.getHighlightColor(),
@@ -238,9 +234,23 @@ public class ShapedGradientDockingTheme extends DockingWindowsTheme {
                                            true,
                                            true))
         .setInsets(new Insets(0, 3, 0, 3));
-    rootWindowProperties.setDragRectangleBorderWidth(3)
-        .getWindowBarProperties().getComponentProperties().setInsets(new Insets(2, 0, 2, 0));
-    rootWindowProperties.getWindowAreaProperties().setInsets(new Insets(2, 2, 2, 2));
+
+    rootWindowProperties
+        .setDragRectangleBorderWidth(3)
+
+        .getWindowBarProperties().getComponentProperties()
+        .setInsets(new Insets(2, 0, 2, 0));
+
+    rootWindowProperties.getWindowAreaProperties()
+        .setBorder(null)
+        .setInsets(new Insets(2, 2, 2, 2));
+
+    rootWindowProperties.getComponentProperties().setBackgroundColor(null);
+    rootWindowProperties.getShapedPanelProperties().setComponentPainter(new SolidColorComponentPainter(new ColorBlender(
+        UIManagerColorProvider.TABBED_PANE_BACKGROUND,
+        UIManagerColorProvider.CONTROL_COLOR,
+        0.5f)));
+
     rootWindowProperties.getWindowAreaShapedPanelProperties().setComponentPainter(
         new SolidColorComponentPainter(UIManagerColorProvider.CONTROL_COLOR));
   }

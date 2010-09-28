@@ -20,7 +20,7 @@
  */
 
 
-// $Id: CursorManager.java,v 1.2 2004/06/30 08:19:34 jesper Exp $
+// $Id: CursorManager.java,v 1.9 2005/02/16 11:28:13 jesper Exp $
 package net.infonode.gui;
 
 import net.infonode.util.Utils;
@@ -31,10 +31,16 @@ import java.util.HashMap;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.9 $
  */
 public class CursorManager {
   private static HashMap oldCursors = new HashMap();
+  private static boolean toggleVisibility = true;
+  private static boolean enabled = true;
+  private static Cursor currentCursor = Cursor.getDefaultCursor();
+
+  private CursorManager() {
+  }
 
   public static void setGlobalCursor(JComponent component, Cursor cursor) {
     Container root = component.getTopLevelAncestor();
@@ -44,19 +50,54 @@ public class CursorManager {
 
     if (!oldCursors.containsKey(root)) {
       oldCursors.put(root, root.getCursor());
-      component.getRootPane().getGlassPane().setVisible(true);
+      if (toggleVisibility)
+        component.getRootPane().getGlassPane().setVisible(true);
     }
 
-    if (!Utils.equals(root.getCursor(), cursor))
-      root.setCursor(cursor);
+    if (!Utils.equals(root.getCursor(), cursor)) {
+      currentCursor = cursor;
+
+      if (enabled)
+        root.setCursor(cursor);
+    }
+  }
+
+  public static Cursor getCurrentGlobalCursor() {
+    return currentCursor;
   }
 
   public static void resetGlobalCursor(JComponent component) {
     Container root = component.getTopLevelAncestor();
 
     if (root != null && oldCursors.containsKey(root)) {
-      root.setCursor((Cursor) oldCursors.remove(root));
-      component.getRootPane().getGlassPane().setVisible(false);
+      currentCursor = (Cursor) oldCursors.remove(root);
+
+      if (enabled)
+        root.setCursor(currentCursor);
+
+      if (toggleVisibility)
+        component.getRootPane().getGlassPane().setVisible(false);
     }
+  }
+
+  public static void setToggleGlassPaneVisibility(boolean toggleVisibility) {
+    CursorManager.toggleVisibility = toggleVisibility;
+  }
+
+  public static boolean isToggleGlassPaneVisibility() {
+    return toggleVisibility;
+  }
+
+  public static void setEnabled(boolean enabled) {
+    CursorManager.enabled = enabled;
+  }
+
+  public static boolean isEnabled() {
+    return enabled;
+  }
+
+  public static boolean isGlobalCursorSet(JComponent c) {
+    Container root = c.getTopLevelAncestor();
+    return root != null && oldCursors.containsKey(root);
   }
 }

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: MapAdapter.java,v 1.4 2004/09/01 16:33:04 jesper Exp $
+// $Id: MapAdapter.java,v 1.6 2005/02/16 11:28:13 jesper Exp $
 package net.infonode.util.collection.map;
 
 import net.infonode.util.collection.map.base.ConstMapIterator;

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: FloatProperty.java,v 1.4 2004/09/22 14:32:50 jesper Exp $
+// $Id: FloatProperty.java,v 1.5 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.properties.types;
 
 import net.infonode.properties.base.PropertyGroup;
@@ -31,7 +31,7 @@ import net.infonode.properties.util.ValueHandlerProperty;
  * A float property.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class FloatProperty extends ValueHandlerProperty {
   private float minValue;
@@ -62,7 +62,12 @@ public class FloatProperty extends ValueHandlerProperty {
    * @param minValue     the smallest value that this property can have
    * @param maxValue     the largest value that this property can have
    */
-  public FloatProperty(PropertyGroup group, String name, String description, PropertyValueHandler valueHandler, float minValue, float maxValue) {
+  public FloatProperty(PropertyGroup group,
+                       String name,
+                       String description,
+                       PropertyValueHandler valueHandler,
+                       float minValue,
+                       float maxValue) {
     this(group, name, description, valueHandler, minValue, maxValue, 6, 0.1f);
   }
 
@@ -78,7 +83,14 @@ public class FloatProperty extends ValueHandlerProperty {
    * @param preferredDigitCount the preferred number of digits to allocate space for in an editor for a property value
    * @param preferredDelta      the preferred amount to increase and decrease a property value by
    */
-  public FloatProperty(PropertyGroup group, String name, String description, PropertyValueHandler valueHandler, float minValue, float maxValue, int preferredDigitCount, float preferredDelta) {
+  public FloatProperty(PropertyGroup group,
+                       String name,
+                       String description,
+                       PropertyValueHandler valueHandler,
+                       float minValue,
+                       float maxValue,
+                       int preferredDigitCount,
+                       float preferredDelta) {
     super(group, name, Float.class, description, valueHandler);
     this.minValue = minValue;
     this.maxValue = maxValue;

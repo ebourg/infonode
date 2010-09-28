@@ -20,13 +20,44 @@
  */
 
 
-// $Id: Closure.java,v 1.2 2004/09/20 13:26:39 johan Exp $
-package net.infonode.util.collection;
+// $Id: NullWindowAction.java,v 1.4 2005/02/16 11:28:14 jesper Exp $
+package net.infonode.docking.action;
+
+import net.infonode.docking.DockingWindow;
+
+import java.io.ObjectStreamException;
 
 /**
- * @author $Author: johan $
- * @version $Revision: 1.2 $
+ * Does nothing.
+ *
+ * @author $Author: jesper $
+ * @version $Revision: 1.4 $
+ * @since IDW 1.3.0
  */
-public interface Closure {
-  void apply(Object object);
+public class NullWindowAction extends DockingWindowAction {
+  private static final long serialVersionUID = 1;
+
+  /**
+   * The only instance of this class.
+   */
+  public static final NullWindowAction INSTANCE = new NullWindowAction();
+
+  private NullWindowAction() {
+  }
+
+  public String getName() {
+    return "Null";
+  }
+
+  public boolean isPerformable(DockingWindow window) {
+    return true;
+  }
+
+  public void perform(DockingWindow window) {
+  }
+
+  protected Object readResolve() throws ObjectStreamException {
+    return INSTANCE;
+  }
+
 }

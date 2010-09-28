@@ -20,7 +20,7 @@
  */
 
 
-// $Id: EmptyIcon.java,v 1.2 2004/09/22 14:35:04 jesper Exp $
+// $Id: EmptyIcon.java,v 1.4 2005/02/16 11:28:11 jesper Exp $
 package net.infonode.gui.icon;
 
 import javax.swing.*;
@@ -28,7 +28,7 @@ import java.awt.*;
 
 /**
  * @author Jesper Nordenberg
- * @version $Revision: 1.2 $ $Date: 2004/09/22 14:35:04 $
+ * @version $Revision: 1.4 $ $Date: 2005/02/16 11:28:11 $
  */
 public class EmptyIcon implements Icon {
   public static final EmptyIcon INSTANCE = new EmptyIcon();

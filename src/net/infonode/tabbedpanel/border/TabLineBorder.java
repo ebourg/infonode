@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabLineBorder.java,v 1.24 2004/11/11 14:10:33 jesper Exp $
+// $Id: TabLineBorder.java,v 1.26 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.tabbedpanel.border;
 
 import net.infonode.gui.colorprovider.ColorProvider;
@@ -41,7 +41,7 @@ import java.io.Serializable;
  * tabbed panel is 0 then the border will only draw a single line between two adjacent tabs.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.24 $
+ * @version $Revision: 1.26 $
  * @see Tab
  * @see TabbedPanel
  * @deprecated As of ITP 1.2.0 use {@link TabAreaLineBorder} instead with
@@ -339,7 +339,8 @@ public class TabLineBorder implements Border, Serializable {
   private void initialize(Tab tab) {
     index = tab.getTabbedPanel().getTabIndex(tab);
     last = index == tab.getTabbedPanel().getTabCount() - 1;
-    afterHighlighted = index > 0 && tab.getTabbedPanel().getTabAt(index - 1) == tab.getTabbedPanel().getHighlightedTab();
+    afterHighlighted = index > 0 &&
+                       tab.getTabbedPanel().getTabAt(index - 1) == tab.getTabbedPanel().getHighlightedTab();
     highlighted = tab == tab.getTabbedPanel().getHighlightedTab();
   }
 

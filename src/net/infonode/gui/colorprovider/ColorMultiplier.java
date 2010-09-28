@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ColorMultiplier.java,v 1.3 2004/09/23 15:32:13 jesper Exp $
+// $Id: ColorMultiplier.java,v 1.5 2005/02/16 11:28:10 jesper Exp $
 package net.infonode.gui.colorprovider;
 
 import net.infonode.util.ColorUtil;
@@ -32,7 +32,7 @@ import java.io.Serializable;
  * Multiplies the RGB components of a color with the given factor.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.5 $
  */
 public class ColorMultiplier extends AbstractColorProvider implements Serializable {
   private static final long serialVersionUID = 1;

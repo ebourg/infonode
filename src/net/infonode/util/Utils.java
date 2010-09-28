@@ -20,16 +20,19 @@
  */
 
 
-// $Id: Utils.java,v 1.3 2004/06/30 12:59:07 jesper Exp $
+// $Id: Utils.java,v 1.4 2005/01/26 12:50:31 jesper Exp $
 package net.infonode.util;
 
 public class Utils {
+  private Utils() {
+  }
+
   public static final short unsigned(byte b) {
     return (short) (b & 0xff);
   }
 
   public static final boolean equals(Object o1, Object o2) {
-    return o1 == null ? o2 == null : o1.equals(o2);
+    return o1 == o2 || (o1 != null && o2 != null && o1.equals(o2));
   }
 
 }

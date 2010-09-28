@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ComponentProperties.java,v 1.12 2004/11/11 14:03:24 jesper Exp $
+// $Id: ComponentProperties.java,v 1.14 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.properties.gui.util;
 
 import net.infonode.gui.InsetsUtil;
@@ -41,7 +41,7 @@ import java.awt.*;
  * Properties and property values for a {@link JComponent}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.14 $
  */
 public class ComponentProperties extends PropertyMapContainer {
   /**
@@ -122,6 +122,27 @@ public class ComponentProperties extends PropertyMapContainer {
   public ComponentProperties addSuperObject(ComponentProperties properties) {
     getMap().addSuperMap(properties.getMap());
 
+    return this;
+  }
+
+  /**
+   * Removes the last added super object.
+   *
+   * @return this
+   */
+  public ComponentProperties removeSuperObject() {
+    getMap().removeSuperMap();
+    return this;
+  }
+
+  /**
+   * Removes the given super object.
+   *
+   * @param superObject super object to remove
+   * @return this
+   */
+  public ComponentProperties removeSuperObject(ComponentProperties superObject) {
+    getMap().removeSuperMap(superObject.getMap());
     return this;
   }
 

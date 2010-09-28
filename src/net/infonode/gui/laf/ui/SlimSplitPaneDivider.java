@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SlimSplitPaneDivider.java,v 1.1 2004/08/20 15:04:26 jesper Exp $
+// $Id: SlimSplitPaneDivider.java,v 1.3 2005/02/16 11:28:11 jesper Exp $
 package net.infonode.gui.laf.ui;
 
 import net.infonode.gui.icon.button.ArrowIcon;
@@ -33,7 +33,7 @@ import java.awt.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.3 $
  */
 public class SlimSplitPaneDivider extends BasicSplitPaneDivider {
   public SlimSplitPaneDivider(BasicSplitPaneUI ui) {

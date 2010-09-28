@@ -20,7 +20,7 @@
  */
 
 
-// $Id: HighlightBorder.java,v 1.13 2004/11/11 14:11:14 jesper Exp $
+// $Id: HighlightBorder.java,v 1.15 2005/02/16 11:28:10 jesper Exp $
 package net.infonode.gui.border;
 
 import net.infonode.gui.InsetsUtil;
@@ -36,7 +36,7 @@ import java.io.Serializable;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.15 $
  */
 public class HighlightBorder implements Border, Serializable {
   private static final long serialVersionUID = 1;

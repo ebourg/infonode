@@ -20,14 +20,14 @@
  */
 
 
-// $Id: BorderLayout2.java,v 1.6 2004/09/23 14:17:01 jesper Exp $
+// $Id: BorderLayout2.java,v 1.8 2005/02/16 11:28:12 jesper Exp $
 package net.infonode.gui.layout;
 
 import java.awt.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.8 $
  */
 public class BorderLayout2 implements LayoutManager2 {
   private Component[][] components;

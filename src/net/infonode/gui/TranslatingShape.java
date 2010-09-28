@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TranslatingShape.java,v 1.2 2004/11/05 17:53:08 johan Exp $
+// $Id: TranslatingShape.java,v 1.4 2005/02/16 11:28:13 jesper Exp $
 package net.infonode.gui;
 
 import java.awt.*;
@@ -30,8 +30,8 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 /**
- * @author $Author: johan $
- * @version $Revision: 1.2 $
+ * @author $Author: jesper $
+ * @version $Revision: 1.4 $
  */
 public class TranslatingShape implements Shape {
   private Shape shape;

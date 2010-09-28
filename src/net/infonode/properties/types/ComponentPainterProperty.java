@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ComponentPainterProperty.java,v 1.3 2004/11/11 14:10:12 jesper Exp $
+// $Id: ComponentPainterProperty.java,v 1.4 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.properties.types;
 
 import net.infonode.gui.componentpainter.ComponentPainter;
@@ -32,10 +32,13 @@ import net.infonode.properties.util.ValueHandlerProperty;
  * A property of type {@link ComponentPainter}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class ComponentPainterProperty extends ValueHandlerProperty {
-  public ComponentPainterProperty(PropertyGroup group, String name, String description, PropertyValueHandler valueStorage) {
+  public ComponentPainterProperty(PropertyGroup group,
+                                  String name,
+                                  String description,
+                                  PropertyValueHandler valueStorage) {
     super(group, name, ComponentPainter.class, description, valueStorage);
   }
 

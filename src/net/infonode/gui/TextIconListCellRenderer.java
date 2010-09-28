@@ -20,10 +20,10 @@
  */
 
 
-// $Id: TextIconListCellRenderer.java,v 1.7 2004/09/28 11:39:33 johan Exp $
+// $Id: TextIconListCellRenderer.java,v 1.10 2005/02/16 11:28:13 jesper Exp $
 package net.infonode.gui;
 
-import net.infonode.gui.icon.IconProvider;
+import net.infonode.gui.icon.IconUtil;
 
 import javax.swing.*;
 import java.awt.*;
@@ -35,64 +35,50 @@ public class TextIconListCellRenderer extends DefaultListCellRenderer {
   private ListCellRenderer renderer;
   private Icon emptyIcon;
   private int width;
-  private boolean iconFound;
 
   public TextIconListCellRenderer(ListCellRenderer renderer) {
     this.renderer = renderer;
   }
 
   public void calculateMaximumIconWidth(Object[] list) {
-    width = -1;
-    Icon icon;
-    iconFound = false;
-    for (int i = 0; i < list.length; i++) {
-      Object o = list[i];
-      if (o instanceof IconProvider) {
-        icon = ((IconProvider) o).getIcon();
-        if (icon != null) {
-          iconFound = true;
-          if (icon.getIconWidth() > width)
-            width = icon.getIconWidth();
-        }
+    width = IconUtil.getMaxIconWidth(list);
+    emptyIcon = width == 0 ? null : new Icon() {
+      public int getIconHeight() {
+        return 1;
       }
-    }
-    if (iconFound)
-      emptyIcon = new Icon() {
-        public int getIconHeight() {
-          return 1;
-        }
 
-        public int getIconWidth() {
-          return width;
-        }
+      public int getIconWidth() {
+        return width;
+      }
 
-        public void paintIcon(Component c, Graphics g, int x, int y) {
-        }
-      };
+      public void paintIcon(Component c, Graphics g, int x, int y) {
+      }
+    };
   }
 
   public void setRenderer(ListCellRenderer renderer) {
     this.renderer = renderer;
   }
 
-  public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+  public Component getListCellRendererComponent(JList list,
+                                                Object value,
+                                                int index,
+                                                boolean isSelected,
+                                                boolean cellHasFocus) {
     if (index == -1)
       return null;
 
-    Icon icon = null;
     JLabel label = (JLabel) renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+    Icon icon = IconUtil.getIcon(value);
 
-    if (iconFound) {
-      if (value instanceof IconProvider)
-        icon = ((IconProvider) value).getIcon();
-      if (icon == null) {
-        label.setIcon(emptyIcon);
-      }
-      else {
-        label.setIcon(icon);
-        if (icon.getIconWidth() < width)
-          label.setIconTextGap(label.getIconTextGap() + width - icon.getIconWidth());
-      }
+    if (icon == null) {
+      label.setIcon(emptyIcon);
+    }
+    else {
+      label.setIcon(icon);
+
+      if (icon.getIconWidth() < width)
+        label.setIconTextGap(label.getIconTextGap() + width - icon.getIconWidth());
     }
 
     return label;

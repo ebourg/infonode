@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyRefValue.java,v 1.9 2004/11/05 13:03:34 jesper Exp $
+// $Id: PropertyRefValue.java,v 1.15 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.properties.propertymap.value;
 
 import net.infonode.properties.base.Property;
@@ -39,7 +39,7 @@ import java.io.ObjectOutputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.15 $
  */
 public class PropertyRefValue implements PropertyValue, ChangeNotifyMapListener {
   private PropertyMapImpl map;
@@ -48,11 +48,13 @@ public class PropertyRefValue implements PropertyValue, ChangeNotifyMapListener 
   private Property propertyRef;
   private PropertyRefValue parentRef;
 
-  public PropertyRefValue(PropertyMapImpl map, Property property, PropertyMapRef propertyObjectRef, Property propertyRef, PropertyRefValue parentRef) {
+  public PropertyRefValue(PropertyMapImpl map, Property property, PropertyMapRef propertyObjectRef,
+                          Property propertyRef, PropertyRefValue parentRef) {
     if (!property.getType().isAssignableFrom(propertyRef.getType()))
       throw new InvalidPropertyTypeException(property,
                                              propertyRef,
-                                             "Can't create reference from Property '" + property + "' to property '" + propertyRef +
+                                             "Can't create reference from Property '" + property + "' to property '" +
+                                             propertyRef +
                                              "' because they are of incompatible types!");
 
     this.map = map;
@@ -122,6 +124,10 @@ public class PropertyRefValue implements PropertyValue, ChangeNotifyMapListener 
     out.writeUTF(propertyRef.getName());
   }
 
+  public boolean isSerializable() {
+    return true;
+  }
+
   public static PropertyValue decode(ObjectInputStream in, PropertyMapImpl propertyObject, Property property) throws IOException {
     PropertyMapRef ref = PropertyMapRefDecoder.decode(in);
     String propertyName = in.readUTF();
@@ -136,4 +142,14 @@ public class PropertyRefValue implements PropertyValue, ChangeNotifyMapListener 
 
     return new PropertyRefValue(propertyObject, property, ref, refProperty, null);
   }
+
+  public static void skip(ObjectInputStream in) throws IOException {
+    PropertyMapRefDecoder.decode(in);
+    in.readUTF();
+  }
+
+  public PropertyValue copyTo(PropertyMapImpl propertyMap) {
+    return new PropertyRefValue(propertyMap, property, propertyObjectRef, propertyRef, null);
+  }
+
 }

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: Enum.java,v 1.5 2004/07/06 15:08:45 jesper Exp $
+// $Id: Enum.java,v 1.8 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.util;
 
 import java.io.*;
@@ -31,7 +31,7 @@ import java.util.HashMap;
  * Each enum value contains a name and an integer identifier.
  *
  * @author Jesper Nordenberg
- * @version $Revision: 1.5 $ $Date: 2004/07/06 15:08:45 $
+ * @version $Revision: 1.8 $ $Date: 2005/02/16 11:28:14 $
  */
 public class Enum implements Serializable, Writable {
   private static final long serialVersionUID = 1;
@@ -44,11 +44,11 @@ public class Enum implements Serializable, Writable {
     this.value = value;
     this.name = name;
 
-    HashMap values = (HashMap) VALUE_MAP.get(this.getClass());
+    HashMap values = (HashMap) VALUE_MAP.get(getClass());
 
     if (values == null) {
       values = new HashMap();
-      VALUE_MAP.put(this.getClass(), values);
+      VALUE_MAP.put(getClass(), values);
     }
 
     values.put(new Integer(value), this);
@@ -108,7 +108,7 @@ public class Enum implements Serializable, Writable {
 
   protected Object readResolve() throws ObjectStreamException {
     try {
-      return getObject(this.getClass(), getValue());
+      return getObject(getClass(), getValue());
     }
     catch (IOException e) {
       return this;

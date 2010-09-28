@@ -20,14 +20,30 @@
  */
 
 
-// $Id: Printer.java,v 1.2 2004/06/17 13:01:11 johan Exp $
+// $Id: Printer.java,v 1.3 2005/02/01 17:18:20 jesper Exp $
 package net.infonode.util;
 
+import java.io.PrintStream;
+
 public class Printer {
+  private PrintStream out;
   private String indent = "";
   private boolean newLine = true;
 
+  public Printer() {
+    this(System.out);
+  }
+
+  public Printer(PrintStream out) {
+    this.out = out;
+  }
+
   public void beginSection() {
+    indent += "  ";
+  }
+
+  public void beginSection(String title) {
+    println(title);
     indent += "  ";
   }
 
@@ -37,25 +53,25 @@ public class Printer {
 
   public void print(String str) {
     if (newLine)
-      System.out.print(indent);
+      out.print(indent);
 
-    System.out.print(str);
+    out.print(str);
     newLine = false;
   }
 
   public void println(String str) {
     if (newLine)
-      System.out.print(indent);
+      out.print(indent);
 
-    System.out.println(str);
+    out.println(str);
     newLine = true;
   }
 
   public void println() {
     if (newLine)
-      System.out.print(indent);
+      out.print(indent);
 
-    System.out.println();
+    out.println();
     newLine = true;
   }
 }

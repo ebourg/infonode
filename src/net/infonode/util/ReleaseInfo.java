@@ -20,7 +20,7 @@
  */
 
 
-//$Id: ReleaseInfo.java,v 1.8 2004/09/28 15:07:29 jesper Exp $
+//$Id: ReleaseInfo.java,v 1.9 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.util;
 
 import java.io.Serializable;
@@ -31,7 +31,7 @@ import java.net.URL;
  * A class that represents release information for a product
  *
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public class ReleaseInfo implements Serializable {
   private static final long serialVersionUID = 1;
@@ -53,7 +53,12 @@ public class ReleaseInfo implements Serializable {
    * @param license   the product license
    * @param homepage  URL to the product homepage
    */
-  public ReleaseInfo(String name, String vendor, long buildTime, ProductVersion version, String license, String homepage) {
+  public ReleaseInfo(String name,
+                     String vendor,
+                     long buildTime,
+                     ProductVersion version,
+                     String license,
+                     String homepage) {
     this.productName = name;
     this.productVendor = vendor;
     this.buildTime = buildTime;

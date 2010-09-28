@@ -20,7 +20,7 @@
  */
 
 
-// $Id: AbstractWindowLocation.java,v 1.12 2004/11/11 14:09:46 jesper Exp $
+// $Id: AbstractWindowLocation.java,v 1.14 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.location;
 
 import net.infonode.docking.DockingWindow;
@@ -35,7 +35,7 @@ import java.lang.ref.SoftReference;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.14 $
  */
 abstract public class AbstractWindowLocation implements WindowLocation {
   private WindowLocation parentLocation;

@@ -20,17 +20,14 @@
  */
 
 
-// $Id: ScrollButtonBox.java,v 1.10 2004/09/22 14:35:05 jesper Exp $
+// $Id: ScrollButtonBox.java,v 1.13 2005/02/16 11:28:13 jesper Exp $
 package net.infonode.gui;
 
 import net.infonode.gui.icon.button.ArrowIcon;
-import net.infonode.gui.icon.button.BorderIcon;
 import net.infonode.gui.layout.DirectionLayout;
-import net.infonode.util.ColorUtil;
 import net.infonode.util.Direction;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelEvent;
@@ -38,11 +35,15 @@ import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 
 public class ScrollButtonBox extends JPanel {
+  private AbstractButton upButton;
+  private AbstractButton downButton;
+  private AbstractButton leftButton;
+  private AbstractButton rightButton;
 
-  private JButton button1;
-  private JButton button2;
+  private boolean button1Enabled;
+  private boolean button2Enabled;
+
   private boolean vertical;
-  private int iconSize;
 
   private ArrayList listeners;
 
@@ -58,9 +59,21 @@ public class ScrollButtonBox extends JPanel {
     }
   };
 
-  public ScrollButtonBox(final boolean vertical, int iconSize) {
+  public ScrollButtonBox(boolean vertical, int iconSize) {
+    this(vertical,
+         ButtonFactory.createFlatHighlightButton(new ArrowIcon(iconSize, Direction.UP), "", 0, null),
+         ButtonFactory.createFlatHighlightButton(new ArrowIcon(iconSize, Direction.DOWN), "", 0, null),
+         ButtonFactory.createFlatHighlightButton(new ArrowIcon(iconSize, Direction.LEFT), "", 0, null),
+         ButtonFactory.createFlatHighlightButton(new ArrowIcon(iconSize, Direction.RIGHT), "", 0, null));
+  }
+
+  public ScrollButtonBox(final boolean vertical,
+                         AbstractButton upButton,
+                         AbstractButton downButton,
+                         AbstractButton leftButton,
+                         AbstractButton rightButton) {
     this.vertical = vertical;
-    this.iconSize = iconSize;
+    setLayout(new DirectionLayout(vertical ? Direction.DOWN : Direction.RIGHT));
 
     addMouseWheelListener(new MouseWheelListener() {
       public void mouseWheelMoved(MouseWheelEvent e) {
@@ -71,23 +84,27 @@ public class ScrollButtonBox extends JPanel {
       }
     });
 
-    initialize();
+    setButtons(upButton, downButton, leftButton, rightButton);
   }
 
   public void setButton1Enabled(boolean enabled) {
-    button1.setEnabled(enabled);
+    this.button1Enabled = enabled;
+    if (getComponentCount() > 0)
+      ((AbstractButton) getComponent(0)).setEnabled(enabled);
   }
 
   public void setButton2Enabled(boolean enabled) {
-    button2.setEnabled(enabled);
+    this.button2Enabled = enabled;
+    if (getComponentCount() > 0)
+      ((AbstractButton) getComponent(1)).setEnabled(enabled);
   }
 
   public boolean isButton1Enabled() {
-    return button1.isEnabled();
+    return button1Enabled;
   }
 
   public boolean isButton2Enabled() {
-    return button2.isEnabled();
+    return button2Enabled;
   }
 
   public void addListener(ScrollButtonBoxListener listener) {
@@ -113,19 +130,50 @@ public class ScrollButtonBox extends JPanel {
   public void setVertical(boolean vertical) {
     if (vertical != this.vertical) {
       this.vertical = vertical;
-      update();
-      ((DirectionLayout) getLayout()).setDirection(vertical ? Direction.DOWN : Direction.RIGHT);
+      initialize();
+      //update();
     }
   }
 
-  public void updateUI() {
+  public void setButtons(AbstractButton upButton,
+                         AbstractButton downButton,
+                         AbstractButton leftButton,
+                         AbstractButton rightButton) {
+    if (upButton != this.upButton || downButton != this.downButton || leftButton != this.leftButton ||
+        rightButton != this.rightButton) {
+      this.upButton = upButton;
+      this.downButton = downButton;
+      this.leftButton = leftButton;
+      this.rightButton = rightButton;
+
+      initialize();
+    }
+  }
+
+  public AbstractButton getUpButton() {
+    return upButton;
+  }
+
+  public AbstractButton getDownButton() {
+    return downButton;
+  }
+
+  public AbstractButton getLeftButton() {
+    return leftButton;
+  }
+
+  public AbstractButton getRightButton() {
+    return rightButton;
+  }
+
+/*  public void updateUI() {
     super.updateUI();
 
     if (button1 != null) {
       update();
     }
   }
-
+*/
   private void fireButton1() {
     if (listeners != null) {
       Object[] l = listeners.toArray();
@@ -145,29 +193,48 @@ public class ScrollButtonBox extends JPanel {
   }
 
   private void initialize() {
-    setLayout(new DirectionLayout(vertical ? Direction.DOWN : Direction.RIGHT));
-    button1 = ButtonFactory.createFlatHighlightButton(null,
-                                                      null,
-                                                      0,
-                                                      button1Listener);
+    if (getComponentCount() > 0) {
+      ((AbstractButton) getComponent(0)).removeActionListener(button1Listener);
+      ((AbstractButton) getComponent(1)).removeActionListener(button2Listener);
+      removeAll();
+    }
 
-    button2 = ButtonFactory.createFlatHighlightButton(null,
-                                                      null,
-                                                      0,
-                                                      button2Listener);
+    ((DirectionLayout) getLayout()).setDirection(vertical ? Direction.DOWN : Direction.RIGHT);
 
-    button1.setFocusable(false);
-    button2.setFocusable(false);
+    AbstractButton button1;
+    AbstractButton button2;
+
+    if (vertical) {
+      button1 = upButton;
+      button2 = downButton;
+    }
+    else {
+      button1 = leftButton;
+      button2 = rightButton;
+    }
+
+    if (button1 != null && button2 != null) {
+      add(button1);
+      add(button2);
+
+      button1.setFocusable(false);
+      button2.setFocusable(false);
+
+      button1.setEnabled(button1Enabled);
+      button2.setEnabled(button2Enabled);
+
+      button1.addActionListener(button1Listener);
+      button2.addActionListener(button2Listener);
+    }
 
     setOpaque(false);
+    if (getParent() != null)
+      getParent().validate();
 
-    add(button1);
-    add(button2);
-
-    update();
+    //update();
   }
 
-  private void update() {
+/*  private void update() {
     Color c1 = UIManager.getColor("Button.foreground");
     Color c2 = UIManager.getColor("Button.disabledForeground");
 
@@ -184,5 +251,5 @@ public class ScrollButtonBox extends JPanel {
     icon = new ArrowIcon(c2, iconSize - 2, vertical ? Direction.DOWN : Direction.RIGHT);
     icon.setShadowEnabled(false);
     button2.setDisabledIcon(new BorderIcon(icon, 1));
-  }
+  }*/
 }

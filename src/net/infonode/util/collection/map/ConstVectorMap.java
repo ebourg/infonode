@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ConstVectorMap.java,v 1.4 2004/07/06 15:08:44 jesper Exp $
+// $Id: ConstVectorMap.java,v 1.7 2005/02/16 11:28:13 jesper Exp $
 package net.infonode.util.collection.map;
 
 import net.infonode.util.collection.map.base.ConstMap;
@@ -33,7 +33,7 @@ public class ConstVectorMap implements ConstMap {
     private int index = 1;
     private ConstMapIterator iterator;
 
-    public ConstIterator() {
+    ConstIterator() {
       if (maps.size() > 0) {
         iterator = getMap(0).constIterator();
         advance();

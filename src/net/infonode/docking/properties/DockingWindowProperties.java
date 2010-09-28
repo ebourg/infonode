@@ -20,9 +20,11 @@
  */
 
 
-// $Id: DockingWindowProperties.java,v 1.12 2004/11/11 14:09:46 jesper Exp $
+// $Id: DockingWindowProperties.java,v 1.19 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.properties;
 
+import net.infonode.docking.title.DockingWindowTitleProvider;
+import net.infonode.docking.title.DockingWindowTitleProviderProperty;
 import net.infonode.properties.propertymap.*;
 import net.infonode.properties.types.BooleanProperty;
 
@@ -30,7 +32,7 @@ import net.infonode.properties.types.BooleanProperty;
  * Properties and property values common for all docking windows.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.19 $
  */
 public class DockingWindowProperties extends PropertyMapContainer {
   /**
@@ -102,6 +104,17 @@ public class DockingWindowProperties extends PropertyMapContainer {
                           "Enables/disables window maximize by the user.",
                           PropertyMapValueHandler.INSTANCE);
 
+  /**
+   * Provides a title for a window.
+   *
+   * @since IDW 1.3.0
+   */
+  public static final DockingWindowTitleProviderProperty TITLE_PROVIDER =
+      new DockingWindowTitleProviderProperty(PROPERTIES,
+                                             "Title Provider",
+                                             "Provides a title for a window.",
+                                             PropertyMapValueHandler.INSTANCE);
+
 
   /**
    * Creates an empty property object.
@@ -144,9 +157,22 @@ public class DockingWindowProperties extends PropertyMapContainer {
    *
    * @return this
    * @since IDW 1.1.0
+   * @deprecated Use {@link #removeSuperObject(DockingWindowProperties)} instead.
    */
   public DockingWindowProperties removeSuperObject() {
     getMap().removeSuperMap();
+    return this;
+  }
+
+  /**
+   * Removes a super object.
+   *
+   * @param superObject the super object to remove
+   * @return this
+   * @since IDW 1.3.0
+   */
+  public DockingWindowProperties removeSuperObject(DockingWindowProperties superObject) {
+    getMap().removeSuperMap(superObject.getMap());
     return this;
   }
 
@@ -266,6 +292,27 @@ public class DockingWindowProperties extends PropertyMapContainer {
    */
   public DockingWindowProperties setRestoreEnabled(boolean enabled) {
     RESTORE_ENABLED.set(getMap(), enabled);
+    return this;
+  }
+
+  /**
+   * Returns the title provider for the window.
+   *
+   * @return the title provider for the window
+   * @since IDW 1.3.0
+   */
+  public DockingWindowTitleProvider getTitleProvider() {
+    return TITLE_PROVIDER.get(getMap());
+  }
+
+  /**
+   * Sets the title provider for the window.
+   *
+   * @param titleProvider the title provider for the window
+   * @since IDW 1.3.0
+   */
+  public DockingWindowProperties setTitleProvider(DockingWindowTitleProvider titleProvider) {
+    TITLE_PROVIDER.set(getMap(), titleProvider);
     return this;
   }
 

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: AbstractViewMap.java,v 1.7 2004/09/28 15:07:29 jesper Exp $
+// $Id: AbstractViewMap.java,v 1.11 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.util;
 
 import net.infonode.docking.View;
@@ -39,7 +39,7 @@ import java.util.Map;
  * Base class for view maps.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.11 $
  * @since IDW 1.1.0
  */
 abstract public class AbstractViewMap implements ViewFactoryManager, ViewSerializer {
@@ -93,6 +93,17 @@ abstract public class AbstractViewMap implements ViewFactoryManager, ViewSeriali
     }
 
     return (ViewFactory[]) f.toArray(new ViewFactory[f.size()]);
+  }
+
+  /**
+   * Returns true if this view map contains the view.
+   *
+   * @param view the view
+   * @return true if this view map contains the view
+   * @since IDW 1.3.0
+   */
+  public boolean contains(View view) {
+    return views.contains(view);
   }
 
   public void writeView(View view, ObjectOutputStream out) throws IOException {

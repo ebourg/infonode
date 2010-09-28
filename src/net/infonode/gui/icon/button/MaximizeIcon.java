@@ -20,14 +20,14 @@
  */
 
 
-//$Id: MaximizeIcon.java,v 1.6 2004/11/11 09:51:34 jesper Exp $
+//$Id: MaximizeIcon.java,v 1.8 2005/02/16 11:28:11 jesper Exp $
 package net.infonode.gui.icon.button;
 
 import java.awt.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.8 $
  */
 public class MaximizeIcon extends AbstractButtonIcon {
   private static final long serialVersionUID = -5926578998259734919L;

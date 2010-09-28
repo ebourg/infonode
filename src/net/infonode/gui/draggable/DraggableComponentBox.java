@@ -20,7 +20,7 @@
  */
 
 
-// $Id: DraggableComponentBox.java,v 1.30 2004/11/11 14:11:14 jesper Exp $
+// $Id: DraggableComponentBox.java,v 1.36 2005/02/16 11:28:11 jesper Exp $
 
 package net.infonode.gui.draggable;
 
@@ -56,6 +56,8 @@ public class DraggableComponentBox extends SimplePanel {
   private ArrayList layoutOrderList = new ArrayList();
   private ScrollButtonBox scrollButtonBox;
 
+  private boolean useDefaultScrollButtons = true;
+
   private DraggableComponentListener draggableComponentListener = new DraggableComponentListener() {
     public void changed(DraggableComponentEvent event) {
       if (event.getType() == DraggableComponentEvent.TYPE_MOVED)
@@ -81,15 +83,23 @@ public class DraggableComponentBox extends SimplePanel {
   };
 
   public DraggableComponentBox(int iconSize) {
+    this(iconSize, true);
+  }
+
+  public DraggableComponentBox(int iconSize, boolean useDefaultScrollButtons) {
     this.iconSize = iconSize;
+    this.useDefaultScrollButtons = useDefaultScrollButtons;
     // Fix minimum size when flipping direction
-    final DirectionLayout layout = new DirectionLayout(componentDirection == Direction.UP ? Direction.RIGHT : componentDirection == Direction.LEFT
-                                                                                                              ?
-                                                                                                              Direction.DOWN
-                                                                                                              :
-                                                                                                              componentDirection == Direction.DOWN ?
-                                                                                                              Direction.RIGHT :
-                                                                                                              Direction.DOWN) {
+    final DirectionLayout layout = new DirectionLayout(
+        componentDirection == Direction.UP ?
+        Direction.RIGHT :
+        componentDirection == Direction.LEFT
+        ?
+        Direction.DOWN
+        :
+        componentDirection == Direction.DOWN ?
+        Direction.RIGHT :
+        Direction.DOWN) {
       public Dimension minimumLayoutSize(Container parent) {
         Dimension min = super.minimumLayoutSize(parent);
         Dimension pref = super.preferredLayoutSize(parent);
@@ -184,6 +194,7 @@ public class DraggableComponentBox extends SimplePanel {
 
   public void removeDraggableComponent(DraggableComponent component) {
     if (component != null && component.getComponent().getParent() == componentBox) {
+      //component.abortDrag();
       int index = layoutOrderList.indexOf(component.getComponent());
       component.removeListener(draggableComponentListener);
       if (component == topComponent)
@@ -309,11 +320,16 @@ public class DraggableComponentBox extends SimplePanel {
   public void setComponentDirection(Direction componentDirection) {
     if (componentDirection != this.componentDirection) {
       this.componentDirection = componentDirection;
-      getDirectionLayout().setDirection(componentDirection == Direction.UP ? Direction.RIGHT : componentDirection == Direction.LEFT ? Direction.DOWN : componentDirection == Direction.DOWN
-                                                                                                                                                       ?
-                                                                                                                                                       Direction.RIGHT
-                                                                                                                                                       :
-                                                                                                                                                       Direction.DOWN);
+      getDirectionLayout().setDirection(
+          componentDirection == Direction.UP ?
+          Direction.RIGHT :
+          componentDirection == Direction.LEFT ?
+          Direction.DOWN :
+          componentDirection == Direction.DOWN
+          ?
+          Direction.RIGHT
+          :
+          Direction.DOWN);
       if (scrollEnabled) {
         scrollButtonBox.setVertical(componentDirection.isHorizontal());
         ((ScrollableBox) componentContainer).setVertical(componentDirection.isHorizontal());
@@ -441,7 +457,11 @@ public class DraggableComponentBox extends SimplePanel {
     layout.setCompressing(!scrollEnabled);
 
     if (scrollEnabled) {
-      scrollButtonBox = new ScrollButtonBox(componentDirection.isHorizontal(), iconSize);
+      if (useDefaultScrollButtons)
+        scrollButtonBox = new ScrollButtonBox(componentDirection.isHorizontal(), iconSize);
+      else
+        scrollButtonBox = new ScrollButtonBox(componentDirection.isHorizontal(), null, null, null, null);
+
       final ScrollableBox scrollableBox = new ScrollableBox(componentBox,
                                                             componentDirection.isHorizontal(),
                                                             scrollOffset);
@@ -501,7 +521,7 @@ public class DraggableComponentBox extends SimplePanel {
                                                                         e,
                                                                         SwingUtilities.convertPoint(
                                                                             e.getSource().getComponent(),
-                                                                            e.getPoint(),
+                                                                            e.getMouseEvent().getPoint(),
                                                                             this));
       Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
@@ -516,7 +536,7 @@ public class DraggableComponentBox extends SimplePanel {
                                                                         e,
                                                                         SwingUtilities.convertPoint(
                                                                             e.getSource().getComponent(),
-                                                                            e.getPoint(),
+                                                                            e.getMouseEvent().getPoint(),
                                                                             this));
       Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)

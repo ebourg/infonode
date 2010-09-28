@@ -20,7 +20,7 @@
  */
 
 
-// $Id: AbstractComponentPainterWrapper.java,v 1.2 2004/11/05 17:53:08 johan Exp $
+// $Id: AbstractComponentPainterWrapper.java,v 1.4 2005/02/16 11:28:11 jesper Exp $
 package net.infonode.gui.componentpainter;
 
 import net.infonode.util.Direction;
@@ -28,8 +28,8 @@ import net.infonode.util.Direction;
 import java.awt.*;
 
 /**
- * @author $Author: johan $
- * @version $Revision: 1.2 $
+ * @author $Author: jesper $
+ * @version $Revision: 1.4 $
  */
 abstract public class AbstractComponentPainterWrapper extends AbstractComponentPainter {
   private static final long serialVersionUID = 1;
@@ -52,7 +52,15 @@ abstract public class AbstractComponentPainterWrapper extends AbstractComponentP
     return painter.isOpaque(component);
   }
 
-  public void paint(Component component, Graphics g, int x, int y, int width, int height, Direction direction, boolean horizontalFlip, boolean verticalFlip) {
+  public void paint(Component component,
+                    Graphics g,
+                    int x,
+                    int y,
+                    int width,
+                    int height,
+                    Direction direction,
+                    boolean horizontalFlip,
+                    boolean verticalFlip) {
     painter.paint(component, g, x, y, width, height, direction, horizontalFlip, verticalFlip);
   }
 }

@@ -20,18 +20,21 @@
  */
 
 
-// $Id: WindowDecoder.java,v 1.11 2004/09/22 14:31:39 jesper Exp $
+// $Id: WindowDecoder.java,v 1.15 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking;
 
-import net.infonode.util.StreamUtil;
+import net.infonode.docking.internal.ReadContext;
+import net.infonode.docking.model.SplitWindowItem;
+import net.infonode.docking.model.TabWindowItem;
+import net.infonode.docking.model.ViewReader;
+import net.infonode.docking.model.WindowItem;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.15 $
  */
 class WindowDecoder {
   private WindowDecoder() {
@@ -42,33 +45,68 @@ class WindowDecoder {
 
     switch (id) {
       case WindowIds.VIEW:
-        {
-          int size = in.readInt();
-          byte[] viewData = new byte[size];
-          StreamUtil.readAll(in, viewData);
-          ObjectInputStream viewIn = new ObjectInputStream(new ByteArrayInputStream(viewData));
-          View view = context.getViewSerializer().readView(viewIn);
-
-          if (view != null)
-            view.read(viewIn, context);
-
-          return view;
-        }
+        return View.read(in, context);
 
       case WindowIds.SPLIT:
         {
           SplitWindow w = new SplitWindow(true);
-          return w.read(in, context);
+          return w.oldRead(in, context);
         }
 
       case WindowIds.TAB:
         {
           TabWindow w = new TabWindow();
-          return w.read(in, context);
+          return w.oldRead(in, context);
         }
 
       default:
         throw new IOException("Invalid window ID: " + id + '!');
+    }
+  }
+
+  static DockingWindow decodeWindow(ObjectInputStream in, ReadContext context, ViewReader viewReader) throws IOException {
+    int id = in.readInt();
+
+    if (id == WindowIds.VIEW) {
+      return viewReader.readView(in, context);
+    }
+    else {
+      WindowItem windowItem = viewReader.readWindowItem(in, context);
+
+      switch (id) {
+        case WindowIds.SPLIT:
+          {
+            SplitWindowItem item = (SplitWindowItem) windowItem;
+
+            if (item == null) {
+              item = new SplitWindowItem();
+              item.readSettings(in, context);
+            }
+
+            SplitWindow w = new SplitWindow(item.isHorizontal(),
+                                            item.getDividerLocation(),
+                                            null,
+                                            null,
+                                            item);
+            return w.newRead(in, context, viewReader);
+          }
+
+        case WindowIds.TAB:
+          {
+            TabWindowItem item = (TabWindowItem) windowItem;
+
+            if (item == null) {
+              item = new TabWindowItem();
+              item.readSettings(in, context);
+            }
+
+            TabWindow w = new TabWindow(null, item);
+            return w.newRead(in, context, viewReader);
+          }
+
+        default:
+          throw new IOException("Invalid window ID: " + id + '!');
+      }
     }
   }
 }

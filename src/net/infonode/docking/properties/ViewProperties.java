@@ -19,7 +19,7 @@
  * MA 02111-1307, USA.
  */
 
-// $Id: ViewProperties.java,v 1.15 2004/10/14 15:28:35 jesper Exp $
+// $Id: ViewProperties.java,v 1.18 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.propertymap.*;
@@ -33,7 +33,7 @@ import javax.swing.*;
  * Properties and property values for views.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.18 $
  */
 public class ViewProperties extends PropertyMapContainer {
   /**
@@ -112,9 +112,22 @@ public class ViewProperties extends PropertyMapContainer {
    *
    * @return this
    * @since IDW 1.1.0
+   * @deprecated Use {@link #removeSuperObject(ViewProperties)} instead.
    */
   public ViewProperties removeSuperObject() {
     getMap().removeSuperMap();
+    return this;
+  }
+
+  /**
+   * Removes a super object.
+   *
+   * @param superObject the super object to remove
+   * @return this
+   * @since IDW 1.3.0
+   */
+  public ViewProperties removeSuperObject(ViewProperties superObject) {
+    getMap().removeSuperMap(superObject.getMap());
     return this;
   }
 

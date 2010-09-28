@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ColorProvider.java,v 1.4 2004/09/28 15:07:29 jesper Exp $
+// $Id: ColorProvider.java,v 1.6 2005/02/16 11:28:10 jesper Exp $
 package net.infonode.gui.colorprovider;
 
 import java.awt.*;
@@ -32,7 +32,7 @@ import java.io.Serializable;
  * the border is painted on.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.6 $
  */
 public interface ColorProvider extends Serializable {
   /**

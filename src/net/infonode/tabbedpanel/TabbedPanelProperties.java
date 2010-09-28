@@ -20,14 +20,19 @@
  */
 
 
-// $Id: TabbedPanelProperties.java,v 1.44 2004/11/11 14:10:33 jesper Exp $
+// $Id: TabbedPanelProperties.java,v 1.53 2005/02/16 11:28:15 jesper Exp $
 
 package net.infonode.tabbedpanel;
 
 import net.infonode.gui.DynamicUIManager;
 import net.infonode.gui.DynamicUIManagerListener;
 import net.infonode.gui.border.HighlightBorder;
+import net.infonode.gui.hover.HoverListener;
+import net.infonode.gui.icon.button.ArrowIcon;
+import net.infonode.gui.icon.button.BorderIcon;
+import net.infonode.gui.icon.button.DropDownIcon;
 import net.infonode.properties.base.Property;
+import net.infonode.properties.gui.util.ButtonProperties;
 import net.infonode.properties.propertymap.*;
 import net.infonode.properties.types.*;
 import net.infonode.tabbedpanel.border.OpenContentBorder;
@@ -38,17 +43,21 @@ import net.infonode.util.Direction;
 import javax.swing.border.CompoundBorder;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.util.HashMap;
 
 /**
  * TabbedPanelProperties holds all properties for a {@link TabbedPanel}. A
  * TabbedPanelProperties object contains separate property objects for the
- * content area and the tab area of the TabbedPanel.
+ * content area, the tab area, the tab area components and the buttons of
+ * the TabbedPanel.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.44 $
+ * @version $Revision: 1.53 $
  * @see TabbedPanel
  * @see #getContentPanelProperties
  * @see #getTabAreaProperties
+ * @see #getTabAreaComponentsProperties
+ * @see #getButtonProperties
  */
 public class TabbedPanelProperties extends PropertyMapContainer {
   /**
@@ -181,7 +190,8 @@ public class TabbedPanelProperties extends PropertyMapContainer {
   public static final BooleanProperty AUTO_SELECT_TAB = new BooleanProperty(PROPERTIES,
                                                                             "Auto Select Tab",
                                                                             "When enabled the first tab that i added will be selected automatically. "
-                                                                            + "If the selected tab is removed then the tab next to the removed tab will be selected automatically.",
+                                                                            +
+                                                                            "If the selected tab is removed then the tab next to the removed tab will be selected automatically.",
                                                                             PropertyMapValueHandler.INSTANCE);
 
   /**
@@ -237,6 +247,17 @@ public class TabbedPanelProperties extends PropertyMapContainer {
                                                                                                    TabAreaComponentsProperties.PROPERTIES);
 
   /**
+   * Button properties
+   *
+   * @see #getButtonProperties
+   * @since ITP 1.3.0
+   */
+  public static final PropertyMapProperty BUTTON_PROPERTIES = new PropertyMapProperty(PROPERTIES,
+                                                                                      "Tabbed Panel Button Properties",
+                                                                                      "Tabbed panel button properties.",
+                                                                                      TabbedPanelButtonProperties.PROPERTIES);
+
+  /**
    * Shadow enabled property
    *
    * @see #setShadowEnabled
@@ -245,8 +266,33 @@ public class TabbedPanelProperties extends PropertyMapContainer {
   public static final BooleanProperty SHADOW_ENABLED = new BooleanProperty(PROPERTIES,
                                                                            "Shadow Enabled",
                                                                            "Indicates that a shadow is painted for the selected tab and the content panel.\n"
-                                                                           + "The shadow is partially painted using alpha transparency which can be slow on some systems.",
+                                                                           +
+                                                                           "The shadow is partially painted using alpha transparency which can be slow on some systems.",
                                                                            PropertyMapValueHandler.INSTANCE);
+
+  /**
+   * Hover listener property
+   *
+   * @see #setHoverListener
+   * @see #getHoverListener
+   * @since ITP 1.3.0
+   */
+  public static final HoverListenerProperty HOVER_LISTENER = new HoverListenerProperty(PROPERTIES,
+                                                                                       "Hover Listener",
+                                                                                       "Hover Listener to be used for tracking mouse hovering over the tabbed panel.",
+                                                                                       PropertyMapValueHandler.INSTANCE);
+
+  /**
+   * Tabbed panel hover policy.
+   *
+   * @see #setHoverPolicy
+   * @see #getHoverPolicy
+   * @since ITP 1.3.0
+   */
+  public static final TabbedPanelHoverPolicyProperty HOVER_POLICY = new TabbedPanelHoverPolicyProperty(PROPERTIES,
+                                                                                                       "Hover Policy",
+                                                                                                       "Policy for when the Tabbed Panel is considerd hovered by the mouse.",
+                                                                                                       PropertyMapValueHandler.INSTANCE);
 
   /**
    * Paint a shadow for the tab area. If this property is set to false a
@@ -258,7 +304,8 @@ public class TabbedPanelProperties extends PropertyMapContainer {
    */
   public static final BooleanProperty PAINT_TAB_AREA_SHADOW = new BooleanProperty(PROPERTIES,
                                                                                   "Paint Tab Area Shadow",
-                                                                                  "Paint a shadow for the tab area. If this property is set to false a shadow is painted for " + "the highlighted tab and the tab area components panel.",
+                                                                                  "Paint a shadow for the tab area. If this property is set to false a shadow is painted for " +
+                                                                                  "the highlighted tab and the tab area components panel.",
                                                                                   PropertyMapValueHandler.INSTANCE);
 
   /**
@@ -305,7 +352,9 @@ public class TabbedPanelProperties extends PropertyMapContainer {
   public static final FloatProperty SHADOW_STRENGTH = new FloatProperty(PROPERTIES,
                                                                         "Shadow Strength",
                                                                         "The strength of the shadow. 0 means the shadow color is the same as the backgound color, "
-                                                                        + "1 means the shadow color is '" + SHADOW_COLOR + "'.",
+                                                                        + "1 means the shadow color is '" +
+                                                                        SHADOW_COLOR +
+                                                                        "'.",
                                                                         PropertyMapValueHandler.INSTANCE,
                                                                         0,
                                                                         1);
@@ -313,19 +362,36 @@ public class TabbedPanelProperties extends PropertyMapContainer {
   /**
    * Array with all properties that controls the functional behavior
    */
-  public static final Property[] FUNCTIONAL_PROPERTIES = {TAB_REORDER_ENABLED, ABORT_DRAG_KEY, TAB_LAYOUT_POLICY, ENSURE_SELECTED_VISIBLE, AUTO_SELECT_TAB, TAB_DESELECTABLE, TAB_SELECT_TRIGGER};
+  public static final Property[] FUNCTIONAL_PROPERTIES = {TAB_REORDER_ENABLED,
+                                                          ABORT_DRAG_KEY,
+                                                          TAB_LAYOUT_POLICY,
+                                                          ENSURE_SELECTED_VISIBLE,
+                                                          AUTO_SELECT_TAB,
+                                                          TAB_DESELECTABLE,
+                                                          TAB_SELECT_TRIGGER,
+                                                          HOVER_POLICY};
 
   /**
    * Array with all properties that controls the shadow
    */
-  public static final Property[] SHADOW_PROPERTIES = {SHADOW_ENABLED, SHADOW_SIZE, SHADOW_BLEND_AREA_SIZE, SHADOW_COLOR, SHADOW_STRENGTH};
+  public static final Property[] SHADOW_PROPERTIES = {SHADOW_ENABLED,
+                                                      SHADOW_SIZE,
+                                                      SHADOW_BLEND_AREA_SIZE,
+                                                      SHADOW_COLOR,
+                                                      SHADOW_STRENGTH};
 
   /**
    * Array with all properties that controls the visual apperance except for
    * shadow
    */
-  public static final Property[] TABS_VISUAL_PROPERTIES = {TAB_SCROLLING_OFFSET, TAB_SPACING, TAB_AREA_ORIENTATION, TAB_AREA_PROPERTIES, TAB_AREA_COMPONENTS_PROPERTIES, TAB_LAYOUT_POLICY,
-                                                           CONTENT_PANEL_PROPERTIES, TAB_DROP_DOWN_LIST_VISIBLE_POLICY};
+  public static final Property[] TABS_VISUAL_PROPERTIES = {TAB_SCROLLING_OFFSET,
+                                                           TAB_SPACING,
+                                                           TAB_AREA_ORIENTATION,
+                                                           TAB_AREA_PROPERTIES,
+                                                           TAB_AREA_COMPONENTS_PROPERTIES,
+                                                           TAB_LAYOUT_POLICY,
+                                                           CONTENT_PANEL_PROPERTIES,
+                                                           TAB_DROP_DOWN_LIST_VISIBLE_POLICY};
 
   /**
    * Array with all properties that controls the visual apperance including
@@ -333,7 +399,8 @@ public class TabbedPanelProperties extends PropertyMapContainer {
    */
   public static final Property[] VISUAL_PROPERTIES = (Property[]) ArrayUtil.append(TABS_VISUAL_PROPERTIES,
                                                                                    SHADOW_PROPERTIES,
-                                                                                   new Property[TABS_VISUAL_PROPERTIES.length + SHADOW_PROPERTIES.length]);
+                                                                                   new Property[TABS_VISUAL_PROPERTIES.length +
+                                                                                                SHADOW_PROPERTIES.length]);
 
   private static final TabbedPanelProperties DEFAULT_PROPERTIES = new TabbedPanelProperties(PROPERTIES.getDefaultMap());
 
@@ -370,9 +437,8 @@ public class TabbedPanelProperties extends PropertyMapContainer {
             .setInsets(TabbedUIDefaults.getContentAreaInsets())
             .setBackgroundColor(TabbedUIDefaults.getContentAreaBackground());
         DEFAULT_PROPERTIES.getTabAreaComponentsProperties().setStretchEnabled(false).getComponentProperties()
-            .setBorder(
-                new CompoundBorder(new TabAreaLineBorder(TabbedUIDefaults.getDarkShadow()),
-                                   new HighlightBorder(false, TabbedUIDefaults.getHighlight())))
+            .setBorder(new CompoundBorder(new TabAreaLineBorder(TabbedUIDefaults.getDarkShadow()),
+                                          new HighlightBorder(false, TabbedUIDefaults.getHighlight())))
             .setBackgroundColor(TabbedUIDefaults.getContentAreaBackground());
       }
     });
@@ -391,11 +457,37 @@ public class TabbedPanelProperties extends PropertyMapContainer {
         .setAutoSelectTab(true)
         .setHighlightPressedTab(true)
 
+        .setHoverPolicy(TabbedPanelHoverPolicy.NO_HOVERED_CHILD)
+
         .setShadowEnabled(false)
         .setShadowSize(3)
         .setShadowBlendAreaSize(2)
         .setShadowColor(Color.BLACK)
         .setShadowStrength(0.4F);
+
+    HashMap buttonMap = new HashMap();
+    buttonMap.put(Direction.DOWN, DEFAULT_PROPERTIES.getButtonProperties().getScrollDownButtonProperties());
+    buttonMap.put(Direction.UP, DEFAULT_PROPERTIES.getButtonProperties().getScrollUpButtonProperties());
+    buttonMap.put(Direction.RIGHT, DEFAULT_PROPERTIES.getButtonProperties().getScrollRightButtonProperties());
+    buttonMap.put(Direction.LEFT, DEFAULT_PROPERTIES.getButtonProperties().getScrollLeftButtonProperties());
+
+    int iconSize = TabbedUIDefaults.getButtonIconSize();
+
+    Direction[] directions = Direction.getDirections();
+    for (int i = 0; i < directions.length; i++) {
+      ArrowIcon disabledIcon = new ArrowIcon(iconSize - 2, directions[i], false);
+      disabledIcon.setShadowEnabled(false);
+
+      ((ButtonProperties) buttonMap.get(directions[i]))
+          .setFactory(TabbedPanelDefaultButtonFactories.getScrollDownButtonFactory())
+          .setIcon(new ArrowIcon(iconSize, directions[i]))
+          .setDisabledIcon(new BorderIcon(disabledIcon, 1));
+    }
+
+    DEFAULT_PROPERTIES.getButtonProperties().getTabDropDownListButtonProperties()
+        .setFactory(TabbedPanelDefaultButtonFactories.getScrollDownButtonFactory())
+        .setIcon(new DropDownIcon(Color.black, TabbedUIDefaults.getButtonIconSize(), Direction.DOWN))
+        .setDisabledIcon(null);
   }
 
   /**
@@ -437,12 +529,24 @@ public class TabbedPanelProperties extends PropertyMapContainer {
   }
 
   /**
-   * Removes a super object.
+   * Removes the last added super object.
    *
    * @return this
    */
   public TabbedPanelProperties removeSuperObject() {
     getMap().removeSuperMap();
+    return this;
+  }
+
+  /**
+   * Removes the given super object.
+   *
+   * @param superObject super object to remove
+   * @return this
+   * @since ITP 1.3.0
+   */
+  public TabbedPanelProperties removeSuperObject(TabbedPanelProperties superObject) {
+    getMap().removeSuperMap(superObject.getMap());
     return this;
   }
 
@@ -1024,6 +1128,62 @@ public class TabbedPanelProperties extends PropertyMapContainer {
   }
 
   /**
+   * <p>Sets the hover listener that will be triggered when the tabbed panel is hoverd by the mouse.</p>
+   *
+   * <p>The hovered tabbed panel will be the source of the hover event sent to the
+   * hover listener.</p>
+   *
+   * @param listener the hover listener
+   * @return this TabbedPanelProperties
+   * @since ITP 1.3.0
+   */
+  public TabbedPanelProperties setHoverListener(HoverListener listener) {
+    HOVER_LISTENER.set(getMap(), listener);
+    return this;
+  }
+
+  /**
+   * <p>Gets the hover listener that will be triggered when the tabbed panel is hovered by the mouse.</p>
+   *
+   * <p>The hovered tabbed panel will be the source of the hover event sent to the
+   * hover listener.</p>
+   *
+   * @return the hover listener
+   * @since ITP 1.3.0
+   */
+  public HoverListener getHoverListener() {
+    return HOVER_LISTENER.get(getMap());
+  }
+
+  /**
+   * <p>Sets the hover policy.</p>
+   *
+   * <p>The hover policy determines when the tabbed panel is considered hovered by the mouse and the
+   * hover listener is called. The default hover policy is NO_HOVERED_CHILD.</p>
+   *
+   * @param hoverPolicy the hover policy
+   * @return this TabbedPanelProperties
+   * @since ITP 1.3.0
+   */
+  public TabbedPanelProperties setHoverPolicy(TabbedPanelHoverPolicy hoverPolicy) {
+    HOVER_POLICY.set(getMap(), hoverPolicy);
+    return this;
+  }
+
+  /**
+   * <p>Gets the hover policy.</p>
+   *
+   * <p>The hover policy determines when the tabbed panel is considered hovered by the mouse and the
+   * hover listener is called. The default hover policy is NO_HOVERED_CHILD.</p>
+   *
+   * @return the hover policy
+   * @since ITP 1.3.0
+   */
+  public TabbedPanelHoverPolicy getHoverPolicy() {
+    return HOVER_POLICY.get(getMap());
+  }
+
+  /**
    * Gets the properties getMap() with properties for the tabbed panel's
    * content area
    *
@@ -1052,5 +1212,16 @@ public class TabbedPanelProperties extends PropertyMapContainer {
    */
   public TabAreaComponentsProperties getTabAreaComponentsProperties() {
     return new TabAreaComponentsProperties(TAB_AREA_COMPONENTS_PROPERTIES.get(getMap()));
+  }
+
+  /**
+   * Gets the properties getMap() with properties for all the buttons in a
+   * tabbed panel.
+   *
+   * @return the properties for the buttons
+   * @since ITP 1.3.0
+   */
+  public TabbedPanelButtonProperties getButtonProperties() {
+    return new TabbedPanelButtonProperties(BUTTON_PROPERTIES.get(getMap()));
   }
 }

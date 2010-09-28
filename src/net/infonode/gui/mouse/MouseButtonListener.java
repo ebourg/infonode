@@ -20,34 +20,23 @@
  */
 
 
-// $Id: MenuUtil.java,v 1.2 2004/11/09 16:33:03 jesper Exp $
-package net.infonode.gui;
+// $Id: MouseButtonListener.java,v 1.3 2005/02/16 11:28:13 jesper Exp $
+package net.infonode.gui.mouse;
 
-import javax.swing.*;
+import java.awt.event.MouseEvent;
 
 /**
+ * A listener for mouse button events, ie press, release and click.
+ *
  * @author $Author: jesper $
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
+ * @since IDW 1.3.0
  */
-public class MenuUtil {
-  private MenuUtil() {
-  }
-
-  public static void optimizeSeparators(JPopupMenu menu) {
-    boolean lastSeparator = true;
-
-    for (int i = 0; i < menu.getComponentCount();) {
-      boolean separator = menu.getComponent(i) instanceof JPopupMenu.Separator;
-
-      if (lastSeparator && separator)
-        menu.remove(i);
-      else
-        i++;
-
-      lastSeparator = separator;
-    }
-
-    if (menu.getComponent(menu.getComponentCount() - 1) instanceof JPopupMenu.Separator)
-      menu.remove(menu.getComponentCount() - 1);
-  }
+public interface MouseButtonListener {
+  /**
+   * A mouse button event occured.
+   *
+   * @param event the mouse button event
+   */
+  void mouseButtonEvent(MouseEvent event);
 }

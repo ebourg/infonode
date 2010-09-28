@@ -20,7 +20,7 @@
  */
 
 
-// $Id: Property.java,v 1.5 2004/09/22 14:32:50 jesper Exp $
+// $Id: Property.java,v 1.6 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.properties.base;
 
 import net.infonode.properties.base.exception.CantRemoveValueException;
@@ -33,7 +33,7 @@ import net.infonode.properties.base.exception.InvalidPropertyValueException;
  * A property can have multiple values which can be stored in any type of object.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public interface Property {
   /**
@@ -83,7 +83,8 @@ public interface Property {
    * @throws InvalidPropertyException      if this property can't be set in the object
    * @throws InvalidPropertyValueException if the property value is invalid
    */
-  void setValue(Object valueContainer, Object value) throws ImmutablePropertyException, InvalidPropertyException, InvalidPropertyValueException;
+  void setValue(Object valueContainer, Object value) throws ImmutablePropertyException, InvalidPropertyException,
+                                                            InvalidPropertyValueException;
 
   /**
    * Returns true if the value can be assigned to this property.

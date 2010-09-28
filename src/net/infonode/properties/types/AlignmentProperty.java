@@ -20,7 +20,7 @@
  */
 
 
-// $Id: AlignmentProperty.java,v 1.5 2004/09/22 14:32:50 jesper Exp $
+// $Id: AlignmentProperty.java,v 1.6 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.properties.types;
 
 import net.infonode.properties.base.PropertyGroup;
@@ -31,7 +31,7 @@ import net.infonode.util.Alignment;
  * A property of type {@link Alignment}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class AlignmentProperty extends EnumProperty {
   /**
@@ -43,7 +43,11 @@ public class AlignmentProperty extends EnumProperty {
    * @param valueHandler handles values for this property
    * @param validValues  valid values for this property
    */
-  public AlignmentProperty(PropertyGroup group, String name, String description, PropertyValueHandler valueHandler, Alignment[] validValues) {
+  public AlignmentProperty(PropertyGroup group,
+                           String name,
+                           String description,
+                           PropertyValueHandler valueHandler,
+                           Alignment[] validValues) {
     super(group, name, Alignment.class, description, valueHandler, validValues);
   }
 

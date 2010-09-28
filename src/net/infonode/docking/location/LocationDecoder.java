@@ -20,7 +20,7 @@
  */
 
 
-// $Id: LocationDecoder.java,v 1.3 2004/08/27 18:53:37 jesper Exp $
+// $Id: LocationDecoder.java,v 1.5 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.location;
 
 import net.infonode.docking.RootWindow;
@@ -30,7 +30,7 @@ import java.io.ObjectInputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.5 $
  */
 public class LocationDecoder {
   public static final int NULL = 0;

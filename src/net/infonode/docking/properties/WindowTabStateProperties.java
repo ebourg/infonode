@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowTabStateProperties.java,v 1.8 2004/09/28 15:07:29 jesper Exp $
+// $Id: WindowTabStateProperties.java,v 1.11 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.propertymap.*;
@@ -29,7 +29,7 @@ import net.infonode.properties.propertymap.*;
  * Properties and property values for the window tab buttons.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.11 $
  */
 public class WindowTabStateProperties extends PropertyMapContainer {
   /**
@@ -103,9 +103,22 @@ public class WindowTabStateProperties extends PropertyMapContainer {
    *
    * @return this
    * @since IDW 1.1.0
+   * @deprecated Use {@link #removeSuperObject(WindowTabStateProperties)} instead.
    */
   public WindowTabStateProperties removeSuperObject() {
     getMap().removeSuperMap();
+    return this;
+  }
+
+  /**
+   * Removes a super object.
+   *
+   * @param superObject the super object to remove
+   * @return this
+   * @since IDW 1.3.0
+   */
+  public WindowTabStateProperties removeSuperObject(WindowTabStateProperties superObject) {
+    getMap().removeSuperMap(superObject.getMap());
     return this;
   }
 

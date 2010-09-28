@@ -20,7 +20,7 @@
  */
 
 
-// $Id: FixedTransformComponentPainter.java,v 1.4 2004/11/11 14:11:14 jesper Exp $
+// $Id: FixedTransformComponentPainter.java,v 1.6 2005/02/16 11:28:11 jesper Exp $
 package net.infonode.gui.componentpainter;
 
 import net.infonode.util.Direction;
@@ -32,7 +32,7 @@ import java.awt.*;
  * vertical flip.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.6 $
  */
 public class FixedTransformComponentPainter extends AbstractComponentPainterWrapper {
   private static final long serialVersionUID = 1;
@@ -49,7 +49,10 @@ public class FixedTransformComponentPainter extends AbstractComponentPainterWrap
     this(painter, direction, false, false);
   }
 
-  public FixedTransformComponentPainter(ComponentPainter painter, Direction direction, boolean horizontalFlip, boolean verticalFlip) {
+  public FixedTransformComponentPainter(ComponentPainter painter,
+                                        Direction direction,
+                                        boolean horizontalFlip,
+                                        boolean verticalFlip) {
     super(painter);
     this.direction = direction;
     this.horizontalFlip = horizontalFlip;
@@ -60,7 +63,15 @@ public class FixedTransformComponentPainter extends AbstractComponentPainterWrap
     super.paint(component, g, x, y, width, height, direction, horizontalFlip, verticalFlip);
   }
 
-  public void paint(Component component, Graphics g, int x, int y, int width, int height, Direction direction, boolean horizontalFlip, boolean verticalFlip) {
+  public void paint(Component component,
+                    Graphics g,
+                    int x,
+                    int y,
+                    int width,
+                    int height,
+                    Direction direction,
+                    boolean horizontalFlip,
+                    boolean verticalFlip) {
     paint(component, g, x, y, width, height);
   }
 

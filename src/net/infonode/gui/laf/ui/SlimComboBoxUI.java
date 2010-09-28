@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SlimComboBoxUI.java,v 1.4 2004/09/22 14:35:04 jesper Exp $
+// $Id: SlimComboBoxUI.java,v 1.6 2005/02/16 11:28:11 jesper Exp $
 package net.infonode.gui.laf.ui;
 
 import javax.swing.*;
@@ -35,7 +35,7 @@ import java.awt.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.6 $
  */
 public class SlimComboBoxUI extends MetalComboBoxUI {
   public static Border FOCUS_BORDER = new CompoundBorder(new LineBorder(Color.BLACK), new EmptyBorder(0, 3, 0, 3));

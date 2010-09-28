@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TwoColoredLineBorder.java,v 1.2 2004/11/11 14:10:33 jesper Exp $
+// $Id: TwoColoredLineBorder.java,v 1.4 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.tabbedpanel.internal;
 
 import net.infonode.gui.colorprovider.ColorProvider;
@@ -38,7 +38,7 @@ import java.awt.*;
  * and right line.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.4 $
  * @see TitledTab
  * @see TabbedPanel
  * @since ITP 1.2.0
@@ -59,7 +59,10 @@ public class TwoColoredLineBorder extends RoundedCornerBorder {
    * @param roundCorners     true for round corners on the side facing away from the tab area
    * @param open             true for no border on the side towards the tab area
    */
-  public TwoColoredLineBorder(ColorProvider topLeftColor, ColorProvider bottomRightColor, boolean roundCorners, boolean open) {
+  public TwoColoredLineBorder(ColorProvider topLeftColor,
+                              ColorProvider bottomRightColor,
+                              boolean roundCorners,
+                              boolean open) {
     super(topLeftColor,
           null,
           roundCorners ? 2 : 0,

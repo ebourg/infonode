@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowPopupMenuFactory.java,v 1.2 2004/06/21 16:39:00 jesper Exp $
+// $Id: WindowPopupMenuFactory.java,v 1.4 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking;
 
 import javax.swing.*;
@@ -29,7 +29,7 @@ import javax.swing.*;
  * Creates a popup menu for a docking window.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.4 $
  */
 public interface WindowPopupMenuFactory {
   /**

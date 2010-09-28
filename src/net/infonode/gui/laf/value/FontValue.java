@@ -20,7 +20,7 @@
  */
 
 
-// $Id: FontValue.java,v 1.1 2004/08/20 15:07:23 jesper Exp $
+// $Id: FontValue.java,v 1.3 2005/02/16 11:28:11 jesper Exp $
 package net.infonode.gui.laf.value;
 
 import javax.swing.plaf.FontUIResource;
@@ -28,7 +28,7 @@ import java.awt.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.3 $
  */
 public class FontValue {
   private static final FontUIResource DEFAULT_FONT = new FontUIResource("Dialog", 0, 11);

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ReleaseInfoDialog.java,v 1.13 2004/11/11 14:11:14 jesper Exp $
+// $Id: ReleaseInfoDialog.java,v 1.15 2005/02/16 11:28:13 jesper Exp $
 
 package net.infonode.gui;
 
@@ -66,17 +66,23 @@ public class ReleaseInfoDialog {
     Box box = new Box(BoxLayout.Y_AXIS);
     for (int i = 0; i < info.length; i++) {
       JLabel l = new JLabel(
-          "<html><body>" + (text == null || text[i] == null ? "" : text[i] + "<br>") + "<table>" + "<tr><td style='font-weight: bold;'>Product Name:</td><td>"
-          + info[i].getProductName() + "</td></tr>" + "<tr><td style='font-weight: bold;'>Version:</td><td>" + info[i].getProductVersion()
-                                                                                                               .toString() + "</td></tr>"
+          "<html><body>" + (text == null || text[i] == null ? "" : text[i] + "<br>") + "<table>" +
+          "<tr><td style='font-weight: bold;'>Product Name:</td><td>"
+          + info[i].getProductName() + "</td></tr>" + "<tr><td style='font-weight: bold;'>Version:</td><td>" +
+          info[i].getProductVersion()
+          .toString() +
+          "</td></tr>"
           + "<tr><td style='font-weight: bold;'>Build Time:</td><td>" + DATE_FORMAT.format(
               new Date(info[i].getBuildTime())) + "</td></tr>"
-          + "<tr><td style='font-weight: bold;'>License:</td><td>" + info[i].getLicense() + "</td></tr>" + "<tr><td style='font-weight: bold;'>Vendor:</td><td>" + info[i].getProductVendor()
-          + "</td></tr>" + "<tr><td style='font-weight: bold;'>Homepage:</td><td>" + info[i].getHomepage() + "</td></tr>" + "</table></body></html>");
+          + "<tr><td style='font-weight: bold;'>License:</td><td>" + info[i].getLicense() + "</td></tr>" +
+          "<tr><td style='font-weight: bold;'>Vendor:</td><td>" +
+          info[i].getProductVendor()
+          + "</td></tr>" + "<tr><td style='font-weight: bold;'>Homepage:</td><td>" + info[i].getHomepage() +
+          "</td></tr>" +
+          "</table></body></html>");
       l.setFont(l.getFont().deriveFont(Font.PLAIN));
-      l.setBorder(
-          new CompoundBorder(new EmptyBorder(0, 0, i == info.length - 1 ? 0 : 10, 0),
-                             new TitledBorder(" " + info[i].getProductName() + " ")));
+      l.setBorder(new CompoundBorder(new EmptyBorder(0, 0, i == info.length - 1 ? 0 : 10, 0),
+                                     new TitledBorder(" " + info[i].getProductName() + " ")));
       box.add(l);
     }
     return box;

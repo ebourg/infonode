@@ -20,7 +20,7 @@
  */
 
 
-// $Id: RectangleBorderComponent.java,v 1.7 2004/08/09 15:15:04 jesper Exp $
+// $Id: RectangleBorderComponent.java,v 1.9 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking;
 
 import javax.swing.*;
@@ -28,7 +28,7 @@ import java.awt.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.9 $
  */
 class RectangleBorderComponent extends JComponent {
   private int lineWidth;

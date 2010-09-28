@@ -20,7 +20,7 @@
  */
 
 
-// $Id: FocusManager.java,v 1.6 2004/11/11 14:09:46 jesper Exp $
+// $Id: FocusManager.java,v 1.8 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking;
 
 import javax.swing.*;
@@ -34,7 +34,7 @@ import java.util.ArrayList;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.8 $
  */
 class FocusManager {
   private static final FocusManager INSTANCE = new FocusManager();

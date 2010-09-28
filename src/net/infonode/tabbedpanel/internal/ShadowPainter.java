@@ -20,10 +20,11 @@
  */
 
 
-// $Id: ShadowPainter.java,v 1.3 2004/11/11 14:10:33 jesper Exp $
+// $Id: ShadowPainter.java,v 1.6 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.tabbedpanel.internal;
 
 import net.infonode.gui.ComponentUtil;
+import net.infonode.gui.UIManagerUtil;
 import net.infonode.util.ColorUtil;
 import net.infonode.util.Direction;
 
@@ -32,7 +33,7 @@ import java.awt.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.6 $
  * @since ITP 1.1.0
  */
 public class ShadowPainter {
@@ -77,7 +78,7 @@ public class ShadowPainter {
   public void paint(Graphics g) {
     panelBackgroundColor = ComponentUtil.getBackgroundColor(component);
     panelBackgroundColor = panelBackgroundColor == null ?
-                           UIManager.getColor("Panel.background") : panelBackgroundColor;
+                           UIManagerUtil.getColor("Panel.background", "control") : panelBackgroundColor;
 
     if (paintTabAreaShadow) {
       Rectangle bounds = SwingUtilities.calculateInnerArea(componentsPanel, new Rectangle());

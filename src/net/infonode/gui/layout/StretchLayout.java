@@ -20,7 +20,7 @@
  */
 
 
-// $Id: StretchLayout.java,v 1.5 2004/11/02 16:47:46 jesper Exp $
+// $Id: StretchLayout.java,v 1.7 2005/02/16 11:28:12 jesper Exp $
 package net.infonode.gui.layout;
 
 import java.awt.*;

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SmallFlatTheme.java,v 1.22 2004/11/11 14:10:33 jesper Exp $
+// $Id: SmallFlatTheme.java,v 1.24 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.tabbedpanel.theme;
 
 import net.infonode.tabbedpanel.TabbedPanelProperties;
@@ -34,7 +34,7 @@ import java.awt.*;
  * A theme with small fonts and flat look
  *
  * @author $Author: jesper $
- * @version $Revision: 1.22 $
+ * @version $Revision: 1.24 $
  */
 public class SmallFlatTheme extends TabbedPanelTitledTabTheme {
   private TitledTabProperties tabProperties = new TitledTabProperties();

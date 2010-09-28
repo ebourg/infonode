@@ -20,33 +20,18 @@
  */
 
 
-// $Id: MaximizeButtonInfo.java,v 1.4 2004/10/28 14:16:41 jesper Exp $
+// $Id: MaximizeButtonInfo.java,v 1.6 2004/12/22 10:15:52 jesper Exp $
 package net.infonode.docking.internalutil;
 
-import net.infonode.docking.DockingWindow;
 import net.infonode.properties.propertymap.PropertyMapProperty;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.6 $
  */
 public class MaximizeButtonInfo extends AbstractButtonInfo {
   public MaximizeButtonInfo(PropertyMapProperty property) {
     super(property);
   }
 
-  public boolean isVisible(DockingWindow window) {
-    return !window.isMaximized() && window.isMaximizable();
-  }
-
-  public ActionListener getActionListener(final DockingWindow window) {
-    return new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        window.maximize();
-      }
-    };
-  }
 }

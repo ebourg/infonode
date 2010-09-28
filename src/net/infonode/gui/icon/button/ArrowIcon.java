@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ArrowIcon.java,v 1.5 2004/11/11 14:11:14 jesper Exp $
+// $Id: ArrowIcon.java,v 1.8 2005/02/16 11:28:11 jesper Exp $
 package net.infonode.gui.icon.button;
 
 import net.infonode.util.Direction;
@@ -45,7 +45,11 @@ public class ArrowIcon extends AbstractButtonIcon {
   }
 
   public ArrowIcon(int size, Direction direction) {
-    super(size);
+    this(size, direction, true);
+  }
+
+  public ArrowIcon(int size, Direction direction, boolean enabled) {
+    super(size, enabled);
     this.direction = direction;
   }
 

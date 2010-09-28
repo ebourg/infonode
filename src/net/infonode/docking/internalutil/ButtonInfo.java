@@ -20,22 +20,15 @@
  */
 
 
-// $Id: ButtonInfo.java,v 1.4 2004/09/23 15:32:13 jesper Exp $
+// $Id: ButtonInfo.java,v 1.5 2004/11/19 16:02:08 jesper Exp $
 package net.infonode.docking.internalutil;
 
-import net.infonode.docking.DockingWindow;
 import net.infonode.properties.propertymap.PropertyMapProperty;
-
-import java.awt.event.ActionListener;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public interface ButtonInfo {
-  boolean isVisible(DockingWindow window);
-
   PropertyMapProperty getProperty();
-
-  ActionListener getActionListener(DockingWindow window);
 }

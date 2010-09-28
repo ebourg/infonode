@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyMapImpl.java,v 1.13 2004/11/11 14:10:12 jesper Exp $
+// $Id: PropertyMapImpl.java,v 1.23 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.properties.propertymap;
 
 import net.infonode.properties.base.Property;
@@ -36,6 +36,7 @@ import net.infonode.util.Utils;
 import net.infonode.util.ValueChange;
 import net.infonode.util.collection.map.ConstVectorMap;
 import net.infonode.util.collection.map.MapAdapter;
+import net.infonode.util.collection.map.SingleValueMap;
 import net.infonode.util.collection.map.base.ConstMap;
 import net.infonode.util.collection.map.base.ConstMapIterator;
 import net.infonode.util.collection.map.base.MapIterator;
@@ -48,7 +49,7 @@ import java.util.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.23 $
  */
 public class PropertyMapImpl implements PropertyMap {
   private static final int SERIALIZE_VERSION = 1;
@@ -335,8 +336,8 @@ public class PropertyMapImpl implements PropertyMap {
     return superMaps.size();
   }
 
-  public void addSuperMap(PropertyMap propertyObject) {
-    PropertyMapImpl propertyObjectImpl = (PropertyMapImpl) propertyObject;
+  public void addSuperMap(PropertyMap superMap) {
+    PropertyMapImpl superMapImpl = (PropertyMapImpl) superMap;
 
 /*    if (!propertyObjectImpl.propertyGroup.isA(propertyGroup))
       throw new RuntimeException("Property group '" + propertyObjectImpl.propertyGroup + "¨' can't be assigned to group '" + propertyGroup + "'!");
@@ -344,7 +345,7 @@ public class PropertyMapImpl implements PropertyMap {
     PropertyMapManager.getInstance().beginBatch();
 
     try {
-      addSuperMap(0, propertyObjectImpl);
+      addSuperMap(0, superMapImpl);
     }
     finally {
       PropertyMapManager.getInstance().endBatch();
@@ -359,6 +360,45 @@ public class PropertyMapImpl implements PropertyMap {
     }
     else
       return null;
+  }
+
+  public boolean removeSuperMap(PropertyMap superMap) {
+    if (superMaps.size() > (parent == null ? 0 : parent.superMaps.size())) {
+      int index = superMaps.indexOf(superMap);
+
+      if (index == -1)
+        return false;
+      else {
+        removeSuperMap(index);
+        return true;
+      }
+    }
+    else
+      return false;
+  }
+
+  public boolean replaceSuperMap(PropertyMap oldSuperMap, PropertyMap newSuperMap) {
+    if (superMaps.size() > (parent == null ? 0 : parent.superMaps.size())) {
+      int index = superMaps.indexOf(oldSuperMap);
+
+      if (index == -1)
+        return false;
+      else {
+        PropertyMapManager.getInstance().beginBatch();
+
+        try {
+          removeSuperMap(index);
+          addSuperMap(index, (PropertyMapImpl) newSuperMap);
+        }
+        finally {
+          PropertyMapManager.getInstance().endBatch();
+        }
+
+        return true;
+      }
+    }
+    else
+      return false;
   }
 
   private void removeParentSuperMap(int parentIndex) {
@@ -543,15 +583,18 @@ public class PropertyMapImpl implements PropertyMap {
     checkProperty(property);
     PropertyValue oldValue = internalSetValue(property, value);
 
-    PropertyMapManager.getInstance().beginBatch();
+    if (!Utils.equals(value, oldValue)) {
+      PropertyMapManager.getInstance().beginBatch();
 
-    try {
-      firePropertyValueChanged(property, new ValueChange(oldValue, value));
-      return oldValue;
+      try {
+        firePropertyValueChanged(property, new ValueChange(oldValue, value));
+      }
+      finally {
+        PropertyMapManager.getInstance().endBatch();
+      }
     }
-    finally {
-      PropertyMapManager.getInstance().endBatch();
-    }
+
+    return oldValue;
   }
 
   public boolean valueIsSet(Property property) {
@@ -560,9 +603,7 @@ public class PropertyMapImpl implements PropertyMap {
   }
 
   public void firePropertyValueChanged(Property property, ValueChange change) {
-    MapAdapter changes = new MapAdapter();
-    changes.put(property, change);
-    map.fireEntriesChanged(changes);
+    map.fireEntriesChanged(new SingleValueMap(property, change));
   }
 
   protected void firePropertyTreeValuesChanged(Map changes) {
@@ -631,6 +672,20 @@ public class PropertyMapImpl implements PropertyMap {
       printer.endSection();
       printer.println();
     }
+  }
+
+  public void dumpSuperMaps(Printer printer) {
+    printer.println(System.identityHashCode(this) + ":" + this);
+
+    for (int i = 0; i < superMaps.size(); i++) {
+      if (superMap.getMap(i) != ((PropertyMapImpl) superMaps.get(i)).map)
+        System.out.println("Error!");
+
+      printer.beginSection();
+      ((PropertyMapImpl) superMaps.get(i)).dumpSuperMaps(printer);
+      printer.endSection();
+    }
+
   }
 
   public void clear(boolean recursive) {
@@ -710,7 +765,7 @@ public class PropertyMapImpl implements PropertyMap {
   private void doWrite(ObjectOutputStream out, boolean recursive) throws IOException {
     for (ConstMapIterator iterator = values.constIterator(); iterator.atEntry(); iterator.next()) {
       PropertyValue value = (PropertyValue) iterator.getValue();
-      if (value.getParent() == null) {
+      if (value.getParent() == null && value.isSerializable()) {
         out.writeBoolean(true);
         out.writeUTF(((Property) iterator.getKey()).getName());
         value.write(out);
@@ -748,6 +803,27 @@ public class PropertyMapImpl implements PropertyMap {
     }
   }
 
+  public static void skip(ObjectInputStream in) throws IOException {
+    int version = in.readInt();
+
+    if (version > SERIALIZE_VERSION)
+      throw new IOException("Can't read object because serialized version is newer than current version!");
+
+    doSkip(in);
+  }
+
+  private static void doSkip(ObjectInputStream in) throws IOException {
+    while (in.readBoolean()) {
+      in.readUTF();
+      ValueDecoder.skip(in);
+    }
+
+    while (in.readBoolean()) {
+      in.readUTF();
+      doSkip(in);
+    }
+  }
+
   private boolean doValuesEqual(PropertyMapImpl propertyObject, boolean recursive) {
     for (ConstMapIterator iterator = map.constIterator(); iterator.atEntry(); iterator.next()) {
       Property property = (Property) iterator.getKey();
@@ -771,5 +847,36 @@ public class PropertyMapImpl implements PropertyMap {
 
   public boolean valuesEqualTo(PropertyMap propertyObject, boolean recursive) {
     return doValuesEqual((PropertyMapImpl) propertyObject, recursive);
+  }
+
+  public PropertyMap copy(boolean copySuperMaps, boolean recursive) {
+    PropertyMapImpl map = new PropertyMapImpl(propertyGroup);
+    doCopy(map, copySuperMaps, recursive, true);
+    return map;
+  }
+
+  private void doCopy(PropertyMapImpl map, boolean copySuperMaps, boolean recursive, boolean topMap) {
+    for (ConstMapIterator iterator = values.constIterator(); iterator.atEntry(); iterator.next()) {
+      PropertyValue value = (PropertyValue) iterator.getValue();
+
+      if (value.getParent() == null) {
+        map.values.put(iterator.getKey(), value.copyTo(map));
+      }
+    }
+
+    if (copySuperMaps) {
+      for (int i = 0; i < (topMap ? superMaps.size() : superMaps.size() - parent.superMaps.size()); i++)
+        map.addSuperMap((PropertyMapImpl) superMaps.get(i));
+    }
+
+    if (recursive) {
+      for (ConstMapIterator iterator = childMaps.constIterator(); iterator.atEntry(); iterator.next()) {
+        ((PropertyMapImpl) iterator.getValue()).doCopy(
+            (PropertyMapImpl) map.getChildMap((PropertyMapProperty) iterator.getKey()),
+            copySuperMaps,
+            recursive,
+            false);
+      }
+    }
   }
 }

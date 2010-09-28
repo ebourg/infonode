@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ViewMap.java,v 1.5 2004/09/22 14:31:39 jesper Exp $
+// $Id: ViewMap.java,v 1.7 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.util;
 
 import net.infonode.docking.View;
@@ -34,7 +34,7 @@ import java.io.ObjectOutputStream;
  * The id is unique for each view in the map. To guarantee serialization compatibility a view id must remain constant.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.7 $
  */
 public class ViewMap extends AbstractViewMap {
   /**

@@ -20,14 +20,16 @@
  */
 
 
-//$Id: TabAreaComponentsProperties.java,v 1.9 2004/11/11 14:10:33 jesper Exp $
+//$Id: TabAreaComponentsProperties.java,v 1.15 2005/02/16 11:28:15 jesper Exp $
 
 package net.infonode.tabbedpanel;
 
+import net.infonode.gui.hover.HoverListener;
 import net.infonode.properties.gui.util.ComponentProperties;
 import net.infonode.properties.gui.util.ShapedPanelProperties;
 import net.infonode.properties.propertymap.*;
 import net.infonode.properties.types.BooleanProperty;
+import net.infonode.properties.types.HoverListenerProperty;
 
 /**
  * TabAreaComponentsProperties holds all visual properties for the area in a
@@ -36,7 +38,7 @@ import net.infonode.properties.types.BooleanProperty;
  * panel) are shown. TabbedPanelProperties contains TabAreaComponentsProperties.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.15 $
  * @see TabbedPanel
  * @see TabbedPanelProperties
  * @since ITP 1.1.0
@@ -79,6 +81,25 @@ public class TabAreaComponentsProperties extends PropertyMapContainer {
                                                                                             ShapedPanelProperties.PROPERTIES);
 
   /**
+   * Hover listener property
+   *
+   * @see #setHoverListener
+   * @see #getHoverListener
+   * @since ITP 1.3.0
+   */
+  public static final HoverListenerProperty HOVER_LISTENER = new HoverListenerProperty(PROPERTIES,
+                                                                                       "Hover Listener",
+                                                                                       "Hover Listener to be used for tracking mouse hovering over the tab area components area.",
+                                                                                       PropertyMapValueHandler.INSTANCE);
+
+  /**
+   * Constructs an empty TabAreaComponentsProperties object
+   */
+  public TabAreaComponentsProperties() {
+    super(PROPERTIES);
+  }
+
+  /**
    * Constructs a TabAreaComponentsProperties object with the given object as
    * property storage
    *
@@ -86,6 +107,16 @@ public class TabAreaComponentsProperties extends PropertyMapContainer {
    */
   public TabAreaComponentsProperties(PropertyMap object) {
     super(object);
+  }
+
+  /**
+   * Constructs a TabAreaComponentsProperties object that inherits its properties
+   * from the given TabAreaComponentsProperties object
+   *
+   * @param inheritFrom TabAreaComponentsProperties object to inherit properties from
+   */
+  public TabAreaComponentsProperties(TabAreaComponentsProperties inheritFrom) {
+    super(PropertyMapFactory.create(inheritFrom.getMap()));
   }
 
   /**
@@ -100,12 +131,24 @@ public class TabAreaComponentsProperties extends PropertyMapContainer {
   }
 
   /**
-   * Removes a super object.
+   * Removes the last added super object.
    *
    * @return this
    */
   public TabAreaComponentsProperties removeSuperObject() {
     getMap().removeSuperMap();
+    return this;
+  }
+
+  /**
+   * Removes the given super object.
+   *
+   * @param superObject super object to remove
+   * @return this
+   * @since ITP 1.3.0
+   */
+  public TabAreaComponentsProperties removeSuperObject(TabAreaComponentsProperties superObject) {
+    getMap().removeSuperMap(superObject.getMap());
     return this;
   }
 
@@ -148,5 +191,33 @@ public class TabAreaComponentsProperties extends PropertyMapContainer {
    */
   public ShapedPanelProperties getShapedPanelProperties() {
     return new ShapedPanelProperties(SHAPED_PANEL_PROPERTIES.get(getMap()));
+  }
+
+  /**
+   * <p>Sets the hover listener that will be triggered when the tab area components area is hoverd by the mouse.</p>
+   *
+   * <p>The tabbed panel that the hovered tab area components area is part of will be the source of the hover event
+   * sent to the hover listener.</p>
+   *
+   * @param listener the hover listener
+   * @return this TabAreaComponentsProperties
+   * @since ITP 1.3.0
+   */
+  public TabAreaComponentsProperties setHoverListener(HoverListener listener) {
+    HOVER_LISTENER.set(getMap(), listener);
+    return this;
+  }
+
+  /**
+   * <p>Gets the hover listener that will be triggered when the tab area components area is hovered by the mouse.</p>
+   *
+   * <p>The tabbed panel that the hovered tab area components area is part of will be the source of the hover event
+   * sent to the hover listener.</p>
+   *
+   * @return the hover listener
+   * @since ITP 1.3.0
+   */
+  public HoverListener getHoverListener() {
+    return HOVER_LISTENER.get(getMap());
   }
 }

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: OpenContentBorder.java,v 1.25 2004/11/12 08:57:36 jesper Exp $
+// $Id: OpenContentBorder.java,v 1.27 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.tabbedpanel.border;
 
 import net.infonode.gui.colorprovider.ColorProvider;
@@ -53,7 +53,7 @@ import java.io.Serializable;
  * </p>
  *
  * @author $Author: jesper $
- * @version $Revision: 1.25 $
+ * @version $Revision: 1.27 $
  * @see TabbedPanel
  */
 public class OpenContentBorder implements Border, Serializable {

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: BasePanel.java,v 1.1 2004/06/25 12:10:35 jesper Exp $
+// $Id: BasePanel.java,v 1.3 2005/02/16 11:28:13 jesper Exp $
 package net.infonode.gui.panel;
 
 import javax.swing.*;
@@ -30,7 +30,7 @@ import java.awt.*;
  * A transparent panel with {@link java.awt.BorderLayout}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.3 $
  */
 public class BasePanel extends JPanel {
   private Component comp;

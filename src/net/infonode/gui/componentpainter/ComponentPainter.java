@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ComponentPainter.java,v 1.7 2004/11/11 14:11:14 jesper Exp $
+// $Id: ComponentPainter.java,v 1.9 2005/02/16 11:28:11 jesper Exp $
 package net.infonode.gui.componentpainter;
 
 import net.infonode.util.Direction;
@@ -37,7 +37,7 @@ import java.awt.*;
  * </p>
  *
  * @author $Author: jesper $
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.9 $
  * @since IDW 1.2.0
  */
 public interface ComponentPainter {

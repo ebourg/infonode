@@ -20,10 +20,10 @@
  */
 
 
-// $Id: DraggableComponentEvent.java,v 1.2 2004/06/17 13:01:11 johan Exp $
+// $Id: DraggableComponentEvent.java,v 1.3 2004/11/25 13:06:42 jesper Exp $
 package net.infonode.gui.draggable;
 
-import java.awt.*;
+import java.awt.event.MouseEvent;
 
 public class DraggableComponentEvent {
   public static final int TYPE_UNDEFINED = -1;
@@ -34,36 +34,37 @@ public class DraggableComponentEvent {
   public static final int TYPE_DISABLED = 4;
 
   private DraggableComponent source;
-  private Point point;
   private int type = TYPE_UNDEFINED;
+  private MouseEvent mouseEvent;
 
   public DraggableComponentEvent(DraggableComponent source) {
     this(source, null);
   }
 
-  public DraggableComponentEvent(DraggableComponent source, Point point) {
-    this(source, point, TYPE_UNDEFINED);
+  public DraggableComponentEvent(DraggableComponent source, MouseEvent mouseEvent) {
+    this(source, TYPE_UNDEFINED, mouseEvent);
   }
 
   public DraggableComponentEvent(DraggableComponent source, int type) {
-    this(source, null, type);
+    this(source, type, null);
   }
 
-  public DraggableComponentEvent(DraggableComponent source, Point point, int type) {
+  public DraggableComponentEvent(DraggableComponent source, int type, MouseEvent mouseEvent) {
     this.source = source;
     this.type = type;
-    this.point = point;
+    this.mouseEvent = mouseEvent;
   }
 
   public DraggableComponent getSource() {
     return source;
   }
 
-  public Point getPoint() {
-    return point;
-  }
-
   public int getType() {
     return type;
   }
+
+  public MouseEvent getMouseEvent() {
+    return mouseEvent;
+  }
+
 }

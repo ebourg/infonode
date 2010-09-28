@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ResizablePanel.java,v 1.5 2004/11/09 14:32:47 jesper Exp $
+// $Id: ResizablePanel.java,v 1.10 2005/02/16 11:28:13 jesper Exp $
 package net.infonode.gui.panel;
 
 import net.infonode.gui.CursorManager;
@@ -33,7 +33,7 @@ import java.awt.event.MouseMotionAdapter;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.10 $
  */
 public class ResizablePanel extends SimplePanel {
   private Direction direction;
@@ -43,9 +43,15 @@ public class ResizablePanel extends SimplePanel {
   private boolean mouseInside;
 
   public ResizablePanel(Direction _direction) {
-    this.direction = _direction;
+    this(_direction, null);
+  }
 
-    addMouseListener(new MouseAdapter() {
+  public ResizablePanel(Direction _direction, Component mouseListenComponent) {
+    this.direction = _direction;
+    if (mouseListenComponent == null)
+      mouseListenComponent = this;
+
+    mouseListenComponent.addMouseListener(new MouseAdapter() {
       public void mouseExited(MouseEvent e) {
         if (offset == -1)
           resetCursor();
@@ -72,7 +78,7 @@ public class ResizablePanel extends SimplePanel {
       }
     });
 
-    addMouseMotionListener(new MouseMotionAdapter() {
+    mouseListenComponent.addMouseMotionListener(new MouseMotionAdapter() {
       public void mouseMoved(MouseEvent e) {
         checkCursor(e.getPoint());
       }

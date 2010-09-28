@@ -20,12 +20,14 @@
  */
 
 
-// $Id: TabbedPanelContentPanelProperties.java,v 1.21 2004/11/11 14:10:33 jesper Exp $
+// $Id: TabbedPanelContentPanelProperties.java,v 1.27 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.tabbedpanel;
 
+import net.infonode.gui.hover.HoverListener;
 import net.infonode.properties.gui.util.ComponentProperties;
 import net.infonode.properties.gui.util.ShapedPanelProperties;
 import net.infonode.properties.propertymap.*;
+import net.infonode.properties.types.HoverListenerProperty;
 
 /**
  * TabbedPanelContentPanelProperties holds all properties for a
@@ -34,7 +36,7 @@ import net.infonode.properties.propertymap.*;
  * TabbedPanelContentPanelProperties.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.21 $
+ * @version $Revision: 1.27 $
  * @see TabbedPanel
  * @see TabbedPanelProperties
  */
@@ -65,6 +67,18 @@ public class TabbedPanelContentPanelProperties extends PropertyMapContainer {
                                                                                             "Shaped Panel Properties",
                                                                                             "Properties for shaped tab area components area.",
                                                                                             ShapedPanelProperties.PROPERTIES);
+
+  /**
+   * Hover listener property
+   *
+   * @see #setHoverListener
+   * @see #getHoverListener
+   * @since ITP 1.3.0
+   */
+  public static final HoverListenerProperty HOVER_LISTENER = new HoverListenerProperty(PROPERTIES,
+                                                                                       "Hover Listener",
+                                                                                       "Hover Listener to be used for tracking mouse hovering over the content area.",
+                                                                                       PropertyMapValueHandler.INSTANCE);
 
   /**
    * Constructs an empty TabbedPanelContentPanelProperties object
@@ -106,12 +120,24 @@ public class TabbedPanelContentPanelProperties extends PropertyMapContainer {
   }
 
   /**
-   * Removes a super object.
+   * Removes the last added super object.
    *
    * @return this
    */
   public TabbedPanelContentPanelProperties removeSuperObject() {
     getMap().removeSuperMap();
+    return this;
+  }
+
+  /**
+   * Removes the given super object.
+   *
+   * @param superObject super object to remove
+   * @return this
+   * @since ITP 1.3.0
+   */
+  public TabbedPanelContentPanelProperties removeSuperObject(TabbedPanelContentPanelProperties superObject) {
+    getMap().removeSuperMap(superObject.getMap());
     return this;
   }
 
@@ -132,5 +158,33 @@ public class TabbedPanelContentPanelProperties extends PropertyMapContainer {
    */
   public ShapedPanelProperties getShapedPanelProperties() {
     return new ShapedPanelProperties(SHAPED_PANEL_PROPERTIES.get(getMap()));
+  }
+
+  /**
+   * <p>Sets the hover listener that will be triggered when the content area is hoverd by the mouse.</p>
+   *
+   * <p>The tabbed panel that the hovered content area is part of will be the source of the hover event sent to the
+   * hover listener.</p>
+   *
+   * @param listener the hover listener
+   * @return this TabbedPanelContentPanelProperties
+   * @since ITP 1.3.0
+   */
+  public TabbedPanelContentPanelProperties setHoverListener(HoverListener listener) {
+    HOVER_LISTENER.set(getMap(), listener);
+    return this;
+  }
+
+  /**
+   * <p>Gets the hover listener that will be triggered when the content area is hovered by the mouse.</p>
+   *
+   * <p>The tabbed panel that the hovered content area is part of will be the source of the hover event sent to the
+   * hover listener.</p>
+   *
+   * @return the hover listener
+   * @since ITP 1.3.0
+   */
+  public HoverListener getHoverListener() {
+    return HOVER_LISTENER.get(getMap());
   }
 }

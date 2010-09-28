@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabWindowProperties.java,v 1.13 2004/10/14 15:28:35 jesper Exp $
+// $Id: TabWindowProperties.java,v 1.16 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.propertymap.*;
@@ -30,7 +30,7 @@ import net.infonode.tabbedpanel.TabbedPanelProperties;
  * Properties and property values for tab windows.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.16 $
  */
 public class TabWindowProperties extends PropertyMapContainer {
   /**
@@ -138,9 +138,22 @@ public class TabWindowProperties extends PropertyMapContainer {
    *
    * @return this
    * @since IDW 1.1.0
+   * @deprecated Use {@link #removeSuperObject(TabWindowProperties)} instead.
    */
   public TabWindowProperties removeSuperObject() {
     getMap().removeSuperMap();
+    return this;
+  }
+
+  /**
+   * Removes a super object.
+   *
+   * @param superObject the super object to remove
+   * @return this
+   * @since IDW 1.3.0
+   */
+  public TabWindowProperties removeSuperObject(TabWindowProperties superObject) {
+    getMap().removeSuperMap(superObject.getMap());
     return this;
   }
 

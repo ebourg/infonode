@@ -20,7 +20,7 @@
  */
 
 
-// $Id: DropDownIcon.java,v 1.4 2004/09/23 14:17:01 jesper Exp $
+// $Id: DropDownIcon.java,v 1.6 2005/02/16 11:28:11 jesper Exp $
 package net.infonode.gui.icon.button;
 
 import net.infonode.util.Direction;

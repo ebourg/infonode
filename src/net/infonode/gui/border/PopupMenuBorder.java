@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PopupMenuBorder.java,v 1.3 2004/11/11 14:11:14 jesper Exp $
+// $Id: PopupMenuBorder.java,v 1.5 2005/02/16 11:28:10 jesper Exp $
 package net.infonode.gui.border;
 
 import javax.swing.border.Border;
@@ -29,7 +29,7 @@ import java.io.Serializable;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.5 $
  */
 public class PopupMenuBorder implements Border, Serializable {
   private static final long serialVersionUID = 1;

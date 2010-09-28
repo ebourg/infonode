@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabHighlightBorder.java,v 1.15 2004/09/28 14:55:27 jesper Exp $
+// $Id: TabHighlightBorder.java,v 1.17 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.tabbedpanel.border;
 
 import net.infonode.gui.colorprovider.ColorProvider;
@@ -43,7 +43,7 @@ import java.io.Serializable;
  * if the border is constructed with open border.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.17 $
  * @see Tab
  * @see TabbedPanel
  * @see TabbedPanelProperties

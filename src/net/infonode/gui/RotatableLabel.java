@@ -20,7 +20,7 @@
  */
 
 
-// $Id: RotatableLabel.java,v 1.3 2004/07/06 15:08:44 jesper Exp $
+// $Id: RotatableLabel.java,v 1.5 2005/02/16 11:28:13 jesper Exp $
 package net.infonode.gui;
 
 import net.infonode.util.Direction;

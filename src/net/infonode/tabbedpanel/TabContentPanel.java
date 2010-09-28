@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabContentPanel.java,v 1.13 2004/09/22 14:33:49 jesper Exp $
+// $Id: TabContentPanel.java,v 1.15 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.gui.layout.StackableLayout;
@@ -33,7 +33,7 @@ import javax.swing.*;
  * the components based upon the selection of tabs in the tabbed panel.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.15 $
  * @see TabbedPanel
  * @see Tab
  */

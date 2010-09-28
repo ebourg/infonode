@@ -20,7 +20,7 @@
  */
 
 
-// $Id: Info.java,v 1.6 2004/11/11 14:10:33 jesper Exp $
+// $Id: Info.java,v 1.7 2005/02/16 11:28:14 jesper Exp $
 
 package net.infonode.tabbedpanel.info;
 
@@ -33,7 +33,7 @@ import net.infonode.util.ReleaseInfo;
  * Program that shows release information in a dialog
  *
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 public class Info {
   private Info() {

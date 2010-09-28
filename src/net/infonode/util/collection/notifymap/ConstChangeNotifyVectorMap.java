@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ConstChangeNotifyVectorMap.java,v 1.6 2004/11/11 14:11:14 jesper Exp $
+// $Id: ConstChangeNotifyVectorMap.java,v 1.9 2005/02/16 11:28:13 jesper Exp $
 package net.infonode.util.collection.notifymap;
 
 import net.infonode.util.ValueChange;
@@ -158,6 +158,9 @@ public class ConstChangeNotifyVectorMap extends AbstractConstChangeNotifyMap {
   }
 
   public void removeMap(int index) {
+    if (hasListeners())
+      removeMapListener(index);
+
     ConstChangeNotifyMap map = getMap(index);
     vectorMap.removeMap(index);
 

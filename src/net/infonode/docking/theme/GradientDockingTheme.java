@@ -20,7 +20,7 @@
  */
 
 
-// $Id: GradientDockingTheme.java,v 1.8 2004/11/11 16:41:58 jesper Exp $
+// $Id: GradientDockingTheme.java,v 1.11 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.theme;
 
 import net.infonode.docking.properties.RootWindowProperties;
@@ -43,7 +43,7 @@ import java.awt.*;
  * A theme that draws gradient tab backgrounds.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.11 $
  * @since IDW 1.1.0
  */
 public class GradientDockingTheme extends DockingWindowsTheme {
@@ -87,7 +87,7 @@ public class GradientDockingTheme extends DockingWindowsTheme {
   public GradientDockingTheme(boolean opaqueTabArea, boolean shadowEnabled, boolean highlightedBold,
                               boolean focusHighlighterEnabled, Color borderColor) {
     this(opaqueTabArea, shadowEnabled, highlightedBold, focusHighlighterEnabled, borderColor,
-         net.infonode.tabbedpanel.theme.GradientTheme.DEFAULT_TAB_AREA_BACKGROUND_COLOR);
+         GradientTheme.DEFAULT_TAB_AREA_BACKGROUND_COLOR);
   }
 
   /**
@@ -109,7 +109,7 @@ public class GradientDockingTheme extends DockingWindowsTheme {
     this.borderColor = borderColor;
     this.tabAreaBackgroundColor = tabAreaBackgroundColor;
 
-    GradientTheme theme = new net.infonode.tabbedpanel.theme.GradientTheme(opaqueTabArea, shadowEnabled, borderColor);
+    GradientTheme theme = new GradientTheme(opaqueTabArea, shadowEnabled, borderColor);
 
     rootProperties = new RootWindowProperties();
     createRootWindowProperties(theme);
@@ -126,11 +126,11 @@ public class GradientDockingTheme extends DockingWindowsTheme {
     if (!shadowEnabled)
       rootProperties.getWindowAreaProperties().setInsets(new Insets(6, 6, 6, 6));
 
-    rootProperties.getWindowAreaShapedPanelProperties().setComponentPainter(
-        new GradientComponentPainter(UIManagerColorProvider.DESKTOP_BACKGROUND,
-                                              new ColorMultiplier(UIManagerColorProvider.DESKTOP_BACKGROUND, 0.9f),
-                                              new ColorMultiplier(UIManagerColorProvider.DESKTOP_BACKGROUND, 0.9f),
-                                              new ColorMultiplier(UIManagerColorProvider.DESKTOP_BACKGROUND, 0.8f)));
+    rootProperties.getWindowAreaShapedPanelProperties().setComponentPainter(new GradientComponentPainter(
+        UIManagerColorProvider.DESKTOP_BACKGROUND,
+        new ColorMultiplier(UIManagerColorProvider.DESKTOP_BACKGROUND, 0.9f),
+        new ColorMultiplier(UIManagerColorProvider.DESKTOP_BACKGROUND, 0.9f),
+        new ColorMultiplier(UIManagerColorProvider.DESKTOP_BACKGROUND, 0.8f)));
 
     rootProperties.getWindowAreaProperties().setBorder(new LineBorder(Color.BLACK));
 

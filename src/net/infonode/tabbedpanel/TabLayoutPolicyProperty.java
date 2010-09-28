@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabLayoutPolicyProperty.java,v 1.8 2004/09/22 14:33:49 jesper Exp $
+// $Id: TabLayoutPolicyProperty.java,v 1.9 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.properties.base.PropertyGroup;
@@ -31,7 +31,7 @@ import net.infonode.properties.util.PropertyValueHandler;
  * Property for TabLayoutPolicy
  *
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  * @see TabLayoutPolicy
  */
 public class TabLayoutPolicyProperty extends EnumProperty {
@@ -43,7 +43,10 @@ public class TabLayoutPolicyProperty extends EnumProperty {
    * @param description  property description
    * @param valueStorage storage for property
    */
-  public TabLayoutPolicyProperty(PropertyGroup group, String name, String description, PropertyValueHandler valueStorage) {
+  public TabLayoutPolicyProperty(PropertyGroup group,
+                                 String name,
+                                 String description,
+                                 PropertyValueHandler valueStorage) {
     super(group, name, TabLayoutPolicy.class, description, valueStorage, TabLayoutPolicy.getLayoutPolicies());
   }
 

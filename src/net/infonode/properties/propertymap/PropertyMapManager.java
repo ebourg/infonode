@@ -20,10 +20,11 @@
  */
 
 
-// $Id: PropertyMapManager.java,v 1.8 2004/11/11 14:10:12 jesper Exp $
+// $Id: PropertyMapManager.java,v 1.13 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.properties.propertymap;
 
 import net.infonode.properties.propertymap.value.PropertyValue;
+import net.infonode.util.Utils;
 import net.infonode.util.ValueChange;
 import net.infonode.util.collection.map.base.ConstMap;
 import net.infonode.util.collection.map.base.ConstMapIterator;
@@ -38,7 +39,7 @@ import java.util.Map;
  * optimize performance.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.13 $
  */
 public class PropertyMapManager {
   private static final PropertyMapManager INSTANCE = new PropertyMapManager();
@@ -46,6 +47,11 @@ public class PropertyMapManager {
   private HashMap changes;
   private int batchCounter;
 
+  /**
+   * Returns the only instance of this class.
+   *
+   * @return the only instance of this class
+   */
   public static PropertyMapManager getInstance() {
     return INSTANCE;
   }
@@ -60,21 +66,23 @@ public class PropertyMapManager {
 
     for (ConstMapIterator iterator = mapChanges.constIterator(); iterator.atEntry(); iterator.next()) {
       ValueChange vc = (ValueChange) iterator.getValue();
+      Object key = iterator.getKey();
       Object newValue = vc.getNewValue() == null ? null : ((PropertyValue) vc.getNewValue()).get(propertyMap);
-      Object value = map.get(iterator.getKey());
-      map.put(iterator.getKey(),
-              value == null ? new ValueChange(
-                  vc.getOldValue() == null ? null : ((PropertyValue) vc.getOldValue()).get(propertyMap),
-                  newValue) :
-              new ValueChange(((ValueChange) value).getOldValue(), newValue));
+      Object value = map.get(key);
+      Object oldValue = value == null ?
+                        vc.getOldValue() == null ? null : ((PropertyValue) vc.getOldValue()).get(propertyMap) :
+                        ((ValueChange) value).getOldValue();
+
+      if (!Utils.equals(oldValue, newValue))
+        map.put(iterator.getKey(), new ValueChange(oldValue, newValue));
+      else if (value != null)
+        map.remove(key);
     }
   }
 
   /**
-   * Invokes {@link Runnable#run}, stores and merges all change notifications occuring in all property maps during
-   * this invokation. When {@link Runnable#run} returns, all stored change notifications are triggered at once.
-   * This method is re-entrant, so it's safe to call it from inside {@link Runnable#run}. Only when exiting from the
-   * outermost {@link #runBatch} will the changes be propagated to the listeners.
+   * Executes a method inside a {@link #beginBatch()} - {@link #endBatch()} pair. See {@link #beginBatch()} for
+   * more information. It's safe to call other batch methods from inside {@link Runnable#run}.
    *
    * @param runnable the runnable to invoke
    */
@@ -89,7 +97,14 @@ public class PropertyMapManager {
     }
   }
 
-  void beginBatch() {
+  /**
+   * Begins a batch operation. This stores and merges all change notifications occuring in all property maps until
+   * {@link #endBatch} is called. Each call to this method MUST be followed by a call to {@link #endBatch}.
+   * This method can be called an unlimited number of times without calling {@link #endBatch} in between, but each
+   * call must have a corresponding call to {@link #endBatch}. Only when exiting from the
+   * outermost {@link #endBatch()} the changes be propagated to the listeners.
+   */
+  public void beginBatch() {
     if (batchCounter++ == 0)
       changes = new HashMap();
   }
@@ -108,7 +123,10 @@ public class PropertyMapManager {
       addTreeChanges(map.getParent(), modifiedMap, changes, treeChanges);
   }
 
-  void endBatch() {
+  /**
+   * Ends a batch operation. See {@link #beginBatch()} for more information.
+   */
+  public void endBatch() {
     if (--batchCounter == 0) {
       HashMap treeChanges = new HashMap();
       HashMap localChanges = changes;

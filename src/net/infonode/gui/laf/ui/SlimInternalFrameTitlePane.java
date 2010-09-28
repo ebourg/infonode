@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SlimInternalFrameTitlePane.java,v 1.2 2004/11/11 14:11:14 jesper Exp $
+// $Id: SlimInternalFrameTitlePane.java,v 1.4 2005/02/16 11:28:11 jesper Exp $
 package net.infonode.gui.laf.ui;
 
 import net.infonode.gui.ButtonFactory;
@@ -31,7 +31,7 @@ import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.4 $
  */
 public class SlimInternalFrameTitlePane extends BasicInternalFrameTitlePane {
   public SlimInternalFrameTitlePane(JInternalFrame f) {

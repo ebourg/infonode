@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ButtonFactoryProperty.java,v 1.1 2004/09/28 14:48:20 jesper Exp $
+// $Id: ButtonFactoryProperty.java,v 1.2 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.properties.types;
 
 import net.infonode.gui.button.ButtonFactory;
@@ -32,7 +32,7 @@ import net.infonode.properties.util.ValueHandlerProperty;
  * A property which has {@link ButtonFactory}'s as values.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class ButtonFactoryProperty extends ValueHandlerProperty {
   /**
@@ -43,7 +43,10 @@ public class ButtonFactoryProperty extends ValueHandlerProperty {
    * @param description  the property description
    * @param valueHandler handles values for this property
    */
-  public ButtonFactoryProperty(PropertyGroup group, String name, String description, PropertyValueHandler valueHandler) {
+  public ButtonFactoryProperty(PropertyGroup group,
+                               String name,
+                               String description,
+                               PropertyValueHandler valueHandler) {
     super(group, name, ButtonFactory.class, description, valueHandler);
   }
 

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: GradientTabAreaBorder.java,v 1.14 2004/11/11 14:10:33 jesper Exp $
+// $Id: GradientTabAreaBorder.java,v 1.16 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.tabbedpanel.border;
 
 import net.infonode.gui.colorprovider.ColorProvider;
@@ -40,7 +40,7 @@ import java.io.Serializable;
  * content panel.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.14 $
+ * @version $Revision: 1.16 $
  * @since ITP 1.1.0
  */
 public class GradientTabAreaBorder implements Border, Serializable {

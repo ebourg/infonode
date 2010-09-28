@@ -20,7 +20,7 @@
  */
 
 
-// $Id: InsetsProperty.java,v 1.5 2004/09/22 14:32:50 jesper Exp $
+// $Id: InsetsProperty.java,v 1.7 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.properties.types;
 
 import net.infonode.properties.base.PropertyGroup;
@@ -33,7 +33,7 @@ import java.awt.*;
  * A property of type {@link Insets}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.7 $
  */
 public class InsetsProperty extends ValueHandlerProperty {
   public InsetsProperty(PropertyGroup group, String name, String description, PropertyValueHandler valueStorage) {

@@ -20,14 +20,17 @@
  */
 
 
-// $Id: ComponentUtil.java,v 1.14 2004/11/11 14:11:14 jesper Exp $
+// $Id: ComponentUtil.java,v 1.21 2005/02/16 11:28:13 jesper Exp $
+
 package net.infonode.gui;
 
 import net.infonode.gui.componentpainter.ComponentPainter;
 import net.infonode.util.Direction;
 
 import javax.swing.*;
+import java.applet.Applet;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class ComponentUtil {
   private ComponentUtil() {
@@ -36,6 +39,17 @@ public class ComponentUtil {
   public static final Component getChildAt(Container container, Point p) {
     Component c = container.getComponentAt(p);
     return c == null || c.getParent() != container ? null : c;
+  }
+
+  public static final Component getVisibleChildAt(Container container, Point p) {
+    Component[] children = container.getComponents();
+
+    for (int i = 0; i < children.length; i++) {
+      if (children[i].isVisible() && children[i].contains(p.x - children[i].getX(), p.y - children[i].getY()))
+        return children[i];
+    }
+
+    return null;
   }
 
   public static final Component getChildAtLine(Container container, Point p, boolean horizontal) {
@@ -56,6 +70,35 @@ public class ComponentUtil {
     return null;
   }
 
+  public static void getComponentTreePosition(Component c, ArrayList pos) {
+    if (c.getParent() == null) {
+      return;
+    }
+
+    getComponentTreePosition(c.getParent(), pos);
+
+    pos.add(new Integer(c.getParent().getComponentCount() - ComponentUtil.getComponentIndex(c)));
+  }
+
+  public static Component findComponentUnderGlassPaneAt(Point p, Component top) {
+    Component c = null;
+
+    if (top.isShowing()) {
+      if (top instanceof JFrame)
+        c =
+        ((JFrame) top).getLayeredPane().findComponentAt(
+            SwingUtilities.convertPoint(top, p, ((JFrame) top).getLayeredPane()));
+      else if (top instanceof JApplet)
+        c =
+        ((JApplet) top).getLayeredPane().findComponentAt(
+            SwingUtilities.convertPoint(top, p, ((JApplet) top).getLayeredPane()));
+      else
+        c = ((Container) top).findComponentAt(p);
+    }
+
+    return c;
+  }
+
   public static final int getComponentIndex(Component component) {
     if (component != null && component.getParent() != null) {
       Component[] c = component.getParent().getComponents();
@@ -69,10 +112,9 @@ public class ComponentUtil {
   }
 
   public static final String getBorderLayoutOrientation(Direction d) {
-    return d == Direction.UP ? BorderLayout.NORTH :
-           d == Direction.LEFT ? BorderLayout.WEST :
-           d == Direction.DOWN ? BorderLayout.SOUTH :
-           BorderLayout.EAST;
+    return d == Direction.UP ?
+           BorderLayout.NORTH :
+           d == Direction.LEFT ? BorderLayout.WEST : d == Direction.DOWN ? BorderLayout.SOUTH : BorderLayout.EAST;
   }
 
   public static Color getBackgroundColor(Component component) {
@@ -120,6 +162,15 @@ public class ComponentUtil {
     return count;
   }
 
+  public static Component getTopLevelAncestor(Component c) {
+    while (c != null) {
+      if (c instanceof Window || c instanceof Applet)
+        break;
+      c = c.getParent();
+    }
+    return c;
+  }
+
   public static boolean hasVisibleChildren(Component c) {
     return getVisibleChildrenCount(c) > 0;
   }
@@ -159,26 +210,34 @@ public class ComponentUtil {
   }
 
   /**
-   * Requests focus unless the component already has focus. For some weird reason calling
-   * {@link Component#requestFocusInWindow()} when the component is focus owner changes focus owner to another
-   * component!
+   * Requests focus unless the component already has focus. For some weird
+   * reason calling {@link Component#requestFocusInWindow()}when the
+   * component is focus owner changes focus owner to another component!
    *
    * @param component the component to request focus for
-   * @return true if the component has focus or probably will get focus, otherwise false
+   * @return true if the component has focus or probably will get focus,
+   *         otherwise false
    */
   public static boolean requestFocus(Component component) {
-/*    System.out.println("Owner: " + System.identityHashCode(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner()) +
-                       ", " + System.identityHashCode(component) + ", " +
-                       (KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner() == component));*/
-    return KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner() == component || component.requestFocusInWindow();
+    /*
+     * System.out.println("Owner: " +
+     * System.identityHashCode(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner()) + ", " +
+     * System.identityHashCode(component) + ", " +
+     * (KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner() ==
+     * component));
+     */
+    return KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner() == component ||
+           component.requestFocusInWindow();
   }
 
   /**
-   * Requests focus for a component. If that's not possible it's {@link FocusTraversalPolicy} is checked. If that
-   * doesn't work all it's children is recursively checked with this method.
+   * Requests focus for a component. If that's not possible it's
+   * {@link FocusTraversalPolicy}is checked. If that doesn't work all it's
+   * children is recursively checked with this method.
    *
    * @param component the component to request focus for
-   * @return the component which has focus or probably will obtain focus, null if no component will receive focus
+   * @return the component which has focus or probably will obtain focus, null
+   *         if no component will receive focus
    */
   public static Component smartRequestFocus(Component component) {
     if (requestFocus(component))
@@ -211,7 +270,8 @@ public class ComponentUtil {
   }
 
   /**
-   * Calculates preferred max height for the given components without checking isVisible.
+   * Calculates preferred max height for the given components without checking
+   * isVisible.
    *
    * @param components Components to check
    * @return max height
@@ -227,7 +287,8 @@ public class ComponentUtil {
   }
 
   /**
-   * Calculates preferred max width for the given components without checking isVisible.
+   * Calculates preferred max width for the given components without checking
+   * isVisible.
    *
    * @param components Components to check
    * @return max width

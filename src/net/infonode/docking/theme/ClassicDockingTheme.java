@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ClassicDockingTheme.java,v 1.4 2004/11/11 14:09:46 jesper Exp $
+// $Id: ClassicDockingTheme.java,v 1.6 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.theme;
 
 import net.infonode.docking.properties.RootWindowProperties;
@@ -41,7 +41,7 @@ import java.awt.*;
  * A theme with a "classic" look with round edges for the tabs.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.6 $
  * @since IDW 1.2.0
  */
 public class ClassicDockingTheme extends DockingWindowsTheme {
@@ -108,13 +108,12 @@ public class ClassicDockingTheme extends DockingWindowsTheme {
     
     // Tweak root window
     rootWindowProperties.getWindowAreaProperties().setBackgroundColor(null).setInsets(new Insets(0, 0, 0, 0))
-        .setBorder(
-            new EdgeBorder(UIManagerColorProvider.TABBED_PANE_DARK_SHADOW,
-                           UIManagerColorProvider.TABBED_PANE_HIGHLIGHT,
-                           true,
-                           true,
-                           true,
-                           true));
+        .setBorder(new EdgeBorder(UIManagerColorProvider.TABBED_PANE_DARK_SHADOW,
+                                  UIManagerColorProvider.TABBED_PANE_HIGHLIGHT,
+                                  true,
+                                  true,
+                                  true,
+                                  true));
     rootWindowProperties.setDragRectangleBorderWidth(3);
   }
 

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: AbstractComponentPainter.java,v 1.5 2004/11/11 13:07:28 jesper Exp $
+// $Id: AbstractComponentPainter.java,v 1.7 2005/02/16 11:28:11 jesper Exp $
 package net.infonode.gui.componentpainter;
 
 import net.infonode.util.Direction;
@@ -35,7 +35,7 @@ import java.io.Serializable;
  * but becuase they call each other a sub class must override one or both methods.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.7 $
  * @since IDW 1.2.0
  */
 abstract public class AbstractComponentPainter implements ComponentPainter, Serializable {
@@ -48,7 +48,15 @@ abstract public class AbstractComponentPainter implements ComponentPainter, Seri
     paint(component, g, x, y, width, height, Direction.RIGHT, false, false);
   }
 
-  public void paint(Component component, Graphics g, int x, int y, int width, int height, Direction direction, boolean horizontalFlip, boolean verticalFlip) {
+  public void paint(Component component,
+                    Graphics g,
+                    int x,
+                    int y,
+                    int width,
+                    int height,
+                    Direction direction,
+                    boolean horizontalFlip,
+                    boolean verticalFlip) {
     if (direction != Direction.RIGHT || horizontalFlip || verticalFlip) {
       Graphics2D g2 = (Graphics2D) g;
       AffineTransform t = g2.getTransform();

@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ButtonFactory.java,v 1.3 2004/09/28 15:07:29 jesper Exp $
+// $Id: ButtonFactory.java,v 1.5 2005/02/16 11:28:10 jesper Exp $
 package net.infonode.gui.button;
 
 import javax.swing.*;
@@ -30,7 +30,7 @@ import java.io.Serializable;
  * A button factory.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.5 $
  */
 public interface ButtonFactory extends Serializable {
   /**

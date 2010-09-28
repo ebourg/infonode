@@ -20,7 +20,7 @@
  */
 
 
-// $Id: BlueHighlightTheme.java,v 1.21 2004/11/11 14:10:33 jesper Exp $
+// $Id: BlueHighlightTheme.java,v 1.23 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.tabbedpanel.theme;
 
 import net.infonode.gui.border.HighlightBorder;
@@ -37,7 +37,7 @@ import java.awt.*;
  * highlighted state.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.21 $
+ * @version $Revision: 1.23 $
  */
 public class BlueHighlightTheme extends TabbedPanelTitledTabTheme {
   private TitledTabProperties tabProperties = new TitledTabProperties();

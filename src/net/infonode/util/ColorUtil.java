@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ColorUtil.java,v 1.6 2004/10/15 14:23:09 jesper Exp $
+// $Id: ColorUtil.java,v 1.10 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.util;
 
 import java.awt.*;
@@ -38,18 +38,20 @@ public final class ColorUtil {
   }
 
   public static final Color mult(Color c, double amount) {
-    return new Color(Math.min(255, (int) (c.getRed() * amount)),
-                     Math.min(255, (int) (c.getGreen() * amount)),
-                     Math.min(255, (int) (c.getBlue() * amount)),
-                     c.getAlpha());
+    return c == null ? null : new Color(Math.min(255, (int) (c.getRed() * amount)),
+                                        Math.min(255, (int) (c.getGreen() * amount)),
+                                        Math.min(255, (int) (c.getBlue() * amount)),
+                                        c.getAlpha());
   }
 
   public static Color setAlpha(Color c, int alpha) {
-    return new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha);
+    return c == null ? null : new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha);
   }
 
   public static final Color add(Color c1, Color c2) {
-    return new Color(Math.min(255, c1.getRed() + c2.getRed()),
+    return c1 == null ? c2 :
+           c2 == null ? c1 :
+           new Color(Math.min(255, c1.getRed() + c2.getRed()),
                      Math.min(255, c1.getGreen() + c2.getGreen()),
                      Math.min(255, c1.getBlue() + c2.getBlue()),
                      c1.getAlpha());
@@ -57,7 +59,9 @@ public final class ColorUtil {
 
   public static Color blend(Color c1, Color c2, double v) {
     double v2 = 1 - v;
-    return new Color(Math.min(255, (int) (c1.getRed() * v2 + c2.getRed() * v)),
+    return c1 == null ? (c2 == null ? null : c2) :
+           c2 == null ? c1 :
+           new Color(Math.min(255, (int) (c1.getRed() * v2 + c2.getRed() * v)),
                      Math.min(255, (int) (c1.getGreen() * v2 + c2.getGreen() * v)),
                      Math.min(255, (int) (c1.getBlue() * v2 + c2.getBlue() * v)),
                      Math.min(255, (int) (c1.getAlpha() * v2 + c2.getAlpha() * v)));
@@ -72,7 +76,7 @@ public final class ColorUtil {
   }
 
   public static Color copy(Color c) {
-    return new Color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+    return c == null ? null : new Color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
   }
 
 }

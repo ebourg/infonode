@@ -20,7 +20,7 @@
  */
 
 
-// $Id: EnumProperty.java,v 1.6 2004/09/22 14:32:50 jesper Exp $
+// $Id: EnumProperty.java,v 1.7 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.properties.types;
 
 import net.infonode.properties.base.PropertyGroup;
@@ -32,7 +32,7 @@ import net.infonode.util.ArrayUtil;
  * A property which value is one in a fixed set of values.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 public class EnumProperty extends ValueHandlerProperty {
   private Object[] validValues;
@@ -47,7 +47,12 @@ public class EnumProperty extends ValueHandlerProperty {
    * @param valueHandler handles values for this property
    * @param validValues  valid values for this property
    */
-  public EnumProperty(PropertyGroup group, String name, Class type, String description, PropertyValueHandler valueHandler, Object[] validValues) {
+  public EnumProperty(PropertyGroup group,
+                      String name,
+                      Class type,
+                      String description,
+                      PropertyValueHandler valueHandler,
+                      Object[] validValues) {
     super(group, name, type, description, valueHandler);
     this.validValues = (Object[]) validValues.clone();
   }

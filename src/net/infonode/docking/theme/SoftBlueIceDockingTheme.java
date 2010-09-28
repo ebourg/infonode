@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SoftBlueIceDockingTheme.java,v 1.5 2004/11/11 14:09:46 jesper Exp $
+// $Id: SoftBlueIceDockingTheme.java,v 1.8 2005/02/16 11:28:14 jesper Exp $
 package net.infonode.docking.theme;
 
 import net.infonode.docking.properties.RootWindowProperties;
@@ -38,7 +38,7 @@ import java.awt.*;
  * A light blue theme with gradients and rounded corners.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.8 $
  */
 public class SoftBlueIceDockingTheme extends DockingWindowsTheme {
   private RootWindowProperties rootWindowProperties = new RootWindowProperties();
@@ -85,7 +85,9 @@ public class SoftBlueIceDockingTheme extends DockingWindowsTheme {
       theme.getTabbedPanelProperties().getTabAreaComponentsProperties().getComponentProperties().setInsets(
           new Insets(0, 0, 0, 4));
     }
-    rootWindowProperties.getWindowAreaProperties().setInsets(new Insets(2, 2, 2, 2));
+    rootWindowProperties.getWindowAreaProperties()
+        .setBorder(null)
+        .setInsets(new Insets(2, 2, 2, 2));
     rootWindowProperties.getWindowAreaShapedPanelProperties().setComponentPainter(
         new SolidColorComponentPainter(new ColorBlender(darkColor, lightColor, 0.5f)));
 

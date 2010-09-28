@@ -20,13 +20,16 @@
  */
 
 
-// $Id: FontUtil.java,v 1.2 2004/06/17 15:07:10 johan Exp $
+// $Id: FontUtil.java,v 1.5 2005/02/16 11:28:13 jesper Exp $
 package net.infonode.gui;
 
 import java.awt.*;
 
 public class FontUtil {
+  private FontUtil() {
+  }
+
   public static Font copy(Font font) {
-    return new Font(font.getName(), font.getStyle(), font.getSize());
+    return font == null ? null : new Font(font.getName(), font.getStyle(), font.getSize());
   }
 }

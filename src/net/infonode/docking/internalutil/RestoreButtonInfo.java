@@ -20,33 +20,18 @@
  */
 
 
-// $Id: RestoreButtonInfo.java,v 1.5 2004/10/28 14:16:41 jesper Exp $
+// $Id: RestoreButtonInfo.java,v 1.7 2004/12/22 10:15:52 jesper Exp $
 package net.infonode.docking.internalutil;
 
-import net.infonode.docking.DockingWindow;
 import net.infonode.properties.propertymap.PropertyMapProperty;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.7 $
  */
 public class RestoreButtonInfo extends AbstractButtonInfo {
   public RestoreButtonInfo(PropertyMapProperty property) {
     super(property);
   }
 
-  public boolean isVisible(DockingWindow window) {
-    return window.isMinimized() && window.isRestorable();
-  }
-
-  public ActionListener getActionListener(final DockingWindow window) {
-    return new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        window.restore();
-      }
-    };
-  }
 }

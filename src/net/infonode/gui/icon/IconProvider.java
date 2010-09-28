@@ -20,7 +20,7 @@
  */
 
 
-// $Id: IconProvider.java,v 1.1 2004/09/28 11:39:33 johan Exp $
+// $Id: IconProvider.java,v 1.3 2005/02/16 11:28:11 jesper Exp $
 package net.infonode.gui.icon;
 
 import javax.swing.*;
@@ -29,7 +29,7 @@ import javax.swing.*;
  * Interface for an object that provides an icon.
  *
  * @author Bjorn Lind
- * @version $Revision: 1.1 $ $Date: 2004/09/28 11:39:33 $
+ * @version $Revision: 1.3 $ $Date: 2005/02/16 11:28:11 $
  */
 public interface IconProvider {
   /**

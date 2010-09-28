@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyMapPropertyRef.java,v 1.6 2004/11/11 14:10:12 jesper Exp $
+// $Id: PropertyMapPropertyRef.java,v 1.8 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.properties.propertymap.ref;
 
 import net.infonode.properties.propertymap.PropertyMapImpl;
@@ -32,7 +32,7 @@ import java.io.ObjectOutputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.8 $
  */
 public class PropertyMapPropertyRef implements PropertyMapRef {
   private String propertyName;
