@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,21 +20,29 @@
  */
 
 
-// $Id: ArrayUtil.java,v 1.2 2004/06/17 13:01:11 johan Exp $
+// $Id: ArrayUtil.java,v 1.5 2004/09/22 14:35:05 jesper Exp $
 package net.infonode.util;
 
 import java.util.ArrayList;
 
 public class ArrayUtil {
+  private ArrayUtil() {
+  }
+
   static final public byte[] part(byte[] array, int offset, int length) {
     byte[] b = new byte[length];
     System.arraycopy(array, offset, b, 0, length);
     return b;
   }
 
-  static final public void fill(int[] values, int value) {
-    for (int i = 0; i < values.length; i++)
-      values[i] = value;
+  static final public int countNotNull(Object[] objects) {
+    int count = 0;
+
+    for (int i = 0; i < objects.length; i++)
+      if (objects[i] != null)
+        count++;
+
+    return count;
   }
 
   static final public int findSmallest(double[] items) {
@@ -103,26 +111,12 @@ public class ArrayUtil {
     return out;
   }
 
-  public static boolean equal(int[] a, int[] b) {
-    if (a.length != b.length)
-      return false;
-
-    return equal(a, 0, b, 0, a.length);
-  }
-
   public static boolean equal(int[] a, int aOffset, int[] b, int bOffset, int length) {
     for (int i = 0; i < length; i++)
       if (a[aOffset + i] != b[bOffset + i])
         return false;
 
     return true;
-  }
-
-  public static boolean equal(byte[] a, byte[] b) {
-    if (a.length != b.length)
-      return false;
-
-    return equal(a, 0, b, 0, a.length);
   }
 
   public static boolean equal(byte[] a, int aOffset, byte[] b, int bOffset, int length) {
@@ -186,10 +180,13 @@ public class ArrayUtil {
   }
 
   public static String toString(int[] a) {
-    StringBuffer b = new StringBuffer();
+    StringBuffer b = new StringBuffer(a.length * 4);
 
     for (int i = 0; i < a.length; i++) {
-      b.append((i != 0 ? ", " : "") + String.valueOf(a[i]));
+      if (i != 0)
+        b.append(", ");
+
+      b.append(a[i]);
     }
 
     return b.toString();
@@ -245,7 +242,7 @@ public class ArrayUtil {
   public static int[] toIntArray(ArrayList items) {
     int[] result = new int[items.size()];
 
-    for (int i=0; i<items.size(); i++)
+    for (int i = 0; i < items.size(); i++)
       result[i] = ((Number) items.get(i)).intValue();
 
     return result;
@@ -254,7 +251,7 @@ public class ArrayUtil {
   public static boolean[] toBooleanArray(ArrayList items) {
     boolean[] result = new boolean[items.size()];
 
-    for (int i=0; i<items.size(); i++)
+    for (int i = 0; i < items.size(); i++)
       result[i] = ((Boolean) items.get(i)).booleanValue();
 
     return result;

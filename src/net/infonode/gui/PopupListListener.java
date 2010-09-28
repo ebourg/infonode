@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,16 +20,12 @@
  */
 
 
-// $Id: StretchPanel.java,v 1.2 2004/07/06 15:08:44 jesper Exp $
-package net.infonode.gui.panel;
+// $Id: PopupListListener.java,v 1.4 2004/09/22 14:35:05 jesper Exp $
+package net.infonode.gui;
 
-import net.infonode.gui.layout.StretchLayout;
-
-import javax.swing.*;
-
-public class StretchPanel extends SimplePanel {
-  public StretchPanel(JComponent component, boolean horizontal, boolean vertical) {
-    setLayout(new StretchLayout(horizontal, vertical));
-    add(component);
-  }
+/**
+ * @author johan
+ */
+public interface PopupListListener {
+  void willBecomeVisible(PopupList list);
 }

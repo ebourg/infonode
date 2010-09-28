@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: RootWindow.java,v 1.19 2004/08/11 13:47:58 jesper Exp $
+// $Id: RootWindow.java,v 1.37 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.location.WindowLocation;
@@ -28,11 +28,13 @@ import net.infonode.docking.location.WindowRootLocation;
 import net.infonode.docking.properties.RootWindowProperties;
 import net.infonode.gui.layout.BorderLayout2;
 import net.infonode.gui.layout.LayoutUtil;
+import net.infonode.gui.layout.StretchLayout;
 import net.infonode.gui.panel.SimplePanel;
 import net.infonode.properties.propertymap.PropertyMap;
 import net.infonode.util.ArrayUtil;
 import net.infonode.util.Direction;
 import net.infonode.util.ReadWritable;
+import net.infonode.util.collection.WeakSet;
 
 import javax.swing.*;
 import java.awt.*;
@@ -43,16 +45,18 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.ref.SoftReference;
+import java.util.ArrayList;
 
 /**
  * The root window is a top level container for docking windows. Docking windows can't be dragged outside of their root
  * window. The property values of a root window is inherited to the docking windows inside it.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.19 $
+ * @version $Revision: 1.37 $
  */
 public class RootWindow extends DockingWindow implements ReadWritable {
-  private static final int SERIALIZE_VERSION = 1;
+  private static final int SERIALIZE_VERSION = 2;
 
   private class SingleComponentLayout implements LayoutManager {
     public void addLayoutComponent(String name, Component comp) {
@@ -61,18 +65,20 @@ public class RootWindow extends DockingWindow implements ReadWritable {
     public void layoutContainer(Container parent) {
       Dimension size = LayoutUtil.getInteriorSize(parent);
       Insets insets = parent.getInsets();
-      windowPanel.setBounds(insets.left, insets.top, size.width, size.height);
+      mainPanel.setBounds(insets.left, insets.top, size.width, size.height);
 
       int w1 = windowBars[Direction.LEFT.getValue()].getPreferredSize().width;
       int w2 = windowBars[Direction.RIGHT.getValue()].getPreferredSize().width;
       int h1 = windowBars[Direction.UP.getValue()].getPreferredSize().height;
       int h2 = windowBars[Direction.DOWN.getValue()].getPreferredSize().height;
 
+      final Direction[] directions = Direction.getDirections();
+
       for (int i = 0; i < windowBars.length; i++) {
         Component panel = windowBars[i].getEdgePanel();
 
         if (panel.isVisible()) {
-          Direction dir = Direction.DIRECTIONS[i];
+          Direction dir = directions[i];
           int maxWidth = size.width - w1 - w2;
           int maxHeight = size.height - h1 - h2;
 
@@ -105,11 +111,11 @@ public class RootWindow extends DockingWindow implements ReadWritable {
     }
 
     public Dimension minimumLayoutSize(Container parent) {
-      return LayoutUtil.add(windowPanel.getMinimumSize(), parent.getInsets());
+      return LayoutUtil.add(mainPanel.getMinimumSize(), parent.getInsets());
     }
 
     public Dimension preferredLayoutSize(Container parent) {
-      return LayoutUtil.add(windowPanel.getPreferredSize(), parent.getInsets());
+      return LayoutUtil.add(mainPanel.getPreferredSize(), parent.getInsets());
     }
 
     public void removeLayoutComponent(Component comp) {
@@ -119,56 +125,42 @@ public class RootWindow extends DockingWindow implements ReadWritable {
 
   private SingleComponentLayout layerLayout = new SingleComponentLayout();
   private JLayeredPane layeredPane = new JLayeredPane();
-  private SimplePanel windowPanel = new SimplePanel();
-  private SimplePanel centerPanel = new SimplePanel();
+  private SimplePanel mainPanel = new SimplePanel();
+  private SimplePanel windowPanel = new SimplePanel(new StretchLayout(true, true));
   private ViewSerializer viewSerializer;
   private DockingWindow window;
   private JLabel textComponent = new JLabel();
   private RectangleBorderComponent rectangleComponent = new RectangleBorderComponent(0);
   private RootWindowProperties properties;
 //  private View lastFocusedView;
+  private WindowBar[] windowBars = new WindowBar[Direction.getDirections().length];
+  private DockingWindow maximizedWindow;
   private View focusedView;
-  private int ignoreFocusChanges;
-  private boolean focusListenerAdded = false;
-  private java.beans.PropertyChangeListener focusListener = new java.beans.PropertyChangeListener() {
-    public void propertyChange(PropertyChangeEvent evt) {
-      if (ignoreFocusChanges > 0)
-        return;
-
-      ignoreFocusChanges++;
-
-      try {
-        updateFocus();
-      }
-      finally {
-        ignoreFocusChanges--;
-      }
-    }
-  };
-  private WindowBar[] windowBars = new WindowBar[Direction.DIRECTIONS.length];
+  private ArrayList lastFocusedWindows = new ArrayList(4);
+  private ArrayList focusedWindows = new ArrayList(4);
+  private WeakSet views = new WeakSet();
 
   /**
-   * Constructor.
+   * Creates an empty root window.
    *
    * @param viewSerializer used when reading and writing views
-   * @param window         the window that is placed inside the root window
+   * @since IDW 1.1.0
    */
-  public RootWindow(ViewSerializer viewSerializer, DockingWindow window) {
-    this.properties = RootWindowProperties.createDefault();
+  public RootWindow(ViewSerializer viewSerializer) {
+    properties = RootWindowProperties.createDefault();
 
     getWindowProperties().addSuperObject(properties.getDockingWindowProperties());
 
-    windowPanel.setLayout(new BorderLayout2());
-    windowPanel.add(centerPanel, new Point(1, 1));
+    mainPanel.setLayout(new BorderLayout2());
+    mainPanel.add(windowPanel, new Point(1, 1));
 
     createWindowBars();
 
-    layeredPane.add(windowPanel);
+    layeredPane.add(mainPanel);
     layeredPane.setLayout(layerLayout);
     setComponent(layeredPane);
 
     this.viewSerializer = viewSerializer;
-    setWindow(window);
 
     textComponent.setOpaque(true);
 
@@ -181,56 +173,18 @@ public class RootWindow extends DockingWindow implements ReadWritable {
     });
 
     init();
-    registerFocusListener();
+    FocusManager.getInstance();
   }
 
-  private void registerFocusListener() {
-    addHierarchyListener(new HierarchyListener() {
-      public void hierarchyChanged(HierarchyEvent e) {
-        if (isDisplayable()) {
-          if (!focusListenerAdded) {
-            focusListenerAdded = true;
-            KeyboardFocusManager.getCurrentKeyboardFocusManager().addPropertyChangeListener("focusOwner",
-                                                                                            focusListener);
-            updateFocus();
-          }
-        }
-        else if (focusListenerAdded) {
-          KeyboardFocusManager.getCurrentKeyboardFocusManager().removePropertyChangeListener("focusOwner",
-                                                                                             focusListener);
-          focusListenerAdded = false;
-        }
-      }
-    });
-  }
-
-  private void updateFocus() {
-    Component c = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
-//    System.out.println("Focus: " + c);
-
-    if (c == null) {
-      return;
-    }
-
-    View view = getViewContaining(c);
-
-    if (view != null) {
-      view.setLastFocusedComponent(c);
-    }
-
-    if (view != focusedView) {
-//      System.out.println("View: " + focusedView + " -> " + view);
-
-      if (view != null) {
-        view.childGainedFocus(null, view);
-//              lastFocusedView = view;
-      }
-      else {
-        clearFocus(null);
-      }
-
-      focusedView = view;
-    }
+  /**
+   * Constructor.
+   *
+   * @param viewSerializer used when reading and writing views
+   * @param window         the window that is placed inside the root window
+   */
+  public RootWindow(ViewSerializer viewSerializer, DockingWindow window) {
+    this(viewSerializer);
+    setWindow(window);
   }
 
   /**
@@ -240,6 +194,57 @@ public class RootWindow extends DockingWindow implements ReadWritable {
    */
   public View getFocusedView() {
     return focusedView;
+  }
+
+  void addFocusedWindow(DockingWindow window) {
+    for (int i = 0; i < lastFocusedWindows.size(); i++) {
+      if (((SoftReference) lastFocusedWindows.get(i)).get() == window)
+        return;
+    }
+
+    lastFocusedWindows.add(new SoftReference(window));
+  }
+
+  void setFocusedView(View view) {
+//    System.out.println(focusedView + " -> " + view);
+    focusedView = view;
+
+    for (DockingWindow w = view; w != null; w = w.getWindowParent()) {
+      focusedWindows.add(new SoftReference(w));
+
+      for (int i = 0; i < lastFocusedWindows.size(); i++) {
+        if (((SoftReference) lastFocusedWindows.get(i)).get() == w) {
+          lastFocusedWindows.remove(i);
+          break;
+        }
+      }
+    }
+
+    for (int i = 0; i < lastFocusedWindows.size(); i++) {
+      DockingWindow w = (DockingWindow) ((SoftReference) lastFocusedWindows.get(i)).get();
+
+      if (w != null)
+        w.setFocused(false);
+    }
+
+    ArrayList temp = lastFocusedWindows;
+    lastFocusedWindows = focusedWindows;
+    focusedWindows = temp;
+    focusedWindows.clear();
+
+    for (int i = 0; i < lastFocusedWindows.size(); i++) {
+      DockingWindow w = (DockingWindow) ((SoftReference) lastFocusedWindows.get(i)).get();
+
+      if (w != null)
+        w.setFocused(true);
+    }
+
+    if (view != null) {
+      view.childGainedFocus(null, view);
+    }
+    else {
+      clearFocus(null);
+    }
   }
 
   /**
@@ -257,7 +262,6 @@ public class RootWindow extends DockingWindow implements ReadWritable {
    * window edge that is furthest away from the bar.
    *
    * @param window the docking window
-   *
    * @return the direction of the closest enabled window bar to a docking window
    */
   public Direction getClosestWindowBar(DockingWindow window) {
@@ -269,8 +273,7 @@ public class RootWindow extends DockingWindow implements ReadWritable {
       getWindowBar(Direction.LEFT).isEnabled() ? pos.x + window.getWidth() : Integer.MAX_VALUE,
       getWindowBar(Direction.RIGHT).isEnabled() ? getWidth() - pos.x : Integer.MAX_VALUE};
 
-    Direction dir = new Direction[]{Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT}[ArrayUtil.findSmallest(
-        distances)];
+    Direction dir = new Direction[]{Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT}[ArrayUtil.findSmallest(distances)];
     return getWindowBar(dir).isEnabled() ? dir : null;
   }
 
@@ -278,7 +281,6 @@ public class RootWindow extends DockingWindow implements ReadWritable {
    * Returns the window bar in the direction.
    *
    * @param direction the direction
-   *
    * @return the window bar in the direction
    */
   public WindowBar getWindowBar(Direction direction) {
@@ -328,7 +330,7 @@ public class RootWindow extends DockingWindow implements ReadWritable {
   }
 
   public int getChildWindowCount() {
-    return window == null ? 4 : 5;
+    return 4 + (window == null ? 0 : 1);
   }
 
   public Icon getIcon() {
@@ -339,7 +341,6 @@ public class RootWindow extends DockingWindow implements ReadWritable {
    * Writes the state of this root window and all child windows.
    *
    * @param out the stream on which to write the state
-   *
    * @throws IOException if there is a stream error
    */
   public void write(ObjectOutputStream out) throws IOException {
@@ -351,7 +352,6 @@ public class RootWindow extends DockingWindow implements ReadWritable {
    *
    * @param out             the stream on which to write the state
    * @param writeProperties true if the property values for all docking windows should be written to the stream
-   *
    * @throws IOException if there is a stream error
    */
   public void write(ObjectOutputStream out, boolean writeProperties) throws IOException {
@@ -359,7 +359,7 @@ public class RootWindow extends DockingWindow implements ReadWritable {
     out.writeBoolean(writeProperties);
     out.writeBoolean(window != null);
 
-    WriteContext context = new WriteContext(writeProperties);
+    WriteContext context = new WriteContext(writeProperties, getViewSerializer());
 
     if (window != null)
       window.write(out, context);
@@ -370,13 +370,38 @@ public class RootWindow extends DockingWindow implements ReadWritable {
 
     super.write(out, context);
     writeLocations(out);
+    writeViews(out, context);
+
+    if (maximizedWindow != null)
+      writeMaximized(maximizedWindow, out);
+
+    out.writeInt(-1);
+  }
+
+  private void writeMaximized(DockingWindow window, ObjectOutputStream out) throws IOException {
+    DockingWindow parent = window.getWindowParent();
+
+    if (parent != null) {
+      writeMaximized(parent, out);
+      out.writeInt(parent.getChildWindowIndex(window));
+    }
+  }
+
+  private void writeViews(ObjectOutputStream out, WriteContext context) throws IOException {
+    Object[] v = views.getElements();
+    out.writeInt(v.length);
+
+    for (int i = 0; i < v.length; i++) {
+      View view = (View) v[i];
+      view.write(out, context);
+      view.writeLocations(out);
+    }
   }
 
   /**
-   * Reads a previously written state. This will create child windows and read their state.
+   * Reads a previously written window state. This will create child windows and read their state.
    *
    * @param in the stream from which to read the state
-   *
    * @throws IOException if there is a stream error
    */
   public void read(ObjectInputStream in) throws IOException {
@@ -384,32 +409,143 @@ public class RootWindow extends DockingWindow implements ReadWritable {
   }
 
   /**
-   * Reads a previously written state. This will create child windows and read their state.
+   * Reads a previously written window state. This will create child windows and read their state.
    *
    * @param in             the stream from which to read the state
    * @param readProperties true if the property values for all child windows should be read. This parameter can be set
    *                       to true or false regardless of if the property values was included when the state was
    *                       written, though obviously no property values are read if there aren't any in the stream.
-   *
    * @throws IOException if there is a stream error
    */
   public void read(ObjectInputStream in, boolean readProperties) throws IOException {
-    int serializeVersion = in.readInt();
+    FocusManager.getInstance().startIgnoreFocusChanges();
 
-    if (serializeVersion > SERIALIZE_VERSION)
-      throw new IOException(
-          "Can't read serialized data because the serialized version is greater than current version!");
+    try {
+      int serializeVersion = in.readInt();
 
-    ReadContext context = new ReadContext(viewSerializer, serializeVersion, in.readBoolean(), readProperties);
-    setWindow(in.readBoolean() ? WindowDecoder.decodeWindow(in, context) : null);
+      if (serializeVersion > SERIALIZE_VERSION)
+        throw new IOException("Can't read serialized data because it was written by a later version of InfoNode Docking Windows!");
 
-    for (int i = 0; i < 4; i++) {
-      in.readInt(); // DockingWindow bar ID
-      windowBars[i].read(in, context);
+      ReadContext context = new ReadContext(viewSerializer, serializeVersion, in.readBoolean(), readProperties);
+      setWindow(in.readBoolean() ? WindowDecoder.decodeWindow(in, context) : null);
+
+      for (int i = 0; i < 4; i++) {
+        in.readInt(); // DockingWindow bar ID
+        windowBars[i].read(in, context);
+      }
+
+      super.read(in, context);
+      readLocations(in, this, serializeVersion);
+
+      if (serializeVersion > 1) {
+        int viewCount = in.readInt();
+
+        for (int i = 0; i < viewCount; i++) {
+          View view = (View) WindowDecoder.decodeWindow(in, context);
+          view.setRootWindow(this);
+          view.readLocations(in, this, serializeVersion);
+        }
+
+        readMaximized(in);
+      }
+
+      FocusManager.focusWindow(this);
+    }
+    finally {
+      SwingUtilities.invokeLater(new Runnable() {
+        public void run() {
+          FocusManager.getInstance().stopIgnoreFocusChanges();
+        }
+      });
+    }
+  }
+
+  private void readMaximized(ObjectInputStream in) throws IOException {
+    int index;
+    DockingWindow w = this;
+
+    while ((index = in.readInt()) != -1) {
+      if (index >= w.getChildWindowCount()) {
+        while (in.readInt() != -1) ;
+        return;
+      }
+
+      w = w.getChildWindow(index);
     }
 
-    super.read(in, context);
-    readLocations(in, this, serializeVersion);
+    if (w != this)
+      setMaximizedWindow(w);
+  }
+
+  /**
+   * Returns the maximized window in this root window, or null if there no maximized window.
+   *
+   * @return the maximized window in this root window, or null if there no maximized window
+   * @since IDW 1.1.0
+   */
+  public DockingWindow getMaximizedWindow() {
+    return maximizedWindow;
+  }
+
+  /**
+   * Sets the maximized window in this root window.
+   * This method takes the window component and displays it at the top in the root window. It does NOT modify the
+   * window tree structure, ie the window parent remains the unchanged.
+   *
+   * @param window the maximized window in this root window, null means no maximized window
+   * @since IDW 1.1.0
+   */
+  public void setMaximizedWindow(DockingWindow window) {
+    if (window != null && window.isMinimized())
+      window.restore();
+
+    internalSetMaximizedWindow(window);
+
+    if (window != null)
+      FocusManager.focusWindow(window);
+  }
+
+  void addView(View view) {
+    if (!views.contains(view))
+      views.add(view);
+  }
+
+  void removeView(View view) {
+    views.remove(view);
+  }
+
+  private void internalSetMaximizedWindow(DockingWindow window) {
+    if (window == maximizedWindow)
+      return;
+
+    if (maximizedWindow != null) {
+      DockingWindow oldMaximized = maximizedWindow;
+      maximizedWindow = null;
+      oldMaximized.getWindowParent().restoreWindowComponent(oldMaximized);
+      oldMaximized.maximized(false);
+
+      if (oldMaximized != this.window)
+        windowPanel.remove(oldMaximized);
+    }
+
+    maximizedWindow = window;
+
+    if (maximizedWindow != null) {
+      maximizedWindow.getWindowParent().removeWindowComponent(maximizedWindow);
+
+      if (maximizedWindow != this.window) {
+        windowPanel.add(maximizedWindow);
+
+        if (this.window != null)
+          this.window.setVisible(false);
+      }
+
+      maximizedWindow.maximized(true);
+      maximizedWindow.setVisible(true);
+    }
+    else if (this.window != null) {
+      this.window.setVisible(true);
+    }
   }
 
   void setText(Point textPoint, String text) {
@@ -431,19 +567,21 @@ public class RootWindow extends DockingWindow implements ReadWritable {
   }
 
   private void createWindowBars() {
-    for (int i = 0; i < Direction.DIRECTIONS.length; i++) {
-      windowBars[i] = new WindowBar(this, Direction.DIRECTIONS[i]);
+    final Direction[] directions = Direction.getDirections();
+
+    for (int i = 0; i < directions.length; i++) {
+      windowBars[i] = new WindowBar(this, directions[i]);
       windowBars[i].setEnabled(false);
       addWindow(windowBars[i]);
       layeredPane.add(windowBars[i].getEdgePanel(), new Integer(1));
 
-      windowPanel.add(windowBars[i],
-                      new Point(Direction.DIRECTIONS[i] == Direction.LEFT ?
-                                0 :
-                                Direction.DIRECTIONS[i] == Direction.RIGHT ? 2 : 1,
-                                Direction.DIRECTIONS[i] == Direction.UP ?
-                                0 :
-                                Direction.DIRECTIONS[i] == Direction.DOWN ? 2 : 1));
+      mainPanel.add(windowBars[i],
+                    new Point(directions[i] == Direction.LEFT ?
+                              0 :
+                              directions[i] == Direction.RIGHT ? 2 : 1,
+                              directions[i] == Direction.UP ?
+                              0 :
+                              directions[i] == Direction.DOWN ? 2 : 1));
 
       windowBars[i].addPropertyChangeListener("enabled", new PropertyChangeListener() {
         public void propertyChange(PropertyChangeEvent evt) {
@@ -453,18 +591,19 @@ public class RootWindow extends DockingWindow implements ReadWritable {
     }
   }
 
+  protected void showChildWindow(DockingWindow window) {
+    if (maximizedWindow != null && window == this.window)
+      setMaximizedWindow(null);
+
+    super.showChildWindow(window);
+  }
+
   protected void update() {
     properties.getComponentProperties().applyTo(this);
-    properties.getWindowAreaProperties().applyTo(centerPanel);
+    properties.getWindowAreaProperties().applyTo(windowPanel);
     properties.getDragLabelProperties().applyTo(textComponent);
 
     rectangleComponent.setLineWidth(properties.getDragRectangleBorderWidth());
-  }
-
-  private View getViewContaining(Component c) {
-    return c == null ?
-           null :
-           c instanceof View && ((View) c).getRootWindow() == this ? (View) c : getViewContaining(c.getParent());
   }
 
   private void addComponents() {
@@ -489,14 +628,30 @@ public class RootWindow extends DockingWindow implements ReadWritable {
   }
 
   protected void doReplace(DockingWindow oldWindow, DockingWindow newWindow) {
-    window = newWindow;
-    centerPanel.setComponent(newWindow);
-    revalidate();
+    if (oldWindow == window) {
+      if (window != null) {
+        windowPanel.remove(window);
+        window.setVisible(true);
+      }
+
+      window = newWindow;
+
+      if (window != null) {
+        if (maximizedWindow != null)
+          window.setVisible(false);
+
+        windowPanel.add(window);
+      }
+    }
   }
 
   protected void doRemoveWindow(DockingWindow window) {
-    centerPanel.remove(window);
-    this.window = null;
+    if (window == this.window) {
+      windowPanel.remove(window);
+      this.window.setVisible(true);
+      this.window = null;
+    }
+
     repaint();
   }
 
@@ -529,36 +684,18 @@ public class RootWindow extends DockingWindow implements ReadWritable {
     return new RootWindowProperties().getMap();
   }
 
-  void startIgnoreFocusChanges() {
-    ignoreFocusChanges++;
-  }
-
-  void stopIgnoreFocusChanges() {
-    if (--ignoreFocusChanges == 0)
-      updateFocus();
-  }
-
-  void ignoreFocusChanges(final Runnable runnable) {
-    startIgnoreFocusChanges();
-
-    try {
-      runnable.run();
-    }
-    finally {
-      SwingUtilities.invokeLater(new Runnable() {
-        public void run() {
-          stopIgnoreFocusChanges();
-        }
-      });
-    }
-  }
-
   boolean windowBarEnabled() {
     for (int i = 0; i < windowBars.length; i++)
       if (windowBars[i].isEnabled())
         return true;
 
     return false;
+  }
+
+  void removeWindowComponent(DockingWindow window) {
+  }
+
+  void restoreWindowComponent(DockingWindow window) {
   }
 
 }

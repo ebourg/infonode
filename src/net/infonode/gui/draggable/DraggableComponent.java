@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,15 +20,17 @@
  */
 
 
-// $Id: DraggableComponent.java,v 1.3 2004/06/18 14:04:44 jesper Exp $
+// $Id: DraggableComponent.java,v 1.8 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.gui.draggable;
 
-import net.infonode.gui.ComponentUtils;
+import net.infonode.gui.ComponentUtil;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.event.MouseInputListener;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -42,6 +44,7 @@ public class DraggableComponent {
   private boolean reorderRestoreOnDrag = false;
   private boolean detectOuterAreaAsLine = true;
   private boolean enableInsideDrag = false;
+  private boolean selectOnMousePress = false;
 
   private boolean mousePressed = false;
   private boolean dragEventFired = false;
@@ -89,6 +92,11 @@ public class DraggableComponent {
 
   public DraggableComponent(JComponent component, JComponent[] eventComponents) {
     this.component = component;
+    component.addComponentListener(new ComponentAdapter() {
+      public void componentResized(ComponentEvent e) {
+        fireChangedEvent(DraggableComponentEvent.TYPE_UNDEFINED);
+      }
+    });
     setEventComponents(eventComponents);
   }
 
@@ -185,9 +193,17 @@ public class DraggableComponent {
     this.enableInsideDrag = enableInsideDrag;
   }
 
+  public boolean isSelectOnMousePress() {
+    return selectOnMousePress;
+  }
+
+  public void setSelectOnMousePress(boolean selectOnMousePress) {
+    this.selectOnMousePress = selectOnMousePress;
+  }
+
   public void drag(Point p) {
     if (enabled) {
-      dragIndex = ComponentUtils.getComponentIndex(component);
+      dragIndex = ComponentUtil.getComponentIndex(component);
       dragFromIndex = dragIndex;
       doDrag(p);
     }
@@ -204,10 +220,12 @@ public class DraggableComponent {
 
   private void pressed(MouseEvent e) {
     if (enabled && e.getButton() == MouseEvent.BUTTON1) {
+      if (selectOnMousePress)
+        select();
       dragStarted = false;
       KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(abortDragKeyDispatcher);
       mousePressed = true;
-      dragIndex = ComponentUtils.getComponentIndex(component);
+      dragIndex = ComponentUtil.getComponentIndex(component);
       dragFromIndex = dragIndex;
 
       fireChangedEvent(DraggableComponentEvent.TYPE_PRESSED);
@@ -259,7 +277,8 @@ public class DraggableComponent {
     else {
       fireDroppedEvent(p);
       //if (component.contains(p))
-      fireSelectedEvent();
+      if (!selectOnMousePress)
+        fireSelectedEvent();
     }
 
     fireChangedEvent(DraggableComponentEvent.TYPE_RELEASED);
@@ -313,12 +332,13 @@ public class DraggableComponent {
     if (toIndex < 0) {
       if (reorderRestoreOnDrag)
         restoreComponentOrder();
-    } else if (reorderEnabled)
+    }
+    else if (reorderEnabled)
       dragIndex = toIndex;
   }
 
   private boolean isVerticalDrag() {
-    JComponent parent = (JComponent)component.getParent();
+    JComponent parent = (JComponent) component.getParent();
     if (parent.getComponentCount() > 1)
       return parent.getComponent(0).getY() < parent.getComponent(1).getY();
 
@@ -333,15 +353,15 @@ public class DraggableComponent {
     if (detectOuterAreaAsLine) {
       Insets i = outerParentArea.getInsets();
       return component.getParent().contains(p) || (outerParentArea.contains(p2) &&
-              (isVerticalDrag() ? (p2.getX() >= i.left && p2.getX() < (outerParentArea.getWidth() - i.right)) :
-              (p2.getY() >= i.top && p2.getY() < (outerParentArea.getHeight() - i.bottom))));
+                                                   (isVerticalDrag() ? (p2.getX() >= i.left && p2.getX() < (outerParentArea.getWidth() - i.right)) :
+                                                    (p2.getY() >= i.top && p2.getY() < (outerParentArea.getHeight() - i.bottom))));
     }
 
     return component.getParent().contains(p) || outerParentArea.contains(p2);
   }
 
   private int getMoveComponentIndex(Point p) {
-    JComponent parent = (JComponent)component.getParent();
+    JComponent parent = (JComponent) component.getParent();
     if (checkParentContains(p)) {
       boolean vertical = isVerticalDrag();
       for (int i = 0; i < parent.getComponentCount() - 1; i++) {
@@ -350,7 +370,8 @@ public class DraggableComponent {
         if (vertical) {
           if (p.getY() >= 0 && p.getY() < p2.getY())
             return i;
-        } else {
+        }
+        else {
           if (p.getX() >= 0 && p.getX() < p2.getX())
             return i;
         }
@@ -369,7 +390,7 @@ public class DraggableComponent {
 
   private void restoreComponentOrder() {
     if (reorderEnabled && dragIndex != -1 &&
-            dragFromIndex != -1 && dragIndex != dragFromIndex) {
+        dragFromIndex != -1 && dragIndex != dragFromIndex) {
       Container parent = component.getParent();
       Component comp = parent.getComponent(dragIndex);
       parent.remove(comp);
@@ -386,7 +407,7 @@ public class DraggableComponent {
       DraggableComponentEvent event = new DraggableComponentEvent(this, type);
       Object l[] = listeners.toArray();
       for (int i = 0; i < l.length; i++)
-        ((DraggableComponentListener)l[i]).changed(event);
+        ((DraggableComponentListener) l[i]).changed(event);
     }
   }
 
@@ -397,7 +418,7 @@ public class DraggableComponent {
       DraggableComponentEvent event = new DraggableComponentEvent(this);
       Object l[] = listeners.toArray();
       for (int i = 0; i < l.length; i++)
-        ((DraggableComponentListener)l[i]).selected(event);
+        ((DraggableComponentListener) l[i]).selected(event);
     }
   }
 
@@ -407,7 +428,7 @@ public class DraggableComponent {
       DraggableComponentEvent event = new DraggableComponentEvent(this, p);
       Object l[] = listeners.toArray();
       for (int i = 0; i < l.length; i++)
-        ((DraggableComponentListener)l[i]).dragged(event);
+        ((DraggableComponentListener) l[i]).dragged(event);
     }
   }
 
@@ -420,7 +441,7 @@ public class DraggableComponent {
         DraggableComponentEvent event = new DraggableComponentEvent(this, p);
         Object l[] = listeners.toArray();
         for (int i = 0; i < l.length; i++)
-          ((DraggableComponentListener)l[i]).dropped(event);
+          ((DraggableComponentListener) l[i]).dropped(event);
       }
     }
   }
@@ -434,7 +455,7 @@ public class DraggableComponent {
         DraggableComponentEvent event = new DraggableComponentEvent(this);
         Object l[] = listeners.toArray();
         for (int i = 0; i < l.length; i++)
-          ((DraggableComponentListener)l[i]).dragAborted(event);
+          ((DraggableComponentListener) l[i]).dragAborted(event);
       }
     }
   }

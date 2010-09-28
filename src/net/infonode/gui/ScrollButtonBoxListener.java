@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.

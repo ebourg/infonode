@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowTabProperties.java,v 1.6 2004/08/11 13:47:58 jesper Exp $
+// $Id: WindowTabProperties.java,v 1.11 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.base.Property;
@@ -32,7 +32,7 @@ import net.infonode.tabbedpanel.titledtab.TitledTabStateProperties;
  * Properties and property values for window tabs.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.11 $
  */
 public class WindowTabProperties extends PropertyMapContainer {
   /**
@@ -56,7 +56,7 @@ public class WindowTabProperties extends PropertyMapContainer {
       new PropertyMapProperty(PROPERTIES,
                               "Focused Properties",
                               "Property values for the titled tab when is focused or a component in the tab's content component has focus.\n" +
-                              "The property values are inherited from '" + TITLED_TAB_PROPERTIES + "." +
+                              "The property values are inherited from '" + TITLED_TAB_PROPERTIES + '.' +
                               TitledTabProperties.HIGHLIGHTED_PROPERTIES + "'.",
                               TitledTabStateProperties.PROPERTIES);
 
@@ -98,16 +98,16 @@ public class WindowTabProperties extends PropertyMapContainer {
         Property property = WindowTabButtonProperties.PROPERTIES.getProperty(j);
 
         // Highlighted properties inherits from normal properties
-        buttonProperties[i].get(properties.getHighlightedButtonProperties().getMap()).createRelativeRef(
-            property,
-            buttonProperties[i].get(properties.getNormalButtonProperties().getMap()),
-            property);
+        buttonProperties[i].get(properties.getHighlightedButtonProperties().getMap()).
+            createRelativeRef(property,
+                              buttonProperties[i].get(properties.getNormalButtonProperties().getMap()),
+                              property);
 
         // Focus properties inherits from highlight properties
-        buttonProperties[i].get(properties.getFocusedButtonProperties().getMap()).createRelativeRef(
-            property,
-            buttonProperties[i].get(properties.getHighlightedButtonProperties().getMap()),
-            property);
+        buttonProperties[i].get(properties.getFocusedButtonProperties().getMap()).
+            createRelativeRef(property,
+                              buttonProperties[i].get(properties.getHighlightedButtonProperties().getMap()),
+                              property);
       }
     }
   }
@@ -149,7 +149,19 @@ public class WindowTabProperties extends PropertyMapContainer {
   }
 
   /**
+   * Removes the last added super object.
+   *
+   * @return this
+   * @since IDW 1.1.0
+   */
+  public WindowTabProperties removeSuperObject() {
+    getMap().removeSuperMap();
+    return this;
+  }
+
+  /**
    * Returns the property values for the titled tab used in the tab.
+   *
    * @return the property values for the titled tab used in the tab
    */
   public TitledTabProperties getTitledTabProperties() {
@@ -158,6 +170,7 @@ public class WindowTabProperties extends PropertyMapContainer {
 
   /**
    * Returns the property values for the titled tab when it is focused or a component in the tab's content component has focus.
+   *
    * @return the property values for the titled tab when it is focused or a component in the tab's content component has focus
    */
   public TitledTabStateProperties getFocusedProperties() {
@@ -166,6 +179,7 @@ public class WindowTabProperties extends PropertyMapContainer {
 
   /**
    * Returns the property values for the tab buttons when the tab is in the normal state.
+   *
    * @return the property values for the tab buttons when the tab is in the normal state
    */
   public WindowTabStateProperties getNormalButtonProperties() {
@@ -174,6 +188,7 @@ public class WindowTabProperties extends PropertyMapContainer {
 
   /**
    * Returns the property values for the tab buttons when the tab is highlighted.
+   *
    * @return the property values for the tab buttons when the tab is highlighted
    */
   public WindowTabStateProperties getHighlightedButtonProperties() {
@@ -183,8 +198,9 @@ public class WindowTabProperties extends PropertyMapContainer {
   /**
    * Returns the property values for the tab buttons when the tab is focused or a component in the tab's content
    * component has focus.
+   *
    * @return the property values for the tab buttons when the tab is focused or a component in the tab's content
-   *          component has focus
+   *         component has focus
    */
   public WindowTabStateProperties getFocusedButtonProperties() {
     return new WindowTabStateProperties(FOCUSED_BUTTON_PROPERTIES.get(getMap()));

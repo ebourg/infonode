@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabbedUtils.java,v 1.3 2004/06/16 09:05:21 johan Exp $
+// $Id: TabbedUtils.java,v 1.6 2004/09/22 14:33:49 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import java.awt.*;
@@ -28,10 +28,13 @@ import java.awt.*;
 /**
  * Utility methods
  *
- * @author $Author: johan $
- * @version $Revision: 1.3 $
+ * @author $Author: jesper $
+ * @version $Revision: 1.6 $
  */
 public class TabbedUtils {
+  private TabbedUtils() {
+  }
+
   /**
    * <p>Gets the tab for whom the given component is a child.</p>
    *
@@ -40,12 +43,12 @@ public class TabbedUtils {
    * have been added to a Tab.</p>
    *
    * @param c the component
-   * @return  the tab or null if component is not a child of any tab
+   * @return the tab or null if component is not a child of any tab
    */
   public static Tab getParentTab(Component c) {
     while (c != null) {
       if (c instanceof Tab)
-        return (Tab)c;
+        return (Tab) c;
       c = c.getParent();
     }
     return null;
@@ -55,12 +58,12 @@ public class TabbedUtils {
    * Gets the tabbed panel for whom the given component is a child
    *
    * @param c the component
-   * @return  the tabbed panel or null if component is not a child of any tabbed panel
+   * @return the tabbed panel or null if component is not a child of any tabbed panel
    */
   public static TabbedPanel getParentTabbedPanel(Component c) {
     while (c != null) {
       if (c instanceof TabbedPanel)
-        return (TabbedPanel)c;
+        return (TabbedPanel) c;
       c = c.getParent();
     }
 
@@ -71,13 +74,13 @@ public class TabbedUtils {
    * Gets the TabbedPanelContentPanel for whom the given component is a child
    *
    * @param c the component
-   * @return  the content panel or null if component is not a child of any
-   *          tabbed panel content panel
+   * @return the content panel or null if component is not a child of any
+   *         tabbed panel content panel
    */
   public static TabbedPanelContentPanel getParentTabbedPanelContentPanel(Component c) {
     while (c != null) {
       if (c instanceof TabbedPanelContentPanel)
-        return (TabbedPanelContentPanel)c;
+        return (TabbedPanelContentPanel) c;
 
       c = c.getParent();
     }

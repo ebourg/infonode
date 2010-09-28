@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,26 +20,34 @@
  */
 
 
-// $Id: InternalDockingUtil.java,v 1.4 2004/08/11 13:47:58 jesper Exp $
+// $Id: InternalDockingUtil.java,v 1.13 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.docking.internalutil;
 
 import net.infonode.docking.DockingWindow;
 import net.infonode.docking.RootWindow;
+import net.infonode.docking.TabWindow;
 import net.infonode.docking.View;
+import net.infonode.docking.properties.WindowTabButtonProperties;
 import net.infonode.docking.util.DockingUtil;
 import net.infonode.docking.util.ViewMap;
+import net.infonode.properties.propertymap.PropertyMap;
 import net.infonode.util.IntList;
 import net.infonode.util.Printer;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.13 $
  */
 public class InternalDockingUtil {
+  private InternalDockingUtil() {
+  }
+
   public static IntList getWindowPath(DockingWindow window) {
     return getWindowPath(window, IntList.EMPTY_LIST);
   }
@@ -48,12 +56,12 @@ public class InternalDockingUtil {
    * Returns the window located at <tt>windowPath</tt>.
    *
    * @param relativeToWindow the window the path is relative to
-   * @param windowPath the window path
+   * @param windowPath       the window path
    * @return the window located at <tt>windowPath</tt>
    */
   public static DockingWindow getWindow(DockingWindow relativeToWindow, IntList windowPath) {
     return windowPath.isEmpty() ? relativeToWindow : windowPath.getValue() >= relativeToWindow.getChildWindowCount() ? null :
-        getWindow(relativeToWindow.getChildWindow(windowPath.getValue()), windowPath.getNext());
+                                                     getWindow(relativeToWindow.getChildWindow(windowPath.getValue()), windowPath.getNext());
   }
 
   private static IntList getWindowPath(DockingWindow window, IntList tail) {
@@ -72,8 +80,14 @@ public class InternalDockingUtil {
   public static void dump(DockingWindow window, Printer printer) {
     DockingWindow parent = window.getWindowParent();
 
-    printer.println(window.getClass().getName() + ", '" + window.getTitle() + "', parent: '" +
-                    (parent == null ? "null" : parent.toString()) + "'" + (window.getChildWindowCount() > 0 ? ":" : ""));
+    printer.println(window.getClass().getName() + ", '" +
+                    window.getTitle() + "', " +
+                    (window.isVisible() ? "visible" : "not visible") + ", " +
+                    (window.isMaximized() ? "maximized" : "not maximized") + ", " +
+                    System.identityHashCode(window) +
+                    ", parent: " +
+                    (parent == null ? "null" : String.valueOf(System.identityHashCode(parent))) +
+                    (window.getChildWindowCount() > 0 ? ":" : ""));
 
     if (window.getChildWindowCount() > 0) {
       printer.beginSection();
@@ -95,7 +109,58 @@ public class InternalDockingUtil {
 //    rootWindow.getRootWindowProperties().getWindowAreaProperties().setBorder(null);
     rootWindow.getRootWindowProperties().getComponentProperties().setBackgroundColor(null);
     rootWindow.getRootWindowProperties().getComponentProperties().setBorder(null);
+    rootWindow.getRootWindowProperties().getWindowAreaProperties().setBorder(new LineBorder(Color.GRAY));
     return rootWindow;
   }
 
+  public static boolean updateButtons(ButtonInfo[] buttonInfos,
+                                      AbstractButton[] buttons,
+                                      Container container,
+                                      DockingWindow window,
+                                      PropertyMap map) {
+//    DockingWindow window = w.getOptimizedWindow();
+    boolean updateContainer = false;
+
+    for (int i = 0; i < buttonInfos.length; i++) {
+      WindowTabButtonProperties p = new WindowTabButtonProperties(buttonInfos[i].getProperty().get(map));
+
+      if (buttons[i] == null && p.getFactory() != null) {
+        buttons[i] = p.getFactory().createButton(window);
+        buttons[i].setFocusable(false);
+        buttons[i].addActionListener(buttonInfos[i].getActionListener(window));
+        updateContainer = true;
+      }
+
+      if (buttons[i] != null) {
+        buttons[i].setToolTipText(p.getToolTipText());
+        buttons[i].setIcon(p.getIcon());
+        buttons[i].setVisible(p.isVisible() && buttonInfos[i].isVisible(window));
+      }
+    }
+
+    if (updateContainer && container != null) {
+      container.removeAll();
+
+      for (int j = 0; j < buttonInfos.length; j++) {
+        if (buttons[j] != null)
+          container.add(buttons[j]);
+      }
+    }
+
+    return updateContainer;
+  }
+
+  public static void addToRootWindow(DockingWindow window, RootWindow rootWindow) {
+    if (rootWindow == null)
+      return;
+
+    DockingWindow w = rootWindow.getWindow();
+
+    if (w == null)
+      rootWindow.setWindow(window);
+    else if (w instanceof TabWindow)
+      ((TabWindow) w).addTab(window);
+    else
+      rootWindow.setWindow(new TabWindow(new DockingWindow[]{w, window}));
+  }
 }

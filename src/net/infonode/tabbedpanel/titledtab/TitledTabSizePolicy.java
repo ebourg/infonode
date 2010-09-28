@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TitledTabSizePolicy.java,v 1.2 2004/06/23 12:25:39 johan Exp $
+// $Id: TitledTabSizePolicy.java,v 1.6 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.tabbedpanel.titledtab;
 
 import net.infonode.util.Enum;
@@ -31,10 +31,12 @@ import net.infonode.util.Enum;
  * can calculate the maximum size for the states and use that size for all
  * the states.
  *
- * @author $Author: johan $
- * @version $Revision: 1.2 $
+ * @author $Author: jesper $
+ * @version $Revision: 1.6 $
  */
-public class TitledTabSizePolicy extends Enum {
+public final class TitledTabSizePolicy extends Enum {
+  private static final long serialVersionUID = -7834501681762485226L;
+
   /**
    * Equal size policy. This menas that if the different tab states results in
    * different tab sizes, then titled tab will calculate the maximum size for the
@@ -55,5 +57,15 @@ public class TitledTabSizePolicy extends Enum {
 
   private TitledTabSizePolicy(int value, String name) {
     super(value, name);
+  }
+
+  /**
+   * Gets the size policies.
+   *
+   * @return the size policies
+   * @since ITP 1.1.0
+   */
+  public static TitledTabSizePolicy[] getSizePolicies() {
+    return (TitledTabSizePolicy[]) SIZE_POLICIES.clone();
   }
 }

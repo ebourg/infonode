@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: EnumProperty.java,v 1.4 2004/07/06 15:07:17 jesper Exp $
+// $Id: EnumProperty.java,v 1.6 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.types;
 
 import net.infonode.properties.base.PropertyGroup;
@@ -32,7 +32,7 @@ import net.infonode.util.ArrayUtil;
  * A property which value is one in a fixed set of values.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.6 $
  */
 public class EnumProperty extends ValueHandlerProperty {
   private Object[] validValues;
@@ -40,16 +40,16 @@ public class EnumProperty extends ValueHandlerProperty {
   /**
    * Constructor.
    *
-   * @param group the property group
-   * @param name the property name
-   * @param type the property type
-   * @param description the property description
+   * @param group        the property group
+   * @param name         the property name
+   * @param type         the property type
+   * @param description  the property description
    * @param valueHandler handles values for this property
-   * @param validValues valid values for this property
+   * @param validValues  valid values for this property
    */
   public EnumProperty(PropertyGroup group, String name, Class type, String description, PropertyValueHandler valueHandler, Object[] validValues) {
     super(group, name, type, description, valueHandler);
-    this.validValues = validValues;
+    this.validValues = (Object[]) validValues.clone();
   }
 
   public void setValue(Object object, Object value) {
@@ -65,7 +65,7 @@ public class EnumProperty extends ValueHandlerProperty {
    * @return the valid values for this property
    */
   public Object[] getValidValues() {
-    return validValues;
+    return (Object[]) validValues.clone();
   }
 
   public Object getValue(Object object) {

@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TitledTabBorderSizePolicy.java,v 1.3 2004/06/23 12:25:39 johan Exp $
+// $Id: TitledTabBorderSizePolicy.java,v 1.7 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.tabbedpanel.titledtab;
 
 import net.infonode.util.Enum;
@@ -33,12 +33,14 @@ import net.infonode.util.Enum;
  * right) for each state. The compensated insets will be added on the inside
  * of the borders.
  *
+ * @author $Author: jesper $
+ * @version $Revision: 1.7 $
  * @see TitledTab
  * @see TitledTabProperties
- * @author $Author: johan $
- * @version $Revision: 1.3 $
  */
-public class TitledTabBorderSizePolicy extends Enum {
+public final class TitledTabBorderSizePolicy extends Enum {
+  private static final long serialVersionUID = 5570620861429391549L;
+
   /**
    * Equal size policy. This means that if the different tab states have
    * borders with different insets titled tab will use the same insets for
@@ -63,5 +65,15 @@ public class TitledTabBorderSizePolicy extends Enum {
 
   private TitledTabBorderSizePolicy(int value, String name) {
     super(value, name);
+  }
+
+  /**
+   * Gets the titled tab border size policies.
+   *
+   * @return the titled tab border size policies
+   * @since ITP 1.1.0
+   */
+  public static TitledTabBorderSizePolicy[] getSizePolicies() {
+    return (TitledTabBorderSizePolicy[]) SIZE_POLICIES.clone();
   }
 }

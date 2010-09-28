@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,18 +20,21 @@
  */
 
 
-// $Id: TabHighlightBorder.java,v 1.9 2004/06/23 12:25:39 johan Exp $
+// $Id: TabHighlightBorder.java,v 1.15 2004/09/28 14:55:27 jesper Exp $
 package net.infonode.tabbedpanel.border;
 
+import net.infonode.gui.colorprovider.ColorProvider;
+import net.infonode.gui.colorprovider.ColorProviderUtil;
+import net.infonode.gui.colorprovider.UIManagerColorProvider;
 import net.infonode.tabbedpanel.Tab;
 import net.infonode.tabbedpanel.TabbedPanel;
 import net.infonode.tabbedpanel.TabbedPanelProperties;
 import net.infonode.tabbedpanel.TabbedUtils;
-import net.infonode.util.ColorUtil;
 import net.infonode.util.Direction;
 
 import javax.swing.border.Border;
 import java.awt.*;
+import java.io.Serializable;
 
 
 /**
@@ -39,14 +42,16 @@ import java.awt.*;
  * tab. It will not draw highlight on the side towards a TabbedPanel's content area
  * if the border is constructed with open border.
  *
+ * @author $Author: jesper $
+ * @version $Revision: 1.15 $
  * @see Tab
  * @see TabbedPanel
  * @see TabbedPanelProperties
- * @author $Author: johan $
- * @version $Revision: 1.9 $
  */
-public class TabHighlightBorder implements Border {
-  private Color color;
+public class TabHighlightBorder implements Border, Serializable {
+  private static final long serialVersionUID = 1;
+
+  private ColorProvider color;
   private boolean openBorder;
 
   /**
@@ -54,18 +59,29 @@ public class TabHighlightBorder implements Border {
    * is drawn but it will report the same insets as if the highlight was drawn
    */
   public TabHighlightBorder() {
-    this(null, false);
+    this((Color) null, false);
   }
 
   /**
    * Constructs a TabHighlightBorder with the given color as highlight color
    *
-   * @param color       the highlight color
-   * @param openBorder  when true, no highlighting is drawn on the side towards a
-   *                    TabbedPanel's content area, otherwise false
+   * @param color      the highlight color
+   * @param openBorder when true, no highlighting is drawn on the side towards a
+   *                   TabbedPanel's content area, otherwise false
    */
   public TabHighlightBorder(Color color, boolean openBorder) {
-    this.color = color;
+    this(ColorProviderUtil.getColorProvider(color, UIManagerColorProvider.TABBED_PANE_HIGHLIGHT), openBorder);
+  }
+
+  /**
+   * Constructs a TabHighlightBorder with the given color as highlight color
+   *
+   * @param colorProvider the highlight color provider
+   * @param openBorder    when true, no highlighting is drawn on the side towards a
+   *                      TabbedPanel's content area, otherwise false
+   */
+  public TabHighlightBorder(ColorProvider colorProvider, boolean openBorder) {
+    this.color = colorProvider;
     this.openBorder = openBorder;
   }
 
@@ -74,19 +90,22 @@ public class TabHighlightBorder implements Border {
 
     if (tabbedPanel != null) {
       Direction d = tabbedPanel.getProperties().getTabAreaOrientation();
-      g.setColor(color == null ? ColorUtil.mult(c.getBackground(), 1.5) : color);
+      g.setColor(color.getColor(c));
 
       if (d == Direction.UP) {
         g.drawLine(x + 1, y, x + width - 2, y);
         g.drawLine(x, y, x, y + height - (openBorder ? 1 : 2));
-      } else if (d == Direction.LEFT) {
+      }
+      else if (d == Direction.LEFT) {
         g.drawLine(x + 1, y, x + width - (openBorder ? 1 : 2), y);
         g.drawLine(x, y, x, y + height - 2);
-      } else if (d == Direction.DOWN) {
+      }
+      else if (d == Direction.DOWN) {
         if (!openBorder)
           g.drawLine(x + 1, y, x + width - 2, y);
         g.drawLine(x, y, x, y + height - 2);
-      } else {
+      }
+      else {
         if (openBorder)
           g.drawLine(x, y, x + width - 2, y);
         else {

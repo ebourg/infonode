@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyPath.java,v 1.2 2004/06/17 15:07:10 johan Exp $
+// $Id: PropertyPath.java,v 1.3 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.util;
 
 import net.infonode.properties.base.Property;
@@ -28,8 +28,8 @@ import net.infonode.properties.base.Property;
 /**
  * A path to a property.
  *
- * @author $Author: johan $
- * @version $Revision: 1.2 $
+ * @author $Author: jesper $
+ * @version $Revision: 1.3 $
  */
 public class PropertyPath {
   private Property property;
@@ -48,7 +48,7 @@ public class PropertyPath {
    * Creates a path by prepending a path with a property.
    *
    * @param property the property to prepend
-   * @param tail the path to prepend to
+   * @param tail     the path to prepend to
    */
   public PropertyPath(Property property, PropertyPath tail) {
     this.property = property;

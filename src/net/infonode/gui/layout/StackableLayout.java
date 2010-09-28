@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,19 +20,21 @@
  */
 
 
-// $Id: StackableLayout.java,v 1.8 2004/08/11 09:15:17 jesper Exp $
+// $Id: StackableLayout.java,v 1.15 2004/09/23 14:17:01 jesper Exp $
 package net.infonode.gui.layout;
+
+import net.infonode.gui.ComponentUtil;
 
 import java.awt.*;
 
 public class StackableLayout implements LayoutManager2 {
-  private Container container;
+//  private Container container;
   private Component component;
   private boolean autoShowFirstComponent = true;
   private boolean useSelectedComponentSize;
 
   public StackableLayout(Container container) {
-    this.container = container;
+//    this.container = container;
   }
 
   public boolean usesSelectedComponentSize() {
@@ -117,39 +119,29 @@ public class StackableLayout implements LayoutManager2 {
 
     component = c;
 
-    if (oldComponent != null)
-      oldComponent.setVisible(false);
+    boolean hasFocus = oldComponent != null &&
+                       LayoutUtil.isDescendingFrom(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(),
+                                                   oldComponent);
 
     if (component != null) {
       component.setVisible(true);
+
+      if (hasFocus)
+        ComponentUtil.smartRequestFocus(component);
     }
 
-    /*
-      if (LayoutUtil.hasParent(KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner(), oldComponent)) {
-//        KeyboardFocusManager.getCurrentKeyboardFocusManager().clearGlobalFocusOwner();
-
-        if (component.isFocusable()) {
-          component.requestFocusInWindow();
-        }
-        else if (component instanceof JComponent) {
-          FocusTraversalPolicy policy = ((JComponent) component).getFocusTraversalPolicy();
-          Component focusComponent = policy == null ? null : policy.getDefaultComponent((Container) component);
-
-          if (focusComponent != null && focusComponent.isFocusable()) {
-            System.out.println("Focusable");
-            focusComponent.requestFocusInWindow();
-          }
-        }
-      }
-    }
-
-    if (oldComponent != null) {
+    if (oldComponent != null)
       oldComponent.setVisible(false);
+
+/*    if (oldComponent != null) {
+//      oldComponent.setVisible(false);
       SwingUtilities.invokeLater(new Runnable() {
         public void run() {
           if (oldComponent.getParent() == container && oldComponent != component) {
             oldComponent.setVisible(false);
           }
+
+//          FocusUtil.unblockFocusChanges();
         }
       });
     }*/

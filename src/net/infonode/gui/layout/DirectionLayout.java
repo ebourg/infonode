@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: DirectionLayout.java,v 1.3 2004/07/06 15:08:44 jesper Exp $
+// $Id: DirectionLayout.java,v 1.9 2004/09/22 14:35:04 jesper Exp $
 package net.infonode.gui.layout;
 
 import net.infonode.util.Direction;
@@ -34,7 +34,7 @@ public class DirectionLayout implements LayoutManager2 {
   private Direction direction;
   private HashMap componentInsets;
   private int componentSpacing;
-  private boolean compressing = false;
+  private boolean compressing;
 
   public DirectionLayout() {
     this(Direction.RIGHT);
@@ -133,6 +133,7 @@ public class DirectionLayout implements LayoutManager2 {
     int lastCount;
 
     int otherSize = getOtherSize(parentInteriorSize);
+    //System.out.println(parentInteriorSize);
 //    int otherSize = Math.min(getOtherSize(parentInteriorSize), getOtherSize(LayoutUtil.getMaxPreferredSize(components)));
 
     // First, set componentsTotalSize of all components that fit inside the limit
@@ -184,10 +185,13 @@ public class DirectionLayout implements LayoutManager2 {
     }
 
     Insets insets = parent.getInsets();
+
     int pos = direction == Direction.RIGHT ? insets.left :
-        direction == Direction.DOWN ? insets.top :
-        direction == Direction.LEFT ? insets.right :
-        insets.bottom;
+              direction == Direction.DOWN ? insets.top :
+              direction == Direction.LEFT ? insets.right :
+              insets.bottom;
+
+    int yOffset = isVertical() ? insets.left : insets.top;
 
     for (int i = 0; i < components.length; i++) {
       pos += getBeforeSpacing(getInsets(components[i]));
@@ -199,20 +203,26 @@ public class DirectionLayout implements LayoutManager2 {
         componentsTotalSize -= componentSize;
       }
 
-      int yPos = (int) ((otherSize - getOtherSize(components[i].getSize())) *
-          (direction == Direction.DOWN || direction == Direction.LEFT ? 1 - components[i].getAlignmentY() : components[i].getAlignmentY()));
+      int yPos = yOffset + (int) ((otherSize - getOtherSize(components[i].getSize())) *
+                                  (direction == Direction.DOWN || direction == Direction.LEFT ?
+                                   1 - components[i].getAlignmentY() :
+                                   components[i].getAlignmentY()));
 
       if (isVertical()) {
         components[i].setLocation(yPos,
-                                  direction == Direction.DOWN ? pos : parent.getHeight() - pos - components[i].getHeight());
+                                  direction == Direction.DOWN ?
+                                  pos :
+                                  parent.getHeight() - pos - components[i].getHeight());
       }
       else {
-        components[i].setLocation(direction == Direction.RIGHT ? pos : parent.getWidth() - pos - components[i].getWidth(),
+        components[i].setLocation(direction == Direction.RIGHT ?
+                                  pos :
+                                  parent.getWidth() - pos - components[i].getWidth(),
                                   yPos);
       }
 
       pos += getSize(components[i].getSize()) + getAfterSpacing(components[i], i == components.length - 1);
-      //System.out.println(components[i].getBounds() + "  " + components[i].getPreferredSize() + "  " + ((JPanel)components[i]).getInsets());
+      //System.out.println(components[i].getBounds() + "  " + components[i].getPreferredSize() + "  " + ((JComponent)components[i]).getInsets());
     }
   }
 
@@ -295,11 +305,11 @@ public class DirectionLayout implements LayoutManager2 {
   public Dimension maximumLayoutSize(Container parent) {
     Component[] c = LayoutUtil.getVisibleChildren(parent);
     int size = 0;
-    int maxHeight = 0;
+    int maxHeight = Integer.MAX_VALUE;
 
     for (int i = 0; i < c.length; i++) {
       size += getSize(c[i].getMaximumSize()) + getSpacing(c[i], i == c.length - 1);
-      maxHeight = Math.min(getOtherSize(c[i].getMaximumSize()), maxHeight);
+//      maxHeight = Math.min(getOtherSize(c[i].getMaximumSize()), maxHeight);
     }
 
     Dimension d = getSize(isVertical() ? new Dimension(maxHeight, size) : new Dimension(size, maxHeight), parent);

@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: DirectionProperty.java,v 1.4 2004/06/18 14:04:44 jesper Exp $
+// $Id: DirectionProperty.java,v 1.6 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.types;
 
 import net.infonode.properties.base.PropertyGroup;
@@ -31,19 +31,19 @@ import net.infonode.util.Direction;
  * A property of type {@link Direction}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.6 $
  */
 public class DirectionProperty extends EnumProperty {
   /**
    * Constructor.
    *
-   * @param group the property group
-   * @param name the property name
-   * @param description the property description
+   * @param group        the property group
+   * @param name         the property name
+   * @param description  the property description
    * @param valueHandler handles values for this property
    */
   public DirectionProperty(PropertyGroup group, String name, String description, PropertyValueHandler valueHandler) {
-    super(group, name, Direction.class, description, valueHandler, Direction.DIRECTIONS);
+    super(group, name, Direction.class, description, valueHandler, Direction.getDirections());
   }
 
   /**
@@ -60,7 +60,7 @@ public class DirectionProperty extends EnumProperty {
    * Sets the {@link Direction} value of this property in a value container.
    *
    * @param valueContainer the value container
-   * @param direction the {@link Direction} value
+   * @param direction      the {@link Direction} value
    */
   public void set(Object valueContainer, Direction direction) {
     setValue(valueContainer, direction);

@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SimplePanel.java,v 1.2 2004/07/06 15:08:44 jesper Exp $
+// $Id: SimplePanel.java,v 1.3 2004/09/22 14:35:04 jesper Exp $
 package net.infonode.gui.panel;
 
 import javax.swing.*;
@@ -67,7 +67,7 @@ public class SimplePanel extends JPanel {
       add(c, BorderLayout.CENTER);
       c.repaint();
     }
-    
+
     comp = c;
   }
 

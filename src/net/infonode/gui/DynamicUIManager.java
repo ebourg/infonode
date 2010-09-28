@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: DynamicUIManager.java,v 1.3 2004/07/06 15:08:44 jesper Exp $
+// $Id: DynamicUIManager.java,v 1.4 2004/08/26 14:45:49 jesper Exp $
 package net.infonode.gui;
 
 import javax.swing.*;
@@ -58,6 +58,7 @@ public class DynamicUIManager {
                                  "win.frame.textColor",
                                  "win.item.hotTrackedColor"};
   private Toolkit currentToolkit;
+  private boolean propertyChangePending;
 
   public static DynamicUIManager getInstance() {
     return instance;
@@ -66,7 +67,7 @@ public class DynamicUIManager {
   private DynamicUIManager() {
     final PropertyChangeListener l = new PropertyChangeListener() {
       public void propertyChange(PropertyChangeEvent event) {
-        firePropertyChange(event);
+        firePropertyChange();
       }
     };
 
@@ -80,7 +81,8 @@ public class DynamicUIManager {
     });
     UIManager.getDefaults().addPropertyChangeListener(new PropertyChangeListener() {
       public void propertyChange(PropertyChangeEvent event) {
-        firePropertyChange(event);
+        if (!(event.getNewValue() instanceof Class))
+          firePropertyChange();
       }
     });
 
@@ -112,10 +114,19 @@ public class DynamicUIManager {
       ((DynamicUIManagerListener) l[i]).lookAndFeelChanged();
   }
 
-  private void firePropertyChange(PropertyChangeEvent event) {
-    Object l[] = listeners.toArray();
-    for (int i = 0; i < l.length; i++)
-      ((DynamicUIManagerListener) l[i]).propertyChange(event);
+  private void firePropertyChange() {
+    if (!propertyChangePending) {
+      propertyChangePending = true;
+      SwingUtilities.invokeLater(new Runnable() {
+        public void run() {
+          propertyChangePending = false;
+
+          Object l[] = listeners.toArray();
+          for (int i = 0; i < l.length; i++)
+            ((DynamicUIManagerListener) l[i]).propertiesChanged();
+        }
+      });
+    }
   }
 }
 

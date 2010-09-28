@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabLayoutPolicy.java,v 1.5 2004/06/16 12:17:23 johan Exp $
+// $Id: TabLayoutPolicy.java,v 1.9 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.util.Enum;
@@ -28,12 +28,14 @@ import net.infonode.util.Enum;
 /**
  * TabLayoutPolicy defines how the tabs in a tabbed panel's tab area can be laid out.
  *
+ * @author $Author: jesper $
+ * @version $Revision: 1.9 $
  * @see TabbedPanel
  * @see TabbedPanelProperties
- * @author $Author: johan $
- * @version $Revision: 1.5 $
  */
-public class TabLayoutPolicy extends Enum {
+public final class TabLayoutPolicy extends Enum {
+  private static final long serialVersionUID = -1345037155950998515L;
+
   /**
    * Scrolling layout policy. This means that the tabs are laid out in a line. The
    * line of tabs will be scrollable if not all tabs can fit into the visible part
@@ -55,5 +57,15 @@ public class TabLayoutPolicy extends Enum {
 
   private TabLayoutPolicy(int value, String name) {
     super(value, name);
+  }
+
+  /**
+   * Gets the tab layout policies.
+   *
+   * @return the tab layout policies
+   * @since ITP 1.1.0
+   */
+  public static TabLayoutPolicy[] getLayoutPolicies() {
+    return (TabLayoutPolicy[]) LAYOUT_POLICIES.clone();
   }
 }

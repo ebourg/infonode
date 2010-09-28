@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyMapPropertyRef.java,v 1.4 2004/08/11 13:47:58 jesper Exp $
+// $Id: PropertyMapPropertyRef.java,v 1.5 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.propertymap.ref;
 
 import net.infonode.properties.propertymap.PropertyMapImpl;
@@ -32,7 +32,7 @@ import java.io.ObjectOutputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class PropertyMapPropertyRef implements PropertyMapRef {
   private String propertyName;
@@ -42,7 +42,7 @@ public class PropertyMapPropertyRef implements PropertyMapRef {
   }
 
   public PropertyMapPropertyRef(PropertyMapProperty property) {
-    this.propertyName = property.getName();
+    propertyName = property.getName();
   }
 
   public PropertyMapImpl getMap(PropertyMapImpl object) {

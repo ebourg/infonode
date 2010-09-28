@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabFactory.java,v 1.5 2004/06/18 08:32:02 johan Exp $
+// $Id: TabFactory.java,v 1.8 2004/09/22 14:33:49 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.tabbedpanel.titledtab.TitledTab;
@@ -30,18 +30,21 @@ import javax.swing.*;
 /**
  * Factory methods for creating different tabs
  *
+ * @author $Author: jesper $
+ * @version $Revision: 1.8 $
  * @see Tab
  * @see TitledTab
- * @author $Author: johan $
- * @version $Revision: 1.5 $
  */
 public class TabFactory {
+  private TabFactory() {
+  }
+
   /**
    * Creates a TitledTab with a text and an icon
    *
-   * @param text  the text
-   * @param icon  the icon or null for no icon
-   * @return      the created TitledTab
+   * @param text the text
+   * @param icon the icon or null for no icon
+   * @return the created TitledTab
    */
   public static TitledTab createTitledTab(String text, Icon icon) {
     return new TitledTab(text, icon, null, null);
@@ -50,10 +53,10 @@ public class TabFactory {
   /**
    * Creates a TitledTab with a text, an icon and a content component
    *
-   * @param text              the text
-   * @param icon              the icon or null for no icon
-   * @param contentComponent  the content component for the tab
-   * @return                  the created TitledTab
+   * @param text             the text
+   * @param icon             the icon or null for no icon
+   * @param contentComponent the content component for the tab
+   * @return the created TitledTab
    */
   public static TitledTab createTitledTab(String text, Icon icon, JComponent contentComponent) {
     return new TitledTab(text, icon, contentComponent, null);
@@ -63,11 +66,11 @@ public class TabFactory {
    * Creates a TitledTab with a text, an icon, a title component and a
    * content component
    *
-   * @param text              the text
-   * @param icon              the icon or null for no icon
-   * @param contentComponent  the content component for the tab
-   * @param titleComponent    the title component for the tab
-   * @return                  the created TitledTab
+   * @param text             the text
+   * @param icon             the icon or null for no icon
+   * @param contentComponent the content component for the tab
+   * @param titleComponent   the title component for the tab
+   * @return the created TitledTab
    */
   public static TitledTab createTitledTab(String text, Icon icon, JComponent contentComponent,
                                           JComponent titleComponent) {
@@ -78,13 +81,13 @@ public class TabFactory {
    * Creates a TitledTab with a text, a different icon for each of the
    * states, a title component and a content component
    *
-   * @param text              the text
-   * @param icon              the icon for the normal state or null for no icon
-   * @param highlightedIcon   the icon for the highlighted state or null fo no icon
-   * @param disabledIcon      the icon for the disabled state or null for no icon
-   * @param contentComponent  the content component for the tab
-   * @param titleComponent    the title component for the tab
-   * @return                  the created TitledTab
+   * @param text             the text
+   * @param icon             the icon for the normal state or null for no icon
+   * @param highlightedIcon  the icon for the highlighted state or null fo no icon
+   * @param disabledIcon     the icon for the disabled state or null for no icon
+   * @param contentComponent the content component for the tab
+   * @param titleComponent   the title component for the tab
+   * @return the created TitledTab
    */
   public static TitledTab createTitledTab(String text, Icon icon, Icon highlightedIcon, Icon disabledIcon,
                                           JComponent contentComponent, JComponent titleComponent) {

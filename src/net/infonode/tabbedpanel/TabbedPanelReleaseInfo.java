@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabbedPanelReleaseInfo.java,v 1.6 2004/06/17 12:14:38 jesper Exp $
+// $Id: TabbedPanelReleaseInfo.java,v 1.8 2004/09/22 14:33:49 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.util.AntUtils;
@@ -31,16 +31,19 @@ import net.infonode.util.ReleaseInfo;
  * and version info for the current release.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.8 $
  */
 public class TabbedPanelReleaseInfo {
   private static ReleaseInfo productInfo =
-          new ReleaseInfo("InfoNode Tabbed Panel GPL",
-                          "NNL Technology AB",
-                          AntUtils.getBuildTime(1092299979852L),
-                          AntUtils.createProductVersion(1, 0, 0),
-                          "GNU General Public License, Version 2",
-                          "http://www.infonode.net");
+      new ReleaseInfo("InfoNode Tabbed Panel GPL",
+                      "NNL Technology AB",
+                      AntUtils.getBuildTime(1096447314586L),
+                      AntUtils.createProductVersion(1, 1, 0),
+                      "GNU General Public License, Version 2",
+                      "http://www.infonode.net");
+
+  private TabbedPanelReleaseInfo() {
+  }
 
   /**
    * Gets the release information

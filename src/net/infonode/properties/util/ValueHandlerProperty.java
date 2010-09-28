@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ValueHandlerProperty.java,v 1.4 2004/07/06 15:07:17 jesper Exp $
+// $Id: ValueHandlerProperty.java,v 1.5 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.util;
 
 import net.infonode.properties.base.PropertyGroup;
@@ -29,7 +29,7 @@ import net.infonode.properties.base.PropertyGroup;
  * Base class for properties that use a {@link PropertyValueHandler}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class ValueHandlerProperty extends AbstractProperty {
   private PropertyValueHandler valueHandler;
@@ -37,10 +37,10 @@ public class ValueHandlerProperty extends AbstractProperty {
   /**
    * Constructor.
    *
-   * @param group the property group
-   * @param name the property name
-   * @param type the property type
-   * @param description the property description
+   * @param group        the property group
+   * @param name         the property name
+   * @param type         the property type
+   * @param description  the property description
    * @param valueHandler handles values for this property
    */
   public ValueHandlerProperty(PropertyGroup group, String name, Class type, String description, PropertyValueHandler valueHandler) {

@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,26 +20,25 @@
  */
 
 
-// $Id: ConstMapIterator.java,v 1.2 2004/06/17 13:01:11 johan Exp $
+// $Id: ConstMapIterator.java,v 1.3 2004/09/22 14:35:05 jesper Exp $
 package net.infonode.util.collection.map.base;
 
 /**
  * An iterator for a map.
  * The iterator points to a map entry when it's created so {@link #next} shouldn't be called at the start of the
  * iteration.
- *
+ * <p>
  * Here's an example on how to iterate over a map:
-
  * <code>
  * for (ConstIterator iterator = map.constIterator(); iterator.atEntry(); iterator.next()) {
- *   Object key = iterator.getKey();
- *   Object value = iterator.getValue();
- *   ...
+ * Object key = iterator.getKey();
+ * Object value = iterator.getValue();
+ * ...
  * }
  * </code>
  *
- * @author $Author: johan $
- * @version $Revision: 1.2 $
+ * @author $Author: jesper $
+ * @version $Revision: 1.3 $
  */
 public interface ConstMapIterator {
   /**

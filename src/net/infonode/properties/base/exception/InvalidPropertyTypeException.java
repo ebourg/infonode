@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: InvalidPropertyTypeException.java,v 1.3 2004/07/06 15:07:17 jesper Exp $
+// $Id: InvalidPropertyTypeException.java,v 1.4 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.base.exception;
 
 import net.infonode.properties.base.Property;
@@ -29,7 +29,7 @@ import net.infonode.properties.base.Property;
  * Thrown when a property type is incompatible with another property type.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class InvalidPropertyTypeException extends PropertyException {
   private Property invalidProperty;
@@ -37,9 +37,9 @@ public class InvalidPropertyTypeException extends PropertyException {
   /**
    * Constructor.
    *
-   * @param property the property
+   * @param property        the property
    * @param invalidProperty the property which type is incompatible with the property type
-   * @param text the exception text
+   * @param text            the exception text
    */
   public InvalidPropertyTypeException(Property property, Property invalidProperty, String text) {
     super(property, text);

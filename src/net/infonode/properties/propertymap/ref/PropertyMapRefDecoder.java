@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyMapRefDecoder.java,v 1.3 2004/07/06 15:07:17 jesper Exp $
+// $Id: PropertyMapRefDecoder.java,v 1.4 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.propertymap.ref;
 
 import java.io.IOException;
@@ -28,13 +28,16 @@ import java.io.ObjectInputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class PropertyMapRefDecoder {
   public static final int PARENT = 0;
   public static final int THIS = 1;
   public static final int PROPERTY_OBJECT_PROPERTY = 2;
   public static final int COMPOSITE = 3;
+
+  private PropertyMapRefDecoder() {
+  }
 
   public static PropertyMapRef decode(ObjectInputStream in) throws IOException {
     int type = in.readInt();

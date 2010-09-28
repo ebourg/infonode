@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabWindowProperties.java,v 1.8 2004/07/05 12:56:37 jesper Exp $
+// $Id: TabWindowProperties.java,v 1.12 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.propertymap.*;
@@ -30,7 +30,7 @@ import net.infonode.tabbedpanel.TabbedPanelProperties;
  * Properties and property values for tab windows.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.12 $
  */
 public class TabWindowProperties extends PropertyMapContainer {
   /**
@@ -55,6 +55,46 @@ public class TabWindowProperties extends PropertyMapContainer {
                               "Tab Properties",
                               "Default property values for the window tabs in the tab window.",
                               WindowTabProperties.PROPERTIES);
+
+  /**
+   * The minimize button property values.
+   *
+   * @since IDW 1.1.0
+   */
+  public static final PropertyMapProperty MINIMIZE_BUTTON_PROPERTIES = new PropertyMapProperty(PROPERTIES,
+                                                                                               "Minimize Button Properties",
+                                                                                               "The minimize button property values.",
+                                                                                               WindowTabButtonProperties.PROPERTIES);
+
+  /**
+   * The restore button property values.
+   *
+   * @since IDW 1.1.0
+   */
+  public static final PropertyMapProperty RESTORE_BUTTON_PROPERTIES = new PropertyMapProperty(PROPERTIES,
+                                                                                              "Restore Button Properties",
+                                                                                              "The restore button property values.",
+                                                                                              WindowTabButtonProperties.PROPERTIES);
+
+  /**
+   * The close button property values.
+   *
+   * @since IDW 1.1.0
+   */
+  public static final PropertyMapProperty CLOSE_BUTTON_PROPERTIES = new PropertyMapProperty(PROPERTIES,
+                                                                                            "Close Button Properties",
+                                                                                            "The close button property values.",
+                                                                                            WindowTabButtonProperties.PROPERTIES);
+
+  /**
+   * The maximize button property values.
+   *
+   * @since IDW 1.1.0
+   */
+  public static final PropertyMapProperty MAXIMIZE_BUTTON_PROPERTIES = new PropertyMapProperty(PROPERTIES,
+                                                                                               "Maximize Button Properties",
+                                                                                               "The maximize button property values.",
+                                                                                               WindowTabButtonProperties.PROPERTIES);
 
 
   /**
@@ -94,7 +134,19 @@ public class TabWindowProperties extends PropertyMapContainer {
   }
 
   /**
+   * Removes the last added super object.
+   *
+   * @return this
+   * @since IDW 1.1.0
+   */
+  public TabWindowProperties removeSuperObject() {
+    getMap().removeSuperMap();
+    return this;
+  }
+
+  /**
    * Returns the property values for the tabbed panel in the tab window.
+   *
    * @return the property values for the tabbed panel in the tab window
    */
   public TabbedPanelProperties getTabbedPanelProperties() {
@@ -103,10 +155,50 @@ public class TabWindowProperties extends PropertyMapContainer {
 
   /**
    * Returns the default property values for the window tabs in the tab window.
+   *
    * @return the default property values for the window tabs in the tab window
    */
   public WindowTabProperties getTabProperties() {
     return new WindowTabProperties(TAB_PROPERTIES.get(getMap()));
   }
 
+  /**
+   * Returns the minimize button property values.
+   *
+   * @return the minimize button property values
+   * @since IDW 1.1.0
+   */
+  public WindowTabButtonProperties getMinimizeButtonProperties() {
+    return new WindowTabButtonProperties(MINIMIZE_BUTTON_PROPERTIES.get(getMap()));
+  }
+
+  /**
+   * Returns the restore button property values.
+   *
+   * @return the restore button property values
+   * @since IDW 1.1.0
+   */
+  public WindowTabButtonProperties getRestoreButtonProperties() {
+    return new WindowTabButtonProperties(RESTORE_BUTTON_PROPERTIES.get(getMap()));
+  }
+
+  /**
+   * Returns the close button property values.
+   *
+   * @return the close button property values
+   * @since IDW 1.1.0
+   */
+  public WindowTabButtonProperties getCloseButtonProperties() {
+    return new WindowTabButtonProperties(CLOSE_BUTTON_PROPERTIES.get(getMap()));
+  }
+
+  /**
+   * Returns the maximize button property values.
+   *
+   * @return the maximize button property values
+   * @since IDW 1.1.0
+   */
+  public WindowTabButtonProperties getMaximizeButtonProperties() {
+    return new WindowTabButtonProperties(MAXIMIZE_BUTTON_PROPERTIES.get(getMap()));
+  }
 }

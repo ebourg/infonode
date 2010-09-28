@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,58 +20,88 @@
  */
 
 
-// $Id: View.java,v 1.13 2004/08/11 12:22:56 jesper Exp $
+// $Id: View.java,v 1.26 2004/09/28 14:48:03 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.location.NullLocation;
 import net.infonode.docking.location.WindowLocation;
 import net.infonode.docking.properties.ViewProperties;
+import net.infonode.gui.ComponentUtil;
 import net.infonode.gui.panel.SimplePanel;
 import net.infonode.properties.base.Property;
-import net.infonode.properties.util.PropertyChangeListener;
-import net.infonode.properties.propertymap.PropertyMapManager;
 import net.infonode.properties.propertymap.PropertyMap;
+import net.infonode.properties.propertymap.PropertyMapManager;
+import net.infonode.properties.util.PropertyChangeListener;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.lang.ref.WeakReference;
 
 /**
  * A view is a docking window containing a component.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.26 $
  */
 public class View extends DockingWindow {
   private Component lastFocusedComponent;
+  private HierarchyListener focusComponentListener = new HierarchyListener() {
+    public void hierarchyChanged(HierarchyEvent e) {
+      checkLastFocusedComponent();
+    }
+  };
   private SimplePanel contentPanel = new SimplePanel();
   private ViewProperties rootProperties = new ViewProperties();
   private ViewProperties viewProperties = new ViewProperties(rootProperties);
+  private WeakReference lastRootWindow;
 
   /**
    * Constructor.
    *
-   * @param title the title of the view
-   * @param icon the icon for the view
+   * @param title     the title of the view
+   * @param icon      the icon for the view
    * @param component the component to place inside the view
    */
   public View(String title, Icon icon, Component component) {
     rootProperties.setTitle(title);
     rootProperties.setIcon(icon);
-    setComponent(contentPanel);
+    super.setComponent(contentPanel);
     contentPanel.setComponent(component);
-    
+
     PropertyChangeListener listener = new PropertyChangeListener() {
-			public void propertyChanged(Property property, Object valueContainer, Object oldValue, Object newValue) {
-				fireTitleChanged();
-			}
+      public void propertyChanged(Property property, Object valueContainer, Object oldValue, Object newValue) {
+        fireTitleChanged();
+      }
     };
-    
-    getViewProperties().getMap().addPropertyChangeListener(ViewProperties.TITLE, listener);
-    getViewProperties().getMap().addPropertyChangeListener(ViewProperties.ICON, listener);
+
+    viewProperties.getMap().addPropertyChangeListener(ViewProperties.TITLE, listener);
+    viewProperties.getMap().addPropertyChangeListener(ViewProperties.ICON, listener);
     init();
+  }
+
+  /**
+   * Gets the component inside the view.
+   *
+   * @return the component inside the view
+   * @since IDW 1.1.0
+   */
+  public Component getComponent() {
+    return contentPanel.getComponent(0);
+  }
+
+  /**
+   * Sets the component inside the view.
+   *
+   * @param component the component to place inside the view
+   * @since IDW 1.1.0
+   */
+  public void setComponent(Component component) {
+    contentPanel.setComponent(component);
   }
 
   /**
@@ -104,22 +134,44 @@ public class View extends DockingWindow {
   }
 
   void setLastFocusedComponent(Component component) {
-    lastFocusedComponent = component;
+    if (component != lastFocusedComponent) {
+      if (lastFocusedComponent != null)
+        lastFocusedComponent.removeHierarchyListener(focusComponentListener);
+
+//      System.out.println("Focus: " + this + ", " + component.getClass() + " " + System.identityHashCode(component));
+      lastFocusedComponent = component;
+
+      if (lastFocusedComponent != null)
+        lastFocusedComponent.addHierarchyListener(focusComponentListener);
+    }
+  }
+
+  Component getFocusComponent() {
+    checkLastFocusedComponent();
+    return lastFocusedComponent;
   }
 
   public boolean isFocusCycleRoot() {
     return true;
   }
 
-  void restoreFocus() {
-    if (lastFocusedComponent != null) {
-      lastFocusedComponent.requestFocusInWindow();
+  /**
+   * Restores focus to the last focused child component or, if no child component has had focus,
+   * the first focusable component inside the view.
+   *
+   * @since IDW 1.1.0
+   */
+  public void restoreFocus() {
+    makeVisible();
+    checkLastFocusedComponent();
+
+    if (lastFocusedComponent == null) {
+      ComponentUtil.smartRequestFocus(contentPanel);
     }
     else {
-      contentPanel.requestFocusInWindow();
+//      System.out.println("Restore: " + this + ", " + lastFocusedComponent.getClass() + " " + System.identityHashCode(lastFocusedComponent));
+      lastFocusedComponent.requestFocusInWindow();
     }
-
-    childGainedFocus(null, this);
   }
 
   public Icon getIcon() {
@@ -140,7 +192,7 @@ public class View extends DockingWindow {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     ObjectOutputStream oos = new ObjectOutputStream(baos);
 
-    getRootWindow().getViewSerializer().writeView(this, oos);
+    context.getViewSerializer().writeView(this, oos);
     super.write(oos, context);
 
     oos.close();
@@ -149,17 +201,34 @@ public class View extends DockingWindow {
   }
 
   DockingWindow acceptDrop(Point p, DockingWindow window) {
-    return (getWindowParent() instanceof TabWindow) && getWindowParent().getChildWindowCount() == 1 ?
-        getWindowParent().acceptDrop(p, window) :
-        super.acceptDrop(p, window);
+    return getWindowParent() instanceof TabWindow && getWindowParent().getChildWindowCount() == 1 ?
+           getWindowParent().acceptDrop(p, window) :
+           super.acceptDrop(p, window);
   }
 
   public String toString() {
     return getTitle();
   }
 
+  void setRootWindow(RootWindow newRoot) {
+    if (newRoot != null) {
+      if (lastRootWindow != null) {
+        RootWindow last = (RootWindow) lastRootWindow.get();
+
+        if (last != null)
+          last.removeView(this);
+      }
+
+      lastRootWindow = new WeakReference(newRoot);
+      newRoot.addView(this);
+    }
+
+  }
+
   protected void rootChanged(final RootWindow oldRoot, final RootWindow newRoot) {
     super.rootChanged(oldRoot, newRoot);
+    setRootWindow(newRoot);
+
     PropertyMapManager.runBatch(new Runnable() {
       public void run() {
         if (oldRoot != null)
@@ -182,5 +251,18 @@ public class View extends DockingWindow {
 
   protected boolean needsTitleWindow() {
     return viewProperties.getAlwaysShowTitle();
+  }
+
+  private void checkLastFocusedComponent() {
+    if (lastFocusedComponent != null && !SwingUtilities.isDescendingFrom(lastFocusedComponent, this)) {
+      lastFocusedComponent.removeHierarchyListener(focusComponentListener);
+      lastFocusedComponent = null;
+    }
+  }
+
+  void removeWindowComponent(DockingWindow window) {
+  }
+
+  void restoreWindowComponent(DockingWindow window) {
   }
 }

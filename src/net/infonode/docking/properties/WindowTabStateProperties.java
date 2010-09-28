@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowTabStateProperties.java,v 1.3 2004/07/05 12:56:37 jesper Exp $
+// $Id: WindowTabStateProperties.java,v 1.8 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.propertymap.*;
@@ -29,7 +29,7 @@ import net.infonode.properties.propertymap.*;
  * Properties and property values for the window tab buttons.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.8 $
  */
 public class WindowTabStateProperties extends PropertyMapContainer {
   /**
@@ -40,29 +40,26 @@ public class WindowTabStateProperties extends PropertyMapContainer {
   /**
    * The minimize button property values.
    */
-  public static final PropertyMapProperty MINIMIZE_BUTTON_PROPERTIES = new PropertyMapProperty(
-      PROPERTIES,
-      "Minimize Button Properties",
-      "The minimize button property values.",
-      WindowTabButtonProperties.PROPERTIES);
+  public static final PropertyMapProperty MINIMIZE_BUTTON_PROPERTIES = new PropertyMapProperty(PROPERTIES,
+                                                                                               "Minimize Button Properties",
+                                                                                               "The minimize button property values.",
+                                                                                               WindowTabButtonProperties.PROPERTIES);
 
   /**
    * The restore button property values.
    */
-  public static final PropertyMapProperty RESTORE_BUTTON_PROPERTIES = new PropertyMapProperty(
-      PROPERTIES,
-      "Restore Button Properties",
-      "The restore button property values.",
-      WindowTabButtonProperties.PROPERTIES);
+  public static final PropertyMapProperty RESTORE_BUTTON_PROPERTIES = new PropertyMapProperty(PROPERTIES,
+                                                                                              "Restore Button Properties",
+                                                                                              "The restore button property values.",
+                                                                                              WindowTabButtonProperties.PROPERTIES);
 
   /**
    * The close button property values.
    */
-  public static final PropertyMapProperty CLOSE_BUTTON_PROPERTIES = new PropertyMapProperty(
-      PROPERTIES,
-      "Close Button Properties",
-      "The close button property values.",
-      WindowTabButtonProperties.PROPERTIES);
+  public static final PropertyMapProperty CLOSE_BUTTON_PROPERTIES = new PropertyMapProperty(PROPERTIES,
+                                                                                            "Close Button Properties",
+                                                                                            "The close button property values.",
+                                                                                            WindowTabButtonProperties.PROPERTIES);
 
 
   /**
@@ -102,7 +99,19 @@ public class WindowTabStateProperties extends PropertyMapContainer {
   }
 
   /**
+   * Removes the last added super object.
+   *
+   * @return this
+   * @since IDW 1.1.0
+   */
+  public WindowTabStateProperties removeSuperObject() {
+    getMap().removeSuperMap();
+    return this;
+  }
+
+  /**
    * Returns the minimize button property values.
+   *
    * @return the minimize button property values
    */
   public WindowTabButtonProperties getMinimizeButtonProperties() {
@@ -111,6 +120,7 @@ public class WindowTabStateProperties extends PropertyMapContainer {
 
   /**
    * Returns the restore button property values.
+   *
    * @return the restore button property values
    */
   public WindowTabButtonProperties getRestoreButtonProperties() {
@@ -119,9 +129,11 @@ public class WindowTabStateProperties extends PropertyMapContainer {
 
   /**
    * Returns the close button property values.
+   *
    * @return the close button property values
    */
   public WindowTabButtonProperties getCloseButtonProperties() {
     return new WindowTabButtonProperties(CLOSE_BUTTON_PROPERTIES.get(getMap()));
   }
+
 }

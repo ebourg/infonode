@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,18 +20,19 @@
  */
 
 
-// $Id: DockingUtil.java,v 1.7 2004/08/11 09:15:17 jesper Exp $
+// $Id: DockingUtil.java,v 1.15 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.docking.util;
 
 import net.infonode.docking.DockingWindow;
 import net.infonode.docking.RootWindow;
 import net.infonode.docking.TabWindow;
+import net.infonode.docking.internalutil.InternalDockingUtil;
 
 /**
  * Class that contains utility methods for docking windows.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.15 $
  */
 public final class DockingUtil {
   private DockingUtil() {
@@ -39,13 +40,13 @@ public final class DockingUtil {
 
   /**
    * Creates a root window with support for view serialization and popup menues.
+   * All the views are added to a tab window which is placed in the root window.
    *
    * @param views                 the views that can be shown inside the root window
    * @param createWindowPopupMenu true if a standard window popup menu should be created
-   *
    * @return the created root window
    */
-  public static RootWindow createRootWindow(ViewMap views, boolean createWindowPopupMenu) {
+  public static RootWindow createRootWindow(AbstractViewMap views, boolean createWindowPopupMenu) {
     TabWindow tabWindow = new TabWindow();
 
     for (int i = 0; i < views.getViewCount(); i++)
@@ -65,11 +66,37 @@ public final class DockingUtil {
    *
    * @param ancestor the ancestor window
    * @param child    the child window
-   *
    * @return true if <tt>ancestor</tt> is an ancestor of <tt>child</tt> or the windows are the same
    */
   public static boolean isAncestor(DockingWindow ancestor, DockingWindow child) {
     return child != null && (ancestor == child || isAncestor(ancestor, child.getWindowParent()));
   }
 
+  /**
+   * <p>
+   * Adds a window inside a root window. The following methods are tried in order:
+   * </p>
+   * <ol>
+   * <li>If the window already is added inside the root window nothing happens.</li>
+   * <li>The window is restored to it's last location if that location is inside the root window.</li>
+   * <li>The window is added inside the root window.</li>
+   * </ol>
+   *
+   * @param window     the window to add
+   * @param rootWindow the root window in which to add it
+   * @since IDW 1.1.0
+   */
+  public static void addWindow(DockingWindow window, RootWindow rootWindow) {
+    if (rootWindow == null || window.getRootWindow() == rootWindow)
+      return;
+
+    if (window.getRootWindow() == null) {
+      window.restore();
+
+      if (window.getRootWindow() == rootWindow)
+        return;
+    }
+
+    InternalDockingUtil.addToRootWindow(window, rootWindow);
+  }
 }

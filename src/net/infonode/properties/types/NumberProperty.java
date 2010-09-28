@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: NumberProperty.java,v 1.3 2004/07/06 15:07:17 jesper Exp $
+// $Id: NumberProperty.java,v 1.4 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.types;
 
 import net.infonode.properties.base.PropertyGroup;
@@ -31,7 +31,7 @@ import net.infonode.properties.util.ValueHandlerProperty;
  * Base class for number properties.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class NumberProperty extends ValueHandlerProperty {
   private long minValue;
@@ -41,14 +41,14 @@ public class NumberProperty extends ValueHandlerProperty {
   /**
    * Constructor.
    *
-   * @param group the property group
-   * @param name the property name
-   * @param cl the property type
-   * @param description the property description
-   * @param minValue the smallest value that this property can have
-   * @param maxValue the largest value that this property can have
+   * @param group               the property group
+   * @param name                the property name
+   * @param cl                  the property type
+   * @param description         the property description
+   * @param minValue            the smallest value that this property can have
+   * @param maxValue            the largest value that this property can have
    * @param preferredDigitCount the preferred number of digits to allocate space for in an editor for a property value
-   * @param valueHandler handles values for this property
+   * @param valueHandler        handles values for this property
    */
   public NumberProperty(PropertyGroup group, String name, Class cl, String description, long minValue, long maxValue,
                         int preferredDigitCount, PropertyValueHandler valueHandler) {

@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,16 +20,19 @@
  */
 
 
-// $Id: PropertyMapFactory.java,v 1.2 2004/06/17 15:07:10 johan Exp $
+// $Id: PropertyMapFactory.java,v 1.3 2004/08/27 18:53:37 jesper Exp $
 package net.infonode.properties.propertymap;
 
 /**
  * Contains factory methods for {@link PropertyMap}.
  *
- * @author $Author: johan $
- * @version $Revision: 1.2 $
+ * @author $Author: jesper $
+ * @version $Revision: 1.3 $
  */
 public class PropertyMapFactory {
+  private PropertyMapFactory() {
+  }
+
   /**
    * Creates a property map that can contain values for properties in the given property group.
    *

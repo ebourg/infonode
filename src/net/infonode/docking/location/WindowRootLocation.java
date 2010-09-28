@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,12 +20,12 @@
  */
 
 
-// $Id: WindowRootLocation.java,v 1.2 2004/06/29 14:40:05 jesper Exp $
+// $Id: WindowRootLocation.java,v 1.6 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.docking.location;
 
 import net.infonode.docking.DockingWindow;
 import net.infonode.docking.RootWindow;
-import net.infonode.util.Direction;
+import net.infonode.docking.internalutil.InternalDockingUtil;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -33,7 +33,7 @@ import java.io.ObjectOutputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.6 $
  */
 public class WindowRootLocation extends AbstractWindowLocation {
   public WindowRootLocation(RootWindow rootWindow) {
@@ -43,14 +43,10 @@ public class WindowRootLocation extends AbstractWindowLocation {
   private WindowRootLocation() {
   }
 
-  protected void set(DockingWindow parent, DockingWindow child) {
+  protected boolean set(DockingWindow parent, DockingWindow child) {
     RootWindow rootWindow = (RootWindow) parent;
-    DockingWindow w = rootWindow.getWindow();
-
-    if (w == null)
-      rootWindow.setWindow(child);
-    else
-      w.split(child, Direction.RIGHT, 0.5F);
+    InternalDockingUtil.addToRootWindow(child, rootWindow);
+    return true;
   }
 
   public void write(ObjectOutputStream out) throws IOException {

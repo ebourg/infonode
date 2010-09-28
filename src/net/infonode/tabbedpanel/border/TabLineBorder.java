@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,10 +20,13 @@
  */
 
 
-// $Id: TabLineBorder.java,v 1.9 2004/06/23 12:25:39 johan Exp $
+// $Id: TabLineBorder.java,v 1.19 2004/09/28 15:23:30 jesper Exp $
 package net.infonode.tabbedpanel.border;
 
-import net.infonode.gui.ComponentUtils;
+import net.infonode.gui.ComponentUtil;
+import net.infonode.gui.colorprovider.ColorProvider;
+import net.infonode.gui.colorprovider.ColorProviderUtil;
+import net.infonode.gui.colorprovider.UIManagerColorProvider;
 import net.infonode.tabbedpanel.Tab;
 import net.infonode.tabbedpanel.TabbedPanel;
 import net.infonode.tabbedpanel.TabbedUtils;
@@ -32,18 +35,21 @@ import net.infonode.util.Direction;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import java.awt.*;
+import java.io.Serializable;
 
 /**
  * TabLineBorder draws a 1 pixel wide line around a {@link Tab}. If tab spacing in the
  * tabbed panel is 0 then the border will only draw a single line between two adjacent tabs.
  *
+ * @author $Author: jesper $
+ * @version $Revision: 1.19 $
  * @see Tab
  * @see TabbedPanel
- * @author $Author: johan $
- * @version $Revision: 1.9 $
  */
-public class TabLineBorder implements Border {
-  private Color color;
+public class TabLineBorder implements Border, Serializable {
+  private static final long serialVersionUID = 1;
+
+  private ColorProvider color;
   private Border border;
   private boolean last;
   private boolean afterHighlighted;
@@ -51,34 +57,38 @@ public class TabLineBorder implements Border {
   private boolean drawTopLine;
   private boolean drawBottomLine;
   private int index;
-  private boolean tabSpacing = false;
+  private boolean tabSpacing;
 
   private class LineBorder implements Border {
 
-    public LineBorder() {
+    LineBorder() {
     }
 
-    public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-      Tab tab = TabbedUtils.getParentTab(c);
+    public void paintBorder(Component component, Graphics g, int x, int y, int width, int height) {
+      Color c = color.getColor(component);
+      Tab tab = TabbedUtils.getParentTab(component);
       if (tab != null && tab.getTabbedPanel() != null) {
         Direction d = tab.getTabbedPanel().getProperties().getTabAreaOrientation();
         tabSpacing = tab.getTabbedPanel().getProperties().getTabSpacing() > 0;
         initialize(tab);
         if (d == Direction.UP)
-          paintUpBorder(g, x, y, width, height);
+          paintUpBorder(g, x, y, width, height, c);
         else if (d == Direction.LEFT)
-          paintLeftBorder(g, x, y, width, height);
+          paintLeftBorder(g, x, y, width, height, c);
         else if (d == Direction.DOWN)
-          paintDownBorder(g, x, y, width, height);
+          paintDownBorder(g, x, y, width, height, c);
         else // RIGHT
-          paintRightBorder(g, x, y, width, height);
+          paintRightBorder(g, x, y, width, height, c);
       }
     }
 
     public Insets getBorderInsets(Component c) {
       Tab tab = TabbedUtils.getParentTab(c);
       if (tab != null && tab.getTabbedPanel() != null && tab.getParent() != null) {
-        int top, left, bottom, right;
+        int top;
+        int left;
+        int bottom;
+        int right;
         Direction d = tab.getTabbedPanel().getProperties().getTabAreaOrientation();
         initialize(tab);
         if (d == Direction.UP) {
@@ -86,17 +96,20 @@ public class TabLineBorder implements Border {
           left = 1;
           bottom = 0;
           right = 1;
-        } else if (d == Direction.LEFT) {
+        }
+        else if (d == Direction.LEFT) {
           top = 1;
           left = drawTopLine ? 1 : 0;
           bottom = 1;
           right = 0;
-        } else if (d == Direction.DOWN) {
+        }
+        else if (d == Direction.DOWN) {
           top = 0;
           left = 1;
           bottom = drawTopLine ? 1 : 0;
           right = 1;
-        } else {
+        }
+        else {
           top = 1;
           left = 0;
           bottom = 1;
@@ -116,7 +129,7 @@ public class TabLineBorder implements Border {
       return false;
     }
 
-    private void paintUpBorder(Graphics g, int x, int y, int width, int height) {
+    private void paintUpBorder(Graphics g, int x, int y, int width, int height, Color color) {
       g.setColor(color);
 
       // Left Line
@@ -135,7 +148,7 @@ public class TabLineBorder implements Border {
         g.drawLine(x, y + height - 1, x + width - 1, y + height - 1);
     }
 
-    private void paintLeftBorder(Graphics g, int x, int y, int width, int height) {
+    private void paintLeftBorder(Graphics g, int x, int y, int width, int height, Color color) {
       g.setColor(color);
 
       // Top Line
@@ -154,7 +167,7 @@ public class TabLineBorder implements Border {
         g.drawLine(x + width - 1, y, x + width - 1, y + height - 1);
     }
 
-    private void paintDownBorder(Graphics g, int x, int y, int width, int height) {
+    private void paintDownBorder(Graphics g, int x, int y, int width, int height, Color color) {
       g.setColor(color);
 
       // Left Line
@@ -173,7 +186,7 @@ public class TabLineBorder implements Border {
         g.drawLine(x, y, x + width, y);
     }
 
-    private void paintRightBorder(Graphics g, int x, int y, int width, int height) {
+    private void paintRightBorder(Graphics g, int x, int y, int width, int height, Color color) {
       g.setColor(color);
 
       // Top Line
@@ -194,6 +207,13 @@ public class TabLineBorder implements Border {
   }
 
   /**
+   * Constructor. Uses the TabbedPane.darkShadow color from the UIManager as line color.
+   */
+  public TabLineBorder() {
+    this(null);
+  }
+
+  /**
    * Constructs a TabLineBorder that draws lines on three sides of the tab.
    * No line will be drawn on the side towards the TabbedPanel's content area.
    *
@@ -206,9 +226,9 @@ public class TabLineBorder implements Border {
   /**
    * Constructs a TabLineBorder that draws lines on three or four sides of the tab.
    *
-   * @param color           the line color
-   * @param drawBottomLine  true if a line should be drawn on the side towards the
-   *                        tabbed panel's content area, otherwise false
+   * @param color          the line color
+   * @param drawBottomLine true if a line should be drawn on the side towards the
+   *                       tabbed panel's content area, otherwise false
    */
   public TabLineBorder(Color color, boolean drawBottomLine) {
     this(color, drawBottomLine, true);
@@ -218,14 +238,42 @@ public class TabLineBorder implements Border {
    * Constructs a TabLineBorder that draws lines on two, three or four sides of the
    * tab.
    *
-   * @param color           the line color
-   * @param drawBottomLine  true if a line should be drawn on the side towards the
-   *                        tabbed panel's content area, otherwise false
-   * @param drawTopLine     true if a line should be drawn on the side opposite to
-   *                        the tabbed panel's content area, otherwise false
+   * @param drawBottomLine true if a line should be drawn on the side towards the
+   *                       tabbed panel's content area, otherwise false
+   * @param drawTopLine    true if a line should be drawn on the side opposite to
+   *                       the tabbed panel's content area, otherwise false
+   */
+  public TabLineBorder(boolean drawBottomLine, boolean drawTopLine) {
+    this((Color) null, drawBottomLine, drawTopLine);
+  }
+
+  /**
+   * Constructs a TabLineBorder that draws lines on two, three or four sides of the
+   * tab.
+   *
+   * @param color          the line color
+   * @param drawBottomLine true if a line should be drawn on the side towards the
+   *                       tabbed panel's content area, otherwise false
+   * @param drawTopLine    true if a line should be drawn on the side opposite to
+   *                       the tabbed panel's content area, otherwise false
    */
   public TabLineBorder(Color color, boolean drawBottomLine, boolean drawTopLine) {
-    this.color = color;
+    this(ColorProviderUtil.getColorProvider(color, UIManagerColorProvider.TABBED_PANE_DARK_SHADOW),
+         drawBottomLine, drawTopLine);
+  }
+
+  /**
+   * Constructs a TabLineBorder that draws lines on two, three or four sides of the
+   * tab.
+   *
+   * @param colorProvider  the line color provider
+   * @param drawBottomLine true if a line should be drawn on the side towards the
+   *                       tabbed panel's content area, otherwise false
+   * @param drawTopLine    true if a line should be drawn on the side opposite to
+   *                       the tabbed panel's content area, otherwise false
+   */
+  public TabLineBorder(ColorProvider colorProvider, boolean drawBottomLine, boolean drawTopLine) {
+    this.color = colorProvider;
     border = new LineBorder();
     this.drawBottomLine = drawBottomLine;
     this.drawTopLine = drawTopLine;
@@ -247,13 +295,30 @@ public class TabLineBorder implements Border {
    * Constructs a TabLineBorder that draws lines on three or four sides of the tab.
    * The inner border will be drawn inside of this TabLineBorder.
    *
-   * @param color           the line color
-   * @param innerBorder     border to draw inside of this TabLineBorder
-   * @param drawBottomLine  true if a line should be drawn on the side towards the
-   *                        tabbed panel's content area, otherwise false
+   * @param color          the line color
+   * @param innerBorder    border to draw inside of this TabLineBorder
+   * @param drawBottomLine true if a line should be drawn on the side towards the
+   *                       tabbed panel's content area, otherwise false
    */
   public TabLineBorder(Color color, Border innerBorder, boolean drawBottomLine) {
     this(color, drawBottomLine);
+    if (innerBorder != null)
+      border = new CompoundBorder(border, innerBorder);
+  }
+
+  /**
+   * Constructs a TabLineBorder that draws lines on three or four sides of the tab.
+   * The inner border will be drawn inside of this TabLineBorder.
+   *
+   * @param colorProvider  the line color
+   * @param innerBorder    border to draw inside of this TabLineBorder
+   * @param drawBottomLine true if a line should be drawn on the side towards the
+   *                       tabbed panel's content area, otherwise false
+   * @param drawTopLine    true if a line should be drawn on the side opposite to
+   *                       the tabbed panel's content area, otherwise false
+   */
+  public TabLineBorder(ColorProvider colorProvider, Border innerBorder, boolean drawBottomLine, boolean drawTopLine) {
+    this(colorProvider, drawBottomLine, drawTopLine);
     if (innerBorder != null)
       border = new CompoundBorder(border, innerBorder);
   }
@@ -271,9 +336,10 @@ public class TabLineBorder implements Border {
   }
 
   private void initialize(Tab tab) {
-    index = ComponentUtils.getComponentIndex(tab);
-    last = ComponentUtils.getComponentIndex(tab) == tab.getParent().getComponentCount() - 1;
-    afterHighlighted = index > 0 && ((Tab)tab.getParent().getComponent(index - 1)) == tab.getTabbedPanel().getHighlightedTab();
+    index = ComponentUtil.getComponentIndex(tab);
+    last = ComponentUtil.getComponentIndex(tab) == tab.getParent().getComponentCount() - 1;
+    afterHighlighted = index > 0 && tab.getParent().getComponent(index - 1) == tab.getTabbedPanel().getHighlightedTab();
     highlighted = tab == tab.getTabbedPanel().getHighlightedTab();
   }
+
 }

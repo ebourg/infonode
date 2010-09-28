@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,20 +20,25 @@
  */
 
 
-// $Id: RootWindowProperties.java,v 1.18 2004/08/03 09:23:23 johan Exp $
+// $Id: RootWindowProperties.java,v 1.33 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.docking.properties;
 
+import net.infonode.docking.DefaultButtonFactories;
 import net.infonode.gui.DynamicUIManager;
 import net.infonode.gui.DynamicUIManagerListener;
 import net.infonode.gui.icon.button.CloseIcon;
+import net.infonode.gui.icon.button.MaximizeIcon;
 import net.infonode.gui.icon.button.MinimizeIcon;
 import net.infonode.gui.icon.button.RestoreIcon;
 import net.infonode.properties.gui.util.ComponentProperties;
 import net.infonode.properties.propertymap.*;
 import net.infonode.properties.types.BooleanProperty;
 import net.infonode.properties.types.IntegerProperty;
+import net.infonode.tabbedpanel.TabDropDownListVisiblePolicy;
+import net.infonode.tabbedpanel.TabSelectTrigger;
 import net.infonode.tabbedpanel.TabbedPanelProperties;
 import net.infonode.tabbedpanel.TabbedUIDefaults;
+import net.infonode.tabbedpanel.border.TabAreaLineBorder;
 import net.infonode.tabbedpanel.titledtab.TitledTabProperties;
 import net.infonode.tabbedpanel.titledtab.TitledTabSizePolicy;
 import net.infonode.util.ColorUtil;
@@ -41,14 +46,13 @@ import net.infonode.util.ColorUtil;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.beans.PropertyChangeEvent;
 import java.util.Map;
 
 /**
  * Properties and property values for a root window.
  *
- * @author $Author: johan $
- * @version $Revision: 1.18 $
+ * @author $Author: jesper $
+ * @version $Revision: 1.33 $
  */
 public class RootWindowProperties extends PropertyMapContainer {
   /**
@@ -66,18 +70,18 @@ public class RootWindowProperties extends PropertyMapContainer {
    */
   public static final PropertyMapProperty COMPONENT_PROPERTIES =
       new PropertyMapProperty(PROPERTIES,
-                                 "Component Properties",
-                                 "The root window component property values.",
-                                 ComponentProperties.PROPERTIES);
+                              "Component Properties",
+                              "The root window component property values.",
+                              ComponentProperties.PROPERTIES);
 
   /**
    * The window area property values.
    */
   public static final PropertyMapProperty WINDOW_AREA_PROPERTIES =
       new PropertyMapProperty(PROPERTIES,
-                                 "Window Area Properties",
-                                 "The window area property values.",
-                                 ComponentProperties.PROPERTIES);
+                              "Window Area Properties",
+                              "The window area property values.",
+                              ComponentProperties.PROPERTIES);
 
   /**
    * The width of the drag rectangle border.
@@ -94,9 +98,9 @@ public class RootWindowProperties extends PropertyMapContainer {
    */
   public static final PropertyMapProperty DRAG_LABEL_PROPERTIES =
       new PropertyMapProperty(PROPERTIES,
-                                 "Drag Label Properties",
-                                 "The window drag label property values.",
-                                 ComponentProperties.PROPERTIES);
+                              "Drag Label Properties",
+                              "The window drag label property values.",
+                              ComponentProperties.PROPERTIES);
 
   /**
    * Default property values for docking windows inside this root window.
@@ -172,6 +176,16 @@ public class RootWindowProperties extends PropertyMapContainer {
                                      3,
                                      PropertyMapValueHandler.INSTANCE);
 
+  /**
+   * The default window bar property values.
+   *
+   * @since IDW 1.1.0
+   */
+  public static final PropertyMapProperty WINDOW_BAR_PROPERTIES =
+      new PropertyMapProperty(PROPERTIES,
+                              "Window Bar Properties",
+                              "The default window bar property values.",
+                              WindowBarProperties.PROPERTIES);
 
   private static RootWindowProperties DEFAULT_VALUES;
 
@@ -180,20 +194,26 @@ public class RootWindowProperties extends PropertyMapContainer {
 
     tabProperties.getTitledTabProperties().getNormalProperties()
         .setToolTipEnabled(true)
-        .getComponentProperties().setInsets(new Insets(0, 4, 0, 2));
+        .getComponentProperties().setInsets(new Insets(0, 3, 0, 2));
 
     tabProperties.getTitledTabProperties().setSizePolicy(TitledTabSizePolicy.INDIVIDUAL_SIZE);
 
     tabProperties.getNormalButtonProperties().getCloseButtonProperties()
+        .setFactory(DefaultButtonFactories.getCloseButtonFactory())
         .setVisible(false)
+        .setToolTipText("Close")
         .setIcon(new CloseIcon(DEFAULT_WINDOW_TAB_BUTTON_ICON_SIZE));
 
     tabProperties.getNormalButtonProperties().getRestoreButtonProperties()
+        .setFactory(DefaultButtonFactories.getRestoreButtonFactory())
         .setVisible(false)
+        .setToolTipText("Restore")
         .setIcon(new RestoreIcon(DEFAULT_WINDOW_TAB_BUTTON_ICON_SIZE));
 
     tabProperties.getNormalButtonProperties().getMinimizeButtonProperties()
+        .setFactory(DefaultButtonFactories.getMinimizeButtonFactory())
         .setVisible(false)
+        .setToolTipText("Minimize")
         .setIcon(new MinimizeIcon(DEFAULT_WINDOW_TAB_BUTTON_ICON_SIZE));
 
     tabProperties.getTitledTabProperties().setFocusable(false);
@@ -203,15 +223,91 @@ public class RootWindowProperties extends PropertyMapContainer {
   }
 
   private static void setTabbedPanelProperties() {
-    DEFAULT_VALUES.getTabWindowProperties().getTabbedPanelProperties()
+    TabWindowProperties tabWindowProperties = DEFAULT_VALUES.getTabWindowProperties();
+
+    tabWindowProperties.getTabbedPanelProperties()
+        .setTabDropDownListVisiblePolicy(TabDropDownListVisiblePolicy.TABS_NOT_VISIBLE)
+        .setTabSelectTrigger(TabSelectTrigger.MOUSE_RELEASE)
         .setEnsureSelectedTabVisible(true)
         .setTabReorderEnabled(true)
         .setHighlightPressedTab(false)
         .setShadowEnabled(true);
+
+    tabWindowProperties.getTabbedPanelProperties().getTabAreaComponentsProperties().getComponentProperties()
+        .setInsets(new Insets(1, 3, 1, 3));
+
+    tabWindowProperties.getCloseButtonProperties()
+        .setFactory(DefaultButtonFactories.getCloseButtonFactory())
+        .setVisible(true)
+        .setToolTipText("Close")
+        .setIcon(new CloseIcon(DEFAULT_WINDOW_TAB_BUTTON_ICON_SIZE));
+
+    tabWindowProperties.getRestoreButtonProperties()
+        .setFactory(DefaultButtonFactories.getRestoreButtonFactory())
+        .setVisible(true)
+        .setToolTipText("Restore")
+        .setIcon(new RestoreIcon(DEFAULT_WINDOW_TAB_BUTTON_ICON_SIZE));
+
+    tabWindowProperties.getMinimizeButtonProperties()
+        .setFactory(DefaultButtonFactories.getMinimizeButtonFactory())
+        .setVisible(true)
+        .setToolTipText("Minimize")
+        .setIcon(new MinimizeIcon(DEFAULT_WINDOW_TAB_BUTTON_ICON_SIZE));
+
+    tabWindowProperties.getMaximizeButtonProperties()
+        .setFactory(DefaultButtonFactories.getMaximizeButtonFactory())
+        .setVisible(true)
+        .setToolTipText("Maximize")
+        .setIcon(new MaximizeIcon(DEFAULT_WINDOW_TAB_BUTTON_ICON_SIZE));
+  }
+
+  private static void setWindowBarProperties() {
+    {
+      WindowBarProperties p = DEFAULT_VALUES.getWindowBarProperties();
+
+      p.setMinimumWidth(4);
+      p.setContentPanelEdgeResizeEdgeDistance(6);
+
+      p.getTabWindowProperties().getTabbedPanelProperties()
+          .setTabDeselectable(true)
+          .setAutoSelectTab(false)
+
+          .getTabAreaComponentsProperties()
+          .setStretchEnabled(true)
+
+          .getComponentProperties()
+          .setBorder(new TabAreaLineBorder());
+
+      p.getTabWindowProperties().getTabbedPanelProperties().getContentPanelProperties().getComponentProperties()
+          .setInsets(new Insets(4, 4, 4, 4));
+    }
+
+    {
+      WindowTabProperties p = DEFAULT_VALUES.getWindowBarProperties().getTabWindowProperties().getTabProperties();
+
+      p.getTitledTabProperties()
+          .setSizePolicy(TitledTabSizePolicy.EQUAL_SIZE)
+//          .addSuperObject(HighlightedTabSetup.createTabProperties())
+          .setHighlightedRaised(0);
+
+/*      p.getFocusedProperties()
+          .setBackgroundColor(Color.YELLOW);
+
+  */
+      p.getTitledTabProperties().getNormalProperties()
+          .getComponentProperties().setInsets(new Insets(1, 4, 1, 4));
+
+      p.getNormalButtonProperties().getCloseButtonProperties().setVisible(true);
+      p.getNormalButtonProperties().getRestoreButtonProperties().setVisible(true);
+    }
+
   }
 
   private static void updateVisualProperties() {
     DEFAULT_VALUES = new RootWindowProperties(PROPERTIES.getDefaultMap());
+
+    DEFAULT_VALUES.getWindowBarProperties().getTabWindowProperties().getTabProperties().getTitledTabProperties()
+        .getNormalProperties().getComponentProperties().setBackgroundColor(TabbedUIDefaults.getHighlightedStateBackground());
 
     DEFAULT_VALUES.getComponentProperties()
         .setBackgroundColor(TabbedUIDefaults.getNormalStateBackground());
@@ -248,11 +344,15 @@ public class RootWindowProperties extends PropertyMapContainer {
     DEFAULT_VALUES.getDragLabelProperties()
         .setInsets(new Insets(4, 6, 4, 6));
 
-    DEFAULT_VALUES.getSplitWindowProperties().setDividerSize(4);
+    DEFAULT_VALUES.getSplitWindowProperties()
+        .setContinuousLayoutEnabled(true)
+        .setDividerSize(4);
+
     DEFAULT_VALUES.getViewProperties().setAlwaysShowTitle(true);
 
     setTabbedPanelProperties();
     setTabProperties();
+    setWindowBarProperties();
 
     updateVisualProperties();
 
@@ -269,7 +369,7 @@ public class RootWindowProperties extends PropertyMapContainer {
         updateVisualProperties();
       }
 
-      public void propertyChange(PropertyChangeEvent event) {
+      public void propertiesChanged() {
         updateVisualProperties();
       }
     });
@@ -277,6 +377,7 @@ public class RootWindowProperties extends PropertyMapContainer {
 
   /**
    * Creates a property object that inherits default property values.
+   *
    * @return a new property object that inherits default property values
    */
   public static RootWindowProperties createDefault() {
@@ -316,6 +417,17 @@ public class RootWindowProperties extends PropertyMapContainer {
    */
   public RootWindowProperties addSuperObject(RootWindowProperties properties) {
     getMap().addSuperMap(properties.getMap());
+    return this;
+  }
+
+  /**
+   * Removes the last added super object.
+   *
+   * @return this
+   * @since IDW 1.1.0
+   */
+  public RootWindowProperties removeSuperObject() {
+    getMap().removeSuperMap();
     return this;
   }
 
@@ -386,6 +498,7 @@ public class RootWindowProperties extends PropertyMapContainer {
 
   /**
    * Returns true if double clicking on a window tab in a window bar restores the window.
+   *
    * @return true if double clicking on a window tab in a window bar restores the window
    */
   public boolean getDoubleClickRestoresWindow() {
@@ -416,6 +529,7 @@ public class RootWindowProperties extends PropertyMapContainer {
 
   /**
    * Returns the property values for the drag label.
+   *
    * @return the property values for the drag label
    */
   public ComponentProperties getDragLabelProperties() {
@@ -424,6 +538,7 @@ public class RootWindowProperties extends PropertyMapContainer {
 
   /**
    * Returns the property values for the root window component.
+   *
    * @return the property values for the root window component
    */
   public ComponentProperties getComponentProperties() {
@@ -432,6 +547,7 @@ public class RootWindowProperties extends PropertyMapContainer {
 
   /**
    * Returns the property values for the window area component.
+   *
    * @return the property values for the window area component
    */
   public ComponentProperties getWindowAreaProperties() {
@@ -440,6 +556,7 @@ public class RootWindowProperties extends PropertyMapContainer {
 
   /**
    * Sets the distance from the window edge inside which a mouse drag will trigger a window split.
+   *
    * @param size the distance from the window edge inside which a mouse drag will trigger a window split
    * @return this
    */
@@ -450,6 +567,7 @@ public class RootWindowProperties extends PropertyMapContainer {
 
   /**
    * Returns the distance from the window edge inside which a mouse drag will trigger a window split.
+   *
    * @return the distance from the window edge inside which a mouse drag will trigger a window split
    */
   public int getEdgeSplitDistance() {
@@ -458,6 +576,7 @@ public class RootWindowProperties extends PropertyMapContainer {
 
   /**
    * Returns the key code for the key that aborts a drag.
+   *
    * @return the key code for the key that aborts a drag
    */
   public int getAbortDragKey() {
@@ -473,6 +592,16 @@ public class RootWindowProperties extends PropertyMapContainer {
   public RootWindowProperties setAbortDragKey(int key) {
     ABORT_DRAG_KEY.set(getMap(), key);
     return this;
+  }
+
+  /**
+   * Returns the default window bar property values.
+   *
+   * @return the default window bar property values
+   * @since IDW 1.1.0
+   */
+  public WindowBarProperties getWindowBarProperties() {
+    return new WindowBarProperties(WINDOW_BAR_PROPERTIES.get(getMap()));
   }
 
 }

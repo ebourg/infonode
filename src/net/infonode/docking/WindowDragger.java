@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowDragger.java,v 1.6 2004/07/06 15:00:02 jesper Exp $
+// $Id: WindowDragger.java,v 1.7 2004/08/27 18:53:37 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.gui.CursorManager;
@@ -31,7 +31,7 @@ import java.awt.dnd.DragSource;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 class WindowDragger {
   private DockingWindow dragWindow;
@@ -91,12 +91,12 @@ class WindowDragger {
     previousDropWindow = dropWindow;
   }
 
-  private DockingWindow getDeepestWindowAt(Component c, int x, int y) {
-    if (c == null || !c.isVisible() || !c.contains(x, y))
+  private DockingWindow getDeepestWindowAt(Component component, int x, int y) {
+    if (component == null || !component.isVisible() || !component.contains(x, y))
       return null;
 
-    if (c instanceof Container) {
-      Component components[] = ((Container) c).getComponents();
+    if (component instanceof Container) {
+      Component[] components = ((Container) component).getComponents();
 
       for (int i = 0; i < components.length; i++) {
         DockingWindow w = getDeepestWindowAt(components[i], x - components[i].getX(), y - components[i].getY());
@@ -106,8 +106,8 @@ class WindowDragger {
       }
     }
 
-    if (c instanceof DockingWindow) {
-      DockingWindow w = (DockingWindow) c;
+    if (component instanceof DockingWindow) {
+      DockingWindow w = (DockingWindow) component;
       return w.getRootWindow() == rootWindow ? w : null;
     }
     else

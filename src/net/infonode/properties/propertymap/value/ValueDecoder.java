@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ValueDecoder.java,v 1.3 2004/07/06 15:07:17 jesper Exp $
+// $Id: ValueDecoder.java,v 1.4 2004/09/03 15:39:57 jesper Exp $
 package net.infonode.properties.propertymap.value;
 
 import net.infonode.properties.base.Property;
@@ -31,11 +31,14 @@ import java.io.ObjectInputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class ValueDecoder {
   public static final int SIMPLE = 0;
   public static final int REF = 1;
+
+  private ValueDecoder() {
+  }
 
   public static PropertyValue decode(ObjectInputStream in, PropertyMapImpl propertyObject, Property property) throws IOException {
     int type = in.readInt();

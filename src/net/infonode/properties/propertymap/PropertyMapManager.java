@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,11 +20,10 @@
  */
 
 
-// $Id: PropertyMapManager.java,v 1.3 2004/07/06 15:07:17 jesper Exp $
+// $Id: PropertyMapManager.java,v 1.6 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.propertymap;
 
 import net.infonode.properties.propertymap.value.PropertyValue;
-import net.infonode.properties.util.PropertyPath;
 import net.infonode.util.ValueChange;
 import net.infonode.util.collection.map.base.ConstMap;
 import net.infonode.util.collection.map.base.ConstMapIterator;
@@ -39,13 +38,13 @@ import java.util.Map;
  * optimize performance.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.6 $
  */
 public class PropertyMapManager {
   private static final PropertyMapManager INSTANCE = new PropertyMapManager();
 
   private HashMap changes;
-  private int batchCounter = 0;
+  private int batchCounter;
 
   public static PropertyMapManager getInstance() {
     return INSTANCE;
@@ -94,7 +93,7 @@ public class PropertyMapManager {
       changes = new HashMap();
   }
 
-  private void addTreeChanges(PropertyMapImpl map, PropertyPath propertyPath, HashMap changes, HashMap treeChanges) {
+  private void addTreeChanges(PropertyMapImpl map, PropertyMapImpl modifiedMap, HashMap changes, HashMap treeChanges) {
     HashMap changeMap = (HashMap) treeChanges.get(map);
 
     if (changeMap == null) {
@@ -102,10 +101,10 @@ public class PropertyMapManager {
       treeChanges.put(map, changeMap);
     }
 
-    changeMap.put(propertyPath, changes);
+    changeMap.put(modifiedMap, changes);
 
     if (map.getParent() != null)
-      addTreeChanges(map.getParent(), new PropertyPath(map.getProperty(), propertyPath), changes, treeChanges);
+      addTreeChanges(map.getParent(), modifiedMap, changes, treeChanges);
   }
 
   void endBatch() {
@@ -117,7 +116,7 @@ public class PropertyMapManager {
         PropertyMapImpl object = (PropertyMapImpl) entry.getKey();
         HashMap objectChanges = (HashMap) entry.getValue();
         object.firePropertyValuesChanged(Collections.unmodifiableMap(objectChanges));
-        addTreeChanges(object, null, objectChanges, treeChanges);
+        addTreeChanges(object, object, objectChanges, treeChanges);
       }
 
       for (Iterator iterator = treeChanges.entrySet().iterator(); iterator.hasNext();) {

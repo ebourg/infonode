@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SimplePropertyValue.java,v 1.3 2004/07/06 15:07:17 jesper Exp $
+// $Id: SimplePropertyValue.java,v 1.5 2004/09/22 11:15:08 jesper Exp $
 package net.infonode.properties.propertymap.value;
 
 import net.infonode.properties.propertymap.PropertyMapImpl;
@@ -32,10 +32,10 @@ import java.io.ObjectOutputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.5 $
  */
 public class SimplePropertyValue implements PropertyValue {
-  private Object value;
+  private final Object value;
 
   public SimplePropertyValue(Object value) {
     this.value = value;
@@ -61,7 +61,7 @@ public class SimplePropertyValue implements PropertyValue {
   }
 
   public String toString() {
-    return value.toString();
+    return String.valueOf(value);
   }
 
   public void dump(Printer printer) {

@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: IntegerProperty.java,v 1.3 2004/06/30 12:59:07 jesper Exp $
+// $Id: IntegerProperty.java,v 1.4 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.types;
 
 import net.infonode.properties.base.PropertyGroup;
@@ -30,16 +30,16 @@ import net.infonode.properties.util.PropertyValueHandler;
  * An integer property.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class IntegerProperty extends NumberProperty {
   /**
    * Constructor.
    * Creates an unbounded integer property.
    *
-   * @param group the property group
-   * @param name the property name
-   * @param description the property description
+   * @param group        the property group
+   * @param name         the property name
+   * @param description  the property description
    * @param valueHandler handles values for this property
    */
   public IntegerProperty(PropertyGroup group, String name, String description, PropertyValueHandler valueHandler) {
@@ -49,13 +49,13 @@ public class IntegerProperty extends NumberProperty {
   /**
    * Constructor.
    *
-   * @param group the property group
-   * @param name the property name
-   * @param description the property description
-   * @param min the smallest value that this property can have
-   * @param max the largest value that this property can have
+   * @param group               the property group
+   * @param name                the property name
+   * @param description         the property description
+   * @param min                 the smallest value that this property can have
+   * @param max                 the largest value that this property can have
    * @param preferredDigitCount the preferred number of digits to allocate space for in an editor for a property value
-   * @param valueHandler handles values for this property
+   * @param valueHandler        handles values for this property
    */
   public IntegerProperty(PropertyGroup group, String name, String description, int min, int max, int preferredDigitCount,
                          PropertyValueHandler valueHandler) {
@@ -65,11 +65,11 @@ public class IntegerProperty extends NumberProperty {
   /**
    * Creates an integer property that can only be set to zero and positive integers.
    *
-   * @param group the property group
-   * @param name the property name
-   * @param description the property description
+   * @param group               the property group
+   * @param name                the property name
+   * @param description         the property description
    * @param preferredDigitCount the preferred number of digits to allocate space for in an editor for a property value
-   * @param valueHandler handles values for this property
+   * @param valueHandler        handles values for this property
    * @return an an integer property that can only be set to zero and positive integers
    */
   public static IntegerProperty createPositive(PropertyGroup group, String name, String description, int preferredDigitCount,
@@ -91,7 +91,7 @@ public class IntegerProperty extends NumberProperty {
    * Sets the integer value of this property in a value container.
    *
    * @param valueContainer the value container
-   * @param value the float value
+   * @param value          the float value
    */
   public void set(Object valueContainer, int value) {
     setValue(valueContainer, new Integer(value));

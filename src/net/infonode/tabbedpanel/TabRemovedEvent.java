@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,17 +20,17 @@
  */
 
 
-// $Id: TabRemovedEvent.java,v 1.3 2004/06/24 13:49:50 johan Exp $
+// $Id: TabRemovedEvent.java,v 1.4 2004/09/22 14:33:49 jesper Exp $
 package net.infonode.tabbedpanel;
 
 /**
  * TabRemovedEvent is an event that contains information about the tab that was
  * removed from a tabbed panel and the tabbed panel it was removed from.
  *
+ * @author $Author: jesper $
+ * @version $Revision: 1.4 $
  * @see TabbedPanel
  * @see Tab
- * @author $Author: johan $
- * @version $Revision: 1.3 $
  */
 public class TabRemovedEvent extends TabEvent {
   private TabbedPanel tabbedPanel;

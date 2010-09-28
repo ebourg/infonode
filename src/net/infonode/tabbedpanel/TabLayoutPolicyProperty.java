@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabLayoutPolicyProperty.java,v 1.6 2004/06/16 16:38:15 jesper Exp $
+// $Id: TabLayoutPolicyProperty.java,v 1.8 2004/09/22 14:33:49 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.properties.base.PropertyGroup;
@@ -30,21 +30,21 @@ import net.infonode.properties.util.PropertyValueHandler;
 /**
  * Property for TabLayoutPolicy
  *
- * @see TabLayoutPolicy
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.8 $
+ * @see TabLayoutPolicy
  */
 public class TabLayoutPolicyProperty extends EnumProperty {
   /**
    * Constructs a TabLayoutPolicyProperty object
    *
-   * @param group         property group
-   * @param name          property name
-   * @param description   property description
-   * @param valueStorage  storage for property
+   * @param group        property group
+   * @param name         property name
+   * @param description  property description
+   * @param valueStorage storage for property
    */
   public TabLayoutPolicyProperty(PropertyGroup group, String name, String description, PropertyValueHandler valueStorage) {
-    super(group, name, TabLayoutPolicy.class, description, valueStorage, TabLayoutPolicy.LAYOUT_POLICIES);
+    super(group, name, TabLayoutPolicy.class, description, valueStorage, TabLayoutPolicy.getLayoutPolicies());
   }
 
   /**
@@ -54,7 +54,7 @@ public class TabLayoutPolicyProperty extends EnumProperty {
    * @return the TabLayoutPolicy
    */
   public TabLayoutPolicy get(Object object) {
-    return (TabLayoutPolicy)getValue(object);
+    return (TabLayoutPolicy) getValue(object);
   }
 
   /**

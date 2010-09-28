@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabbedUIDefaults.java,v 1.7 2004/06/24 13:49:50 johan Exp $
+// $Id: TabbedUIDefaults.java,v 1.11 2004/09/22 14:33:49 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.gui.FontUtil;
@@ -34,10 +34,15 @@ import java.awt.*;
  * Methods for retrieving UI defaults for the current "Look and Feel" from the
  * UIManager. The values are adapted to be used with classes in the TabbedPanel package.
  *
- * @author $Author: johan $
- * @version $Revision: 1.7 $
+ * @author $Author: jesper $
+ * @version $Revision: 1.11 $
  */
 public class TabbedUIDefaults {
+  private static final int BUTTON_ICON_SIZE = 11;
+
+  private TabbedUIDefaults() {
+  }
+
   /**
    * Gets the content area background color
    *
@@ -153,5 +158,14 @@ public class TabbedUIDefaults {
    */
   public static Insets getContentAreaInsets() {
     return InsetsUtil.copy(UIManager.getInsets("TabbedPane.contentBorderInsets"));
+  }
+
+  /**
+   * Gets the default icon size for buttons
+   *
+   * @return icon size in pixels
+   */
+  public static int getButtonIconSize() {
+    return BUTTON_ICON_SIZE;
   }
 }

@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowBar.java,v 1.24 2004/08/11 13:47:58 jesper Exp $
+// $Id: WindowBar.java,v 1.34 2004/09/28 15:23:30 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.properties.WindowBarProperties;
@@ -42,10 +42,10 @@ import java.util.HashMap;
 /**
  * A window bar is located at the edge of a root window.
  * It's a tabbed panel where the content panel is dynamically shown and hidden.
- * A window bar is enabled and disabled using the {[@link #setEnabled} method.
+ * A window bar is enabled and disabled using the {@link Component#setEnabled} method.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.24 $
+ * @version $Revision: 1.34 $
  */
 public class WindowBar extends AbstractTabWindow {
   private RootWindow rootWindow;
@@ -55,19 +55,21 @@ public class WindowBar extends AbstractTabWindow {
   private HashMap tabListeners = new HashMap(4);
   private ResizablePanel edgePanel;
 
-  WindowBar(RootWindow rootWindow, Direction _direction) {
+  WindowBar(RootWindow rootWindow, Direction direction) {
     super(false);
 
     this.rootWindow = rootWindow;
     contentPanel = new TabbedPanelContentPanel(getTabbedPanel(), new TabContentPanel(getTabbedPanel()));
 
-    this.direction = _direction;
+    this.direction = direction;
 
     {
       WindowBarProperties properties = new WindowBarProperties();
       properties.getTabWindowProperties().addSuperObject(rootWindow.getRootWindowProperties().getTabWindowProperties());
-      this.windowBarProperties = new WindowBarProperties(properties);
-      this.windowBarProperties.addSuperObject(WindowBarProperties.createDefault(direction));
+
+      windowBarProperties = new WindowBarProperties(properties);
+      windowBarProperties.addSuperObject(rootWindow.getRootWindowProperties().getWindowBarProperties());
+      windowBarProperties.addSuperObject(WindowBarProperties.createDefault(this.direction));
     }
 
     getTabbedPanel().addTabListener(new TabAdapter() {
@@ -90,7 +92,7 @@ public class WindowBar extends AbstractTabWindow {
       }
     });
 
-    edgePanel = new ResizablePanel(direction.getOpposite());
+    edgePanel = new ResizablePanel(this.direction.getOpposite());
     edgePanel.setPreferredSize(new Dimension(200, 200));
     edgePanel.setVisible(false);
     edgePanel.setComponent(contentPanel);
@@ -108,11 +110,18 @@ public class WindowBar extends AbstractTabWindow {
     return windowBarProperties;
   }
 
+  public int addTab(DockingWindow window, int index) {
+    window.storeLocation();
+    index = super.addTab(window, index);
+    window.setLastMinimizedDirection(direction);
+    return index;
+  }
+
   /**
    * Sets the size of the content panel.
    * If the window bar is located on the left or right side, the panel width is set otherwise the panel height.
    *
-   * @param size
+   * @param size the content panel size
    */
   public void setContentPanelSize(int size) {
     edgePanel.setPreferredSize(direction.isHorizontal() ? new Dimension(size, 0) : new Dimension(0, size));
@@ -125,20 +134,21 @@ public class WindowBar extends AbstractTabWindow {
    * @return the size of the content panel
    */
   public int getContentPanelSize() {
-    Dimension d = edgePanel.getPreferredSize();
-    return direction.isHorizontal() ? d.width : d.height;
+    Dimension size = edgePanel.getPreferredSize();
+    return direction.isHorizontal() ? size.width : size.height;
   }
 
   public RootWindow getRootWindow() {
     return rootWindow;
   }
 
-  void childGainedFocus(DockingWindow child, View view) {
-    super.childGainedFocus(child, view);
-    int index = getChildWindowIndex(child);
+  protected void showChildWindow(DockingWindow window) {
+    int index = getChildWindowIndex(window);
 
     if (index != -1)
       setSelectedTab(index);
+
+    super.showChildWindow(window);
   }
 
   ResizablePanel getEdgePanel() {
@@ -152,32 +162,21 @@ public class WindowBar extends AbstractTabWindow {
 
   public Dimension getPreferredSize() {
     if (isEnabled()) {
-      Dimension d = super.getPreferredSize();
+      Dimension size = super.getPreferredSize();
       int minWidth = windowBarProperties.getMinimumWidth();
-      return new Dimension(Math.max(minWidth, d.width), Math.max(minWidth, d.height));
+      return new Dimension(Math.max(minWidth, size.width), Math.max(minWidth, size.height));
     }
     else
       return super.getPreferredSize();
   }
 
-  protected void tabSelected(final WindowTab tab) {
-/*    getRootWindow().ignoreFocusChanges(new Runnable() {
-      public void run() {
-        System.out.println("Select start");
-        FocusUtil.blockFocusChanges();
-
-        try {
-          edgePanel.setVisible(tab != null);
-        }
-        finally {
-          FocusUtil.unblockFocusChanges();
-          System.out.println("Select end");
-        }
-      }
-    });
-*/
+  protected void tabSelected(WindowTab tab) {
     edgePanel.setVisible(tab != null);
     super.tabSelected(tab);
+  }
+
+  protected boolean isInsideTabArea(Point p2) {
+    return true;
   }
 
   protected void clearFocus(View view) {

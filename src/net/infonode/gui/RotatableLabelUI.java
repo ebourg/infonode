@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: RotatableLabelUI.java,v 1.3 2004/07/06 15:08:44 jesper Exp $
+// $Id: RotatableLabelUI.java,v 1.5 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.gui;
 
 import net.infonode.util.Direction;
@@ -45,7 +45,6 @@ public class RotatableLabelUI extends BasicLabelUI {
   }
 
   public RotatableLabelUI(Direction direction, boolean mirror) {
-    super();
     this.direction = direction;
     this.mirror = mirror;
   }
@@ -97,21 +96,11 @@ public class RotatableLabelUI extends BasicLabelUI {
     Graphics2D g2 = (Graphics2D) g;
     AffineTransform tr = g2.getTransform();
 
-    g2.scale(1.0, mirror ? -1.0 : 1.0);
-    g2.translate(0, mirror ? -c.getHeight() : 0);
-
-    if (direction == (mirror ? Direction.UP : Direction.DOWN)) {
-      g2.rotate(Math.PI / 2);
-      g2.translate(0, -c.getWidth());
-    }
-    else if (direction == (mirror ? Direction.DOWN : Direction.UP)) {
-      g2.rotate(-Math.PI / 2);
-      g2.translate(-c.getHeight(), 0);
-    }
-    else if (direction == Direction.LEFT) {
-      g2.rotate(Math.PI);
-      g2.translate(-c.getWidth(), -c.getHeight());
-    }
+    int m = mirror ? -1 : 1;
+    g2.transform(direction == Direction.RIGHT ? new AffineTransform(1, 0, 0, m, 0, mirror ? c.getHeight() : 0) :
+                 direction == Direction.DOWN ? new AffineTransform(0, 1, -m, 0, mirror ? 0 : c.getWidth(), 0) :
+                 direction == Direction.LEFT ? new AffineTransform(-1, 0, 0, -m, c.getWidth(), mirror ? 0 : c.getHeight()) :
+                 new AffineTransform(0, -1, m, 0, mirror ? c.getWidth() : 0, c.getHeight()));
 
     if (icon != null) {
       icon.paintIcon(c, g, paintIconR.x, paintIconR.y);

@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowMenuUtil.java,v 1.3 2004/07/05 13:03:40 jesper Exp $
+// $Id: WindowMenuUtil.java,v 1.7 2004/09/09 15:14:24 jesper Exp $
 package net.infonode.docking.util;
 
 import net.infonode.docking.*;
@@ -36,7 +36,7 @@ import java.awt.event.ActionListener;
  * Class containing utility methods for creating window popup menues.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.7 $
  */
 public final class WindowMenuUtil {
   private WindowMenuUtil() {
@@ -45,8 +45,8 @@ public final class WindowMenuUtil {
   private static AbstractTabWindow getTabWindowFor(DockingWindow window) {
     return (AbstractTabWindow)
         (window instanceof AbstractTabWindow ? window :
-        window.getWindowParent() != null && window.getWindowParent() instanceof AbstractTabWindow ? window.getWindowParent() :
-        null);
+         window.getWindowParent() != null && window.getWindowParent() instanceof AbstractTabWindow ? window.getWindowParent() :
+         null);
   }
 
   private static JMenu getMoveToMenuItems(final DockingWindow window) {
@@ -54,9 +54,10 @@ public final class WindowMenuUtil {
 
     if (window.isMinimizable()) {
       final RootWindow root = window.getRootWindow();
+      final Direction[] directions = Direction.getDirections();
 
       for (int i = 0; i < 4; i++) {
-        final Direction dir = Direction.DIRECTIONS[i];
+        final Direction dir = directions[i];
 
         if (!DockingUtil.isAncestor(root.getWindowBar(dir), window) && root.getWindowBar(dir).isEnabled()) {
           moveToMenu.add(dir.getName()).addActionListener(new ActionListener() {
@@ -72,25 +73,41 @@ public final class WindowMenuUtil {
   }
 
   private static void addWindowMenuItems(JPopupMenu menu, final DockingWindow window) {
-    if (window.isMinimizable()) {
-      menu.add(window.isMinimized() ? "Restore" : "Minimize").addActionListener(new ActionListener() {
+    if (window.isMinimized() || window.isMaximized())
+      menu.add("Restore").addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
-          if (window.isMinimized())
-            window.restore();
-          else
-            window.minimize();
+          window.restore();
+        }
+      });
+
+    if (window.isMinimizable() && !window.isMinimized()) {
+      menu.add("Minimize").addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          window.minimize();
         }
       });
     }
 
+    if (!window.isMaximized() && window instanceof TabWindow)
+      menu.add("Maximize").addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          window.maximize();
+        }
+      });
+
     menu.add("Close").addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        window.close();
+        try {
+          window.closeWithAbort();
+        }
+        catch (OperationAbortedException e1) {
+          // Ignore
+        }
       }
     });
 
 
-    JMenu moveToMenu = WindowMenuUtil.getMoveToMenuItems(window);
+    JMenu moveToMenu = getMoveToMenuItems(window);
 
     if (moveToMenu.getItemCount() > 0) {
       menu.add(moveToMenu);
@@ -127,7 +144,7 @@ public final class WindowMenuUtil {
     menu.add(viewsPopup);
   }
 
-  private static void addTabOrientationMenuItems(JPopupMenu menu, final DockingWindow window) {
+  private static void addTabOrientationMenuItems(JPopupMenu menu, DockingWindow window) {
     final AbstractTabWindow tabWindow = getTabWindowFor(window);
 
     if (tabWindow == null || tabWindow instanceof WindowBar)
@@ -135,9 +152,10 @@ public final class WindowMenuUtil {
 
     JMenu orientationMenu = new JMenu("Tab Orientation");
     TabbedPanelProperties properties = tabWindow.getTabWindowProperties().getTabbedPanelProperties();
+    final Direction[] directions = Direction.getDirections();
 
-    for (int i = 0; i < Direction.DIRECTIONS.length; i++) {
-      final Direction dir = Direction.DIRECTIONS[i];
+    for (int i = 0; i < directions.length; i++) {
+      final Direction dir = directions[i];
       JMenuItem item = orientationMenu.add(dir.toString());
       item.setEnabled(dir != properties.getTabAreaOrientation());
       item.addActionListener(new ActionListener() {
@@ -150,7 +168,7 @@ public final class WindowMenuUtil {
     menu.add(orientationMenu);
   }
 
-  private static void addTabDirectionMenuItems(JPopupMenu menu, final DockingWindow window) {
+  private static void addTabDirectionMenuItems(JPopupMenu menu, DockingWindow window) {
     final AbstractTabWindow tabWindow = getTabWindowFor(window);
 
     if (tabWindow == null)
@@ -159,9 +177,10 @@ public final class WindowMenuUtil {
     JMenu directionMenu = new JMenu("Tab Direction");
     TitledTabProperties properties = TitledTabProperties.getDefaultProperties();
     properties.addSuperObject(tabWindow.getTabWindowProperties().getTabProperties().getTitledTabProperties());
+    final Direction[] directions = Direction.getDirections();
 
-    for (int i = 0; i < Direction.DIRECTIONS.length; i++) {
-      final Direction dir = Direction.DIRECTIONS[i];
+    for (int i = 0; i < directions.length; i++) {
+      final Direction dir = directions[i];
 
       if (dir != Direction.LEFT) {
         JMenuItem item = directionMenu.add(dir.toString());
@@ -181,7 +200,7 @@ public final class WindowMenuUtil {
    * Creates a factory which creates a popup menu containing common window actions.
    *
    * @param viewFactoryManager used for creating a list of views that the user can show
-   * @param addTabItems add items for changing tab direction and orientation
+   * @param addTabItems        add items for changing tab direction and orientation
    * @return the window popup menu factory
    */
   public static WindowPopupMenuFactory createWindowMenuFactory(final ViewFactoryManager viewFactoryManager,
@@ -192,18 +211,18 @@ public final class WindowMenuUtil {
 
         if (!(window instanceof RootWindow)) {
           if (!(window instanceof WindowBar)) {
-            WindowMenuUtil.addWindowMenuItems(menu, window);
+            addWindowMenuItems(menu, window);
             menu.addSeparator();
           }
 
           if (addTabItems) {
-            WindowMenuUtil.addTabOrientationMenuItems(menu, window);
-            WindowMenuUtil.addTabDirectionMenuItems(menu, window);
+            addTabOrientationMenuItems(menu, window);
+            addTabDirectionMenuItems(menu, window);
             menu.addSeparator();
           }
         }
 
-        WindowMenuUtil.addNewViewMenuItems(menu, window, viewFactoryManager);
+        addNewViewMenuItems(menu, window, viewFactoryManager);
         return menu;
       }
     };

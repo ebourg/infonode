@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: AbstractProperty.java,v 1.3 2004/07/06 15:07:17 jesper Exp $
+// $Id: AbstractProperty.java,v 1.4 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.util;
 
 import net.infonode.properties.base.Property;
@@ -31,7 +31,7 @@ import net.infonode.properties.base.exception.InvalidPropertyValueException;
  * An abstract base class for properties.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 abstract public class AbstractProperty implements Property {
   private PropertyGroup group;
@@ -42,12 +42,12 @@ abstract public class AbstractProperty implements Property {
   /**
    * Constructor.
    *
-   * @param group the property group
-   * @param name the property name
-   * @param type the property type
+   * @param group       the property group
+   * @param name        the property name
+   * @param type        the property type
    * @param description the property description
    */
-  public AbstractProperty(PropertyGroup group, String name, Class type, String description) {
+  protected AbstractProperty(PropertyGroup group, String name, Class type, String description) {
     this.group = group;
     this.name = name;
     this.type = type;

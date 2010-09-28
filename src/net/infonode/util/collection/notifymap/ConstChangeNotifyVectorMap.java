@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ConstChangeNotifyVectorMap.java,v 1.3 2004/07/06 15:08:44 jesper Exp $
+// $Id: ConstChangeNotifyVectorMap.java,v 1.4 2004/09/16 14:28:09 jesper Exp $
 package net.infonode.util.collection.notifymap;
 
 import net.infonode.util.ValueChange;
@@ -89,7 +89,7 @@ public class ConstChangeNotifyVectorMap extends AbstractConstChangeNotifyMap {
     }
 
     listeners.add(index, listener);
-    map.addListener(listener);
+    map.addWeakListener(listener);
     fireEntriesChanged(changes);
   }
 

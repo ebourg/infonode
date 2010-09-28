@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -19,14 +19,16 @@
  * MA 02111-1307, USA.
  */
 
-// $Id: ComponentProperties.java,v 1.8 2004/07/06 15:07:17 jesper Exp $
+// $Id: ComponentProperties.java,v 1.10 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.gui.util;
 
+import net.infonode.gui.InsetsUtil;
 import net.infonode.properties.propertymap.*;
 import net.infonode.properties.types.BorderProperty;
 import net.infonode.properties.types.ColorProperty;
 import net.infonode.properties.types.FontProperty;
 import net.infonode.properties.types.InsetsProperty;
+import net.infonode.util.Direction;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -38,31 +40,43 @@ import java.awt.*;
  * Properties and property values for a {@link JComponent}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.10 $
  */
 public class ComponentProperties extends PropertyMapContainer {
-  /** Property group for all component properties. */
+  /**
+   * Property group for all component properties.
+   */
   public static final PropertyMapGroup PROPERTIES = new PropertyMapGroup("Component Properties", "");
 
-  /** Component border. */
+  /**
+   * Component border.
+   */
   public static final BorderProperty BORDER = new BorderProperty(PROPERTIES, "Border", "Component border.",
                                                                  PropertyMapValueHandler.INSTANCE);
 
-  /** Component insets inside the border. */
+  /**
+   * Component insets inside the border.
+   */
   public static final InsetsProperty INSETS = new InsetsProperty(PROPERTIES, "Insets",
                                                                  "Component insets inside the border.",
                                                                  PropertyMapValueHandler.INSTANCE);
 
-  /** Component foreground color. */
+  /**
+   * Component foreground color.
+   */
   public static final ColorProperty FOREGROUND_COLOR = new ColorProperty(PROPERTIES, "Foreground Color",
                                                                          "Component foreground color.",
                                                                          PropertyMapValueHandler.INSTANCE);
 
-  /** Component text font. */
+  /**
+   * Component text font.
+   */
   public static final FontProperty FONT = new FontProperty(PROPERTIES, "Font", "Component text font.",
                                                            PropertyMapValueHandler.INSTANCE);
 
-  /** Component background color. A null value means that no background will be painted. */
+  /**
+   * Component background color. A null value means that no background will be painted.
+   */
   public static final ColorProperty BACKGROUND_COLOR = new ColorProperty(PROPERTIES, "Background Color",
                                                                          "Component background color. A null value means that no background will be painted.",
                                                                          PropertyMapValueHandler.INSTANCE);
@@ -102,7 +116,6 @@ public class ComponentProperties extends PropertyMapContainer {
    * Adds a super object from which property values are inherited.
    *
    * @param properties the object from which to inherit property values
-   *
    * @return this
    */
   public ComponentProperties addSuperObject(ComponentProperties properties) {
@@ -115,7 +128,6 @@ public class ComponentProperties extends PropertyMapContainer {
    * Sets the component border.
    *
    * @param border the component border
-   *
    * @return this
    */
   public ComponentProperties setBorder(Border border) {
@@ -128,7 +140,6 @@ public class ComponentProperties extends PropertyMapContainer {
    * Sets the component insets inside the border.
    *
    * @param insets the component insets
-   *
    * @return this
    */
   public ComponentProperties setInsets(Insets insets) {
@@ -141,7 +152,6 @@ public class ComponentProperties extends PropertyMapContainer {
    * Sets the component background color.
    *
    * @param color the background color, null means no background
-   *
    * @return this
    */
   public ComponentProperties setBackgroundColor(Color color) {
@@ -176,45 +186,45 @@ public class ComponentProperties extends PropertyMapContainer {
   public Color getBackgroundColor() {
     return BACKGROUND_COLOR.get(getMap());
   }
-  
+
   /**
    * Returns the component text font.
-   * 
+   *
    * @return the component text font
    */
   public Font getFont() {
-  	return FONT.get(getMap());
+    return FONT.get(getMap());
   }
 
   /**
    * Returns the component foreground color.
-   * 
-   * @return the component foreground color 
+   *
+   * @return the component foreground color
    */
   public Color getForegroundColor() {
-  	return FOREGROUND_COLOR.get(getMap());
+    return FOREGROUND_COLOR.get(getMap());
   }
 
   /**
    * Sets the component foreground color.
-   * 
+   *
    * @param foregroundColor the component foreground color
    * @return this
    */
   public ComponentProperties setForegroundColor(Color foregroundColor) {
-  	FOREGROUND_COLOR.set(getMap(), foregroundColor);
-  	return this;
+    FOREGROUND_COLOR.set(getMap(), foregroundColor);
+    return this;
   }
 
   /**
    * Sets the component text font.
-   * 
+   *
    * @param font the component text font
    * @return this
    */
   public ComponentProperties setFont(Font font) {
-  	FONT.set(getMap(), font);
-  	return this;
+    FONT.set(getMap(), font);
+    return this;
   }
 
   /**
@@ -223,12 +233,22 @@ public class ComponentProperties extends PropertyMapContainer {
    * @param component the component on which to apply the property values
    */
   public void applyTo(JComponent component) {
-    Insets insets      = getInsets();
+    applyTo(component, Direction.RIGHT);
+  }
+
+  /**
+   * Applies the property values to a component and rotated the insets in the
+   * given direction.
+   *
+   * @param component       the component on which to apply the property values
+   * @param insetsDirection insets direction
+   */
+  public void applyTo(JComponent component, Direction insetsDirection) {
+    Insets insets = getInsets() == null ? null : InsetsUtil.rotate(insetsDirection, getInsets());
     Border innerBorder = (insets == null) ? null : new EmptyBorder(insets);
     component.setBorder((getBorder() == null) ? innerBorder
-                                              : ((innerBorder == null) ? getBorder()
-                                                                       : new CompoundBorder(getBorder(), innerBorder)));
-
+                        : ((innerBorder == null) ? getBorder()
+                           : new CompoundBorder(getBorder(), innerBorder)));
     component.setOpaque(getBackgroundColor() != null);
     component.setBackground(getBackgroundColor());
     component.setFont(getFont());

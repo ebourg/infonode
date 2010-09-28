@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,18 +20,19 @@
  */
 
 
-// $Id: NullLocation.java,v 1.3 2004/06/29 14:40:05 jesper Exp $
+// $Id: NullLocation.java,v 1.6 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.docking.location;
 
 import net.infonode.docking.DockingWindow;
 import net.infonode.docking.RootWindow;
+import net.infonode.docking.internalutil.InternalDockingUtil;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.6 $
  */
 public class NullLocation implements WindowLocation {
   public static final NullLocation INSTANCE = new NullLocation();
@@ -39,13 +40,14 @@ public class NullLocation implements WindowLocation {
   private NullLocation() {
   }
 
-  public void set(DockingWindow window) {
+  public boolean set(DockingWindow window) {
     RootWindow rootWindow = window.getRootWindow();
 
     if (rootWindow == null)
-      return;
+      return false;
 
-    new WindowRootLocation(rootWindow).set(window);
+    InternalDockingUtil.addToRootWindow(window, rootWindow);
+    return true;
   }
 
   public void write(ObjectOutputStream out) throws IOException {

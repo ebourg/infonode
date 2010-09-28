@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: IntList.java,v 1.2 2004/07/06 15:08:45 jesper Exp $
+// $Id: IntList.java,v 1.3 2004/09/22 14:35:05 jesper Exp $
 package net.infonode.util;
 
 import java.io.IOException;
@@ -31,7 +31,7 @@ import java.io.ObjectOutputStream;
  * A single linked list of positive int's.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class IntList {
   /**
@@ -46,7 +46,7 @@ public class IntList {
    * Constructor.
    *
    * @param value the int value
-   * @param next the next list element
+   * @param next  the next list element
    */
   public IntList(int value, IntList next) {
     this.value = value;

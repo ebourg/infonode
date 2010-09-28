@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,23 +20,35 @@
  */
 
 
-// $Id: SplitWindowProperties.java,v 1.7 2004/07/05 12:56:37 jesper Exp $
+// $Id: SplitWindowProperties.java,v 1.13 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.propertymap.*;
+import net.infonode.properties.types.BooleanProperty;
 import net.infonode.properties.types.IntegerProperty;
 
 /**
  * Properties and property values for split windows.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.13 $
  */
 public class SplitWindowProperties extends PropertyMapContainer {
   /**
    * Property group containing all split window properties.
    */
   public static final PropertyMapGroup PROPERTIES = new PropertyMapGroup("Split Window Properties", "");
+
+  /**
+   * When enabled causes the windows to change size continuously while dragging the split window divider.
+   *
+   * @since IDW 1.1.0
+   */
+  public static final BooleanProperty CONTINUOUS_LAYOUT_ENABLED =
+      new BooleanProperty(PROPERTIES,
+                          "Continuous Layout Enabled",
+                          "When enabled causes the windows to change size continuously while dragging the split window divider.",
+                          PropertyMapValueHandler.INSTANCE);
 
   /**
    * The split pane divider size.
@@ -85,6 +97,17 @@ public class SplitWindowProperties extends PropertyMapContainer {
   }
 
   /**
+   * Removes the last added super object.
+   *
+   * @return this
+   * @since IDW 1.1.0
+   */
+  public SplitWindowProperties removeSuperObject() {
+    getMap().removeSuperMap();
+    return this;
+  }
+
+  /**
    * Sets the split pane divider size.
    *
    * @param size the split pane divider size
@@ -97,10 +120,33 @@ public class SplitWindowProperties extends PropertyMapContainer {
 
   /**
    * Returns the split pane divider size.
+   *
    * @return the split pane divider size
    */
   public int getDividerSize() {
     return DIVIDER_SIZE.get(getMap());
+  }
+
+  /**
+   * Returns true if continuous layout is enabled.
+   *
+   * @return true if continuous layout is enabled
+   * @since IDW 1.1.0
+   */
+  public boolean getContinuousLayoutEnabled() {
+    return CONTINUOUS_LAYOUT_ENABLED.get(getMap());
+  }
+
+  /**
+   * Enables/disables continuous layout.
+   *
+   * @param enabled if true continuous layout is enabled
+   * @return this
+   * @since IDW 1.1.0
+   */
+  public SplitWindowProperties setContinuousLayoutEnabled(boolean enabled) {
+    CONTINUOUS_LAYOUT_ENABLED.set(getMap(), enabled);
+    return this;
   }
 
 }

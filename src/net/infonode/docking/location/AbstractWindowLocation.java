@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: AbstractWindowLocation.java,v 1.7 2004/06/30 12:59:07 jesper Exp $
+// $Id: AbstractWindowLocation.java,v 1.11 2004/09/13 15:51:21 jesper Exp $
 package net.infonode.docking.location;
 
 import net.infonode.docking.DockingWindow;
@@ -35,36 +35,38 @@ import java.lang.ref.SoftReference;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.11 $
  */
 abstract public class AbstractWindowLocation implements WindowLocation {
   private WindowLocation parentLocation;
   private SoftReference window;
 
-  abstract protected void set(DockingWindow parent, DockingWindow child);
+  abstract protected boolean set(DockingWindow parent, DockingWindow child);
 
-  public AbstractWindowLocation(DockingWindow window, WindowLocation parentLocation) {
+  protected AbstractWindowLocation(DockingWindow window, WindowLocation parentLocation) {
     this.window = new SoftReference(window);
     this.parentLocation = parentLocation;
   }
 
-  public AbstractWindowLocation() {
+  protected AbstractWindowLocation() {
   }
 
-  public void set(DockingWindow window) {
+  public boolean set(DockingWindow window) {
     DockingWindow w = getWindow();
 
     if (w != null)
       set(w, window);
     else if (parentLocation != null)
       parentLocation.set(window);
+
+    return true;
   }
 
   private DockingWindow getWindow() {
     if (window == null)
       return null;
 
-    DockingWindow w = (DockingWindow) this.window.get();
+    DockingWindow w = (DockingWindow) window.get();
     return w != null && w.getRootWindow() != null && !w.isMinimized() ? w : null;
   }
 

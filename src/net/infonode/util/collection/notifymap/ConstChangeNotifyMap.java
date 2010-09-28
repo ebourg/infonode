@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,12 +20,15 @@
  */
 
 
-// $Id: ConstChangeNotifyMap.java,v 1.3 2004/07/06 15:08:44 jesper Exp $
+// $Id: ConstChangeNotifyMap.java,v 1.5 2004/09/22 14:35:05 jesper Exp $
 package net.infonode.util.collection.notifymap;
 
 import net.infonode.util.collection.map.base.ConstMap;
 
 public interface ConstChangeNotifyMap extends ConstMap {
   void addListener(ChangeNotifyMapListener listener);
+
+  void addWeakListener(ChangeNotifyMapListener listener);
+
   void removeListener(ChangeNotifyMapListener listener);
 }

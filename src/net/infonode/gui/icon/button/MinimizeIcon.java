@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,16 +20,14 @@
  */
 
 
-//$Id: MinimizeIcon.java,v 1.3 2004/07/06 15:08:44 jesper Exp $
+//$Id: MinimizeIcon.java,v 1.4 2004/09/22 14:35:04 jesper Exp $
 package net.infonode.gui.icon.button;
 
 import java.awt.*;
 
 /**
- *
- *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class MinimizeIcon extends AbstractButtonIcon {
   public MinimizeIcon() {

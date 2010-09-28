@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ButtonFactory.java,v 1.4 2004/07/06 15:08:44 jesper Exp $
+// $Id: ButtonFactory.java,v 1.14 2004/09/22 14:35:04 jesper Exp $
 package net.infonode.gui;
 
 import net.infonode.gui.border.HighlightBorder;
@@ -31,35 +31,49 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.net.URL;
 
 public class ButtonFactory {
-  private static class ButtonHighlighter extends MouseAdapter implements ComponentListener, HierarchyListener {
-    private static final Color HIGHLIGHTED_COLOR = new Color(140, 160, 255);
-    private static final Color PRESSED_COLOR = new Color(60, 80, 200);
+  private ButtonFactory() {
+  }
 
+  private static class ButtonHighlighter implements ComponentListener, HierarchyListener {
+/*    private static final Color HIGHLIGHTED_COLOR = new Color(140, 160, 255);
+    private static final Color PRESSED_COLOR = new Color(60, 80, 200);
+*/
     private JButton button;
     private Border pressedBorder;
     private Border highlightedBorder;
     private Border normalBorder;
-    private boolean pressed;
+    private boolean rollover;
+    private long rolloverStart; // Ugly hack to avoid false rollover callbacks which occur when the button is moved 
 
-    public ButtonHighlighter(JButton button, int padding) {
+    ButtonHighlighter(JButton button, int padding) {
       this.button = button;
 
       normalBorder = new EmptyBorder(padding + 2, padding + 2, padding + 2, padding + 2);
-      pressedBorder = new CompoundBorder(new LineBorder(ColorUtil.mult(PRESSED_COLOR, 0.5f)),
-                                         new EmptyBorder(padding + 2, padding + 2, padding, padding));
-      highlightedBorder = new CompoundBorder(new LineBorder(ColorUtil.mult(HIGHLIGHTED_COLOR, 0.5f)),
-                                             new EmptyBorder(padding + 1, padding + 1, padding + 1, padding + 1));
+      pressedBorder = new EmptyBorder(padding + 2, padding + 2, padding, padding);
+      highlightedBorder = new EmptyBorder(padding + 1, padding + 1, padding + 1, padding + 1);
 
       button.setContentAreaFilled(false);
       setNormalState();
 
+      button.addChangeListener(new ChangeListener() {
+        public void stateChanged(ChangeEvent e) {
+          rollover = (System.currentTimeMillis() - rolloverStart) > 20 &&
+                     ButtonHighlighter.this.button.getModel().isRollover();
+          update();
+
+          if (ButtonHighlighter.this.button.getModel().isRollover())
+            rolloverStart = 0;
+        }
+      });
+
       button.addHierarchyListener(this);
-      button.addMouseListener(this);
       button.addComponentListener(this);
     }
 
@@ -67,69 +81,64 @@ public class ButtonFactory {
       button.setBackground(null);
       button.setOpaque(false);
       button.setBorder(normalBorder);
+      rollover = false;
     }
 
     public void componentHidden(ComponentEvent e) {
       setNormalState();
+      rolloverStart = System.currentTimeMillis();
     }
 
     public void componentMoved(ComponentEvent e) {
       setNormalState();
+      rolloverStart = System.currentTimeMillis();
     }
 
     public void componentResized(ComponentEvent e) {
       setNormalState();
+      rolloverStart = System.currentTimeMillis();
     }
 
     public void componentShown(ComponentEvent e) {
       setNormalState();
+      rolloverStart = System.currentTimeMillis();
     }
 
     public void hierarchyChanged(HierarchyEvent e) {
       setNormalState();
+      rolloverStart = System.currentTimeMillis();
     }
 
-    private void update(Point point) {
-      if (button.isEnabled() && button.contains(point) && button.getBackground() != null) {
+    private void update() {
+      boolean pressed = button.getModel().isArmed();
+
+      if (button.isEnabled() && (rollover || pressed)) {
         button.setOpaque(true);
-        Color backgroundColor = ComponentUtils.getBackgroundColor(button.getParent());
-        button.setBackground(ColorUtil.blend(pressed ? PRESSED_COLOR : HIGHLIGHTED_COLOR,
-                                             backgroundColor == null ? UIManager.getColor("control") : backgroundColor,
-                                             0.5f));
-        button.setBorder(pressed ? pressedBorder : highlightedBorder);
+        Color backgroundColor = ComponentUtil.getBackgroundColor(button.getParent());
+        backgroundColor = backgroundColor == null ? UIManager.getColor("control") : backgroundColor;
+        button.setBackground(ColorUtil.mult(backgroundColor, pressed ? 0.8 : 1.15));
+
+        button.setBorder(pressed ?
+                         new CompoundBorder(new LineBorder(ColorUtil.mult(backgroundColor, 0.3)),
+                                            pressedBorder) :
+                         new CompoundBorder(new LineBorder(ColorUtil.mult(backgroundColor, 0.5)),
+                                            highlightedBorder));
       }
       else {
         setNormalState();
       }
     }
 
-    public void mouseEntered(MouseEvent e) {
-      if (pressed || (e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) == 0)
-        update(e.getPoint());
-    }
-
-    public void mouseExited(MouseEvent e) {
-      update(e.getPoint());
-    }
-
-    public void mousePressed(MouseEvent e) {
-      pressed = true;
-      update(e.getPoint());
-    }
-
-    public void mouseReleased(MouseEvent e) {
-      pressed = false;
-      update(e.getPoint());
-    }
-
   }
 
   private static final Border normalBorder = new CompoundBorder(new LineBorder(new Color(70, 70, 70)),
-                                                                new CompoundBorder(new HighlightBorder(), new EmptyBorder(1, 6, 1, 6)));
+                                                                new CompoundBorder(new HighlightBorder(),
+                                                                                   new EmptyBorder(1, 6, 1, 6)));
   private static final Border pressedBorder = new CompoundBorder(new LineBorder(new Color(70, 70, 70)),
-                                                                 new CompoundBorder(new HighlightBorder(true), new EmptyBorder(2, 7, 0, 5)));
+                                                                 new CompoundBorder(new HighlightBorder(true),
+                                                                                    new EmptyBorder(2, 7, 0, 5)));
 
-  private static final JButton initButton(final JButton button) {
+  private static JButton initButton(final JButton button) {
     button.setMargin(null);
     button.setBorder(normalBorder);
     button.addMouseListener(new MouseAdapter() {
@@ -145,15 +154,15 @@ public class ButtonFactory {
     return button;
   }
 
-  private static final JButton newButton(String text) {
+  private static JButton newButton(String text) {
     return initButton(new JButton(text));
   }
 
-  private static final JButton newButton(Icon icon) {
+  private static JButton newButton(Icon icon) {
     return initButton(new JButton(icon));
   }
 
-  private static final JButton newButton(Icon icon, String text) {
+  private static JButton newButton(Icon icon, String text) {
     return initButton(new JButton(text, icon));
   }
 
@@ -198,13 +207,26 @@ public class ButtonFactory {
     return b;
   }
 
-  public static final JButton createFlatHighlightButton(Icon icon, String tooltipText, final int padding, final ActionListener action) {
+  public static final JButton createFlatHighlightButton(Icon icon, String tooltipText, int padding,
+                                                        ActionListener action) {
     final JButton b = new JButton(icon);
     b.setVerticalAlignment(SwingConstants.CENTER);
     b.setToolTipText(tooltipText);
     b.setMargin(new Insets(0, 0, 0, 0));
     new ButtonHighlighter(b, padding);
-    b.addActionListener(action);
+
+    b.setRolloverEnabled(true);
+
+    if (action != null)
+      b.addActionListener(action);
+
+    return b;
+  }
+
+  public static final JButton createFlatHighlightButton(Icon icon, String tooltipText, int padding,
+                                                        boolean focusable, ActionListener action) {
+    final JButton b = createFlatHighlightButton(icon, tooltipText, padding, action);
+    b.setFocusable(focusable);
     return b;
   }
 

@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowLocation.java,v 1.2 2004/06/29 14:40:05 jesper Exp $
+// $Id: WindowLocation.java,v 1.4 2004/09/22 14:31:39 jesper Exp $
 package net.infonode.docking.location;
 
 import net.infonode.docking.DockingWindow;
@@ -30,9 +30,10 @@ import java.io.ObjectOutputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.4 $
  */
 public interface WindowLocation {
-  void set(DockingWindow window);
+  boolean set(DockingWindow window);
+
   void write(ObjectOutputStream out) throws IOException;
 }

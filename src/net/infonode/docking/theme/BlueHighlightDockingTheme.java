@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: BlueHighlightDockingTheme.java,v 1.5 2004/07/05 13:03:40 jesper Exp $
+// $Id: BlueHighlightDockingTheme.java,v 1.7 2004/09/24 16:29:56 jesper Exp $
 package net.infonode.docking.theme;
 
 import net.infonode.docking.properties.RootWindowProperties;
@@ -36,12 +36,23 @@ import java.awt.*;
  * A theme where the tab of the focused window has a blue background.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.7 $
  */
-public final class BlueHighlightDockingTheme {
-  private BlueHighlightDockingTheme() {
+public final class BlueHighlightDockingTheme extends DockingWindowsTheme {
+  private RootWindowProperties rootWindowProperties;
+
+  public BlueHighlightDockingTheme() {
+    rootWindowProperties = createRootWindowProperties();
   }
-  
+
+  public String getName() {
+    return "Blue Highlight Theme";
+  }
+
+  public RootWindowProperties getRootWindowProperties() {
+    return rootWindowProperties;
+  }
+
   /**
    * Create a root window properties object with the property values for this theme.
    *

@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ViewSerializer.java,v 1.4 2004/08/11 09:15:17 jesper Exp $
+// $Id: ViewSerializer.java,v 1.5 2004/09/22 14:31:39 jesper Exp $
 package net.infonode.docking;
 
 import java.io.IOException;
@@ -31,7 +31,7 @@ import java.io.ObjectOutputStream;
  * Reads and writes the state of a view.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public interface ViewSerializer {
   /**
@@ -39,7 +39,7 @@ public interface ViewSerializer {
    * Note that the view property values are written automatically, so this method should not write them.
    *
    * @param view the view to write
-   * @param out the stream on which to write the view
+   * @param out  the stream on which to write the view
    * @throws IOException if there is a stream error
    */
   void writeView(View view, ObjectOutputStream out) throws IOException;

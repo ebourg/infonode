@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ArrowIcon.java,v 1.2 2004/06/17 13:01:11 johan Exp $
+// $Id: ArrowIcon.java,v 1.4 2004/09/22 14:35:04 jesper Exp $
 package net.infonode.gui.icon.button;
 
 import net.infonode.util.Direction;
@@ -49,14 +49,18 @@ public class ArrowIcon extends AbstractButtonIcon {
     this.direction = direction;
   }
 
+  public Direction getDirection() {
+    return direction;
+  }
+
   protected void paintIcon(Component c, Graphics g, int x1, int y1, int x2, int y2) {
     int size = (x2 - x1 + 1) + ((x2 - x1 + 1) % 2) - 1;
     int offset = (direction.isHorizontal() ? x1 : y1) +
-        (direction == Direction.RIGHT || direction == Direction.DOWN ? (size + 1) / 4 : (size - (size + 1) / 2) / 2);
+                 (direction == Direction.RIGHT || direction == Direction.DOWN ? (size + 1) / 4 : (size - (size + 1) / 2) / 2);
     int o2 = direction.isHorizontal() ? y1 : x1;
     int[] c1 = direction == Direction.DOWN || direction == Direction.RIGHT ?
-        new int[]{offset, offset, offset + size / 2 + 1} :
-        new int[]{offset + size / 2 + 1, offset + size / 2 + 1, offset - (direction == Direction.UP ? 1 : 0)};
+               new int[]{offset, offset, offset + size / 2 + 1} :
+               new int[]{offset + size / 2 + 1, offset + size / 2 + 1, offset - (direction == Direction.UP ? 1 : 0)};
     int[] c2 = {o2 + (direction == Direction.DOWN ? 0 : -1),
                 o2 + size + (direction == Direction.UP ? 1 : 0),
                 o2 + size / 2};

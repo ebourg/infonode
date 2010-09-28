@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: BorderProperty.java,v 1.4 2004/07/06 15:07:17 jesper Exp $
+// $Id: BorderProperty.java,v 1.5 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.types;
 
 import net.infonode.properties.base.PropertyGroup;
@@ -30,18 +30,18 @@ import net.infonode.properties.util.ValueHandlerProperty;
 import javax.swing.border.Border;
 
 /**
- * A property of type {@link javax.swing.border.Border}.
+ * A property of type {@link Border}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class BorderProperty extends ValueHandlerProperty {
   /**
    * Constructor.
    *
-   * @param group the property group
-   * @param name the property name
-   * @param description the property description
+   * @param group        the property group
+   * @param name         the property name
+   * @param description  the property description
    * @param valueHandler handles values for this property
    */
   public BorderProperty(PropertyGroup group, String name, String description, PropertyValueHandler valueHandler) {
@@ -62,7 +62,7 @@ public class BorderProperty extends ValueHandlerProperty {
    * Sets the border value of this property in a value container.
    *
    * @param valueContainer the value container
-   * @param border the border value
+   * @param border         the border value
    */
   public void set(Object valueContainer, Border border) {
     setValue(valueContainer, border);

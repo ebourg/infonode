@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabWindowMover.java,v 1.7 2004/06/25 09:21:16 jesper Exp $
+// $Id: TabWindowMover.java,v 1.8 2004/09/15 15:20:51 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.tabbedpanel.TabAdapter;
@@ -32,7 +32,7 @@ import javax.swing.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 class TabWindowMover extends TabAdapter {
   private DockingWindow window;
@@ -46,7 +46,7 @@ class TabWindowMover extends TabAdapter {
 
   public void tabDragged(TabDragEvent event) {
     if (dragger == null)
-      dragger = new WindowDragger((DockingWindow) event.getTab().getContentComponent());
+      dragger = new WindowDragger(((WindowTab) event.getTab()).getWindow());
 
     if (tabbedPanel.tabAreaContainsPoint(SwingUtilities.convertPoint(event.getTab(), event.getPoint(), tabbedPanel)))
       dragger.abort();

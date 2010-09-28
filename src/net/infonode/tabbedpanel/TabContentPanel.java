@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabContentPanel.java,v 1.11 2004/06/24 12:50:50 johan Exp $
+// $Id: TabContentPanel.java,v 1.13 2004/09/22 14:33:49 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.gui.layout.StackableLayout;
@@ -32,10 +32,10 @@ import javax.swing.*;
  * a tabbed panel and manages the tabs' content components by showing and hiding
  * the components based upon the selection of tabs in the tabbed panel.
  *
+ * @author $Author: jesper $
+ * @version $Revision: 1.13 $
  * @see TabbedPanel
  * @see Tab
- * @author $Author: johan $
- * @version $Revision: 1.11 $
  */
 public class TabContentPanel extends JPanel {
   private TabbedPanel tabbedPanel;

@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: InsetsProperty.java,v 1.4 2004/07/06 15:07:17 jesper Exp $
+// $Id: InsetsProperty.java,v 1.5 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.types;
 
 import net.infonode.properties.base.PropertyGroup;
@@ -30,10 +30,10 @@ import net.infonode.properties.util.ValueHandlerProperty;
 import java.awt.*;
 
 /**
- * A property of type {@link java.awt.Insets}.
+ * A property of type {@link Insets}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class InsetsProperty extends ValueHandlerProperty {
   public InsetsProperty(PropertyGroup group, String name, String description, PropertyValueHandler valueStorage) {
@@ -54,7 +54,7 @@ public class InsetsProperty extends ValueHandlerProperty {
    * Sets the insets value of this property in a value container.
    *
    * @param valueContainer the value container
-   * @param insets the insets value
+   * @param insets         the insets value
    */
   public void set(Object valueContainer, Insets insets) {
     setValue(valueContainer, insets);

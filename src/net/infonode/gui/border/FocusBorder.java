@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: FocusBorder.java,v 1.2 2004/07/06 15:08:44 jesper Exp $
+// $Id: FocusBorder.java,v 1.3 2004/08/20 15:07:10 jesper Exp $
 package net.infonode.gui.border;
 
 import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
@@ -32,6 +32,10 @@ import java.awt.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
+/**
+ * @author $Author: jesper $
+ * @version $Revision: 1.3 $
+ */
 public class FocusBorder implements Border {
   private static final Insets INSETS = new Insets(1, 1, 1, 1);
 

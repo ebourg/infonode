@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabListener.java,v 1.8 2004/06/24 13:49:50 johan Exp $
+// $Id: TabListener.java,v 1.10 2004/09/22 14:33:49 jesper Exp $
 package net.infonode.tabbedpanel;
 
 /**
@@ -30,10 +30,10 @@ package net.infonode.tabbedpanel;
  * events when a tab component is added, removed, moved, highlighted, dehighlighted,
  * selected, deselected, dragged, dropped or drag aborted.</p>
  *
+ * @author $Author: jesper $
+ * @version $Revision: 1.10 $
  * @see TabbedPanel
  * @see Tab
- * @author $Author: johan $
- * @version $Revision: 1.8 $
  */
 public interface TabListener {
   /**
@@ -41,42 +41,42 @@ public interface TabListener {
    *
    * @param event the event
    */
-  public void tabAdded(TabEvent event);
+  void tabAdded(TabEvent event);
 
   /**
    * Called when a tab is removed from a TabbedPanel
    *
    * @param event the event
    */
-  public void tabRemoved(TabRemovedEvent event);
+  void tabRemoved(TabRemovedEvent event);
 
   /**
    * Called when a tab is dragged.
    *
    * @param event the event
    */
-  public void tabDragged(TabDragEvent event);
+  void tabDragged(TabDragEvent event);
 
   /**
    * Called when a tab is dropped.
    *
    * @param event the event
    */
-  public void tabDropped(TabDragEvent event);
+  void tabDropped(TabDragEvent event);
 
   /**
    * Called when an ongoing tab drag is aborted.
    *
    * @param event the event
    */
-  public void tabDragAborted(TabEvent event);
+  void tabDragAborted(TabEvent event);
 
   /**
    * Called when a tab is selected
    *
    * @param event the event
    */
-  public void tabSelected(TabStateChangedEvent event);
+  void tabSelected(TabStateChangedEvent event);
 
   /**
    * <p>Called when a tab is deselected.</p>
@@ -86,14 +86,14 @@ public interface TabListener {
    *
    * @param event the event
    */
-  public void tabDeselected(TabStateChangedEvent event);
+  void tabDeselected(TabStateChangedEvent event);
 
   /**
    * Called when a tab is highlighted
    *
    * @param event the event
    */
-  public void tabHighlighted(TabStateChangedEvent event);
+  void tabHighlighted(TabStateChangedEvent event);
 
   /**
    * <p>Called when a tab is dehighlighted.</p>
@@ -103,7 +103,7 @@ public interface TabListener {
    *
    * @param event the event
    */
-  public void tabDehighlighted(TabStateChangedEvent event);
+  void tabDehighlighted(TabStateChangedEvent event);
 
   /**
    * Called when a tab is moved, i.e. dragged to another position in
@@ -111,5 +111,5 @@ public interface TabListener {
    *
    * @param event the event
    */
-  public void tabMoved(TabEvent event);
+  void tabMoved(TabEvent event);
 }

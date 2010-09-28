@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: Map.java,v 1.3 2004/07/06 15:08:44 jesper Exp $
+// $Id: Map.java,v 1.4 2004/09/22 14:35:05 jesper Exp $
 package net.infonode.util.collection.map.base;
 
 import net.infonode.util.collection.Collection;
@@ -29,14 +29,14 @@ import net.infonode.util.collection.Collection;
  * A map.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public interface Map extends ConstMap, Collection {
   /**
    * Associate a key with a value.
    * This will overwrite any existing association.
    *
-   * @param key the key
+   * @param key   the key
    * @param value the value
    * @return the old value associated with this key, null if no value existed
    */

@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,32 +20,43 @@
  */
 
 
-// $Id: WriteContext.java,v 1.4 2004/06/24 13:24:08 jesper Exp $
+// $Id: WriteContext.java,v 1.7 2004/09/22 14:31:39 jesper Exp $
 package net.infonode.docking;
 
 /**
  * Contains information used when writing a docking window state.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.7 $
  */
 class WriteContext {
   private boolean writePropertiesEnabled;
+  private ViewSerializer viewSerializer;
 
   /**
    * Constructor.
    *
-   * @param writeProperties true if property values should be written
+   * @param writePropertiesEnabled true if property values should be written
    */
-  WriteContext(boolean writeProperties) {
-    this.writePropertiesEnabled = writeProperties;
+  WriteContext(boolean writePropertiesEnabled, ViewSerializer viewSerializer) {
+    this.writePropertiesEnabled = writePropertiesEnabled;
+    this.viewSerializer = viewSerializer;
   }
 
   /**
    * Returns true if property values should be written.
+   *
    * @return true if property values should be written
    */
   boolean getWritePropertiesEnabled() {
     return writePropertiesEnabled;
+  }
+
+  public ViewSerializer getViewSerializer() {
+    return viewSerializer;
+  }
+
+  public void setViewSerializer(ViewSerializer viewSerializer) {
+    this.viewSerializer = viewSerializer;
   }
 }

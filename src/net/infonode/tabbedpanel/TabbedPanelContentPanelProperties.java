@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabbedPanelContentPanelProperties.java,v 1.16 2004/07/06 15:08:32 jesper Exp $
+// $Id: TabbedPanelContentPanelProperties.java,v 1.19 2004/09/24 09:34:13 johan Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.properties.gui.util.ComponentProperties;
@@ -32,10 +32,10 @@ import net.infonode.properties.propertymap.*;
  * content area of a TabbedPanel. TabbedPanelProperties contains
  * TabbedPanelContentPanelProperties.
  *
+ * @author $Author: johan $
+ * @version $Revision: 1.19 $
  * @see TabbedPanel
  * @see TabbedPanelProperties
- * @author $Author: jesper $
- * @version $Revision: 1.16 $
  */
 public class TabbedPanelContentPanelProperties extends PropertyMapContainer {
   /**
@@ -48,8 +48,7 @@ public class TabbedPanelContentPanelProperties extends PropertyMapContainer {
    *
    * @see #getComponentProperties
    */
-  public static final PropertyMapProperty COMPONENT_PROPERTIES = new PropertyMapProperty(
-          PROPERTIES, "Component Properties", "Properties for the content area component.", ComponentProperties.PROPERTIES);
+  public static final PropertyMapProperty COMPONENT_PROPERTIES = new PropertyMapProperty(PROPERTIES, "Component Properties", "Properties for the content area component.", ComponentProperties.PROPERTIES);
 
   /**
    * Constructs an empty TabbedPanelContentPanelProperties object
@@ -86,10 +85,20 @@ public class TabbedPanelContentPanelProperties extends PropertyMapContainer {
    * @return this
    */
   public TabbedPanelContentPanelProperties addSuperObject(TabbedPanelContentPanelProperties superObject) {
-  	getMap().addSuperMap(superObject.getMap());
-  	return this;
+    getMap().addSuperMap(superObject.getMap());
+    return this;
   }
-  
+
+  /**
+   * Removes a super object.
+   *
+   * @return this
+   */
+  public TabbedPanelContentPanelProperties removeSuperObject() {
+    getMap().removeSuperMap();
+    return this;
+  }
+
   /**
    * Gets the component properties
    *

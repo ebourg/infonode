@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyMap.java,v 1.9 2004/08/11 13:47:58 jesper Exp $
+// $Id: PropertyMap.java,v 1.12 2004/09/28 14:48:20 jesper Exp $
 package net.infonode.properties.propertymap;
 
 import net.infonode.properties.base.Property;
@@ -38,19 +38,19 @@ import java.io.ObjectOutputStream;
  * can have any number of super maps from which property values are inherited. Super maps that are searched for
  * values in the reverse order they were added to the property map. Property values are always set in the property
  * map specified.
- *
+ * <p>
  * Properties of type {@link PropertyMapProperty} in the {@link PropertyMapGroup} will automatically be assigned
  * new PropertyMap's as values. These PropertyMap's are called child maps. These property values cannot be
  * modified.
- *
+ * <p>
  * Listeners can be added to a PropertyMap. The listeners are notified when a property value is modified in the
  * PropertyMap or, if the property value is not overridden, one of it's super maps. A tree listener can also
  * be added that listens for value changes in the property map, it's super maps and it's child mapss.
- *
+ * <p>
  * Property maps are created using the factory methods in {@link PropertyMapFactory}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.12 $
  */
 public interface PropertyMap extends ReadWritable {
   /**
@@ -89,7 +89,7 @@ public interface PropertyMap extends ReadWritable {
    * Adds a property listener that listens for value changes for a specific property.
    * This listener will be notified of value changes for the property in this PropertyMap and super maps unless
    * the property value is overridden.
-   * 
+   *
    * @param property the property to listen to changes on
    * @param listener the listener
    */
@@ -97,7 +97,7 @@ public interface PropertyMap extends ReadWritable {
 
   /**
    * Removes a previously added property listener.
-   * 
+   *
    * @param property the property which the listener listens to changes on
    * @param listener the listener
    */
@@ -128,14 +128,14 @@ public interface PropertyMap extends ReadWritable {
 
   /**
    * Creates a relative reference from one property value to another property value.
-   *
+   * <p>
    * When the value of the <tt>fromProperty</tt> is read, it will return the value of the <tt>toProperty</tt> in the
    * <tt>toMap</tt>.
-   *
+   * <p>
    * Sub maps of this property map will inherit this reference relative to themselves, ie the reference in the sub
    * map is converted to a reference relative to the sub map if possible, otherwise the reference is the same as
    * for the super map. Here is an example:
-   *
+   * <p>
    * <ul>
    * <li>Property map A contains value 5 for property X.</li>
    * <li>A relative reference is created in map A from property Y to property X. Getting the property value for Y in
@@ -147,12 +147,12 @@ public interface PropertyMap extends ReadWritable {
    * <li>A.Y is set to 1 which destroys the reference to A.X, and also the reference B.Y -> B.X. Getting B.Y will now
    * return 1 as it's inherited from A.Y.
    * </ul>
-   *
+   * <p>
    * Changes to the referenced property value will be propagated to listeners of this property.
    *
    * @param fromProperty the property value that will hold the reference
-   * @param toMap the property map that holds the property value that is referenced
-   * @param toProperty the property which value is referenced
+   * @param toMap        the property map that holds the property value that is referenced
+   * @param toProperty   the property which value is referenced
    * @return the old value that the fromProperty had in this property map
    * @throws InvalidPropertyTypeException
    */
@@ -187,7 +187,7 @@ public interface PropertyMap extends ReadWritable {
    * The property values are compared using {@link Object#equals}.
    *
    * @param propertyMap the map to compare values with
-   * @param recursive true if child maps should be recursively checked
+   * @param recursive   true if child maps should be recursively checked
    * @return true if all the values in this property map is equal to the values in the given map
    */
   boolean valuesEqualTo(PropertyMap propertyMap, boolean recursive);
@@ -196,11 +196,20 @@ public interface PropertyMap extends ReadWritable {
    * Serializes the values of this property map.
    * The properties are identified using their names.
    *
-   * @param out the stream on which to serialize this map
+   * @param out       the stream on which to serialize this map
    * @param recursive true if child maps should be recursively serialized
    * @throws IOException if there is an error in the stream
    */
   void write(ObjectOutputStream out, boolean recursive) throws IOException;
+
+  /**
+   * Writes this object to an ObjectOutputStream.
+   * This method recursively writes all child maps.
+   *
+   * @param out the stream
+   * @throws IOException if there is a stream error
+   */
+  void write(ObjectOutputStream out) throws IOException;
 
   /**
    * Reads property values from a stream and sets them in this map.

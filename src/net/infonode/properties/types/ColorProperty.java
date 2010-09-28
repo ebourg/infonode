@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ColorProperty.java,v 1.4 2004/07/06 15:07:17 jesper Exp $
+// $Id: ColorProperty.java,v 1.5 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.types;
 
 import net.infonode.properties.base.PropertyGroup;
@@ -30,18 +30,18 @@ import net.infonode.properties.util.ValueHandlerProperty;
 import java.awt.*;
 
 /**
- * A property of type {@link java.awt.Color}.
+ * A property of type {@link Color}.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class ColorProperty extends ValueHandlerProperty {
   /**
    * Constructor.
    *
-   * @param group the property group
-   * @param name the property name
-   * @param description the property description
+   * @param group        the property group
+   * @param name         the property name
+   * @param description  the property description
    * @param valueHandler handles values for this property
    */
   public ColorProperty(PropertyGroup group, String name, String description, PropertyValueHandler valueHandler) {
@@ -62,7 +62,7 @@ public class ColorProperty extends ValueHandlerProperty {
    * Sets the color value of this property in a value container.
    *
    * @param valueContainer the value container
-   * @param color the color value
+   * @param color          the color value
    */
   public void set(Object valueContainer, Color color) {
     setValue(valueContainer, color);

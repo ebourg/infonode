@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: LayoutUtil.java,v 1.4 2004/07/08 13:05:05 jesper Exp $
+// $Id: LayoutUtil.java,v 1.6 2004/09/22 14:35:04 jesper Exp $
 package net.infonode.gui.layout;
 
 import net.infonode.util.Direction;
@@ -28,6 +28,9 @@ import net.infonode.util.Direction;
 import java.awt.*;
 
 public class LayoutUtil {
+  private LayoutUtil() {
+  }
+
   public static Component[] getVisibleChildren(Container parent) {
     Component[] components = parent.getComponents();
     int count = 0;
@@ -64,8 +67,8 @@ public class LayoutUtil {
     return dim == null ? null : horizontal ? dim : new Dimension(dim.height, dim.width);
   }
 
-  public static boolean hasParent(Component component, Component parent) {
-    return component == parent || (component != null && hasParent(component.getParent(), parent));
+  public static boolean isDescendingFrom(Component component, Component parent) {
+    return component == parent || (component != null && isDescendingFrom(component.getParent(), parent));
   }
 
   public static Dimension getMaxMinimumSize(Component[] components) {
@@ -75,7 +78,7 @@ public class LayoutUtil {
     for (int i = 0; i < components.length; i++) {
       if (components[i] != null) {
         try {
-        Dimension min = components[i].getMinimumSize();
+          Dimension min = components[i].getMinimumSize();
           int w = min.width;
           int h = min.height;
 
@@ -139,16 +142,16 @@ public class LayoutUtil {
 
   public static Insets rotate(Direction dir, Insets insets) {
     return dir == Direction.RIGHT ? insets :
-        dir == Direction.DOWN ? new Insets(insets.right, insets.top, insets.left, insets.bottom) :
-        dir == Direction.LEFT ? new Insets(insets.bottom, insets.right, insets.top, insets.left) :
-        new Insets(insets.left, insets.bottom, insets.right, insets.top);
+           dir == Direction.DOWN ? new Insets(insets.right, insets.top, insets.left, insets.bottom) :
+           dir == Direction.LEFT ? new Insets(insets.bottom, insets.right, insets.top, insets.left) :
+           new Insets(insets.left, insets.bottom, insets.right, insets.top);
   }
 
   public static Insets unrotate(Direction dir, Insets insets) {
     return dir == Direction.RIGHT ? insets :
-        dir == Direction.DOWN ? new Insets(insets.left, insets.bottom, insets.right, insets.top) :
-        dir == Direction.LEFT ? new Insets(insets.bottom, insets.right, insets.top, insets.left) :
-        new Insets(insets.right, insets.top, insets.left, insets.bottom);
+           dir == Direction.DOWN ? new Insets(insets.left, insets.bottom, insets.right, insets.top) :
+           dir == Direction.LEFT ? new Insets(insets.bottom, insets.right, insets.top, insets.left) :
+           new Insets(insets.right, insets.top, insets.left, insets.bottom);
   }
 
   public static Dimension add(Dimension dim, Insets insets) {
@@ -168,9 +171,9 @@ public class LayoutUtil {
 
   public static String getBorderLayoutOrientation(Direction direction) {
     return direction == Direction.UP ? BorderLayout.NORTH :
-        direction == Direction.DOWN ? BorderLayout.SOUTH :
-        direction == Direction.LEFT ? BorderLayout.WEST :
-        BorderLayout.EAST;
+           direction == Direction.DOWN ? BorderLayout.SOUTH :
+           direction == Direction.LEFT ? BorderLayout.WEST :
+           BorderLayout.EAST;
   }
 
 }

@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,9 +20,10 @@
  */
 
 
-//$Id: ReleaseInfo.java,v 1.6 2004/07/06 15:08:45 jesper Exp $
+//$Id: ReleaseInfo.java,v 1.8 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.util;
 
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -30,9 +31,11 @@ import java.net.URL;
  * A class that represents release information for a product
  *
  * @author $Author: jesper $
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.8 $
  */
-public class ReleaseInfo {
+public class ReleaseInfo implements Serializable {
+  private static final long serialVersionUID = 1;
+
   private String productName;
   private String productVendor;
   private String license;

@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,10 +20,12 @@
  */
 
 
-// $Id: AbstractConstChangeNotifyMap.java,v 1.3 2004/07/06 15:08:44 jesper Exp $
+// $Id: AbstractConstChangeNotifyMap.java,v 1.6 2004/09/22 14:35:05 jesper Exp $
 package net.infonode.util.collection.notifymap;
 
 import net.infonode.util.ValueChange;
+import net.infonode.util.collection.Closure;
+import net.infonode.util.collection.WeakSet;
 import net.infonode.util.collection.map.MapAdapter;
 import net.infonode.util.collection.map.base.ConstMap;
 import net.infonode.util.collection.map.base.Map;
@@ -32,8 +34,11 @@ import java.util.ArrayList;
 
 abstract public class AbstractConstChangeNotifyMap implements ConstChangeNotifyMap {
   private ArrayList listeners;
+  private WeakSet weakListeners;
 
   public void addListener(ChangeNotifyMapListener listener) {
+    removeListener(listener);
+
     if (listeners == null)
       listeners = new ArrayList(2);
 
@@ -41,12 +46,21 @@ abstract public class AbstractConstChangeNotifyMap implements ConstChangeNotifyM
   }
 
   public void removeListener(ChangeNotifyMapListener listener) {
-    if (listeners != null) {
-      listeners.remove(listener);
-
+    if (listeners != null && listeners.remove(listener)) {
       if (listeners.size() == 0)
         listeners = null;
     }
+    else if (weakListeners != null)
+      weakListeners.remove(listener);
+  }
+
+  public void addWeakListener(ChangeNotifyMapListener listener) {
+    removeListener(listener);
+
+    if (weakListeners == null)
+      weakListeners = new WeakSet(2);
+
+    weakListeners.add(listener);
   }
 
   protected void fireEntryRemoved(Object key, Object value) {
@@ -59,14 +73,24 @@ abstract public class AbstractConstChangeNotifyMap implements ConstChangeNotifyM
     fireEntriesChanged(map);
   }
 
-  protected void fireEntriesChanged(ConstMap changes) {
-    if (changes.isEmpty() || listeners == null)
+  protected void fireEntriesChanged(final ConstMap changes) {
+    if (changes.isEmpty())
       return;
 
-    ChangeNotifyMapListener[] l = (ChangeNotifyMapListener[]) listeners.toArray(new ChangeNotifyMapListener[listeners.size()]);
+    if (listeners != null) {
+      ChangeNotifyMapListener[] l = (ChangeNotifyMapListener[]) listeners.toArray(new ChangeNotifyMapListener[listeners.size()]);
 
-    for (int i = 0; i < l.length; i++)
-      l[i].entriesChanged(changes);
+      for (int i = 0; i < l.length; i++)
+        l[i].entriesChanged(changes);
+    }
+
+    if (weakListeners != null) {
+      weakListeners.each(new Closure() {
+        public void apply(Object object) {
+          ((ChangeNotifyMapListener) object).entriesChanged(changes);
+        }
+      });
+    }
   }
 
 }

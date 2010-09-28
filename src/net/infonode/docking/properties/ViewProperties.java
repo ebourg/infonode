@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -19,7 +19,7 @@
  * MA 02111-1307, USA.
  */
 
-// $Id: ViewProperties.java,v 1.10 2004/07/07 15:54:22 jesper Exp $
+// $Id: ViewProperties.java,v 1.14 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.propertymap.*;
@@ -33,7 +33,7 @@ import javax.swing.*;
  * Properties and property values for views.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.14 $
  */
 public class ViewProperties extends PropertyMapContainer {
   /**
@@ -99,12 +99,22 @@ public class ViewProperties extends PropertyMapContainer {
    * Adds a super object from which property values are inherited.
    *
    * @param properties the object from which to inherit property values
-   *
    * @return this
    */
   public ViewProperties addSuperObject(ViewProperties properties) {
     getMap().addSuperMap(properties.getMap());
 
+    return this;
+  }
+
+  /**
+   * Removes the last added super object.
+   *
+   * @return this
+   * @since IDW 1.1.0
+   */
+  public ViewProperties removeSuperObject() {
+    getMap().removeSuperMap();
     return this;
   }
 
@@ -121,7 +131,6 @@ public class ViewProperties extends PropertyMapContainer {
    * Set to true if the view shows it's title even though it's not in a tabbed panel with other windows.
    *
    * @param showTitle true if the view shows it's title even though it's not in a tabbed panel with other windows.
-   *
    * @return this
    */
   public ViewProperties setAlwaysShowTitle(boolean showTitle) {
@@ -134,7 +143,6 @@ public class ViewProperties extends PropertyMapContainer {
    * Sets the view title.
    *
    * @param title the view title
-   *
    * @return this
    */
   public ViewProperties setTitle(String title) {
@@ -147,7 +155,6 @@ public class ViewProperties extends PropertyMapContainer {
    * Sets the view icon.
    *
    * @param icon the view icon
-   *
    * @return this
    */
   public ViewProperties setIcon(Icon icon) {

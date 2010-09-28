@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,32 +20,23 @@
  */
 
 
-// $Id: ViewMap.java,v 1.3 2004/08/11 09:15:17 jesper Exp $
+// $Id: ViewMap.java,v 1.5 2004/09/22 14:31:39 jesper Exp $
 package net.infonode.docking.util;
 
 import net.infonode.docking.View;
-import net.infonode.docking.ViewSerializer;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * A map of views that handles view serialization by assigning an integer id to each view.
  * The id is unique for each view in the map. To guarantee serialization compatibility a view id must remain constant.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.5 $
  */
-public class ViewMap implements ViewSerializer, ViewFactoryManager {
-  private HashMap viewMap = new HashMap();
-  private ArrayList views = new ArrayList();
-
+public class ViewMap extends AbstractViewMap {
   /**
    * Constructor.
    */
@@ -59,23 +50,18 @@ public class ViewMap implements ViewSerializer, ViewFactoryManager {
    * @param views the views to add to the map
    */
   public ViewMap(View[] views) {
-    for (int i=0; i<views.length; i++)
+    for (int i = 0; i < views.length; i++)
       addView(i, views[i]);
   }
 
   /**
    * Adds a view to the map.
    *
-   * @param id the view id
+   * @param id   the view id
    * @param view the view
    */
   public void addView(int id, View view) {
-    Object oldView = viewMap.put(new Integer(id), view);
-
-    if (oldView != null)
-      views.remove(oldView);
-
-    views.add(view);
+    addView(new Integer(id), view);
   }
 
   /**
@@ -84,10 +70,7 @@ public class ViewMap implements ViewSerializer, ViewFactoryManager {
    * @param id the view id
    */
   public void removeView(int id) {
-    Object view = viewMap.remove(new Integer(id));
-
-    if (view != null)
-      views.remove(view);
+    removeView(new Integer(id));
   }
 
   /**
@@ -97,69 +80,16 @@ public class ViewMap implements ViewSerializer, ViewFactoryManager {
    * @return the view with the id
    */
   public View getView(int id) {
-    return (View) viewMap.get(new Integer(id));
+    return getView(new Integer(id));
   }
 
-  /**
-   * Returns the number of views in this map.
-   *
-   * @return the number of views in this map
-   */
-  public int getViewCount() {
-    return viewMap.size();
+  protected void writeViewId(Object id, ObjectOutputStream out) throws IOException {
+    out.writeInt(((Integer) id).intValue());
   }
 
-  /**
-   * Returns the view at a specific index.
-   * The view index is the same as the number of views in the map when the view was added to the map.
-   *
-   * @param index the view index
-   * @return the view at the index
-   */
-  public View getViewAtIndex(int index) {
-    return (View) views.get(index);
+  protected Object readViewId(ObjectInputStream in) throws IOException {
+    return new Integer(in.readInt());
   }
 
-  public ViewFactory[] getViewFactories() {
-    ArrayList f = new ArrayList();
 
-    for (int i = 0; i < views.size(); i++) {
-      final View view = (View) views.get(i);
-
-      if (view.getRootWindow() == null)
-        f.add(new ViewFactory() {
-          public Icon getIcon() {
-            return view.getIcon();
-          }
-
-          public String getTitle() {
-            return view.getTitle();
-          }
-
-          public View createView() {
-            return view;
-          }
-        });
-    }
-
-    return (ViewFactory[]) f.toArray(new ViewFactory[f.size()]);
-  }
-
-  public void writeView(View view, ObjectOutputStream out) throws IOException {
-    for (Iterator it = viewMap.entrySet().iterator(); it.hasNext();) {
-      Map.Entry entry = (Map.Entry) it.next();
-
-      if (entry.getValue() == view) {
-        out.writeInt(((Integer) entry.getKey()).intValue());
-        return;
-      }
-    }
-
-    throw new IOException("Serialization of unknown view!");
-  }
-
-  public View readView(ObjectInputStream in) throws IOException {
-    int id = in.readInt();
-    return (View) viewMap.get(new Integer(id));
-  }
 }

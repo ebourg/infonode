@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyRefValue.java,v 1.5 2004/07/06 15:07:17 jesper Exp $
+// $Id: PropertyRefValue.java,v 1.8 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.propertymap.value;
 
 import net.infonode.properties.base.Property;
@@ -39,7 +39,7 @@ import java.io.ObjectOutputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.8 $
  */
 public class PropertyRefValue implements PropertyValue, ChangeNotifyMapListener {
   private PropertyMapImpl map;
@@ -48,21 +48,20 @@ public class PropertyRefValue implements PropertyValue, ChangeNotifyMapListener 
   private Property propertyRef;
   private PropertyRefValue parentRef;
 
-  public PropertyRefValue(PropertyMapImpl map, Property property, PropertyMapRef propertyObject, Property propertyRef, PropertyRefValue parentRef) {
+  public PropertyRefValue(PropertyMapImpl map, Property property, PropertyMapRef propertyObjectRef, Property propertyRef, PropertyRefValue parentRef) {
     if (!property.getType().isAssignableFrom(propertyRef.getType()))
-      throw new InvalidPropertyTypeException(
-          property,
-          propertyRef,
-          "Can't create reference from Property '" + property + "' to property '" + propertyRef +
-          "' because they are of incompatible types!");
+      throw new InvalidPropertyTypeException(property,
+                                             propertyRef,
+                                             "Can't create reference from Property '" + property + "' to property '" + propertyRef +
+                                             "' because they are of incompatible types!");
 
     this.map = map;
     this.property = property;
-    this.propertyObjectRef = propertyObject;
+    this.propertyObjectRef = propertyObjectRef;
     this.propertyRef = propertyRef;
     this.parentRef = parentRef;
 
-    propertyObject.getMap(map).getMap().addListener(this);
+    propertyObjectRef.getMap(map).getMap().addWeakListener(this);
   }
 
   public PropertyValue getParent() {
@@ -71,13 +70,13 @@ public class PropertyRefValue implements PropertyValue, ChangeNotifyMapListener 
 
   public Object get(PropertyMapImpl object) {
     PropertyMapImpl o = propertyObjectRef.getMap(object);
-    PropertyValue v = (o == null ? propertyObjectRef.getMap(this.map) : o).getValue(propertyRef);
+    PropertyValue v = (o == null ? propertyObjectRef.getMap(map) : o).getValue(propertyRef);
     return v == null ? null : v.get(o);
   }
 
   public Object getWithDefault(PropertyMapImpl object) {
     PropertyMapImpl o = propertyObjectRef.getMap(object);
-    PropertyValue v = (o == null ? propertyObjectRef.getMap(this.map) : o).getValueWithDefault(propertyRef);
+    PropertyValue v = (o == null ? propertyObjectRef.getMap(map) : o).getValueWithDefault(propertyRef);
     return v == null ? null : v.getWithDefault(o);
   }
 
@@ -105,7 +104,7 @@ public class PropertyRefValue implements PropertyValue, ChangeNotifyMapListener 
   }
 
   public String toString() {
-    return "ref -> " + propertyObjectRef + "." + propertyRef;
+    return "ref -> " + propertyObjectRef + '.' + propertyRef;
   }
 
   public void dump(Printer printer) {

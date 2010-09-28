@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyException.java,v 1.2 2004/06/17 15:07:10 johan Exp $
+// $Id: PropertyException.java,v 1.3 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.base.exception;
 
 import net.infonode.properties.base.Property;
@@ -28,8 +28,8 @@ import net.infonode.properties.base.Property;
 /**
  * Base class for all property exceptions.
  *
- * @author $Author: johan $
- * @version $Revision: 1.2 $
+ * @author $Author: jesper $
+ * @version $Revision: 1.3 $
  */
 public class PropertyException extends RuntimeException {
   private Property property;
@@ -38,7 +38,7 @@ public class PropertyException extends RuntimeException {
    * Constructor.
    *
    * @param property the property that triggered this exception
-   * @param text the exception text
+   * @param text     the exception text
    */
   public PropertyException(Property property, String text) {
     super(text);

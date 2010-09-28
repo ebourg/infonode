@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,10 +20,10 @@
  */
 
 
-// $Id: AbstractButtonIcon.java,v 1.6 2004/07/09 13:38:18 jesper Exp $
+// $Id: AbstractButtonIcon.java,v 1.7 2004/09/08 14:53:06 jesper Exp $
 package net.infonode.gui.icon.button;
 
-import net.infonode.gui.ComponentUtils;
+import net.infonode.gui.ComponentUtil;
 import net.infonode.util.ColorUtil;
 
 import javax.swing.*;
@@ -84,7 +84,7 @@ public abstract class AbstractButtonIcon implements Icon, Serializable {
     Color color = defaultColor == null ? c.getForeground() : defaultColor;
 
     if (shadowEnabled) {
-      Color background = ComponentUtils.getBackgroundColor(c);
+      Color background = ComponentUtil.getBackgroundColor(c);
       g.setColor(ColorUtil.blend(background == null ? Color.BLACK : background, Color.BLACK, shadowStrength));
       paintIcon(c, g, x + 2, y + 2, x + size - 1, y + size - 1, true);
       g.setColor(color);

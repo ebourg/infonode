@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyGroup.java,v 1.4 2004/08/11 13:47:58 jesper Exp $
+// $Id: PropertyGroup.java,v 1.6 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.base;
 
 import java.util.ArrayList;
@@ -31,18 +31,18 @@ import java.util.ArrayList;
  * fields.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.6 $
  */
 public class PropertyGroup {
   private PropertyGroup superGroup;
   private String name;
   private String description;
-  private ArrayList properties = new ArrayList();
+  private ArrayList properties = new ArrayList(10);
 
   /**
    * Creates a property group.
    *
-   * @param name the name of the group
+   * @param name        the name of the group
    * @param description the group description
    */
   public PropertyGroup(String name, String description) {
@@ -54,8 +54,8 @@ public class PropertyGroup {
    * Creates a property group with a super group.
    * All properties in the super group will be inherited to this group.
    *
-   * @param superGroup the super group of this group
-   * @param name the name of the group
+   * @param superGroup  the super group of this group
+   * @param name        the name of the group
    * @param description the group description
    */
   public PropertyGroup(PropertyGroup superGroup, String name, String description) {
@@ -92,6 +92,7 @@ public class PropertyGroup {
 
   /**
    * Add a property to this group.
+   *
    * @param property the property to add
    */
   public void addProperty(Property property) {
@@ -151,7 +152,7 @@ public class PropertyGroup {
    * @return the property with the given name, null if no property was found
    */
   public Property getProperty(String name) {
-    for (int i=0; i<getPropertyCount(); i++) {
+    for (int i = 0; i < getPropertyCount(); i++) {
       if (getProperty(i).getName().equals(name))
         return getProperty(i);
     }

@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-//$Id: DockingWindowsReleaseInfo.java,v 1.2 2004/06/25 13:02:37 jesper Exp $
+//$Id: DockingWindowsReleaseInfo.java,v 1.4 2004/09/22 14:31:39 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.util.AntUtils;
@@ -31,16 +31,19 @@ import net.infonode.util.ReleaseInfo;
  * version info for the current release.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.4 $
  */
 public class DockingWindowsReleaseInfo {
   private static ReleaseInfo productInfo =
-          new ReleaseInfo("InfoNode Docking Windows GPL",
-                          "NNL Technology AB",
-                          AntUtils.getBuildTime(1092300218866L),
-                          AntUtils.createProductVersion(1, 0, 0),
-                          "GNU General Public License, Version 2",
-                          "http://www.infonode.net");
+      new ReleaseInfo("InfoNode Docking Windows GPL",
+                      "NNL Technology AB",
+                      AntUtils.getBuildTime(1096447605955L),
+                      AntUtils.createProductVersion(1, 1, 0),
+                      "GNU General Public License, Version 2",
+                      "http://www.infonode.net");
+
+  private DockingWindowsReleaseInfo() {
+  }
 
   /**
    * Gets the release information

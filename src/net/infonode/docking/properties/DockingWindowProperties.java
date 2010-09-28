@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: DockingWindowProperties.java,v 1.4 2004/07/05 12:56:37 jesper Exp $
+// $Id: DockingWindowProperties.java,v 1.8 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.docking.properties;
 
 import net.infonode.properties.propertymap.*;
@@ -29,7 +29,7 @@ import net.infonode.properties.propertymap.*;
  * Properties and property values common for all docking windows.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.8 $
  */
 public class DockingWindowProperties extends PropertyMapContainer {
   /**
@@ -84,7 +84,19 @@ public class DockingWindowProperties extends PropertyMapContainer {
   }
 
   /**
+   * Removes the last added super object.
+   *
+   * @return this
+   * @since IDW 1.1.0
+   */
+  public DockingWindowProperties removeSuperObject() {
+    getMap().removeSuperMap();
+    return this;
+  }
+
+  /**
    * Returns the property values for the window tab which is used in tabbed panels.
+   *
    * @return the property values for the window tab which is used in tabbed panels
    */
   public WindowTabProperties getTabProperties() {

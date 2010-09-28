@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabAdapter.java,v 1.8 2004/06/24 13:49:50 johan Exp $
+// $Id: TabAdapter.java,v 1.9 2004/09/22 14:33:49 jesper Exp $
 package net.infonode.tabbedpanel;
 
 /**
@@ -28,9 +28,9 @@ package net.infonode.tabbedpanel;
  * class are empty and it's purpose is to make it easier to create listeners when not all
  * events are of interest.
  *
+ * @author $Author: jesper $
+ * @version $Revision: 1.9 $
  * @see TabbedPanel
- * @author $Author: johan $
- * @version $Revision: 1.8 $
  */
 public class TabAdapter implements TabListener {
   public void tabAdded(TabEvent event) {

@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,14 +20,14 @@
  */
 
 
-// $Id: BorderLayout2.java,v 1.3 2004/07/06 15:08:44 jesper Exp $
+// $Id: BorderLayout2.java,v 1.6 2004/09/23 14:17:01 jesper Exp $
 package net.infonode.gui.layout;
 
 import java.awt.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.6 $
  */
 public class BorderLayout2 implements LayoutManager2 {
   private Component[][] components;
@@ -92,12 +92,13 @@ public class BorderLayout2 implements LayoutManager2 {
     return maxHeight;
   }
 
+//  private static int tt = 0;
+
   private int getPreferredWidth(int column) {
     int maxWidth = 0;
 
     for (int i = 0; i < 3; i++) {
       Component c = components[column][i];
-
       if (c != null && c.isVisible()) {
         int width = c.getPreferredSize().width;
 
@@ -188,6 +189,7 @@ public class BorderLayout2 implements LayoutManager2 {
   }
 
   public void layoutContainer(Container parent) {
+    //System.out.println("Laying out container: " + components[2][0].isVisible());
     Insets insets = parent.getInsets();
     Dimension innerSize = LayoutUtil.getInteriorSize(parent);
     int[] w = {getPreferredWidth(0), getPreferredWidth(2)};
@@ -212,6 +214,7 @@ public class BorderLayout2 implements LayoutManager2 {
 
       y += height;
     }
+    //System.out.println("Layout complete: " + components[2][0].isVisible());
   }
 
   public Dimension minimumLayoutSize(Container parent) {

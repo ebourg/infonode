@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,13 +20,12 @@
  */
 
 
-// $Id: ReadContext.java,v 1.5 2004/07/06 15:00:02 jesper Exp $
+// $Id: ReadContext.java,v 1.8 2004/09/22 14:31:39 jesper Exp $
 package net.infonode.docking;
 
 /**
- *
  * @author $Author: jesper $
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.8 $
  */
 class ReadContext {
   private ViewSerializer viewSerializer;
@@ -35,13 +34,13 @@ class ReadContext {
   private boolean readPropertiesEnabled;
 
   ReadContext(ViewSerializer viewSerializer,
-                     int version,
-                     boolean propertyValuesAvailable,
-                     boolean readProperties) {
+              int version,
+              boolean propertyValuesAvailable,
+              boolean readPropertiesEnabled) {
     this.viewSerializer = viewSerializer;
     this.version = version;
     this.propertyValuesAvailable = propertyValuesAvailable;
-    this.readPropertiesEnabled = readProperties;
+    this.readPropertiesEnabled = readPropertiesEnabled;
   }
 
   ViewSerializer getViewSerializer() {
@@ -54,5 +53,12 @@ class ReadContext {
 
   boolean getReadPropertiesEnabled() {
     return readPropertiesEnabled;
+  }
+
+  /**
+   * @return returns the serialized version
+   */
+  int getVersion() {
+    return version;
   }
 }

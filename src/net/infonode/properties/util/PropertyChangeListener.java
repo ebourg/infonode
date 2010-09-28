@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyChangeListener.java,v 1.2 2004/06/17 15:07:10 johan Exp $
+// $Id: PropertyChangeListener.java,v 1.3 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.util;
 
 import net.infonode.properties.base.Property;
@@ -28,17 +28,17 @@ import net.infonode.properties.base.Property;
 /**
  * The listener interface for receiving changes to a property value.
  *
- * @author $Author: johan $
- * @version $Revision: 1.2 $
+ * @author $Author: jesper $
+ * @version $Revision: 1.3 $
  */
 public interface PropertyChangeListener {
   /**
    * Invoked when a property value has changed.
    *
-   * @param property the property
+   * @param property       the property
    * @param valueContainer the object containing the value
-   * @param oldValue the old property value
-   * @param newValue the new property value
+   * @param oldValue       the old property value
+   * @param newValue       the new property value
    */
   void propertyChanged(Property property, Object valueContainer, Object oldValue, Object newValue);
 }

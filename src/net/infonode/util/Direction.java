@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: Direction.java,v 1.3 2004/07/06 15:08:45 jesper Exp $
+// $Id: Direction.java,v 1.6 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.util;
 
 import java.io.IOException;
@@ -30,7 +30,7 @@ import java.io.ObjectInputStream;
  * An enum class for directions, up, down, left, right.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.6 $
  */
 final public class Direction extends Enum {
   private static final long serialVersionUID = 1;
@@ -58,7 +58,7 @@ final public class Direction extends Enum {
   /**
    * Array containing all directions.
    */
-  public static final Direction[] DIRECTIONS = new Direction[] {UP, RIGHT, DOWN, LEFT};
+  public static final Direction[] DIRECTIONS = {UP, RIGHT, DOWN, LEFT};
 
   static {
     UP.rotateCW = RIGHT;
@@ -109,6 +109,16 @@ final public class Direction extends Enum {
    */
   public Direction getOpposite() {
     return getNextCW().getNextCW();
+  }
+
+  /**
+   * Gets all directions.
+   *
+   * @return all directions
+   * @since 1.1.0
+   */
+  public static Direction[] getDirections() {
+    return (Direction[]) DIRECTIONS.clone();
   }
 
   /**

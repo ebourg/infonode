@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,11 +20,12 @@
  */
 
 
-// $Id: Info.java,v 1.3 2004/07/06 15:00:02 jesper Exp $
+// $Id: Info.java,v 1.6 2004/09/22 14:31:39 jesper Exp $
 package net.infonode.docking.info;
 
 import net.infonode.docking.DockingWindowsReleaseInfo;
 import net.infonode.gui.ReleaseInfoDialog;
+import net.infonode.gui.laf.InfoNodeLookAndFeelReleaseInfo;
 import net.infonode.tabbedpanel.TabbedPanelReleaseInfo;
 import net.infonode.util.ReleaseInfo;
 
@@ -32,12 +33,16 @@ import net.infonode.util.ReleaseInfo;
  * Program that shows InfoNode Docking Windows release information in a dialog.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.6 $
  */
 public class Info {
+  private Info() {
+  }
+
   public static final void main(String[] args) {
     ReleaseInfoDialog.showDialog(new ReleaseInfo[]{DockingWindowsReleaseInfo.getReleaseInfo(),
-                                                   TabbedPanelReleaseInfo.getReleaseInfo()},
+                                                   TabbedPanelReleaseInfo.getReleaseInfo(),
+                                                   InfoNodeLookAndFeelReleaseInfo.getReleaseInfo()},
                                  null);
     System.exit(0);
   }

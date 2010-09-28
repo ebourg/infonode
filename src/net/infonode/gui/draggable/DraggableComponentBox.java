@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,11 +20,10 @@
  */
 
 
-// $Id: DraggableComponentBox.java,v 1.7 2004/07/06 15:08:44 jesper Exp $
+// $Id: DraggableComponentBox.java,v 1.22 2004/09/22 14:35:04 jesper Exp $
 package net.infonode.gui.draggable;
 
-import net.infonode.gui.ComponentUtils;
-import net.infonode.gui.ScrollableBox;
+import net.infonode.gui.*;
 import net.infonode.gui.layout.DirectionLayout;
 import net.infonode.gui.panel.SimplePanel;
 import net.infonode.util.Direction;
@@ -39,14 +38,17 @@ public class DraggableComponentBox extends SimplePanel {
   private JComponent componentBox;
   private JComponent componentContainer;
   private Direction componentDirection = Direction.UP;
-  private Direction scrollButtonDirection = Direction.UP;
-  private boolean scrollEnabled = true;
-  private boolean ensureSelectedVisible = false;
+  private boolean scrollEnabled = false;
+  private boolean ensureSelectedVisible;
   private boolean autoSelect = true;
-  private int scrollOffset = 0;
+
+  private int scrollOffset;
+  private int iconSize;
   private DraggableComponent selectedComponent;
   private ArrayList listeners;
   private ArrayList componentList = new ArrayList(4);
+
+  private ScrollButtonBox scrollButtonBox;
 
   private DraggableComponentListener draggableComponentListener = new DraggableComponentListener() {
     public void changed(DraggableComponentEvent event) {
@@ -70,7 +72,8 @@ public class DraggableComponentBox extends SimplePanel {
     }
   };
 
-  public DraggableComponentBox() {
+  public DraggableComponentBox(int iconSize) {
+    this.iconSize = iconSize;
     // Fix minimum size when flipping direction
     final DirectionLayout layout = new DirectionLayout(componentDirection == Direction.UP ? Direction.RIGHT :
                                                        componentDirection == Direction.LEFT ? Direction.DOWN :
@@ -131,7 +134,7 @@ public class DraggableComponentBox extends SimplePanel {
   }
 
   public void insertDraggableComponent(DraggableComponent component, Point p) {
-    int componentIndex = ComponentUtils.getComponentIndex(componentBox.getComponentAt(SwingUtilities.convertPoint(this, p, componentBox)));
+    int componentIndex = ComponentUtil.getComponentIndex(componentBox.getComponentAt(SwingUtilities.convertPoint(this, p, componentBox)));
     if (componentIndex != -1 && componentBox.getComponentCount() > 0)
       insertDraggableComponent(component, componentIndex);
     else
@@ -153,7 +156,7 @@ public class DraggableComponentBox extends SimplePanel {
 
   public void removeDraggableComponent(DraggableComponent component) {
     if (component != null && component.getComponent().getParent() == componentBox) {
-      int index = ComponentUtils.getComponentIndex(component.getComponent());
+      int index = ComponentUtil.getComponentIndex(component.getComponent());
       component.removeListener(draggableComponentListener);
       if (componentBox.getComponentCount() > 1 && selectedComponent != null) {
         if (selectedComponent == component) {
@@ -195,7 +198,7 @@ public class DraggableComponentBox extends SimplePanel {
   }
 
   public static int getDraggableComponentIndex(DraggableComponent component) {
-    return ComponentUtils.getComponentIndex(component.getComponent());
+    return ComponentUtil.getComponentIndex(component.getComponent());
   }
 
   public boolean isScrollEnabled() {
@@ -216,7 +219,8 @@ public class DraggableComponentBox extends SimplePanel {
   public void setScrollOffset(int scrollOffset) {
     if (scrollOffset != this.scrollOffset) {
       this.scrollOffset = scrollOffset;
-      initialize();
+      if (scrollEnabled)
+        ((ScrollableBox) componentContainer).setScrollOffset(scrollOffset);
     }
   }
 
@@ -227,7 +231,7 @@ public class DraggableComponentBox extends SimplePanel {
   public void setComponentSpacing(int componentSpacing) {
     if (componentSpacing != getDirectionLayout().getComponentSpacing()) {
       getDirectionLayout().setComponentSpacing(componentSpacing);
-      initialize();
+      componentBox.revalidate();
     }
   }
 
@@ -237,17 +241,6 @@ public class DraggableComponentBox extends SimplePanel {
 
   public void setEnsureSelectedVisible(boolean ensureSelectedVisible) {
     this.ensureSelectedVisible = ensureSelectedVisible;
-  }
-
-  public Direction getScrollButtonDirection() {
-    return scrollButtonDirection;
-  }
-
-  public void setScrollButtonDirection(Direction scrollButtonDirection) {
-    if (scrollButtonDirection != this.scrollButtonDirection) {
-      this.scrollButtonDirection = scrollButtonDirection;
-      initialize();
-    }
   }
 
   public boolean isAutoSelect() {
@@ -265,12 +258,35 @@ public class DraggableComponentBox extends SimplePanel {
   public void setComponentDirection(Direction componentDirection) {
     if (componentDirection != this.componentDirection) {
       this.componentDirection = componentDirection;
-      initialize();
+      getDirectionLayout().setDirection(componentDirection == Direction.UP ? Direction.RIGHT : componentDirection == Direction.LEFT ? Direction.DOWN : componentDirection == Direction.DOWN ? Direction.RIGHT : Direction.DOWN);
+      if (scrollEnabled) {
+        scrollButtonBox.setVertical(componentDirection.isHorizontal());
+        ((ScrollableBox) componentContainer).setVertical(componentDirection.isHorizontal());
+      }
     }
+  }
+
+  public ScrollButtonBox getScrollButtonBox() {
+    return scrollButtonBox;
   }
 
   public void dragDraggableComponent(DraggableComponent component, Point p) {
     component.drag(SwingUtilities.convertPoint(this, p, component.getComponent()));
+  }
+
+  public Dimension getMaximumSize() {
+    if (scrollEnabled)
+      return getPreferredSize();
+
+    if (componentDirection == Direction.LEFT || componentDirection == Direction.RIGHT)
+      return new Dimension((int) getPreferredSize().getWidth(), (int) super.getMaximumSize().getHeight());
+
+    return new Dimension((int) super.getMaximumSize().getWidth(), (int) getPreferredSize().getHeight());
+
+  }
+
+  public Dimension getInnerSize() {
+    return scrollEnabled ? componentBox.getPreferredSize() : componentBox.getSize();
   }
 
   private void doSelectComponent(DraggableComponent component) {
@@ -279,7 +295,8 @@ public class DraggableComponentBox extends SimplePanel {
       selectedComponent = component;
       ensureSelectedVisible();
       fireSelectedEvent(selectedComponent, oldSelected);
-    } else {
+    }
+    else {
       selectedComponent = component;
       ensureSelectedVisible();
       fireSelectedEvent(selectedComponent, null);
@@ -305,34 +322,62 @@ public class DraggableComponentBox extends SimplePanel {
 
   private DraggableComponent findDraggableComponent(Component c) {
     for (int i = 0; i < componentList.size(); i++)
-      if (((DraggableComponent)componentList.get(i)).getComponent() == c)
-        return (DraggableComponent)componentList.get(i);
+      if (((DraggableComponent) componentList.get(i)).getComponent() == c)
+        return (DraggableComponent) componentList.get(i);
 
     return null;
   }
 
   private DirectionLayout getDirectionLayout() {
-    return (DirectionLayout)componentBox.getLayout();
+    return (DirectionLayout) componentBox.getLayout();
   }
 
   private void initialize() {
     if (componentContainer != null)
       remove(componentContainer);
+
     DirectionLayout layout = getDirectionLayout();
-    layout.setDirection(componentDirection == Direction.UP ? Direction.RIGHT :
-                        componentDirection == Direction.LEFT ? Direction.DOWN :
-                        componentDirection == Direction.DOWN ? Direction.RIGHT :
-                        Direction.DOWN);
     layout.setCompressing(!scrollEnabled);
 
-    if (scrollEnabled)
-      componentContainer = new ScrollableBox(componentBox,
-                                             componentDirection.isHorizontal(),
-                                             ComponentUtils.getBorderLayoutOrientation(scrollButtonDirection),
-                                             scrollOffset);
-    else
-      componentContainer = componentBox;
+    if (scrollEnabled) {
+      scrollButtonBox = new ScrollButtonBox(componentDirection.isHorizontal(), iconSize);
+      final ScrollableBox scrollableBox = new ScrollableBox(componentBox, componentDirection.isHorizontal(), scrollOffset);
+      scrollButtonBox.addListener(new ScrollButtonBoxListener() {
+        public void scrollButton1() {
+          scrollableBox.scrollLeft(1);
+        }
 
+        public void scrollButton2() {
+          scrollableBox.scrollRight(1);
+        }
+      });
+
+      scrollButtonBox.setButton1Enabled(!scrollableBox.isLeftEnd());
+      scrollButtonBox.setButton2Enabled(!scrollableBox.isRightEnd());
+
+      scrollableBox.addScrollableBoxListener(new ScrollableBoxListener() {
+        public void scrolledLeft(ScrollableBox box) {
+          scrollButtonBox.setButton1Enabled(!box.isLeftEnd());
+          scrollButtonBox.setButton2Enabled(true);
+        }
+
+        public void scrolledRight(ScrollableBox box) {
+          scrollButtonBox.setButton1Enabled(true);
+          scrollButtonBox.setButton2Enabled(!box.isRightEnd());
+        }
+
+        public void changed(ScrollableBox box) {
+          fireChangedEvent();
+        }
+      });
+      componentContainer = scrollableBox;
+    }
+    else {
+      scrollButtonBox = null;
+      componentContainer = componentBox;
+    }
+
+    componentContainer.setAlignmentY(0);
     add(componentContainer, BorderLayout.CENTER);
   }
 
@@ -340,7 +385,7 @@ public class DraggableComponentBox extends SimplePanel {
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
         if (scrollEnabled && ensureSelectedVisible && selectedComponent != null)
-          ((ScrollableBox)componentContainer).ensureVisible(ComponentUtils.getComponentIndex(selectedComponent.getComponent()));
+          ((ScrollableBox) componentContainer).ensureVisible(ComponentUtil.getComponentIndex(selectedComponent.getComponent()));
       }
     });
   }
@@ -349,9 +394,9 @@ public class DraggableComponentBox extends SimplePanel {
     if (listeners != null) {
       DraggableComponentBoxEvent event = new DraggableComponentBoxEvent(this, e.getSource(), e,
                                                                         SwingUtilities.convertPoint(e.getSource().getComponent(), e.getPoint(), this));
-      Object l[] = listeners.toArray();
+      Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
-        ((DraggableComponentBoxListener)l[i]).componentDragged(event);
+        ((DraggableComponentBoxListener) l[i]).componentDragged(event);
     }
   }
 
@@ -359,63 +404,63 @@ public class DraggableComponentBox extends SimplePanel {
     if (listeners != null) {
       DraggableComponentBoxEvent event = new DraggableComponentBoxEvent(this, e.getSource(), e,
                                                                         SwingUtilities.convertPoint(e.getSource().getComponent(), e.getPoint(), this));
-      Object l[] = listeners.toArray();
+      Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
-        ((DraggableComponentBoxListener)l[i]).componentDropped(event);
+        ((DraggableComponentBoxListener) l[i]).componentDropped(event);
     }
   }
 
   private void fireNotDroppedEvent(DraggableComponentEvent e) {
     if (listeners != null) {
       DraggableComponentBoxEvent event = new DraggableComponentBoxEvent(this, e.getSource(), e);
-      Object l[] = listeners.toArray();
+      Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
-        ((DraggableComponentBoxListener)l[i]).componentDragAborted(event);
+        ((DraggableComponentBoxListener) l[i]).componentDragAborted(event);
     }
   }
 
   private void fireSelectedEvent(DraggableComponent component, DraggableComponent oldDraggableComponent) {
     if (listeners != null) {
       DraggableComponentBoxEvent event = new DraggableComponentBoxEvent(this, component, oldDraggableComponent);
-      Object l[] = listeners.toArray();
+      Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
-        ((DraggableComponentBoxListener)l[i]).componentSelected(event);
+        ((DraggableComponentBoxListener) l[i]).componentSelected(event);
     }
   }
 
   private void fireAddedEvent(DraggableComponent component) {
     if (listeners != null) {
       DraggableComponentBoxEvent event = new DraggableComponentBoxEvent(this, component);
-      Object l[] = listeners.toArray();
+      Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
-        ((DraggableComponentBoxListener)l[i]).componentAdded(event);
+        ((DraggableComponentBoxListener) l[i]).componentAdded(event);
     }
   }
 
   private void fireRemovedEvent(DraggableComponent component) {
     if (listeners != null) {
       DraggableComponentBoxEvent event = new DraggableComponentBoxEvent(this, component);
-      Object l[] = listeners.toArray();
+      Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
-        ((DraggableComponentBoxListener)l[i]).componentRemoved(event);
+        ((DraggableComponentBoxListener) l[i]).componentRemoved(event);
     }
   }
 
   private void fireChangedEvent(DraggableComponentEvent e) {
     if (listeners != null) {
       DraggableComponentBoxEvent event = new DraggableComponentBoxEvent(this, e.getSource(), e);
-      Object l[] = listeners.toArray();
+      Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
-        ((DraggableComponentBoxListener)l[i]).changed(event);
+        ((DraggableComponentBoxListener) l[i]).changed(event);
     }
   }
 
   private void fireChangedEvent() {
     if (listeners != null) {
       DraggableComponentBoxEvent event = new DraggableComponentBoxEvent(this);
-      Object l[] = listeners.toArray();
+      Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
-        ((DraggableComponentBoxListener)l[i]).changed(event);
+        ((DraggableComponentBoxListener) l[i]).changed(event);
     }
   }
 }

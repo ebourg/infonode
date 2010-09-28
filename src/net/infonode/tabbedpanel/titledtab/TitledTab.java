@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,12 +20,13 @@
  */
 
 
-// $Id: TitledTab.java,v 1.8 2004/07/05 14:01:39 jesper Exp $
+// $Id: TitledTab.java,v 1.22 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.tabbedpanel.titledtab;
 
 import net.infonode.gui.InsetsUtil;
 import net.infonode.gui.RotatableLabel;
 import net.infonode.gui.border.FocusBorder;
+import net.infonode.gui.icon.IconProvider;
 import net.infonode.gui.layout.StackableLayout;
 import net.infonode.properties.propertymap.PropertyMapTreeListener;
 import net.infonode.tabbedpanel.Tab;
@@ -68,12 +69,16 @@ import java.util.Map;
  * highlighted and disabled state will automatically use the same properties as for the normal
  * state, see {@link TitledTabProperties} and {@link TitledTabStateProperties}.</p>
  *
+ * <p>TitledTab implements the {@link net.infonode.gui.icon.IconProvider} interface and
+ * overloads toString() so that both text and icon for the normal state is shown in the
+ * tab drop down list in a tabbed panel.</p>
+ *
+ * @author $Author: jesper $
+ * @version $Revision: 1.22 $
  * @see TitledTabProperties
  * @see TitledTabStateProperties
- * @author $Author: jesper $
- * @version $Revision: 1.8 $
  */
-public class TitledTab extends Tab {
+public class TitledTab extends Tab implements IconProvider {
 
   private class StatePanel extends JPanel {
     private JPanel panel = new JPanel(new BorderLayout());
@@ -86,7 +91,7 @@ public class TitledTab extends Tab {
     private Alignment currentLayoutAlignment;
     private String toolTipText;
 
-    public StatePanel() {
+    StatePanel() {
       super(new BorderLayout());
       setOpaque(false);
       panel.setOpaque(false);
@@ -102,7 +107,7 @@ public class TitledTab extends Tab {
       titleComponentChanged = true;
 
       toolTipText = properties.getToolTipEnabled() ? properties.getToolTipText() : null;
-      if (toolTipText != null && toolTipText.equals(""))
+      if (toolTipText != null && toolTipText.length() == 0)
         toolTipText = null;
 
       setBorder(outerBorder);
@@ -135,7 +140,8 @@ public class TitledTab extends Tab {
             titleComponent.getParent().remove(titleComponent);
           titleComponentPanel.add(titleComponent, BorderLayout.CENTER);
         }
-      } else {
+      }
+      else {
         titleComponentPanel.removeAll();
       }
     }
@@ -172,16 +178,20 @@ public class TitledTab extends Tab {
     }
 
     private void updateLayout(TitledTabStateProperties properties) {
-      if (titleComponent != null) {
+      if (titleComponent != null && properties.getTitleComponentVisible()) {
         Direction d = properties.getDirection();
-        int gap = properties.getTextTitleComponentGap();
+        int gap;
+        if (properties.getIconVisible() || properties.getTextVisible())
+          gap = properties.getTextTitleComponentGap();
+        else
+          gap = 0;
         Alignment alignment = properties.getTitleComponentTextRelativeAlignment();
         if (titleComponentPanel.getComponentCount() == 0 ||
-                (titleComponentPanel.getComponentCount() > 0 && titleComponentPanel.getComponent(0) != titleComponent) ||
-                titleComponentChanged ||
-                gap != currentLayoutGap ||
-                alignment != currentLayoutAlignment ||
-                d != currentLayoutDirection) {
+            (titleComponentPanel.getComponentCount() > 0 && titleComponentPanel.getComponent(0) != titleComponent) ||
+            titleComponentChanged ||
+            gap != currentLayoutGap ||
+            alignment != currentLayoutAlignment ||
+            d != currentLayoutDirection) {
           titleComponentChanged = false;
           currentLayoutDirection = d;
           currentLayoutGap = gap;
@@ -191,29 +201,42 @@ public class TitledTab extends Tab {
           if (d == Direction.UP) {
             panel.add(titleComponentPanel, alignment == Alignment.LEFT ? BorderLayout.SOUTH : BorderLayout.NORTH);
             titleComponentPanel.setBorder(new EmptyBorder(alignment == Alignment.LEFT ? gap : 0, 0, alignment == Alignment.LEFT ? 0 : gap, 0));
-          } else if (d == Direction.LEFT) {
+          }
+          else if (d == Direction.LEFT) {
             panel.add(titleComponentPanel, alignment == Alignment.LEFT ? BorderLayout.EAST : BorderLayout.WEST);
             titleComponentPanel.setBorder(new EmptyBorder(0, alignment == Alignment.LEFT ? gap : 0, 0, alignment == Alignment.LEFT ? 0 : gap));
-          } else if (d == Direction.DOWN) {
+          }
+          else if (d == Direction.DOWN) {
             panel.add(titleComponentPanel, alignment == Alignment.LEFT ? BorderLayout.NORTH : BorderLayout.SOUTH);
             titleComponentPanel.setBorder(new EmptyBorder(alignment == Alignment.LEFT ? 0 : gap, 0, alignment == Alignment.LEFT ? gap : 0, 0));
-          } else {
+          }
+          else {
             panel.add(titleComponentPanel, alignment == Alignment.LEFT ? BorderLayout.WEST : BorderLayout.EAST);
             titleComponentPanel.setBorder(new EmptyBorder(0, alignment == Alignment.LEFT ? 0 : gap, 0, alignment == Alignment.LEFT ? gap : 0));
           }
         }
-      } else {
+      }
+      else {
         panel.remove(titleComponentPanel);
         titleComponentPanel.removeAll();
       }
     }
 
     private void updateLabel(TitledTabStateProperties properties) {
-      label.setIcon(properties.getIcon());
-      label.setText(properties.getText());
+      if (properties.getIconVisible())
+        label.setIcon(properties.getIcon());
+      else
+        label.setIcon(null);
+      if (properties.getTextVisible())
+        label.setText(properties.getText());
+      else
+        label.setText(null);
       label.setFont(properties.getComponentProperties().getFont());
       label.setForeground(properties.getComponentProperties().getForegroundColor());
-      label.setIconTextGap(properties.getIconTextGap());
+      if (properties.getIconVisible() && properties.getTextVisible())
+        label.setIconTextGap(properties.getIconTextGap());
+      else
+        label.setIconTextGap(0);
       label.setDirection(properties.getDirection());
 
       Alignment alignment = properties.getHorizontalAlignment();
@@ -259,14 +282,14 @@ public class TitledTab extends Tab {
   /**
    * Constructs a TitledTab with a text, icon, content component and title component.
    *
+   * @param text             text or null for no text. The text will be applied to the
+   *                         normal state properties
+   * @param icon             icon or null for no icon. The icon will be applied to the
+   *                         normal state properties
+   * @param contentComponent content component or null for no content component
+   * @param titleComponent   title component or null for no title component. The title
+   *                         component will be applied to all the states
    * @see net.infonode.tabbedpanel.TabFactory
-   * @param text              text or null for no text. The text will be applied to the
-   *                          normal state properties
-   * @param icon              icon or null for no icon. The icon will be applied to the
-   *                          normal state properties
-   * @param contentComponent  content component or null for no content component
-   * @param titleComponent    title component or null for no title component. The title
-   *                          component will be applied to all the states
    */
   public TitledTab(String text, Icon icon, JComponent contentComponent, JComponent titleComponent) {
     super(contentComponent);
@@ -276,7 +299,7 @@ public class TitledTab extends Tab {
     layout = new StackableLayout(this) {
       public void layoutContainer(Container parent) {
         super.layoutContainer(parent);
-        StatePanel visibleStatePanel = (StatePanel)getVisibleComponent();
+        StatePanel visibleStatePanel = (StatePanel) getVisibleComponent();
         visibleStatePanel.activateTitleComponent();
         setFocusableComponent(properties.getFocusable() ? visibleStatePanel.getFocusableComponent() : null);
       }
@@ -296,45 +319,45 @@ public class TitledTab extends Tab {
       public void mouseClicked(MouseEvent e) {
         if (mouseListeners != null) {
           MouseEvent event = convertMouseEvent(e);
-          Object l[] = mouseListeners.toArray();
+          Object[] l = mouseListeners.toArray();
           for (int i = 0; i < l.length; i++)
-            ((MouseListener)l[i]).mouseClicked(event);
+            ((MouseListener) l[i]).mouseClicked(event);
         }
       }
 
       public void mousePressed(MouseEvent e) {
         if (mouseListeners != null) {
           MouseEvent event = convertMouseEvent(e);
-          Object l[] = mouseListeners.toArray();
+          Object[] l = mouseListeners.toArray();
           for (int i = 0; i < l.length; i++)
-            ((MouseListener)l[i]).mousePressed(event);
+            ((MouseListener) l[i]).mousePressed(event);
         }
       }
 
       public void mouseReleased(MouseEvent e) {
         if (mouseListeners != null) {
           MouseEvent event = convertMouseEvent(e);
-          Object l[] = mouseListeners.toArray();
+          Object[] l = mouseListeners.toArray();
           for (int i = 0; i < l.length; i++)
-            ((MouseListener)l[i]).mouseReleased(event);
+            ((MouseListener) l[i]).mouseReleased(event);
         }
       }
 
       public void mouseEntered(MouseEvent e) {
         if (mouseListeners != null) {
           MouseEvent event = convertMouseEvent(e);
-          Object l[] = mouseListeners.toArray();
+          Object[] l = mouseListeners.toArray();
           for (int i = 0; i < l.length; i++)
-            ((MouseListener)l[i]).mouseEntered(event);
+            ((MouseListener) l[i]).mouseEntered(event);
         }
       }
 
       public void mouseExited(MouseEvent e) {
         if (mouseListeners != null) {
           MouseEvent event = convertMouseEvent(e);
-          Object l[] = mouseListeners.toArray();
+          Object[] l = mouseListeners.toArray();
           for (int i = 0; i < l.length; i++)
-            ((MouseListener)l[i]).mouseExited(event);
+            ((MouseListener) l[i]).mouseExited(event);
         }
       }
     };
@@ -343,18 +366,18 @@ public class TitledTab extends Tab {
       public void mouseDragged(MouseEvent e) {
         if (mouseMotionListeners != null) {
           MouseEvent event = convertMouseEvent(e);
-          Object l[] = mouseMotionListeners.toArray();
+          Object[] l = mouseMotionListeners.toArray();
           for (int i = 0; i < l.length; i++)
-            ((MouseMotionListener)l[i]).mouseDragged(event);
+            ((MouseMotionListener) l[i]).mouseDragged(event);
         }
       }
 
       public void mouseMoved(MouseEvent e) {
         if (mouseMotionListeners != null) {
           MouseEvent event = convertMouseEvent(e);
-          Object l[] = mouseMotionListeners.toArray();
+          Object[] l = mouseMotionListeners.toArray();
           for (int i = 0; i < l.length; i++)
-            ((MouseMotionListener)l[i]).mouseMoved(event);
+            ((MouseMotionListener) l[i]).mouseMoved(event);
         }
       }
     };
@@ -454,7 +477,7 @@ public class TitledTab extends Tab {
    *
    * <p><strong>Note:</strong> This will only have effect if this TitledTab
    * is enabled and a member of a tabbed panel.</p>
-
+   *
    * @param highlighted true for highlight, otherwise false
    */
   public void setHighlighted(boolean highlighted) {
@@ -518,6 +541,19 @@ public class TitledTab extends Tab {
   }
 
   /**
+   * Gets the text for the normal state.
+   *
+   * Same as getText().
+   *
+   * @return the text or null if no text
+   * @see #getText
+   * @since ITP 1.1.0
+   */
+  public String toString() {
+    return getText();
+  }
+
+  /**
    * Adds a MouseListener to receive mouse events from this TitledTab.
    *
    * @param l the MouseListener
@@ -554,7 +590,7 @@ public class TitledTab extends Tab {
       Object[] l = mouseListeners.toArray();
       listeners = new MouseListener[l.length];
       for (int i = 0; i < l.length; i++)
-        listeners[i] = (MouseListener)l[i];
+        listeners[i] = (MouseListener) l[i];
     }
 
     return listeners;
@@ -598,14 +634,14 @@ public class TitledTab extends Tab {
       Object[] l = mouseMotionListeners.toArray();
       listeners = new MouseMotionListener[l.length];
       for (int i = 0; i < l.length; i++)
-        listeners[i] = (MouseMotionListener)l[i];
+        listeners[i] = (MouseMotionListener) l[i];
     }
 
     return listeners;
   }
-  
+
   private Insets getBorderInsets(Border border) {
-  	return border == null ? InsetsUtil.EMPTY_INSETS : border.getBorderInsets(this);
+    return border == null ? InsetsUtil.EMPTY_INSETS : border.getBorderInsets(this);
   }
 
   private void updateTab() {
@@ -618,13 +654,21 @@ public class TitledTab extends Tab {
       Border normalBorder = new EmptyBorder(notRaised);
 
       Insets maxInsets = properties.getBorderSizePolicy() == TitledTabBorderSizePolicy.INDIVIDUAL_SIZE ?
-              null :
-              InsetsUtil.max(getBorderInsets(properties.getNormalProperties().getComponentProperties().getBorder()),
-                              InsetsUtil.max(getBorderInsets(properties.getHighlightedProperties().getComponentProperties().getBorder()),
-																						 getBorderInsets(properties.getDisabledProperties().getComponentProperties().getBorder())));
+                         null :
+                         InsetsUtil.max(getBorderInsets(properties.getNormalProperties().getComponentProperties().getBorder()),
+                                        InsetsUtil.max(getBorderInsets(properties.getHighlightedProperties().getComponentProperties().getBorder()),
+                                                       getBorderInsets(properties.getDisabledProperties().getComponentProperties().getBorder())));
 
-      int edgeInset = Math.min(InsetsUtil.getInset(properties.getNormalProperties().getComponentProperties().getInsets(), tabOrientation.getOpposite()),
-                               InsetsUtil.getInset(properties.getDisabledProperties().getComponentProperties().getInsets(), tabOrientation.getOpposite()));
+      Insets normalInsets = InsetsUtil.rotate(properties.getNormalProperties().getDirection(),
+                                              properties.getNormalProperties().getComponentProperties().getInsets());
+
+      Insets disabledInsets = InsetsUtil.rotate(properties.getDisabledProperties().getDirection(),
+                                                properties.getDisabledProperties().getComponentProperties().getInsets());
+
+      int edgeInset = Math.min(InsetsUtil.getInset(normalInsets,
+                                                   tabOrientation.getOpposite()),
+                               InsetsUtil.getInset(disabledInsets,
+                                                   tabOrientation.getOpposite()));
 
       int normalLowered = Math.min(edgeInset, raised);
 
@@ -648,13 +692,14 @@ public class TitledTab extends Tab {
     Insets insets = InsetsUtil.rotate(tabDir, properties.getComponentProperties().getInsets());
 
     if (maxInsets != null)
-      insets = InsetsUtil.add(insets, InsetsUtil.sub(maxInsets, getBorderInsets(properties.getComponentProperties().getBorder())));
+      insets = InsetsUtil.add(insets, InsetsUtil.sub(maxInsets,
+                                                     getBorderInsets(properties.getComponentProperties().getBorder())));
 
     Border border = properties.getComponentProperties().getBorder();
     Border innerBorder = new EmptyBorder(InsetsUtil.add(insets,
-                                   InsetsUtil.setInset(InsetsUtil.EMPTY_INSETS,
-                                                        tabOrientation.getOpposite(),
-                                                        raised)));
+                                                        InsetsUtil.setInset(InsetsUtil.EMPTY_INSETS,
+                                                                            tabOrientation.getOpposite(),
+                                                                            raised)));
     return border == null ? innerBorder : new CompoundBorder(border, innerBorder);
   }
 
@@ -677,9 +722,9 @@ public class TitledTab extends Tab {
   }
 
   private MouseEvent convertMouseEvent(MouseEvent e) {
-    Point p = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), TitledTab.this);
+    Point p = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), TitledTab.this);
     return new MouseEvent(TitledTab.this, e.getID(), e.getWhen(), e.getModifiers(),
-                          (int)p.getX(), (int)p.getY(), e.getClickCount(),
+                          (int) p.getX(), (int) p.getY(), e.getClickCount(),
                           !e.isConsumed() && e.isPopupTrigger(), e.getButton());
   }
 }

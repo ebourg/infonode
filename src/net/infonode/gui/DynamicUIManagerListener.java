@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,11 +20,11 @@
  */
 
 
-// $Id: DynamicUIManagerListener.java,v 1.2 2004/06/17 13:01:11 johan Exp $
+// $Id: DynamicUIManagerListener.java,v 1.4 2004/09/22 14:35:04 jesper Exp $
 package net.infonode.gui;
 
-import java.beans.PropertyChangeListener;
-
-public interface DynamicUIManagerListener extends PropertyChangeListener {
+public interface DynamicUIManagerListener {
   public void lookAndFeelChanged();
+
+  public void propertiesChanged();
 }

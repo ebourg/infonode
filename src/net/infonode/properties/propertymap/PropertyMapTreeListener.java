@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyMapTreeListener.java,v 1.2 2004/06/17 15:07:10 johan Exp $
+// $Id: PropertyMapTreeListener.java,v 1.4 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.propertymap;
 
 import java.util.Map;
@@ -28,17 +28,17 @@ import java.util.Map;
 /**
  * Listener interface for property value changes in a property map and it's child maps.
  *
- * @author $Author: johan $
- * @version $Revision: 1.2 $
+ * @author $Author: jesper $
+ * @version $Revision: 1.4 $
  */
 public interface PropertyMapTreeListener {
   /**
    * Invoked when one or more property value has been modified in one or more property maps.
    *
-   * @param changes an unmodifiable map containing {@link PropertyMap}'s as keys and
-   *                 {@link net.infonode.util.collection.map.base.ConstMap} as values. The value map contains
-   *                 {@link net.infonode.properties.base.Property}'s as keys and
-   *                 {@link net.infonode.util.ValueChange}'s as values.
+   * @param changes an unmodifiable {@link Map} containing {@link PropertyMap}'s as keys and
+   *                unmodifiable {@link Map}'s as values. The value Map's contains
+   *                {@link net.infonode.properties.base.Property}'s as keys and
+   *                {@link net.infonode.util.ValueChange}'s as values.
    */
   void propertyValuesChanged(Map changes);
 }

@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SimpleSplitPane.java,v 1.4 2004/07/06 15:08:44 jesper Exp $
+// $Id: SimpleSplitPane.java,v 1.6 2004/09/22 14:35:05 jesper Exp $
 package net.infonode.gui;
 
 import net.infonode.gui.panel.SimplePanel;
@@ -33,7 +33,7 @@ import java.awt.event.MouseMotionAdapter;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.6 $
  */
 public class SimpleSplitPane extends JLayeredPane {
   private LayoutManager splitLayout = new LayoutManager() {
@@ -104,7 +104,7 @@ public class SimpleSplitPane extends JLayeredPane {
     setHorizontal(horizontal);
     add(dragIndicator, new Integer(1));
     dragIndicator.setOpaque(true);
-    dragIndicator.setBackground(Color.GRAY);
+    dragIndicator.setBackground(Color.DARK_GRAY);
 
     dividerPanel.addMouseListener(new MouseAdapter() {
       public void mouseReleased(MouseEvent e) {
@@ -118,7 +118,7 @@ public class SimpleSplitPane extends JLayeredPane {
     dividerPanel.addMouseMotionListener(new MouseMotionAdapter() {
       public void mouseDragged(MouseEvent e) {
         if (dividerDraggable) {
-          float location = (float)(getPos(dividerPanel.getLocation()) - getOffset() + getPos(e.getPoint())) / getViewSize();
+          float location = (float) (getPos(dividerPanel.getLocation()) - getOffset() + getPos(e.getPoint())) / getViewSize();
 
           if (!continuousLayout)
             setDragIndicator(location);
@@ -193,7 +193,7 @@ public class SimpleSplitPane extends JLayeredPane {
 
   private int getViewSize() {
     return getDimensionSize(getSize()) - dividerSize -
-        (horizontal ? getInsets().left + getInsets().right : getInsets().top + getInsets().bottom);
+           (horizontal ? getInsets().left + getInsets().right : getInsets().top + getInsets().bottom);
   }
 
   private int getDimensionSize(Dimension d) {

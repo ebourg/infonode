@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: BooleanProperty.java,v 1.3 2004/07/06 15:07:17 jesper Exp $
+// $Id: BooleanProperty.java,v 1.4 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.types;
 
 import net.infonode.properties.base.PropertyGroup;
@@ -31,15 +31,15 @@ import net.infonode.properties.util.ValueHandlerProperty;
  * A boolean property.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class BooleanProperty extends ValueHandlerProperty {
   /**
    * Constructor.
    *
-   * @param group the property group
-   * @param name the property name
-   * @param description the property description
+   * @param group        the property group
+   * @param name         the property name
+   * @param description  the property description
    * @param valueHandler handles values for this property
    */
   public BooleanProperty(PropertyGroup group, String name, String description, PropertyValueHandler valueHandler) {
@@ -61,7 +61,7 @@ public class BooleanProperty extends ValueHandlerProperty {
    * Sets the boolean value of this property in a value container.
    *
    * @param valueContainer the value container
-   * @param value the boolean value
+   * @param value          the boolean value
    */
   public void set(Object valueContainer, boolean value) {
     setValue(valueContainer, Boolean.valueOf(value));

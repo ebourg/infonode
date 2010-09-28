@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,12 +20,12 @@
  */
 
 
-// $Id: WindowTab.java,v 1.20 2004/07/08 13:05:05 jesper Exp $
+// $Id: WindowTab.java,v 1.32 2004/09/22 14:31:39 jesper Exp $
 package net.infonode.docking;
 
+import net.infonode.docking.internalutil.*;
 import net.infonode.docking.properties.WindowTabProperties;
 import net.infonode.docking.properties.WindowTabStateProperties;
-import net.infonode.gui.ButtonFactory;
 import net.infonode.gui.layout.DirectionLayout;
 import net.infonode.gui.panel.SimplePanel;
 import net.infonode.properties.propertymap.PropertyMap;
@@ -35,100 +35,62 @@ import net.infonode.tabbedpanel.TabbedPanel;
 import net.infonode.tabbedpanel.titledtab.TitledTab;
 import net.infonode.tabbedpanel.titledtab.TitledTabStateProperties;
 import net.infonode.util.Direction;
-import net.infonode.util.Enum;
 
 import javax.swing.*;
-import java.awt.event.*;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionAdapter;
 import java.util.Map;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.20 $
+ * @version $Revision: 1.32 $
  */
 class WindowTab extends TitledTab {
   private static final TitledTabStateProperties EMPTY_PROPERTIES = new TitledTabStateProperties();
 
-  static class State extends Enum {
-    public static final State NORMAL = new State(0, "Normal");
-    public static final State HIGHLIGHTED = new State(1, "Highlighted");
-    public static final State FOCUSED = new State(2, "Focused");
+  private static final ButtonInfo[] buttonInfos = {new MinimizeButtonInfo(WindowTabStateProperties.MINIMIZE_BUTTON_PROPERTIES),
+                                                   new RestoreButtonInfo(WindowTabStateProperties.RESTORE_BUTTON_PROPERTIES),
+                                                   new CloseButtonInfo(WindowTabStateProperties.CLOSE_BUTTON_PROPERTIES)};
 
-    public static final State[] STATES = {NORMAL, HIGHLIGHTED, FOCUSED};
-
-    private State(int value, String name) {
-      super(value, name);
-    }
-  }
-
-  private DockingWindow window;
-  private JButton[] minimizeRestoreButtons = new JButton[State.STATES.length];
-  private JButton[] closeButtons = new JButton[State.STATES.length];
+  private final DockingWindow window;
+  private AbstractButton[][] buttons = new AbstractButton[WindowTabState.STATES.length][];
+  private SimplePanel[] buttonBoxes = new SimplePanel[WindowTabState.STATES.length];
   private WindowTabProperties windowTabProperties = new WindowTabProperties(new WindowTabProperties());
-  private SimplePanel[] buttonBoxes = new SimplePanel[State.STATES.length];
   private boolean isFocused;
 
-  WindowTab(DockingWindow _window, boolean emptyContent) {
-    super(_window.getTitle(), _window.getIcon(), emptyContent ? null : _window, null);
-    this.window = _window;
+  WindowTab(DockingWindow window, boolean emptyContent) {
+    super(window.getTitle(), window.getIcon(), emptyContent ? null : new SimplePanel(window), null);
+    this.window = window;
 
-    for (int i = 0; i < State.STATES.length; i++) {
-      minimizeRestoreButtons[i] = ButtonFactory.createFlatHighlightButton(
-          null, "Restore", 0, new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-              if (getWindow().isMinimized())
-                getWindow().restore();
-              else
-                getWindow().minimize();
-            }
-          });
-      minimizeRestoreButtons[i].setFocusable(false);
-
-      closeButtons[i] = ButtonFactory.createFlatHighlightButton(
-          null, "Close Tab", 0, new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-              getWindow().close();
-            }
-          });
-      closeButtons[i].setFocusable(false);
-
+    for (int i = 0; i < WindowTabState.STATES.length; i++) {
       buttonBoxes[i] = new SimplePanel(new DirectionLayout(Direction.RIGHT));
-      buttonBoxes[i].add(minimizeRestoreButtons[i]);
-      buttonBoxes[i].add(closeButtons[i]);
+      buttons[i] = new AbstractButton[buttonInfos.length];
     }
 
-    setHighlightedStateTitleComponent(buttonBoxes[State.HIGHLIGHTED.getValue()]);
-    setNormalStateTitleComponent(buttonBoxes[State.NORMAL.getValue()]);
+    setHighlightedStateTitleComponent(buttonBoxes[WindowTabState.HIGHLIGHTED.getValue()]);
+    setNormalStateTitleComponent(buttonBoxes[WindowTabState.NORMAL.getValue()]);
 
     MouseListener mouseListener = new MouseAdapter() {
       public void mousePressed(MouseEvent e) {
-        if (e.isPopupTrigger() && contains(e.getPoint())) {
-          window.showMenu(e);
-        }
+        checkPopupMenu(e);
+
+        if (e.getButton() == MouseEvent.BUTTON1 && isSelected() && WindowTab.this.window.getRootWindow() != null)
+          WindowTab.this.window.restoreFocus();
       }
 
       public void mouseReleased(MouseEvent e) {
-        mousePressed(e);
+        checkPopupMenu(e);
       }
 
-      public void mouseClicked(MouseEvent e) {
-        final RootWindow root = window.getRootWindow();
-
-        if (isSelected() && root != null) {
-          // Focus can move when content components are swapped in the tab panel
-          root.startIgnoreFocusChanges();
-
-          SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-              SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                  root.stopIgnoreFocusChanges();
-                  window.restoreFocus();
-                }
-              });
-            }
-          });
+      private void checkPopupMenu(MouseEvent e) {
+        if (e.isPopupTrigger() && contains(e.getPoint())) {
+          WindowTab.this.window.showMenu(e);
         }
       }
+
     };
 
     addMouseListener(mouseListener);
@@ -144,66 +106,60 @@ class WindowTab extends TitledTab {
       }
     });
 
-    super.getProperties().addSuperObject(this.windowTabProperties.getTitledTabProperties());
+    super.getProperties().addSuperObject(windowTabProperties.getTitledTabProperties());
 
-    this.windowTabProperties.getMap().addTreeListener(new PropertyMapTreeListener() {
+    windowTabProperties.getMap().addTreeListener(new PropertyMapTreeListener() {
       public void propertyValuesChanged(Map changes) {
         updateButtons();
       }
     });
 
-    window.getWindowProperties().getMap().addListener(new PropertyMapListener() {
+    this.window.getWindowProperties().getMap().addListener(new PropertyMapListener() {
       public void propertyValuesChanged(PropertyMap propertyObject, Map changes) {
         updateButtons();
       }
     });
 
-    this.windowTabProperties.getTitledTabProperties().getHighlightedProperties().addSuperObject(EMPTY_PROPERTIES);
+    windowTabProperties.getTitledTabProperties().getHighlightedProperties().addSuperObject(EMPTY_PROPERTIES);
   }
 
   public void updateUI() {
     super.updateUI();
 
     if (buttonBoxes != null)
-      for (int i = 0; i < 3; i++)
+      for (int i = 0; i < WindowTabState.STATES.length; i++)
         if (buttonBoxes[i] != null)
           SwingUtilities.updateComponentTreeUI(buttonBoxes[i]);
   }
 
   void setFocused(boolean focused) {
     if (isFocused != focused) {
-      this.isFocused = focused;
-      TitledTabStateProperties properties = focused ? this.windowTabProperties.getFocusedProperties() : EMPTY_PROPERTIES;
-      this.windowTabProperties.getTitledTabProperties().getHighlightedProperties().getMap().removeSuperMap();
-      this.windowTabProperties.getTitledTabProperties().getHighlightedProperties().addSuperObject(properties);
-      setHighlightedStateTitleComponent(buttonBoxes[focused ? State.FOCUSED.getValue() : State.HIGHLIGHTED.getValue()]);
+      isFocused = focused;
+      TitledTabStateProperties properties = focused ? windowTabProperties.getFocusedProperties() : EMPTY_PROPERTIES;
+      windowTabProperties.getTitledTabProperties().getHighlightedProperties().getMap().removeSuperMap();
+      windowTabProperties.getTitledTabProperties().getHighlightedProperties().addSuperObject(properties);
+      setHighlightedStateTitleComponent(buttonBoxes[focused ?
+                                                    WindowTabState.FOCUSED.getValue() :
+                                                    WindowTabState.HIGHLIGHTED.getValue()]);
     }
   }
 
   void setProperties(WindowTabProperties properties) {
-    this.windowTabProperties.getMap().removeSuperMap();
-    this.windowTabProperties.addSuperObject(properties);
+    windowTabProperties.getMap().removeSuperMap();
+    windowTabProperties.addSuperObject(properties);
   }
 
   void updateButtons() {
-    for (int i = 0; i < State.STATES.length; i++) {
-      State state = State.STATES[i];
+    for (int i = 0; i < WindowTabState.STATES.length; i++) {
+      WindowTabState state = WindowTabState.STATES[i];
       WindowTabStateProperties buttonProperties =
-          state == State.FOCUSED ? windowTabProperties.getFocusedButtonProperties() :
-          state == State.HIGHLIGHTED ? windowTabProperties.getHighlightedButtonProperties() :
+          state == WindowTabState.FOCUSED ? windowTabProperties.getFocusedButtonProperties() :
+          state == WindowTabState.HIGHLIGHTED ? windowTabProperties.getHighlightedButtonProperties() :
           windowTabProperties.getNormalButtonProperties();
 
-      closeButtons[i].setIcon(buttonProperties.getCloseButtonProperties().getIcon());
-      closeButtons[i].setVisible(buttonProperties.getCloseButtonProperties().isVisible());
-
-      minimizeRestoreButtons[i].setIcon(window.isMinimized() ? buttonProperties.getRestoreButtonProperties().getIcon() :
-                                        buttonProperties.getMinimizeButtonProperties().getIcon());
-      minimizeRestoreButtons[i].setToolTipText(window.isMinimized() ? "Restore" : "Minimize");
-      minimizeRestoreButtons[i].setVisible(window.isMinimized() ? buttonProperties.getRestoreButtonProperties().isVisible() :
-                                           (buttonProperties.getMinimizeButtonProperties().isVisible() && window.isMinimizable()));
-
-      Direction dir = (state == State.NORMAL ? getProperties().getNormalProperties() :
-          getProperties().getHighlightedProperties()).getDirection();
+      InternalDockingUtil.updateButtons(buttonInfos, buttons[i], buttonBoxes[i], window, buttonProperties.getMap());
+      Direction dir = (state == WindowTabState.NORMAL ? getProperties().getNormalProperties() :
+                       getProperties().getHighlightedProperties()).getDirection();
 
       if (dir != ((DirectionLayout) buttonBoxes[i].getLayout()).getDirection()) {
         ((DirectionLayout) buttonBoxes[i].getLayout()).setDirection(dir);
@@ -218,5 +174,13 @@ class WindowTab extends TitledTab {
   void windowTitleChanged() {
     setText(getWindow().getTitle());
     setIcon(getWindow().getIcon());
+  }
+
+  public String toString() {
+    return window.toString();
+  }
+
+  void setContentComponent(Component component) {
+    ((SimplePanel) getContentComponent()).setComponent(component);
   }
 }

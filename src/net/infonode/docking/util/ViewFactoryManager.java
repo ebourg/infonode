@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,18 +20,19 @@
  */
 
 
-// $Id: ViewFactoryManager.java,v 1.1 2004/06/25 09:21:16 jesper Exp $
+// $Id: ViewFactoryManager.java,v 1.2 2004/09/22 14:31:39 jesper Exp $
 package net.infonode.docking.util;
 
 /**
  * Manages the factories for views.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public interface ViewFactoryManager {
   /**
    * Returns the view factories.
+   *
    * @return the view factories
    */
   ViewFactory[] getViewFactories();

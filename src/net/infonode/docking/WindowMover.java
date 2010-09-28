@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowMover.java,v 1.4 2004/06/24 13:24:08 jesper Exp $
+// $Id: WindowMover.java,v 1.5 2004/08/27 18:53:37 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.gui.draggable.DraggableComponent;
@@ -32,16 +32,16 @@ import java.awt.*;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 class WindowMover {
   private DockingWindow window;
   private DraggableComponent draggableComponent;
   private WindowDragger dragger;
 
-  WindowMover(DockingWindow _window, final WindowProvider windowProvider) {
-    this.window = _window;
-    draggableComponent = new DraggableComponent(window);
+  WindowMover(DockingWindow window, final WindowProvider windowProvider) {
+    this.window = window;
+    draggableComponent = new DraggableComponent(this.window);
     draggableComponent.setReorderEnabled(false);
     draggableComponent.setEnableInsideDrag(true);
 

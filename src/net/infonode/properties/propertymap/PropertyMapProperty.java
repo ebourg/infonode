@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyMapProperty.java,v 1.3 2004/08/11 13:47:58 jesper Exp $
+// $Id: PropertyMapProperty.java,v 1.4 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.propertymap;
 
 import net.infonode.properties.base.PropertyGroup;
@@ -30,15 +30,15 @@ import net.infonode.properties.types.PropertyGroupProperty;
  * An immutable property which has {@link PropertyMap}'s as values.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class PropertyMapProperty extends PropertyGroupProperty {
   /**
    * Constructor.
    *
-   * @param group the property group
-   * @param name the property name
-   * @param description the property description
+   * @param group         the property group
+   * @param name          the property name
+   * @param description   the property description
    * @param propertyGroup property maps for this property group can be values for this property
    */
   public PropertyMapProperty(PropertyGroup group, String name, String description, PropertyMapGroup propertyGroup) {

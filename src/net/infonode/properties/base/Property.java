@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: Property.java,v 1.4 2004/06/25 12:10:35 jesper Exp $
+// $Id: Property.java,v 1.5 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.base;
 
 import net.infonode.properties.base.exception.CantRemoveValueException;
@@ -33,7 +33,7 @@ import net.infonode.properties.base.exception.InvalidPropertyValueException;
  * A property can have multiple values which can be stored in any type of object.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public interface Property {
   /**
@@ -78,9 +78,9 @@ public interface Property {
    * Sets the value of this property in an object.
    *
    * @param valueContainer the object to set the property value in
-   * @param value the value of the property
-   * @throws ImmutablePropertyException if this property is immutable
-   * @throws InvalidPropertyException if this property can't be set in the object
+   * @param value          the value of the property
+   * @throws ImmutablePropertyException    if this property is immutable
+   * @throws InvalidPropertyException      if this property can't be set in the object
    * @throws InvalidPropertyValueException if the property value is invalid
    */
   void setValue(Object valueContainer, Object value) throws ImmutablePropertyException, InvalidPropertyException, InvalidPropertyValueException;
@@ -121,7 +121,7 @@ public interface Property {
    *
    * @param valueContainer the object in which to remove the value
    * @throws ImmutablePropertyException if the property is immutable
-   * @throws CantRemoveValueException if the property value can't be removed from the valueContainer
+   * @throws CantRemoveValueException   if the property value can't be removed from the valueContainer
    */
   void removeValue(Object valueContainer) throws ImmutablePropertyException, CantRemoveValueException;
 }

@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: StretchLayout.java,v 1.2 2004/06/17 13:01:11 johan Exp $
+// $Id: StretchLayout.java,v 1.4 2004/09/22 14:35:04 jesper Exp $
 package net.infonode.gui.layout;
 
 import java.awt.*;
@@ -46,9 +46,9 @@ public class StretchLayout implements LayoutManager {
   public void layoutContainer(Container parent) {
     Dimension innerSize = LayoutUtil.getInteriorSize(parent);
     Insets insets = parent.getInsets();
-    Component[] components = parent.getComponents();
+    Component[] components = LayoutUtil.getVisibleChildren(parent);
 
-    for (int i = 0; i<components.length; i++) {
+    for (int i = 0; i < components.length; i++) {
       Dimension size = LayoutUtil.getValidSize(new Dimension(horizontal ? innerSize.width : components[i].getPreferredSize().width,
                                                              vertical ? innerSize.height : components[i].getPreferredSize().height),
                                                components[i]);

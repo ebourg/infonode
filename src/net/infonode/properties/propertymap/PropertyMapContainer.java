@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,14 +20,14 @@
  */
 
 
-// $Id: PropertyMapContainer.java,v 1.4 2004/08/11 13:15:53 johan Exp $
+// $Id: PropertyMapContainer.java,v 1.5 2004/08/27 18:53:37 jesper Exp $
 package net.infonode.properties.propertymap;
 
 /**
  * Base class for property classes that use a {@link PropertyMap}.
  *
- * @author $Author: johan $
- * @version $Revision: 1.4 $
+ * @author $Author: jesper $
+ * @version $Revision: 1.5 $
  */
 public class PropertyMapContainer {
   private PropertyMap map;
@@ -38,7 +38,7 @@ public class PropertyMapContainer {
    * @param propertyMapGroup the property map group
    */
   public PropertyMapContainer(PropertyMapGroup propertyMapGroup) {
-    this.map = PropertyMapFactory.create(propertyMapGroup);
+    map = PropertyMapFactory.create(propertyMapGroup);
   }
 
   /**

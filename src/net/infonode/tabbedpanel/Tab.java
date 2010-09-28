@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,8 +20,9 @@
  */
 
 
-// $Id: Tab.java,v 1.17 2004/06/24 15:33:43 johan Exp $
+// $Id: Tab.java,v 1.20 2004/09/22 14:33:49 jesper Exp $
 package net.infonode.tabbedpanel;
+
 import net.infonode.gui.draggable.DraggableComponent;
 import net.infonode.tabbedpanel.titledtab.TitledTab;
 import net.infonode.util.Direction;
@@ -67,11 +68,11 @@ import java.util.ArrayList;
  * dragged, moved etc.
  * </ul></p>
  *
+ * @author $Author: jesper $
+ * @version $Revision: 1.20 $
  * @see TabListener
  * @see TabbedPanel
  * @see TitledTab
- * @author $Author: johan $
- * @version $Revision: 1.17 $
  */
 public class Tab extends JPanel {
   private TabbedPanel tabbedPanel;
@@ -83,9 +84,9 @@ public class Tab extends JPanel {
   private KeyListener focusableKeyListener = new KeyAdapter() {
     public void keyPressed(KeyEvent e) {
       if (tabbedPanel != null) {
-        Direction d = tabbedPanel.getProperties().getTabAreaOrientation();
-        int incKey = d.isHorizontal() ? KeyEvent.VK_DOWN : KeyEvent.VK_RIGHT;
-        int decKey = d.isHorizontal() ? KeyEvent.VK_UP : KeyEvent.VK_LEFT;
+        Direction tabOrientation = tabbedPanel.getProperties().getTabAreaOrientation();
+        int incKey = tabOrientation.isHorizontal() ? KeyEvent.VK_DOWN : KeyEvent.VK_RIGHT;
+        int decKey = tabOrientation.isHorizontal() ? KeyEvent.VK_UP : KeyEvent.VK_LEFT;
         int index = tabbedPanel.getTabIndex(Tab.this);
         while (true) {
           index = (index + tabbedPanel.getTabCount() + (e.getKeyCode() == incKey ? 1 : e.getKeyCode() == decKey ? -1 : 0)) %
@@ -108,7 +109,7 @@ public class Tab extends JPanel {
   private TabListener tabbedPanelListener = new TabListener() {
     public void tabAdded(TabEvent event) {
       if (event.getTab() == Tab.this)
-        fireAddedEvent(event);
+        fireAddedEvent();
     }
 
     public void tabRemoved(TabRemovedEvent event) {
@@ -120,7 +121,7 @@ public class Tab extends JPanel {
 
     public void tabMoved(TabEvent event) {
       if (event.getTab() == Tab.this)
-        fireMovedEvent(event);
+        fireMovedEvent();
     }
 
     public void tabDragged(TabDragEvent event) {
@@ -135,10 +136,10 @@ public class Tab extends JPanel {
 
     public void tabDragAborted(TabEvent event) {
       if (event.getTab() == Tab.this)
-        fireNotDroppedEvent(event);
+        fireNotDroppedEvent();
     }
 
-    public void tabSelected(final TabStateChangedEvent event) {
+    public void tabSelected(TabStateChangedEvent event) {
       if (event.getTab() == Tab.this) {
         fireSelectedEvent(event);
         SwingUtilities.invokeLater(new Runnable() {
@@ -188,9 +189,9 @@ public class Tab extends JPanel {
    * Constructs a tab with a content component and this tab as event
    * component
    *
+   * @param contentComponent content component for this tab or null for
+   *                         no content component.
    * @see #setEventComponent
-   * @param contentComponent  content component for this tab or null for
-   *                          no content component.
    */
   public Tab(JComponent contentComponent) {
     super(new BorderLayout());
@@ -228,8 +229,8 @@ public class Tab extends JPanel {
   /**
    * Gets the content component
    *
-   * @return  the content component for this tab or null if this Tab
-   *          doesn't have a content component
+   * @return the content component for this tab or null if this Tab
+   *         doesn't have a content component
    */
   public JComponent getContentComponent() {
     return contentComponent;
@@ -238,8 +239,8 @@ public class Tab extends JPanel {
   /**
    * Gets the TabbedPanel that this tab is a member of
    *
-   * @return  the TabbedPanel or null if this tab is not a member of
-   *          any TabbedPanel
+   * @return the TabbedPanel or null if this tab is not a member of
+   *         any TabbedPanel
    */
   public TabbedPanel getTabbedPanel() {
     return tabbedPanel;
@@ -317,8 +318,8 @@ public class Tab extends JPanel {
    *
    * <p><strong>Note:</strong> The event component must be part of this Tab</p>
    *
-   * @param eventComponent  a component in this tab that should be used for mouse
-   *                        event listening
+   * @param eventComponent a component in this tab that should be used for mouse
+   *                       event listening
    */
   public void setEventComponent(JComponent eventComponent) {
     setEventComponents(new JComponent[]{eventComponent});
@@ -360,8 +361,8 @@ public class Tab extends JPanel {
   /**
    * Gets the component in this tab that is focusable
    *
-   * @return  focusable component or null if this tab doesn't have any focusable
-   *          component
+   * @return focusable component or null if this tab doesn't have any focusable
+   *         component
    */
   public JComponent getFocusableComponent() {
     return focusableComponent;
@@ -373,8 +374,8 @@ public class Tab extends JPanel {
    *
    * <p><strong>Note:</strong> The focusable component must be part of this Tab</p>
    *
-   * @param focusableComponent  a component in this tab or null if no component
-   *                            should be focusable
+   * @param focusableComponent a component in this tab or null if no component
+   *                           should be focusable
    */
   public void setFocusableComponent(JComponent focusableComponent) {
     if (this.focusableComponent != null)
@@ -397,90 +398,90 @@ public class Tab extends JPanel {
   private void fireHighlightedEvent(TabStateChangedEvent event) {
     if (listeners != null) {
       TabStateChangedEvent e = new TabStateChangedEvent(this, event.getTabbedPanel(), this, event.getPreviousTab(), event.getCurrentTab());
-      Object l[] = listeners.toArray();
+      Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
-        ((TabListener)l[i]).tabHighlighted(e);
+        ((TabListener) l[i]).tabHighlighted(e);
     }
   }
 
   private void fireDehighlightedEvent(TabStateChangedEvent event) {
     if (listeners != null) {
       TabStateChangedEvent e = new TabStateChangedEvent(this, event.getTabbedPanel(), this, event.getPreviousTab(), event.getCurrentTab());
-      Object l[] = listeners.toArray();
+      Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
-        ((TabListener)l[i]).tabDehighlighted(e);
+        ((TabListener) l[i]).tabDehighlighted(e);
     }
   }
 
   private void fireSelectedEvent(TabStateChangedEvent event) {
     if (listeners != null) {
       TabStateChangedEvent e = new TabStateChangedEvent(this, event.getTabbedPanel(), this, event.getPreviousTab(), event.getCurrentTab());
-      Object l[] = listeners.toArray();
+      Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
-        ((TabListener)l[i]).tabSelected(e);
+        ((TabListener) l[i]).tabSelected(e);
     }
   }
 
   private void fireDeselectedEvent(TabStateChangedEvent event) {
     if (listeners != null) {
       TabStateChangedEvent e = new TabStateChangedEvent(this, event.getTabbedPanel(), this, event.getPreviousTab(), event.getCurrentTab());
-      Object l[] = listeners.toArray();
+      Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
-        ((TabListener)l[i]).tabDeselected(e);
+        ((TabListener) l[i]).tabDeselected(e);
     }
   }
 
   private void fireDraggedEvent(TabDragEvent event) {
     if (listeners != null) {
       TabDragEvent e = new TabDragEvent(this, this, event.getPoint());
-      Object l[] = listeners.toArray();
+      Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
-        ((TabListener)l[i]).tabDragged(e);
+        ((TabListener) l[i]).tabDragged(e);
     }
   }
 
   private void fireDroppedEvent(TabDragEvent event) {
     if (listeners != null) {
       TabDragEvent e = new TabDragEvent(this, this, event.getPoint());
-      Object l[] = listeners.toArray();
+      Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
-        ((TabListener)l[i]).tabDropped(e);
+        ((TabListener) l[i]).tabDropped(e);
     }
   }
 
-  private void fireNotDroppedEvent(TabEvent event) {
+  private void fireNotDroppedEvent() {
     if (listeners != null) {
       TabEvent e = new TabEvent(this, this);
-      Object l[] = listeners.toArray();
+      Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
-        ((TabListener)l[i]).tabDragAborted(e);
+        ((TabListener) l[i]).tabDragAborted(e);
     }
   }
 
-  private void fireMovedEvent(TabEvent event) {
+  private void fireMovedEvent() {
     if (listeners != null) {
       TabEvent e = new TabEvent(this, this);
-      Object l[] = listeners.toArray();
+      Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
-        ((TabListener)l[i]).tabMoved(e);
+        ((TabListener) l[i]).tabMoved(e);
     }
   }
 
-  private void fireAddedEvent(TabEvent event) {
+  private void fireAddedEvent() {
     if (listeners != null) {
       TabEvent e = new TabEvent(this, this);
-      Object l[] = listeners.toArray();
+      Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
-        ((TabListener)l[i]).tabAdded(e);
+        ((TabListener) l[i]).tabAdded(e);
     }
   }
 
   private void fireRemovedEvent(TabRemovedEvent event) {
     if (listeners != null) {
       TabRemovedEvent e = new TabRemovedEvent(this, this, event.getTabbedPanel());
-      Object l[] = listeners.toArray();
+      Object[] l = listeners.toArray();
       for (int i = 0; i < l.length; i++)
-        ((TabListener)l[i]).tabRemoved(e);
+        ((TabListener) l[i]).tabRemoved(e);
     }
   }
 }

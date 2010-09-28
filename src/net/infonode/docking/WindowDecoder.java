@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,8 +20,10 @@
  */
 
 
-// $Id: WindowDecoder.java,v 1.8 2004/08/11 09:15:17 jesper Exp $
+// $Id: WindowDecoder.java,v 1.11 2004/09/22 14:31:39 jesper Exp $
 package net.infonode.docking;
+
+import net.infonode.util.StreamUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -29,25 +31,29 @@ import java.io.ObjectInputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.11 $
  */
 class WindowDecoder {
+  private WindowDecoder() {
+  }
+
   static DockingWindow decodeWindow(ObjectInputStream in, ReadContext context) throws IOException {
     int id = in.readInt();
 
     switch (id) {
-      case WindowIds.VIEW: {
-        int size = in.readInt();
-        byte[] viewData = new byte[size];
-        in.read(viewData);
-        ObjectInputStream viewIn = new ObjectInputStream(new ByteArrayInputStream(viewData));
-        View view = context.getViewSerializer().readView(viewIn);
+      case WindowIds.VIEW:
+        {
+          int size = in.readInt();
+          byte[] viewData = new byte[size];
+          StreamUtil.readAll(in, viewData);
+          ObjectInputStream viewIn = new ObjectInputStream(new ByteArrayInputStream(viewData));
+          View view = context.getViewSerializer().readView(viewIn);
 
-        if (view != null)
-          view.read(viewIn, context);
-        
-        return view;
-      }
+          if (view != null)
+            view.read(viewIn, context);
+
+          return view;
+        }
 
       case WindowIds.SPLIT:
         {
@@ -62,7 +68,7 @@ class WindowDecoder {
         }
 
       default:
-        throw new IOException("Invalid window ID: " + id + "!");
+        throw new IOException("Invalid window ID: " + id + '!');
     }
   }
 }

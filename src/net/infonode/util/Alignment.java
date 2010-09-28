@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: Alignment.java,v 1.2 2004/06/16 16:36:00 johan Exp $
+// $Id: Alignment.java,v 1.5 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.util;
 
 import java.io.IOException;
@@ -29,10 +29,12 @@ import java.io.ObjectInputStream;
 /**
  * An enum class for alignments, left, center, right, top, bottom.
  *
- * @author $Author: johan $
- * @version $Revision: 1.2 $
+ * @author $Author: jesper $
+ * @version $Revision: 1.5 $
  */
 public final class Alignment extends Enum {
+  private static final long serialVersionUID = 4945539895437047593L;
+
   /**
    * Left alignment.
    */
@@ -61,20 +63,50 @@ public final class Alignment extends Enum {
   /**
    * Array containing all alignments..
    */
-  public static final Alignment[] ALIGNMENTS = new Alignment[]{LEFT, CENTER, RIGHT, TOP, BOTTOM};
+  public static final Alignment[] ALIGNMENTS = {LEFT, CENTER, RIGHT, TOP, BOTTOM};
 
   /**
    * Array containing all horizontal alignments..
    */
-  public static final Alignment[] HORIZONTAL_ALIGNMENTS = new Alignment[]{LEFT, CENTER, RIGHT};
+  public static final Alignment[] HORIZONTAL_ALIGNMENTS = {LEFT, CENTER, RIGHT};
 
   /**
    * Array containing all vertical alignments..
    */
-  public static final Alignment[] VERTICAL_ALIGNMENTS = new Alignment[]{TOP, CENTER, BOTTOM};
+  public static final Alignment[] VERTICAL_ALIGNMENTS = {TOP, CENTER, BOTTOM};
 
   private Alignment(int value, String name) {
     super(value, name);
+  }
+
+  /**
+   * Gets the alignments.
+   *
+   * @return the alignments
+   * @since 1.1.0
+   */
+  public static Alignment[] getAlignments() {
+    return (Alignment[]) ALIGNMENTS.clone();
+  }
+
+  /**
+   * Gets the horizontal alignments.
+   *
+   * @return the horizontal alignments
+   * @since 1.1.0
+   */
+  public static Alignment[] getHorizontalAlignments() {
+    return (Alignment[]) HORIZONTAL_ALIGNMENTS.clone();
+  }
+
+  /**
+   * Gets the vertical alignments.
+   *
+   * @return the vertical alignments
+   * @since 1.1.0
+   */
+  public static Alignment[] getVerticalAlignments() {
+    return (Alignment[]) VERTICAL_ALIGNMENTS.clone();
   }
 
   /**

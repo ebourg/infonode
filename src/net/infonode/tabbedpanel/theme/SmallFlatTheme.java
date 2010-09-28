@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,12 +20,12 @@
  */
 
 
-// $Id: SmallFlatTheme.java,v 1.10 2004/07/05 13:37:05 jesper Exp $
+// $Id: SmallFlatTheme.java,v 1.20 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.tabbedpanel.theme;
 
 import net.infonode.tabbedpanel.TabbedPanelProperties;
-import net.infonode.tabbedpanel.TabbedUIDefaults;
 import net.infonode.tabbedpanel.border.OpenContentBorder;
+import net.infonode.tabbedpanel.border.TabAreaLineBorder;
 import net.infonode.tabbedpanel.border.TabLineBorder;
 import net.infonode.tabbedpanel.titledtab.TitledTabProperties;
 
@@ -35,9 +35,9 @@ import java.awt.*;
  * A theme with small fonts and flat look
  *
  * @author $Author: jesper $
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.20 $
  */
-public class SmallFlatTheme {
+public class SmallFlatTheme extends TabbedPanelTitledTabTheme {
   private TitledTabProperties tabProperties = new TitledTabProperties();
   private TabbedPanelProperties tabbedPanelProperties = new TabbedPanelProperties();
 
@@ -45,20 +45,31 @@ public class SmallFlatTheme {
    * Constructs a SmallFlatTheme
    */
   public SmallFlatTheme() {
-    Color dark = TabbedUIDefaults.getDarkShadow();
     TitledTabProperties tabDefaultProp = TitledTabProperties.getDefaultProperties();
 
-    TabLineBorder border = new TabLineBorder(dark);
+    TabLineBorder border = new TabLineBorder();
     tabProperties.getNormalProperties().getComponentProperties()
-            .setBorder(border)
-            .setFont(tabDefaultProp.getNormalProperties().getComponentProperties().getFont().deriveFont((float)9))
-            .setInsets(new Insets(0, 4, 0, 4));
+        .setBorder(border)
+        .setFont(tabDefaultProp.getNormalProperties().getComponentProperties().getFont().deriveFont((float) 9))
+        .setInsets(new Insets(0, 4, 0, 4));
     tabProperties.getHighlightedProperties().getComponentProperties()
-            .setBorder(border);
+        .setBorder(border);
     tabProperties.setHighlightedRaised(0);
 
     tabbedPanelProperties
-            .getContentPanelProperties().getComponentProperties().setBorder(new OpenContentBorder(dark));
+        .getContentPanelProperties().getComponentProperties().setBorder(new OpenContentBorder());
+
+    tabbedPanelProperties.getTabAreaComponentsProperties().getComponentProperties().setBorder(new TabAreaLineBorder());
+  }
+
+  /**
+   * Gets the name for this theme
+   *
+   * @return the name
+   * @since ITP 1.1.0
+   */
+  public String getName() {
+    return "Small Flat Theme";
   }
 
   /**

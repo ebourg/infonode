@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TitledTabBorderSizePolicyProperty.java,v 1.3 2004/06/24 13:49:50 johan Exp $
+// $Id: TitledTabBorderSizePolicyProperty.java,v 1.5 2004/09/22 14:33:49 jesper Exp $
 package net.infonode.tabbedpanel.titledtab;
 
 import net.infonode.properties.base.PropertyGroup;
@@ -30,21 +30,21 @@ import net.infonode.properties.util.PropertyValueHandler;
 /**
  * Property for TitledTabBorderSizePolicy
  *
+ * @author $Author: jesper $
+ * @version $Revision: 1.5 $
  * @see TitledTabBorderSizePolicy
- * @author $Author: johan $
- * @version $Revision: 1.3 $
  */
 public class TitledTabBorderSizePolicyProperty extends EnumProperty {
   /**
    * Constructs a TitledTabBorderSizePolicyProperty object.
    *
-   * @param group         property group
-   * @param name          property name
-   * @param description   property description
-   * @param valueStorage  storage for property
+   * @param group        property group
+   * @param name         property name
+   * @param description  property description
+   * @param valueStorage storage for property
    */
   public TitledTabBorderSizePolicyProperty(PropertyGroup group, String name, String description, PropertyValueHandler valueStorage) {
-    super(group, name, TitledTabBorderSizePolicy.class, description, valueStorage, TitledTabBorderSizePolicy.SIZE_POLICIES);
+    super(group, name, TitledTabBorderSizePolicy.class, description, valueStorage, TitledTabBorderSizePolicy.getSizePolicies());
   }
 
   /**
@@ -54,7 +54,7 @@ public class TitledTabBorderSizePolicyProperty extends EnumProperty {
    * @return the TitledTabBorderSizePolicy
    */
   public TitledTabBorderSizePolicy get(Object object) {
-    return (TitledTabBorderSizePolicy)getValue(object);
+    return (TitledTabBorderSizePolicy) getValue(object);
   }
 
   /**

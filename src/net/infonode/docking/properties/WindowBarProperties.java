@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,26 +20,19 @@
  */
 
 
-// $Id: WindowBarProperties.java,v 1.14 2004/08/11 13:47:58 jesper Exp $
+// $Id: WindowBarProperties.java,v 1.23 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.docking.properties;
 
-import net.infonode.gui.DynamicUIManager;
-import net.infonode.gui.DynamicUIManagerListener;
 import net.infonode.properties.gui.util.ComponentProperties;
 import net.infonode.properties.propertymap.*;
 import net.infonode.properties.types.IntegerProperty;
-import net.infonode.tabbedpanel.TabbedUIDefaults;
-import net.infonode.tabbedpanel.titledtab.TitledTabSizePolicy;
 import net.infonode.util.Direction;
-
-import java.awt.*;
-import java.beans.PropertyChangeEvent;
 
 /**
  * Properties and property values for window bars.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.14 $
+ * @version $Revision: 1.23 $
  */
 public class WindowBarProperties extends PropertyMapContainer {
   /**
@@ -83,69 +76,19 @@ public class WindowBarProperties extends PropertyMapContainer {
   public static final PropertyMapProperty TAB_WINDOW_PROPERTIES =
       new PropertyMapProperty(PROPERTIES, "Tab Window Properties", "", TabWindowProperties.PROPERTIES);
 
-  private static WindowBarProperties COMMON_DEFAULT_VALUES = new WindowBarProperties(PROPERTIES.getDefaultMap());
   private static WindowBarProperties[] DEFAULT_VALUES = new WindowBarProperties[4];
 
   static {
-    {
-      WindowBarProperties p = COMMON_DEFAULT_VALUES;
+    final Direction[] directions = Direction.getDirections();
 
-      p.setMinimumWidth(4);
-      p.setContentPanelEdgeResizeEdgeDistance(6);
-
-      p.getTabWindowProperties().getTabbedPanelProperties()
-          .setTabDeselectable(true)
-          .setAutoSelectTab(false);
-
-      p.getTabWindowProperties().getTabbedPanelProperties().getContentPanelProperties().getComponentProperties()
-          .setInsets(new Insets(4, 4, 4, 4));
-    }
-
-    {
-      WindowTabProperties p = COMMON_DEFAULT_VALUES.getTabWindowProperties().getTabProperties();
-
-      p.getTitledTabProperties()
-          .setSizePolicy(TitledTabSizePolicy.EQUAL_SIZE)
-//          .addSuperObject(HighlightedTabSetup.createTabProperties())
-          .setHighlightedRaised(0);
-
-/*      p.getFocusedProperties()
-          .setBackgroundColor(Color.YELLOW);
-
-  */
-      p.getTitledTabProperties().getNormalProperties()
-          .getComponentProperties().setInsets(new Insets(2, 8, 2, 8));
-
-      p.getNormalButtonProperties().getCloseButtonProperties().setVisible(true);
-      p.getNormalButtonProperties().getRestoreButtonProperties().setVisible(true);
-    }
-
-    for (int i = 0; i < Direction.DIRECTIONS.length; i++) {
-      Direction dir = Direction.DIRECTIONS[i];
-      WindowBarProperties properties = new WindowBarProperties(COMMON_DEFAULT_VALUES);
+    for (int i = 0; i < directions.length; i++) {
+      Direction dir = directions[i];
+      WindowBarProperties properties = new WindowBarProperties();
       properties.getTabWindowProperties().getTabbedPanelProperties().setTabAreaOrientation(dir);
       properties.getTabWindowProperties().getTabProperties().getTitledTabProperties().
           getNormalProperties().setDirection(dir.isHorizontal() ? Direction.DOWN : Direction.RIGHT);
       DEFAULT_VALUES[dir.getValue()] = properties;
     }
-
-    DynamicUIManager.getInstance().addListener(new DynamicUIManagerListener() {
-      public void lookAndFeelChanged() {
-        updateVisualProperties();
-      }
-
-      public void propertyChange(PropertyChangeEvent event) {
-        updateVisualProperties();
-      }
-    });
-
-    updateVisualProperties();
-  }
-
-  private static void updateVisualProperties() {
-    WindowTabProperties p = COMMON_DEFAULT_VALUES.getTabWindowProperties().getTabProperties();
-
-    p.getTitledTabProperties().getNormalProperties().getComponentProperties().setBackgroundColor(TabbedUIDefaults.getHighlightedStateBackground());
   }
 
   /**
@@ -195,7 +138,19 @@ public class WindowBarProperties extends PropertyMapContainer {
   }
 
   /**
+   * Removes the last added super object.
+   *
+   * @return this
+   * @since IDW 1.1.0
+   */
+  public WindowBarProperties removeSuperObject() {
+    getMap().removeSuperMap();
+    return this;
+  }
+
+  /**
    * Returns the distance from the content panel edge which inside the user can resize the content panel.
+   *
    * @return the distance from the content panel edge which inside the user can resize the content panel
    */
   public int getContentPanelEdgeResizeDistance() {
@@ -215,6 +170,7 @@ public class WindowBarProperties extends PropertyMapContainer {
 
   /**
    * Returns the minimum width of the window bar.
+   *
    * @return the minimum width of the window bar
    */
   public int getMinimumWidth() {
@@ -234,6 +190,7 @@ public class WindowBarProperties extends PropertyMapContainer {
 
   /**
    * Returns the tab window property values.
+   *
    * @return the tab window property values
    */
   public TabWindowProperties getTabWindowProperties() {
@@ -242,6 +199,7 @@ public class WindowBarProperties extends PropertyMapContainer {
 
   /**
    * Returns the property values for the window bar component.
+   *
    * @return the property values for the window bar component
    */
   public ComponentProperties getComponentProperties() {

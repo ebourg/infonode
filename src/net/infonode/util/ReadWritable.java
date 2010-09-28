@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,14 +20,14 @@
  */
 
 
-// $Id: ReadWritable.java,v 1.3 2004/06/24 13:24:08 jesper Exp $
+// $Id: ReadWritable.java,v 1.4 2004/09/22 14:35:05 jesper Exp $
 package net.infonode.util;
 
 /**
- * Interface for objects that can be read from and written to streams. 
+ * Interface for objects that can be read from and written to streams.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public interface ReadWritable extends Readable, Writable {
 }

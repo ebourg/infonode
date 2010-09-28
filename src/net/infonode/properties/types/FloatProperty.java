@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: FloatProperty.java,v 1.3 2004/07/06 15:07:17 jesper Exp $
+// $Id: FloatProperty.java,v 1.4 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.types;
 
 import net.infonode.properties.base.PropertyGroup;
@@ -31,7 +31,7 @@ import net.infonode.properties.util.ValueHandlerProperty;
  * A float property.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class FloatProperty extends ValueHandlerProperty {
   private float minValue;
@@ -43,9 +43,9 @@ public class FloatProperty extends ValueHandlerProperty {
    * Constructor.
    * Creates an unbounded float property.
    *
-   * @param group the property group
-   * @param name the property name
-   * @param description the property description
+   * @param group        the property group
+   * @param name         the property name
+   * @param description  the property description
    * @param valueHandler handles values for this property
    */
   public FloatProperty(PropertyGroup group, String name, String description, PropertyValueHandler valueHandler) {
@@ -55,12 +55,12 @@ public class FloatProperty extends ValueHandlerProperty {
   /**
    * Constructor.
    *
-   * @param group the property group
-   * @param name the property name
-   * @param description the property description
+   * @param group        the property group
+   * @param name         the property name
+   * @param description  the property description
    * @param valueHandler handles values for this property
-   * @param minValue the smallest value that this property can have
-   * @param maxValue the largest value that this property can have
+   * @param minValue     the smallest value that this property can have
+   * @param maxValue     the largest value that this property can have
    */
   public FloatProperty(PropertyGroup group, String name, String description, PropertyValueHandler valueHandler, float minValue, float maxValue) {
     this(group, name, description, valueHandler, minValue, maxValue, 6, 0.1f);
@@ -69,14 +69,14 @@ public class FloatProperty extends ValueHandlerProperty {
   /**
    * Constructor.
    *
-   * @param group the property group
-   * @param name the property name
-   * @param description the property description
-   * @param valueHandler handles values for this property
-   * @param minValue the smallest value that this property can have
-   * @param maxValue the largest value that this property can have
+   * @param group               the property group
+   * @param name                the property name
+   * @param description         the property description
+   * @param valueHandler        handles values for this property
+   * @param minValue            the smallest value that this property can have
+   * @param maxValue            the largest value that this property can have
    * @param preferredDigitCount the preferred number of digits to allocate space for in an editor for a property value
-   * @param preferredDelta the preferred amount to increase and decrease a property value by
+   * @param preferredDelta      the preferred amount to increase and decrease a property value by
    */
   public FloatProperty(PropertyGroup group, String name, String description, PropertyValueHandler valueHandler, float minValue, float maxValue, int preferredDigitCount, float preferredDelta) {
     super(group, name, Float.class, description, valueHandler);
@@ -137,7 +137,7 @@ public class FloatProperty extends ValueHandlerProperty {
    * Sets the float value of this property in a value container.
    *
    * @param valueContainer the value container
-   * @param value the float value
+   * @param value          the float value
    */
   public void set(Object valueContainer, float value) {
     setValue(valueContainer, new Float(value));

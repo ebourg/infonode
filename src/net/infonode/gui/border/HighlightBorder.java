@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,18 +20,31 @@
  */
 
 
-// $Id: HighlightBorder.java,v 1.2 2004/06/17 13:01:11 johan Exp $
+// $Id: HighlightBorder.java,v 1.11 2004/09/28 16:46:05 jesper Exp $
 package net.infonode.gui.border;
 
-import net.infonode.util.ColorUtil;
+import net.infonode.gui.InsetsUtil;
+import net.infonode.gui.colorprovider.BackgroundColorProvider;
+import net.infonode.gui.colorprovider.ColorMultiplier;
+import net.infonode.gui.colorprovider.ColorProvider;
+import net.infonode.gui.colorprovider.ColorProviderUtil;
+import net.infonode.util.Direction;
 
 import javax.swing.border.Border;
 import java.awt.*;
+import java.io.Serializable;
 
-public class HighlightBorder implements Border {
+/**
+ * @author $Author: jesper $
+ * @version $Revision: 1.11 $
+ */
+public class HighlightBorder implements Border, Serializable {
+  private static final long serialVersionUID = 1;
+
   private static final Insets INSETS = new Insets(1, 1, 0, 0);
   private boolean lowered;
-  private Color color;
+  private boolean pressed;
+  private ColorProvider colorProvider;
 
   public HighlightBorder() {
     this(false);
@@ -42,12 +55,23 @@ public class HighlightBorder implements Border {
   }
 
   public HighlightBorder(boolean lowered, Color color) {
+    this(lowered, false, color);
+  }
+
+  public HighlightBorder(boolean lowered, boolean pressed, Color color) {
+    this(lowered, pressed, ColorProviderUtil.getColorProvider(color,
+                                                              new ColorMultiplier(BackgroundColorProvider.INSTANCE,
+                                                                                  lowered ? 0.7 : 1.70)));
+  }
+
+  public HighlightBorder(boolean lowered, boolean pressed, ColorProvider colorProvider) {
     this.lowered = lowered;
-    this.color = color;
+    this.pressed = pressed;
+    this.colorProvider = colorProvider;
   }
 
   public Insets getBorderInsets(Component c) {
-    return INSETS;
+    return pressed ? InsetsUtil.rotate(Direction.LEFT, INSETS) : INSETS;
   }
 
   public boolean isBorderOpaque() {
@@ -55,8 +79,15 @@ public class HighlightBorder implements Border {
   }
 
   public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-    g.setColor(color == null ? ColorUtil.mult(c.getBackground(), lowered ? 0.7 : 1.70) : color);
-    g.drawLine(x, y, x + width - (lowered ? 1 : 2), y);
-    g.drawLine(x, y, x, y + height - (lowered ? 1 : 2));
+    g.setColor(colorProvider.getColor(c));
+
+    if (pressed) {
+      g.drawLine(x + (lowered ? 0 : 1), y + height - 1, x + width - 1, y + height - 1);
+      g.drawLine(x + width - 1, y + (lowered ? 0 : 1), x + width - 1, y + height - 2);
+    }
+    else {
+      g.drawLine(x, y, x + width - (lowered ? 1 : 2), y);
+      g.drawLine(x, y, x, y + height - (lowered ? 1 : 2));
+    }
   }
 }

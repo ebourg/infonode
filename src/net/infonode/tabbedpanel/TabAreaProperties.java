@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabAreaProperties.java,v 1.16 2004/07/06 15:08:32 jesper Exp $
+// $Id: TabAreaProperties.java,v 1.18 2004/09/24 09:34:13 johan Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.properties.gui.util.ComponentProperties;
@@ -33,10 +33,10 @@ import net.infonode.properties.propertymap.PropertyMapProperty;
  * TabAreaProperties holds all visual properties for a tabbed panel's tab area.
  * TabbedPanelProperties contains TabAreaProperties.
  *
+ * @author $Author: johan $
+ * @version $Revision: 1.18 $
  * @see TabbedPanel
  * @see TabbedPanelProperties
- * @author $Author: jesper $
- * @version $Revision: 1.16 $
  */
 public class TabAreaProperties extends PropertyMapContainer {
   /**
@@ -49,8 +49,7 @@ public class TabAreaProperties extends PropertyMapContainer {
    *
    * @see #getComponentProperties
    */
-  public static final PropertyMapProperty COMPONENT_PROPERTIES = new PropertyMapProperty(
-          PROPERTIES, "Component Properties", "Properties for tab area component.", ComponentProperties.PROPERTIES);
+  public static final PropertyMapProperty COMPONENT_PROPERTIES = new PropertyMapProperty(PROPERTIES, "Component Properties", "Properties for tab area component.", ComponentProperties.PROPERTIES);
 
   /**
    * Constructs a TabAreaProperties object with the given object
@@ -69,10 +68,20 @@ public class TabAreaProperties extends PropertyMapContainer {
    * @return this
    */
   public TabAreaProperties addSuperObject(TabAreaProperties superObject) {
-  	getMap().addSuperMap(superObject.getMap());
-  	return this;
+    getMap().addSuperMap(superObject.getMap());
+    return this;
   }
-  
+
+  /**
+   * Removes a super object.
+   *
+   * @return this
+   */
+  public TabAreaProperties removeSuperObject() {
+    getMap().removeSuperMap();
+    return this;
+  }
+
   /**
    * Gets the component properties
    *

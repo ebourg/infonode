@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,16 +20,24 @@
  */
 
 
-// $Id: ColorUtil.java,v 1.2 2004/06/17 13:01:11 johan Exp $
+// $Id: ColorUtil.java,v 1.5 2004/09/22 14:35:05 jesper Exp $
 package net.infonode.util;
 
 import java.awt.*;
 
 public class ColorUtil {
+  public static Color getOpposite(Color c) {
+    return isDark(c) ? Color.WHITE : Color.BLACK;
+  }
+
+  public static Color shade(Color c, double amount) {
+    return blend(c, getOpposite(c), amount);
+  }
+
   public static final Color mult(Color c, double amount) {
     return new Color(Math.min(255, (int) (c.getRed() * amount)),
-            Math.min(255, (int) (c.getGreen() * amount)),
-            Math.min(255, (int) (c.getBlue() * amount)));
+                     Math.min(255, (int) (c.getGreen() * amount)),
+                     Math.min(255, (int) (c.getBlue() * amount)));
   }
 
   public static Color setAlpha(Color c, int alpha) {
@@ -37,13 +45,12 @@ public class ColorUtil {
   }
 
   public static final Color add(Color c1, Color c2) {
-    return new Color(
-            Math.min(255, c1.getRed() + c2.getRed()),
-            Math.min(255, c1.getGreen() + c2.getGreen()),
-            Math.min(255, c1.getBlue() + c2.getBlue()));
+    return new Color(Math.min(255, c1.getRed() + c2.getRed()),
+                     Math.min(255, c1.getGreen() + c2.getGreen()),
+                     Math.min(255, c1.getBlue() + c2.getBlue()));
   }
 
-  public static Color blend(Color c1, Color c2, float v) {
+  public static Color blend(Color c1, Color c2, double v) {
     return add(mult(c1, 1.0 - v), mult(c2, v));
   }
 
@@ -58,4 +65,5 @@ public class ColorUtil {
   public static Color copy(Color c) {
     return new Color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
   }
+
 }

@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabEvent.java,v 1.9 2004/06/30 12:59:07 jesper Exp $
+// $Id: TabEvent.java,v 1.10 2004/09/22 14:33:49 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import java.util.EventObject;
@@ -30,11 +30,11 @@ import java.util.EventObject;
  * information about the source, i.e. the object (tab or tabbedPanel)
  * that generated this event and the tab that was affected by this event.
  *
+ * @author $Author: jesper $
+ * @version $Revision: 1.10 $
  * @see TabListener
  * @see TabbedPanel
  * @see Tab
- * @author $Author: jesper $
- * @version $Revision: 1.9 $
  */
 public class TabEvent extends EventObject {
   private Tab tab;
@@ -42,9 +42,9 @@ public class TabEvent extends EventObject {
   /**
    * Constructs a TabEvent
    *
-   * @param source  the Tab or TabbedPanel that is the source for this
-   *                event
-   * @param tab the tab on which the event occurred
+   * @param source the Tab or TabbedPanel that is the source for this
+   *               event
+   * @param tab    the tab on which the event occurred
    */
   TabEvent(Object source, Tab tab) {
     super(source);
@@ -54,8 +54,8 @@ public class TabEvent extends EventObject {
   /**
    * Gets the tab that is the source for this event
    *
-   * @return  the Tab affected by this event or null if no tab
-   *          was affected
+   * @return the Tab affected by this event or null if no tab
+   *         was affected
    */
   public Tab getTab() {
     return tab;

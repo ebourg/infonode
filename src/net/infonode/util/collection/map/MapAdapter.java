@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: MapAdapter.java,v 1.3 2004/07/06 15:08:44 jesper Exp $
+// $Id: MapAdapter.java,v 1.4 2004/09/01 16:33:04 jesper Exp $
 package net.infonode.util.collection.map;
 
 import net.infonode.util.collection.map.base.ConstMapIterator;
@@ -30,11 +30,11 @@ import net.infonode.util.collection.map.base.MapIterator;
 import java.util.HashMap;
 
 public class MapAdapter implements Map {
-  private class Iterator implements MapIterator {
+  private static class Iterator implements MapIterator {
     private java.util.Iterator iterator;
     private java.util.Map.Entry nextEntry;
 
-    public Iterator(java.util.Iterator iterator) {
+    Iterator(java.util.Iterator iterator) {
       this.iterator = iterator;
       next();
     }

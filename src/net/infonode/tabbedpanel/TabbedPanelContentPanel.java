@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabbedPanelContentPanel.java,v 1.11 2004/06/17 11:29:51 johan Exp $
+// $Id: TabbedPanelContentPanel.java,v 1.14 2004/09/22 14:33:49 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import net.infonode.gui.draggable.DraggableComponentBoxAdapter;
@@ -37,10 +37,10 @@ import java.util.Map;
  * components. It can be configured using properties that specifies the look for
  * the content panel.
  *
+ * @author $Author: jesper $
+ * @version $Revision: 1.14 $
  * @see TabbedPanel
  * @see Tab
- * @author $Author: johan $
- * @version $Revision: 1.11 $
  */
 public class TabbedPanelContentPanel extends JPanel {
   private TabbedPanel tabbedPanel;
@@ -67,6 +67,36 @@ public class TabbedPanelContentPanel extends JPanel {
 
     tabbedPanel.getDraggableComponentBox().addListener(new DraggableComponentBoxAdapter() {
       public void changed(DraggableComponentBoxEvent event) {
+        repaintBorder();
+      }
+    });
+
+    tabbedPanel.addTabListener(new TabAdapter() {
+      public void tabAdded(TabEvent event) {
+        repaintBorder();
+      }
+
+      public void tabRemoved(TabRemovedEvent event) {
+        repaintBorder();
+      }
+
+      public void tabSelected(TabStateChangedEvent event) {
+        repaintBorder();
+      }
+
+      public void tabDeselected(TabStateChangedEvent event) {
+        repaintBorder();
+      }
+
+      public void tabHighlighted(TabStateChangedEvent event) {
+        repaintBorder();
+      }
+
+      public void tabDehighlighted(TabStateChangedEvent event) {
+        repaintBorder();
+      }
+
+      public void tabMoved(TabEvent event) {
         repaintBorder();
       }
     });

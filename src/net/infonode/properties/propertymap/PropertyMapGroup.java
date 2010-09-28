@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyMapGroup.java,v 1.2 2004/06/17 15:07:10 johan Exp $
+// $Id: PropertyMapGroup.java,v 1.3 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.propertymap;
 
 import net.infonode.properties.base.PropertyGroup;
@@ -30,8 +30,8 @@ import net.infonode.properties.base.PropertyGroup;
  * The property map group has a property map containing default values for the properties in this group.
  * If no default value is set, the default value of the property will be used.
  *
- * @author $Author: johan $
- * @version $Revision: 1.2 $
+ * @author $Author: jesper $
+ * @version $Revision: 1.3 $
  */
 public class PropertyMapGroup extends PropertyGroup {
   private PropertyMapImpl defaultMap;
@@ -39,7 +39,7 @@ public class PropertyMapGroup extends PropertyGroup {
   /**
    * Constructor.
    *
-   * @param name the name of this group
+   * @param name        the name of this group
    * @param description the description for this group
    */
   public PropertyMapGroup(String name, String description) {
@@ -49,8 +49,8 @@ public class PropertyMapGroup extends PropertyGroup {
   /**
    * Creates a group with a super group.
    *
-   * @param superGroup the super group from which to inherit properties
-   * @param name the name of this group
+   * @param superGroup  the super group from which to inherit properties
+   * @param name        the name of this group
    * @param description the description for this group
    */
   public PropertyMapGroup(PropertyMapGroup superGroup, String name, String description) {

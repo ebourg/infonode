@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: WindowTabLocation.java,v 1.2 2004/06/29 14:40:05 jesper Exp $
+// $Id: WindowTabLocation.java,v 1.3 2004/09/13 15:51:21 jesper Exp $
 package net.infonode.docking.location;
 
 import net.infonode.docking.AbstractTabWindow;
@@ -33,7 +33,7 @@ import java.io.ObjectOutputStream;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class WindowTabLocation extends AbstractWindowLocation {
   private int index;
@@ -47,8 +47,9 @@ public class WindowTabLocation extends AbstractWindowLocation {
     this.index = index;
   }
 
-  public void set(DockingWindow parent, DockingWindow child) {
+  public boolean set(DockingWindow parent, DockingWindow child) {
     ((AbstractTabWindow) parent).addTab(child, index);
+    return true;
   }
 
   public void write(ObjectOutputStream out) throws IOException {

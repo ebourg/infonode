@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ViewFactory.java,v 1.2 2004/06/25 09:21:16 jesper Exp $
+// $Id: ViewFactory.java,v 1.3 2004/09/22 14:31:39 jesper Exp $
 package net.infonode.docking.util;
 
 import net.infonode.docking.View;
@@ -31,23 +31,26 @@ import javax.swing.*;
  * A factory that creates a view.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public interface ViewFactory {
   /**
    * Returns the icon for this factory.
+   *
    * @return the icon for this factory
    */
   Icon getIcon();
 
   /**
    * Returns the title of this factory.
+   *
    * @return the title of this factory
    */
   String getTitle();
 
   /**
    * Creates a view.
+   *
    * @return the view
    */
   View createView();

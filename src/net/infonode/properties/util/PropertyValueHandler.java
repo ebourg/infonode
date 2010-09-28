@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyValueHandler.java,v 1.3 2004/07/06 15:07:17 jesper Exp $
+// $Id: PropertyValueHandler.java,v 1.4 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.util;
 
 import net.infonode.properties.base.Property;
@@ -29,13 +29,13 @@ import net.infonode.properties.base.Property;
  * Sets and gets property values to and from value objects.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public interface PropertyValueHandler {
   /**
    * Gets the value of a property from a value container.
    *
-   * @param property the property
+   * @param property       the property
    * @param valueContainer the object containing the value
    * @return the property value, null if the container doesn't contain the value
    */
@@ -44,16 +44,16 @@ public interface PropertyValueHandler {
   /**
    * Sets the value of a property in a value container.
    *
-   * @param property the property
+   * @param property       the property
    * @param valueContainer the object that will contain the value
-   * @param value the property value
+   * @param value          the property value
    */
   void setValue(Property property, Object valueContainer, Object value);
 
   /**
    * Removes a property value from a value container.
    *
-   * @param property the property
+   * @param property       the property
    * @param valueContainer the value container
    */
   void removeValue(Property property, Object valueContainer);
@@ -61,7 +61,7 @@ public interface PropertyValueHandler {
   /**
    * Returns true if a value for the property is set in the value container.
    *
-   * @param property the property
+   * @param property       the property
    * @param valueContainer the value container
    * @return true if a value for the property is set in the value container
    */
@@ -70,7 +70,7 @@ public interface PropertyValueHandler {
   /**
    * Returns true if the property value is removable from the value container.
    *
-   * @param property the property
+   * @param property       the property
    * @param valueContainer the value container
    * @return true if the property value is removable from the value container
    */

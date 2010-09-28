@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabStateChangedEvent.java,v 1.4 2004/06/24 15:33:43 johan Exp $
+// $Id: TabStateChangedEvent.java,v 1.5 2004/09/22 14:33:49 jesper Exp $
 package net.infonode.tabbedpanel;
 
 /**
@@ -28,15 +28,15 @@ package net.infonode.tabbedpanel;
  * selected tab has been deselcted and another tab has been selected.</p>
  *
  * <p>Example:  Tab 1 is the selected tab. The user selects tab 2 and tab 1 will be
- *              deselected. A change event will then be triggered where tab 1 will
- *              be the previous tab (getPreviousTab()) and tab 2 will be the curent
- *              tab (getCurrentTab()).</p>
+ * deselected. A change event will then be triggered where tab 1 will
+ * be the previous tab (getPreviousTab()) and tab 2 will be the curent
+ * tab (getCurrentTab()).</p>
  *
+ * @author $Author: jesper $
+ * @version $Revision: 1.5 $
  * @see TabListener
  * @see TabbedPanel
  * @see Tab
- * @author $Author: johan $
- * @version $Revision: 1.4 $
  */
 public class TabStateChangedEvent extends TabEvent {
   private TabbedPanel tabbedPanel;
@@ -46,12 +46,12 @@ public class TabStateChangedEvent extends TabEvent {
   /**
    * Constructs a TabStateChangedEvent
    *
-   * @param source        the tabbed panel or tab that is the source for this
-   *                      event
-   * @param tabbedPanel   the tabbep panel in which the state change occured
-   * @param tab           the tab that is effectd by this event
-   * @param previousTab   the tab that was previously in this state
-   * @param currentTab    the tab that is now in this state
+   * @param source      the tabbed panel or tab that is the source for this
+   *                    event
+   * @param tabbedPanel the tabbep panel in which the state change occured
+   * @param tab         the tab that is effectd by this event
+   * @param previousTab the tab that was previously in this state
+   * @param currentTab  the tab that is now in this state
    */
   public TabStateChangedEvent(Object source, TabbedPanel tabbedPanel, Tab tab, Tab previousTab, Tab currentTab) {
     super(source, tab);
@@ -72,8 +72,8 @@ public class TabStateChangedEvent extends TabEvent {
   /**
    * Gets the previous Tab
    *
-   * @return  the previous Tab before the change or null if no previous tab was in
-   *          that state before the change
+   * @return the previous Tab before the change or null if no previous tab was in
+   *         that state before the change
    */
   public Tab getPreviousTab() {
     return previousTab;
@@ -82,8 +82,8 @@ public class TabStateChangedEvent extends TabEvent {
   /**
    * Gets the current Tab
    *
-   * @return  the current Tab after the change or null if no current tab is in the
-   *          that state after the change
+   * @return the current Tab after the change or null if no current tab is in the
+   *         that state after the change
    */
   public Tab getCurrentTab() {
     return currentTab;

@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,15 +20,18 @@
  */
 
 
-// $Id: WindowIds.java,v 1.3 2004/06/23 14:37:18 jesper Exp $
+// $Id: WindowIds.java,v 1.4 2004/08/27 18:53:37 jesper Exp $
 package net.infonode.docking;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 class WindowIds {
   static final int VIEW = 1;
   static final int SPLIT = 2;
   static final int TAB = 3;
+
+  private WindowIds() {
+  }
 }

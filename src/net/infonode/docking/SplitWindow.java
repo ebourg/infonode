@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: SplitWindow.java,v 1.12 2004/08/11 13:47:58 jesper Exp $
+// $Id: SplitWindow.java,v 1.14 2004/09/15 15:20:51 jesper Exp $
 package net.infonode.docking;
 
 import net.infonode.docking.location.WindowLocation;
@@ -40,12 +40,14 @@ import java.io.ObjectOutputStream;
  * A window with a split pane that contains two child windows.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.14 $
  */
 public class SplitWindow extends DockingWindow {
   private SplitWindowProperties rootProperties = new SplitWindowProperties();
   private SplitWindowProperties splitWindowProperties = new SplitWindowProperties(rootProperties);
   private SimpleSplitPane splitPane;
+  private DockingWindow leftWindow;
+  private DockingWindow rightWindow;
 
   /**
    * Creates a split window.
@@ -54,7 +56,6 @@ public class SplitWindow extends DockingWindow {
    */
   public SplitWindow(boolean horizontal) {
     splitPane = new SimpleSplitPane(horizontal);
-    splitPane.setContinuousLayout(true);
     setComponent(splitPane);
     init();
   }
@@ -62,8 +63,8 @@ public class SplitWindow extends DockingWindow {
   /**
    * Creates a split window with with the given child windows.
    *
-   * @param horizontal true if the split is horizontal
-   * @param leftWindow the left/upper window
+   * @param horizontal  true if the split is horizontal
+   * @param leftWindow  the left/upper window
    * @param rightWindow the right/lower window
    */
   public SplitWindow(boolean horizontal, DockingWindow leftWindow, DockingWindow rightWindow) {
@@ -74,10 +75,10 @@ public class SplitWindow extends DockingWindow {
   /**
    * Creates a split window with with the given child windows.
    *
-   * @param horizontal true if the split is horizontal
+   * @param horizontal      true if the split is horizontal
    * @param dividerLocation the divider location, 0 - 1
-   * @param leftWindow the left/upper window
-   * @param rightWindow the right/lower window
+   * @param leftWindow      the left/upper window
+   * @param rightWindow     the right/lower window
    */
   public SplitWindow(boolean horizontal, float dividerLocation, DockingWindow leftWindow, DockingWindow rightWindow) {
     this(horizontal, leftWindow, rightWindow);
@@ -99,7 +100,7 @@ public class SplitWindow extends DockingWindow {
    * @return the left/upper child window
    */
   public DockingWindow getLeftWindow() {
-    return (DockingWindow) splitPane.getLeftComponent();
+    return leftWindow;
   }
 
   /**
@@ -108,7 +109,7 @@ public class SplitWindow extends DockingWindow {
    * @return the right/lower child window
    */
   public DockingWindow getRightWindow() {
-    return (DockingWindow) splitPane.getRightComponent();
+    return rightWindow;
   }
 
   /**
@@ -122,6 +123,7 @@ public class SplitWindow extends DockingWindow {
 
   /**
    * Returns the divider location as a fraction of this split window's size.
+   *
    * @return the divider location as a fraction of this split window's size
    */
   public float getDividerLocation() {
@@ -131,12 +133,14 @@ public class SplitWindow extends DockingWindow {
   /**
    * Sets the child windows of this split window.
    *
-   * @param leftWindow the left/upper child window
+   * @param leftWindow  the left/upper child window
    * @param rightWindow the right/lower child window
    */
   public void setWindows(DockingWindow leftWindow, DockingWindow rightWindow) {
-    splitPane.setLeftComponent(addWindow(leftWindow));
-    splitPane.setRightComponent(addWindow(rightWindow));
+    this.leftWindow = addWindow(leftWindow);
+    this.rightWindow = addWindow(rightWindow);
+    splitPane.setLeftComponent(this.leftWindow);
+    splitPane.setRightComponent(this.rightWindow);
     fireTitleChanged();
 //    leftWindow.setVisible(true);
 //    rightWindow.setVisible(true);
@@ -144,6 +148,7 @@ public class SplitWindow extends DockingWindow {
 
   protected void update() {
     splitPane.setDividerSize(splitWindowProperties.getDividerSize());
+    splitPane.setContinuousLayout(splitWindowProperties.getContinuousLayoutEnabled());
   }
 
   protected void optimizeWindowLayout() {
@@ -172,8 +177,11 @@ public class SplitWindow extends DockingWindow {
   }
 
   private DockingWindow[] getWindows() {
-    return getLeftWindow() == null ? getRightWindow() == null ? new DockingWindow[0] : new DockingWindow[]{getRightWindow()} :
-        getRightWindow() == null ? new DockingWindow[]{getLeftWindow()} : new DockingWindow[]{getLeftWindow(), getRightWindow()};
+    return getLeftWindow() == null ?
+           (getRightWindow() == null ? new DockingWindow[0] : new DockingWindow[]{getRightWindow()}) :
+           getRightWindow() == null ?
+           new DockingWindow[]{getLeftWindow()} :
+           new DockingWindow[]{getLeftWindow(), getRightWindow()};
   }
 
   public int getChildWindowCount() {
@@ -186,9 +194,11 @@ public class SplitWindow extends DockingWindow {
 
   protected void doReplace(DockingWindow oldWindow, DockingWindow newWindow) {
     if (getLeftWindow() == oldWindow) {
+      leftWindow = newWindow;
       splitPane.setLeftComponent(newWindow);
     }
     else {
+      rightWindow = newWindow;
       splitPane.setRightComponent(newWindow);
     }
 
@@ -197,9 +207,11 @@ public class SplitWindow extends DockingWindow {
 
   protected void doRemoveWindow(DockingWindow window) {
     if (window == getLeftWindow()) {
+      leftWindow = null;
       splitPane.setLeftComponent(null);
     }
     else {
+      rightWindow = null;
       splitPane.setRightComponent(null);
     }
   }
@@ -219,7 +231,7 @@ public class SplitWindow extends DockingWindow {
     DockingWindow leftWindow = WindowDecoder.decodeWindow(in, context);
     DockingWindow rightWindow = WindowDecoder.decodeWindow(in, context);
     super.read(in, context);
-    
+
     if (leftWindow != null && rightWindow != null) {
       setWindows(leftWindow, rightWindow);
       return this;
@@ -252,5 +264,19 @@ public class SplitWindow extends DockingWindow {
 
   protected PropertyMap createPropertyObject() {
     return new SplitWindowProperties().getMap();
+  }
+
+  void removeWindowComponent(DockingWindow window) {
+    if (window == leftWindow)
+      splitPane.setLeftComponent(null);
+    else
+      splitPane.setRightComponent(null);
+  }
+
+  void restoreWindowComponent(DockingWindow window) {
+    if (window == leftWindow)
+      splitPane.setLeftComponent(leftWindow);
+    else
+      splitPane.setRightComponent(rightWindow);
   }
 }

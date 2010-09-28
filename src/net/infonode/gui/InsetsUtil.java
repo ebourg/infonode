@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: InsetsUtil.java,v 1.1 2004/06/17 14:44:03 jesper Exp $
+// $Id: InsetsUtil.java,v 1.3 2004/09/22 14:35:05 jesper Exp $
 package net.infonode.gui;
 
 import net.infonode.util.Direction;
@@ -30,16 +30,18 @@ import java.awt.*;
 public class InsetsUtil {
   public static final Insets EMPTY_INSETS = new Insets(0, 0, 0, 0);
 
+  private InsetsUtil() {
+  }
+
   public static Insets getDiff(Insets source, Insets other) {
     int top = other.top - source.top;
     int left = other.left - source.left;
     int bottom = other.bottom - source.bottom;
     int right = other.right - source.right;
-    return new Insets(
-        top > 0 ? top : 0,
-        left > 0 ? left : 0,
-        bottom > 0 ? bottom : 0,
-        right > 0 ? right : 0);
+    return new Insets(top > 0 ? top : 0,
+                      left > 0 ? left : 0,
+                      bottom > 0 ? bottom : 0,
+                      right > 0 ? right : 0);
   }
 
   public static Insets sub(Insets i1, Insets i2) {
@@ -84,16 +86,16 @@ public class InsetsUtil {
 
   public static int getInset(Insets insets, Direction direction) {
     return direction == Direction.UP ? insets.top :
-        direction == Direction.LEFT ? insets.left :
-        direction == Direction.DOWN ? insets.bottom :
-        insets.right;
+           direction == Direction.LEFT ? insets.left :
+           direction == Direction.DOWN ? insets.bottom :
+           insets.right;
   }
 
   public static Insets setInset(Insets insets, Direction direction, int value) {
     return direction == Direction.UP ? new Insets(value, insets.left, insets.bottom, insets.right) :
-        direction == Direction.LEFT ? new Insets(insets.top, value, insets.bottom, insets.right) :
-        direction == Direction.DOWN ? new Insets(insets.top, insets.left, value, insets.right) :
-        new Insets(insets.top, insets.left, insets.bottom, value);
+           direction == Direction.LEFT ? new Insets(insets.top, value, insets.bottom, insets.right) :
+           direction == Direction.DOWN ? new Insets(insets.top, insets.left, value, insets.right) :
+           new Insets(insets.top, insets.left, insets.bottom, value);
   }
 
   public static Insets copy(Insets insets) {

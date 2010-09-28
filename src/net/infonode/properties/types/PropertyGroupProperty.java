@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: PropertyGroupProperty.java,v 1.4 2004/08/11 13:47:58 jesper Exp $
+// $Id: PropertyGroupProperty.java,v 1.5 2004/09/22 14:32:50 jesper Exp $
 package net.infonode.properties.types;
 
 import net.infonode.properties.base.PropertyGroup;
@@ -31,7 +31,7 @@ import net.infonode.properties.util.ValueHandlerProperty;
  * A property that can be assigned a value container as value.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class PropertyGroupProperty extends ValueHandlerProperty {
   private PropertyGroup propertyGroup;
@@ -39,13 +39,13 @@ public class PropertyGroupProperty extends ValueHandlerProperty {
   /**
    * Constructor.
    *
-   * @param group the property group
-   * @param name the property name
-   * @param type the property type
-   * @param description the property description
-   * @param valueHandler handles values for this property
+   * @param group         the property group
+   * @param name          the property name
+   * @param type          the property type
+   * @param description   the property description
+   * @param valueHandler  handles values for this property
    * @param propertyGroup the property group. Values for properties in this group can be stored in the value containers
-   * that are this properties values.
+   *                      that are this properties values.
    */
   public PropertyGroupProperty(PropertyGroup group, String name, Class type, String description, PropertyValueHandler valueHandler,
                                PropertyGroup propertyGroup) {

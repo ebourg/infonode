@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,16 +20,20 @@
  */
 
 
-//$Id: ProductVersion.java,v 1.2 2004/06/16 16:38:49 johan Exp $
+//$Id: ProductVersion.java,v 1.3 2004/09/28 14:57:39 jesper Exp $
 package net.infonode.util;
+
+import java.io.Serializable;
 
 /**
  * A class that represents a product version
  *
- * @author $Author: johan $
- * @version $Revision: 1.2 $
+ * @author $Author: jesper $
+ * @version $Revision: 1.3 $
  */
-public class ProductVersion {
+public class ProductVersion implements Serializable {
+  private static final long serialVersionUID = 1;
+
   private int major;
   private int minor;
   private int patch;

@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,21 +20,27 @@
  */
 
 
-// $Id: Info.java,v 1.2 2004/07/06 15:08:32 jesper Exp $
+// $Id: Info.java,v 1.5 2004/09/22 14:33:48 jesper Exp $
+
 package net.infonode.tabbedpanel.info;
 
 import net.infonode.gui.ReleaseInfoDialog;
+import net.infonode.gui.laf.InfoNodeLookAndFeelReleaseInfo;
 import net.infonode.tabbedpanel.TabbedPanelReleaseInfo;
+import net.infonode.util.ReleaseInfo;
 
 /**
  * Program that shows release information in a dialog
  *
  * @author $Author: jesper $
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.5 $
  */
 public class Info {
+  private Info() {
+  }
+
   public static final void main(String[] args) {
-    ReleaseInfoDialog.showDialog(TabbedPanelReleaseInfo.getReleaseInfo(), null);
+    ReleaseInfoDialog.showDialog(new ReleaseInfo[]{TabbedPanelReleaseInfo.getReleaseInfo(), InfoNodeLookAndFeelReleaseInfo.getReleaseInfo()}, null);
     System.exit(0);
   }
 }

@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: ResizablePanel.java,v 1.2 2004/06/30 08:19:34 jesper Exp $
+// $Id: ResizablePanel.java,v 1.4 2004/09/22 14:35:04 jesper Exp $
 package net.infonode.gui.panel;
 
 import net.infonode.gui.CursorManager;
@@ -33,7 +33,7 @@ import java.awt.event.MouseMotionAdapter;
 
 /**
  * @author $Author: jesper $
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.4 $
  */
 public class ResizablePanel extends SimplePanel {
   private Direction direction;
@@ -60,9 +60,9 @@ public class ResizablePanel extends SimplePanel {
       public void mousePressed(MouseEvent e) {
         if (cursorChanged) {
           offset = direction == Direction.LEFT ? e.getPoint().x :
-              direction == Direction.RIGHT ? getWidth() - e.getPoint().x :
-              direction == Direction.UP ? e.getPoint().y :
-              getHeight() - e.getPoint().y;
+                   direction == Direction.RIGHT ? getWidth() - e.getPoint().x :
+                   direction == Direction.UP ? e.getPoint().y :
+                   getHeight() - e.getPoint().y;
         }
       }
 
@@ -107,9 +107,9 @@ public class ResizablePanel extends SimplePanel {
       return;
 
     int dist = direction == Direction.UP ? point.y :
-        direction == Direction.DOWN ? getHeight() - point.y :
-        direction == Direction.LEFT ? point.x :
-        getWidth() - point.x;
+               direction == Direction.DOWN ? getHeight() - point.y :
+               direction == Direction.LEFT ? point.x :
+               getWidth() - point.x;
 
     if (dist >= 0 && dist < resizeWidth && mouseInside) {
       if (!cursorChanged) {
@@ -131,5 +131,9 @@ public class ResizablePanel extends SimplePanel {
 
   public Direction getDirection() {
     return direction;
+  }
+
+  public void setVisible(boolean aFlag) {
+    super.setVisible(aFlag);
   }
 }

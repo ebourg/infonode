@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,7 +20,7 @@
  */
 
 
-// $Id: TabDragEvent.java,v 1.8 2004/06/24 13:49:50 johan Exp $
+// $Id: TabDragEvent.java,v 1.10 2004/09/22 14:33:49 jesper Exp $
 package net.infonode.tabbedpanel;
 
 import java.awt.*;
@@ -30,10 +30,10 @@ import java.awt.*;
  * beeing dragged from a tabbed panel and a point specifying the mouse
  * coordinates.
  *
+ * @author $Author: jesper $
+ * @version $Revision: 1.10 $
  * @see TabbedPanel
  * @see Tab
- * @author $Author: johan $
- * @version $Revision: 1.8 $
  */
 public class TabDragEvent extends TabEvent {
   private Point point;
@@ -41,11 +41,11 @@ public class TabDragEvent extends TabEvent {
   /**
    * Constructs a TabDragEvent
    *
-   * @param source  the Tab or TabbedPanel that is the source for this
-   *                event
-   * @param tab     the Tab that is beeing dragged
-   * @param point   the mouse coordinates relative to the Tab that is beeing
-   *                dragged
+   * @param source the Tab or TabbedPanel that is the source for this
+   *               event
+   * @param tab    the Tab that is beeing dragged
+   * @param point  the mouse coordinates relative to the Tab that is beeing
+   *               dragged
    */
   public TabDragEvent(Object source, Tab tab, Point point) {
     super(source, tab);
@@ -55,8 +55,8 @@ public class TabDragEvent extends TabEvent {
   /**
    * Gets the mouse coordinates
    *
-   * @return  the mouse coordinats relative to the Tab that is beeing
-   *          dragged
+   * @return the mouse coordinats relative to the Tab that is beeing
+   *         dragged
    */
   public Point getPoint() {
     return point;

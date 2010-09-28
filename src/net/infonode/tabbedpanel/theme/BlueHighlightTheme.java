@@ -1,4 +1,4 @@
-/** 
+/*
  * Copyright (C) 2004 NNL Technology AB
  * Visit www.infonode.net for information about InfoNode(R) 
  * products and how to contact NNL Technology AB.
@@ -20,11 +20,12 @@
  */
 
 
-// $Id: BlueHighlightTheme.java,v 1.11 2004/07/05 13:37:05 jesper Exp $
+// $Id: BlueHighlightTheme.java,v 1.19 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.tabbedpanel.theme;
 
 import net.infonode.gui.border.HighlightBorder;
 import net.infonode.tabbedpanel.TabbedPanelProperties;
+import net.infonode.tabbedpanel.border.TabAreaLineBorder;
 import net.infonode.tabbedpanel.border.TabLineBorder;
 import net.infonode.tabbedpanel.titledtab.TitledTabProperties;
 
@@ -37,9 +38,9 @@ import java.awt.*;
  * highlighted state.
  *
  * @author $Author: jesper $
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.19 $
  */
-public class BlueHighlightTheme {
+public class BlueHighlightTheme extends TabbedPanelTitledTabTheme {
   private TitledTabProperties tabProperties = new TitledTabProperties();
   private TabbedPanelProperties tabbedPanelProperties = new TabbedPanelProperties();
 
@@ -57,13 +58,23 @@ public class BlueHighlightTheme {
    */
   public BlueHighlightTheme(Color backgroundColor) {
     tabProperties.getHighlightedProperties().getComponentProperties()
-            .setForegroundColor(Color.WHITE)
-            .setBackgroundColor(backgroundColor)
-            .setBorder(new TabLineBorder(Color.BLACK));
+        .setForegroundColor(Color.WHITE)
+        .setBackgroundColor(backgroundColor)
+        .setBorder(new TabLineBorder(Color.BLACK));
 
-    tabbedPanelProperties.getContentPanelProperties().getComponentProperties().setBorder(
-            new CompoundBorder(new LineBorder(Color.BLACK),
-                               new HighlightBorder()));
+    tabbedPanelProperties.getContentPanelProperties().getComponentProperties().setBorder(new CompoundBorder(new LineBorder(Color.BLACK),
+                                                                                                            new HighlightBorder()));
+    tabbedPanelProperties.getTabAreaComponentsProperties().getComponentProperties().setBorder(new TabAreaLineBorder(Color.BLACK));
+  }
+
+  /**
+   * Gets the name for this theme
+   *
+   * @return the name
+   * @since ITP 1.1.0
+   */
+  public String getName() {
+    return "Blue Highlight Theme";
   }
 
   /**
