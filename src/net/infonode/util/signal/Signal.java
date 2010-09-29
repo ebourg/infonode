@@ -23,20 +23,19 @@
 // $Id: Signal.java,v 1.3 2005/12/04 13:46:04 jesper Exp $
 package net.infonode.util.signal;
 
-import net.infonode.util.collection.CopyOnWriteArrayList;
-
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author $Author: jesper $
  * @version $Revision: 1.3 $
  */
 public class Signal {
-  private static class WeakListener extends WeakReference implements SignalListener {
+  private static class WeakListener extends WeakReference<SignalListener> implements SignalListener {
     private SignalHookImpl hook;
 
     protected WeakListener(SignalListener listener, ReferenceQueue q, SignalHookImpl hook) {
@@ -49,7 +48,7 @@ public class Signal {
     }
 
     public void signalEmitted(Signal signal, Object object) {
-      SignalListener l = (SignalListener) get();
+      SignalListener l = get();
 
       if (l != null)
         l.signalEmitted(signal, object);
@@ -93,7 +92,7 @@ public class Signal {
   }
 
   private boolean reverseNotifyOrder;
-  private CopyOnWriteArrayList listeners;
+  private CopyOnWriteArrayList<SignalListener> listeners;
   private SignalHookImpl signalHook = new SignalHookImpl();
 
   public Signal() {
@@ -112,7 +111,7 @@ public class Signal {
 
   public synchronized void addListener(SignalListener listener) {
     if (listeners == null)
-      listeners = new CopyOnWriteArrayList(2);
+      listeners = new CopyOnWriteArrayList<SignalListener>();
 
     listeners.add(listener);
 
@@ -177,7 +176,7 @@ public class Signal {
       if (listeners == null)
         return;
 
-      e = listeners.getElements();
+      e = listeners.toArray();
       size = listeners.size();
     }
 
