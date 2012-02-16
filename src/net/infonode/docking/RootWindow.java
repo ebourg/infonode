@@ -1006,11 +1006,11 @@ public class RootWindow extends DockingWindow implements ReadWritable {
       FloatingWindow fw = (FloatingWindow) floatingWindows.get(i);
       fw.startDrag();
       if (dummyFrame != null && fw != fwStartedDrag)
-        ((JDialog) (fw.getTopLevelAncestor())).toFront();
+        ((Window) (fw.getTopLevelAncestor())).toFront();
     }
 
     if (dummyFrame != null && fwStartedDrag != null)
-      ((JDialog) (fwStartedDrag.getTopLevelAncestor())).toFront();
+      ((Window) (fwStartedDrag.getTopLevelAncestor())).toFront();
   }
 
   void stopDrag() {
