@@ -113,6 +113,8 @@ public class RotatableLabelUI extends BasicLabelUI {
     if (text != null) {
       int textX = paintTextR.x;
       int textY = paintTextR.y + fm.getAscent();
+      
+      g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 
       if (label.isEnabled()) {
         paintEnabledText(label, g, clippedText, textX, textY);
