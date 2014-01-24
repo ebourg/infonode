@@ -143,14 +143,16 @@ public class HoverManager {
     ArrayList exitables = new ArrayList(enteredComponents);
     ArrayList enterables = new ArrayList();
 
-    Component c = (Component) event.getSource();
-    while (c != null) {
-      if (hoverableComponents.contains(c)) {
-        exitables.remove(c);
-        enterables.add(c);
+    if (event.getSource() instanceof Component) {
+      Component c = (Component) event.getSource();
+      while (c != null) {
+        if (hoverableComponents.contains(c)) {
+          exitables.remove(c);
+          enterables.add(c);
+        }
+  
+        c = c.getParent();
       }
-
-      c = c.getParent();
     }
 
     if (enterables.size() > 0) {
