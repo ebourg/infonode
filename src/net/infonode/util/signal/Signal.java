@@ -24,11 +24,11 @@
 package net.infonode.util.signal;
 
 import net.infonode.util.collection.CopyOnWriteArrayList;
-import net.infonode.util.collection.EmptyIterator;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 
 /**
@@ -162,7 +162,7 @@ public class Signal {
   }
 
   public synchronized Iterator iterator() {
-    return listeners == null ? EmptyIterator.INSTANCE : listeners.iterator();
+    return listeners == null ? Collections.emptyIterator() : listeners.iterator();
   }
 
   public SignalHook getHook() {
