@@ -99,7 +99,7 @@ public class TabWindow extends AbstractTabWindow {
    *
    * @param windows the child windows
    */
-  public TabWindow(DockingWindow[] windows) {
+  public TabWindow(DockingWindow... windows) {
     this(windows, null);
   }
 
@@ -188,7 +188,7 @@ public class TabWindow extends AbstractTabWindow {
     return ArrayUtil.countNotNull(buttons);
   }
 
-  protected void getTabAreaComponents(int index, JComponent[] components) {
+  protected void getTabAreaComponents(int index, JComponent... components) {
     for (int i = 0; i < buttons.length; i++)
       if (buttons[i] != null)
         components[index++] = buttons[i];
