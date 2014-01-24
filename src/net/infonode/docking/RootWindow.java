@@ -61,7 +61,8 @@ import net.infonode.properties.propertymap.PropertyMap;
 import net.infonode.properties.propertymap.PropertyMapManager;
 import net.infonode.util.ArrayUtil;
 import net.infonode.util.Direction;
-import net.infonode.util.ReadWritable;
+import net.infonode.util.Readable;
+import net.infonode.util.Writable;
 
 /**
  * The root window is a top level container for docking windows. Docking windows can't be dragged outside of their root
@@ -70,7 +71,7 @@ import net.infonode.util.ReadWritable;
  * @author $Author: jesper $
  * @version $Revision: 1.129 $
  */
-public class RootWindow extends DockingWindow implements ReadWritable {
+public class RootWindow extends DockingWindow implements Readable, Writable {
   private static final int SERIALIZE_VERSION = 4;
 
   private static final int FLOATING_WINDOW_MIN_WIDTH = 400;

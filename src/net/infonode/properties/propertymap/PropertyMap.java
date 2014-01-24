@@ -27,7 +27,8 @@ import net.infonode.properties.base.Property;
 import net.infonode.properties.base.exception.InvalidPropertyException;
 import net.infonode.properties.base.exception.InvalidPropertyTypeException;
 import net.infonode.properties.util.PropertyChangeListener;
-import net.infonode.util.ReadWritable;
+import net.infonode.util.Readable;
+import net.infonode.util.Writable;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -52,7 +53,7 @@ import java.io.ObjectOutputStream;
  * @author $Author: jesper $
  * @version $Revision: 1.20 $
  */
-public interface PropertyMap extends ReadWritable {
+public interface PropertyMap extends Readable, Writable {
   /**
    * Adds a listener that listens for value changes in this PropertyMap.
    * This listener will be notified of updates to values in this PropertyMap and super maps unless the property
