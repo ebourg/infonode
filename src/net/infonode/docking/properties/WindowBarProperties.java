@@ -105,7 +105,7 @@ public class WindowBarProperties extends PropertyMapContainer {
   private static WindowBarProperties[] DEFAULT_VALUES = new WindowBarProperties[4];
 
   static {
-    final Direction[] directions = Direction.getDirections();
+    final Direction[] directions = Direction.values();
 
     for (int i = 0; i < directions.length; i++) {
       Direction dir = directions[i];
@@ -118,7 +118,7 @@ public class WindowBarProperties extends PropertyMapContainer {
                                                         dir == Direction.RIGHT ? 40 : 0,
                                                         dir == Direction.UP ? 40 : 0,
                                                         dir == Direction. LEFT ? 40 : 0));*/
-      DEFAULT_VALUES[dir.getValue()] = properties;
+      DEFAULT_VALUES[dir.ordinal()] = properties;
     }
   }
 
@@ -129,7 +129,7 @@ public class WindowBarProperties extends PropertyMapContainer {
    * @return a property object which inherits the default property values
    */
   public static WindowBarProperties createDefault(Direction location) {
-    return new WindowBarProperties(DEFAULT_VALUES[location.getValue()]);
+    return new WindowBarProperties(DEFAULT_VALUES[location.ordinal()]);
   }
 
   /**

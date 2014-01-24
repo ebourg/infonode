@@ -62,8 +62,8 @@ class WindowTab extends TitledTab {
                                                    new CloseButtonInfo(WindowTabStateProperties.CLOSE_BUTTON_PROPERTIES)};
 
   private final DockingWindow window;
-  private final AbstractButton[][] buttons = new AbstractButton[WindowTabState.getStateCount()][];
-  private final DirectionPanel[] buttonBoxes = new DirectionPanel[WindowTabState.getStateCount()];
+  private final AbstractButton[][] buttons = new AbstractButton[WindowTabState.values().length][];
+  private final DirectionPanel[] buttonBoxes = new DirectionPanel[WindowTabState.values().length];
   private final DirectionPanel customComponents = new DirectionPanel();
   private final DirectionPanel highlightedFocusedPanel = new DirectionPanel() {
     public Dimension getMinimumSize() {
@@ -90,7 +90,7 @@ class WindowTab extends TitledTab {
     super(window.getTitle(), window.getIcon(), emptyContent ? null : new SimplePanel(window), null);
     this.window = window;
 
-    for (int i = 0; i < WindowTabState.getStateCount(); i++) {
+    for (int i = 0; i < WindowTabState.values().length; i++) {
       buttonBoxes[i] = new DirectionPanel() {
         public Dimension getMinimumSize() {
           return new Dimension(0, 0);
@@ -100,9 +100,9 @@ class WindowTab extends TitledTab {
     }
 
     highlightedFocusedPanel.add(customComponents);
-    highlightedFocusedPanel.add(buttonBoxes[WindowTabState.HIGHLIGHTED.getValue()]);
+    highlightedFocusedPanel.add(buttonBoxes[WindowTabState.HIGHLIGHTED.ordinal()]);
     setHighlightedStateTitleComponent(highlightedFocusedPanel);
-    setNormalStateTitleComponent(buttonBoxes[WindowTabState.NORMAL.getValue()]);
+    setNormalStateTitleComponent(buttonBoxes[WindowTabState.NORMAL.ordinal()]);
 
     addMouseListener(new MouseAdapter() {
       public void mousePressed(MouseEvent e) {
@@ -141,7 +141,7 @@ class WindowTab extends TitledTab {
     super.updateUI();
 
     if (buttonBoxes != null)
-      for (int i = 0; i < WindowTabState.getStateCount(); i++)
+      for (int i = 0; i < WindowTabState.values().length; i++)
         if (buttonBoxes[i] != null)
           SwingUtilities.updateComponentTreeUI(buttonBoxes[i]);
   }
@@ -156,7 +156,7 @@ class WindowTab extends TitledTab {
           properties.getMap());
       highlightedFocusedPanel.remove(1);
       highlightedFocusedPanel.add(
-          buttonBoxes[focused ? WindowTabState.FOCUSED.getValue() : WindowTabState.HIGHLIGHTED.getValue()]);
+          buttonBoxes[focused ? WindowTabState.FOCUSED.ordinal() : WindowTabState.HIGHLIGHTED.ordinal()]);
       highlightedFocusedPanel.revalidate();
     }
   }
@@ -170,7 +170,7 @@ class WindowTab extends TitledTab {
   }
 
   void updateTabButtons(Map changes) {
-    WindowTabState[] states = WindowTabState.getStates();
+    WindowTabState[] states = WindowTabState.values();
 
     for (int i = 0; i < states.length; i++) {
       WindowTabState state = states[i];

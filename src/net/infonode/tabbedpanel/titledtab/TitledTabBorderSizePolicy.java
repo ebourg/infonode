@@ -23,8 +23,6 @@
 // $Id: TitledTabBorderSizePolicy.java,v 1.8 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.tabbedpanel.titledtab;
 
-import net.infonode.util.Enum;
-
 /**
  * TitledTabBorderSizePolicy defines how the insets for the titled tab
  * should be calculated based on the borders for the different tab states.
@@ -38,8 +36,7 @@ import net.infonode.util.Enum;
  * @see TitledTab
  * @see TitledTabProperties
  */
-public final class TitledTabBorderSizePolicy extends Enum {
-  private static final long serialVersionUID = 5570620861429391549L;
+public enum TitledTabBorderSizePolicy {
 
   /**
    * Equal size policy. This means that if the different tab states have
@@ -48,7 +45,7 @@ public final class TitledTabBorderSizePolicy extends Enum {
    * for each state. The compensated insets will be added on the inside of
    * the borders.
    */
-  public static final TitledTabBorderSizePolicy EQUAL_SIZE = new TitledTabBorderSizePolicy(0, "Equal Size");
+  EQUAL_SIZE,
 
   /**
    * Individual size policy. This means that titled tab will use the borders
@@ -56,25 +53,5 @@ public final class TitledTabBorderSizePolicy extends Enum {
    * the different states have different insets, then the titled tab's insets
    * will be different depending on the state the tab is currently in.
    */
-  public static final TitledTabBorderSizePolicy INDIVIDUAL_SIZE = new TitledTabBorderSizePolicy(1, "Individual Size");
-
-  /**
-   * An array with all size policies
-   */
-  public static final TitledTabBorderSizePolicy[] SIZE_POLICIES = new TitledTabBorderSizePolicy[]{EQUAL_SIZE,
-                                                                                                  INDIVIDUAL_SIZE};
-
-  private TitledTabBorderSizePolicy(int value, String name) {
-    super(value, name);
-  }
-
-  /**
-   * Gets the titled tab border size policies.
-   *
-   * @return the titled tab border size policies
-   * @since ITP 1.1.0
-   */
-  public static TitledTabBorderSizePolicy[] getSizePolicies() {
-    return (TitledTabBorderSizePolicy[]) SIZE_POLICIES.clone();
-  }
+  INDIVIDUAL_SIZE
 }

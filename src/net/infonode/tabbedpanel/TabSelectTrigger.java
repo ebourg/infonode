@@ -24,8 +24,6 @@
 
 package net.infonode.tabbedpanel;
 
-import net.infonode.util.Enum;
-
 /**
  * TabSelectTrigger defines what triggers a tab selection in a TabbedPanel.
  *
@@ -35,33 +33,17 @@ import net.infonode.util.Enum;
  * @see TabbedPanelProperties
  * @since ITP 1.1.0
  */
-public final class TabSelectTrigger extends Enum {
-  private static final long serialVersionUID = 1L;
+public enum TabSelectTrigger {
 
   /**
    * Mouse press select trigger. This means that a tab will be selected on
    * mouse pressed (button down).
    */
-  public static final TabSelectTrigger MOUSE_PRESS = new TabSelectTrigger(0, "Mouse Press");
+  MOUSE_PRESS,
 
   /**
    * Mouse release select trigger. This means that a tab will be selected on
    * mouse release (button up).
    */
-  public static final TabSelectTrigger MOUSE_RELEASE = new TabSelectTrigger(1, "Mouse Release");
-
-  private static final TabSelectTrigger[] SELECT_TRIGGERS = {MOUSE_PRESS, MOUSE_RELEASE};
-
-  private TabSelectTrigger(int value, String name) {
-    super(value, name);
-  }
-
-  /**
-   * Gets the tab select triggers.
-   *
-   * @return the tab select triggers
-   */
-  public static TabSelectTrigger[] getSelectTriggers() {
-    return (TabSelectTrigger[]) SELECT_TRIGGERS.clone();
-  }
+  MOUSE_RELEASE
 }

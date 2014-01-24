@@ -43,7 +43,7 @@ public class DirectionProperty extends EnumProperty {
    * @param valueHandler handles values for this property
    */
   public DirectionProperty(PropertyGroup group, String name, String description, PropertyValueHandler valueHandler) {
-    super(group, name, Direction.class, description, valueHandler, Direction.getDirections());
+    super(group, name, Direction.class, description, valueHandler, Direction.values());
   }
 
   /**

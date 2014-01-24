@@ -260,7 +260,7 @@ abstract public class WindowItem {
   }
 
   public void writeSettings(ObjectOutputStream out, WriteContext context) throws IOException {
-    out.writeInt(getLastMinimizedDirection() == null ? -1 : getLastMinimizedDirection().getValue());
+    out.writeInt(getLastMinimizedDirection() == null ? -1 : getLastMinimizedDirection().ordinal());
 
     if (context.getWritePropertiesEnabled()) {
       dockingWindowProperties.getMap().write(out, true);
@@ -271,7 +271,7 @@ abstract public class WindowItem {
   public void readSettings(ObjectInputStream in, ReadContext context) throws IOException {
     if (context.getVersion() > 1) {
       int dir = in.readInt();
-      setLastMinimizedDirection(dir == -1 ? null : Direction.getDirections()[dir]);
+      setLastMinimizedDirection(dir == -1 ? null : Direction.values()[dir]);
     }
 
     if (context.isPropertyValuesAvailable()) {

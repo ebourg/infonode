@@ -486,7 +486,7 @@ public class TabbedPanelProperties extends PropertyMapContainer {
 
     int iconSize = TabbedUIDefaults.getButtonIconSize();
 
-    Direction[] directions = Direction.getDirections();
+    Direction[] directions = Direction.values();
     for (int i = 0; i < directions.length; i++) {
       ArrowIcon disabledIcon = new ArrowIcon(iconSize - 2, directions[i], false);
       disabledIcon.setShadowEnabled(false);

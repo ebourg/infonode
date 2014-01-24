@@ -96,7 +96,7 @@ public class GradientComponentPainter extends AbstractComponentPainter {
         g.fillRect(x, y, width, height);
       }
       else {
-        int imageIndex = direction.getValue() + (horizontalFlip ? 4 : 0) + (verticalFlip ? 8 : 0);
+        int imageIndex = direction.ordinal() + (horizontalFlip ? 4 : 0) + (verticalFlip ? 8 : 0);
         SoftReference ref = images[imageIndex];
         Image image = ref == null ? null : (Image) ref.get();
 

@@ -53,7 +53,7 @@ public class TabDropDownListVisiblePolicyProperty extends EnumProperty {
           TabDropDownListVisiblePolicy.class,
           description,
           valueStorage,
-          TabDropDownListVisiblePolicy.getDropDownListVisiblePolicies());
+          TabDropDownListVisiblePolicy.values());
   }
 
   /**

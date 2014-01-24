@@ -23,8 +23,6 @@
 // $Id: TabAreaVisiblePolicy.java,v 1.3 2005/12/04 13:46:05 jesper Exp $
 package net.infonode.tabbedpanel;
 
-import net.infonode.util.Enum;
-
 /**
  * TabAreaVisiblePolicy defines the visibility policies for the tab area of a tabbed panel.
  *
@@ -34,42 +32,20 @@ import net.infonode.util.Enum;
  * @see TabbedPanelProperties
  * @since ITP 1.4.0
  */
-public class TabAreaVisiblePolicy extends Enum {
-  private static final long serialVersionUID = 1L;
+public enum TabAreaVisiblePolicy {
 
-  /**
-   * Always visible policy. This means that the tab area is always visible.
-   */
-  public static final TabAreaVisiblePolicy ALWAYS = new TabAreaVisiblePolicy(0, "Always");
+  /** Always visible policy. This means that the tab area is always visible. */
+  ALWAYS,
 
-  /**
-   * Never visible policy. This means that the tab area is never visible.
-   */
-  public static final TabAreaVisiblePolicy NEVER = new TabAreaVisiblePolicy(1, "Never");
+  /** Never visible policy. This means that the tab area is never visible. */
+  NEVER,
 
-  /**
-   * Tabs exist visible policy. This means that the tab area will only be visible if it contains tabs.
-   */
-  public static final TabAreaVisiblePolicy TABS_EXIST = new TabAreaVisiblePolicy(2, "Tabs Exist in Tab Area");
+  /** Tabs exist visible policy. This means that the tab area will only be visible if it contains tabs. */
+  TABS_EXIST,
 
   /**
    * More than one visible policy. This means that the tab area is visible when the tabbed
    * panel contains more than one tab.
    */
-  public static final TabAreaVisiblePolicy MORE_THAN_ONE_TAB = new TabAreaVisiblePolicy(3, "More than One Tab");
-
-  private static final TabAreaVisiblePolicy[] VISIBLE_POLICIES = new TabAreaVisiblePolicy[]{ALWAYS, NEVER, TABS_EXIST, MORE_THAN_ONE_TAB};
-
-  private TabAreaVisiblePolicy(int value, String name) {
-    super(value, name);
-  }
-
-  /**
-   * Gets the tab area visible policies.
-   *
-   * @return the tab layout policies
-   */
-  public static TabAreaVisiblePolicy[] getVisiblePolicies() {
-    return (TabAreaVisiblePolicy[]) VISIBLE_POLICIES.clone();
-  }
+  MORE_THAN_ONE_TAB
 }

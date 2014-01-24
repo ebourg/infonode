@@ -23,8 +23,6 @@
 // $Id: TabDropDownListVisiblePolicy.java,v 1.11 2005/02/16 11:28:15 jesper Exp $
 package net.infonode.tabbedpanel;
 
-import net.infonode.util.Enum;
-
 /**
  * TabDropDownListVisiblePolicy tells the tabbed panel when to show a drop down
  * list of tabs.
@@ -35,42 +33,23 @@ import net.infonode.util.Enum;
  * @see TabbedPanelProperties
  * @since ITP 1.1.0
  */
-public final class TabDropDownListVisiblePolicy extends Enum {
-  private static final long serialVersionUID = 1;
+public enum TabDropDownListVisiblePolicy {
 
   /**
    * Never drop down list policy. This means that no drop down list will be shown
    * in the tabbed panel.
    */
-  public static final TabDropDownListVisiblePolicy NEVER = new TabDropDownListVisiblePolicy(0, "Never");
+  NEVER,
 
   /**
    * More than one tab list policy. This means that a drop down list will be shown
    * if there are more than one tab in the tabbed panel.
    */
-  public static final TabDropDownListVisiblePolicy MORE_THAN_ONE_TAB = new TabDropDownListVisiblePolicy(1,
-                                                                                                        "More than One Tab");
+  MORE_THAN_ONE_TAB,
 
   /**
    * Tabs not visible list policy. This means that a drop down list will be shown when
    * there are tabs are not entirely visible, i.e. scrolled out.
    */
-  public static final TabDropDownListVisiblePolicy TABS_NOT_VISIBLE = new TabDropDownListVisiblePolicy(1,
-                                                                                                       "Some Tabs Not Visible");
-
-  private static final TabDropDownListVisiblePolicy[] DROP_DOWN_LIST_VISIBLE_POLICIES = new TabDropDownListVisiblePolicy[]{
-    NEVER, MORE_THAN_ONE_TAB, TABS_NOT_VISIBLE};
-
-  private TabDropDownListVisiblePolicy(int value, String name) {
-    super(value, name);
-  }
-
-  /**
-   * Gets the tab drop down list visible policies.
-   *
-   * @return the tab drop down list visible policies
-   */
-  public static TabDropDownListVisiblePolicy[] getDropDownListVisiblePolicies() {
-    return (TabDropDownListVisiblePolicy[]) DROP_DOWN_LIST_VISIBLE_POLICIES.clone();
-  }
+  TABS_NOT_VISIBLE
 }

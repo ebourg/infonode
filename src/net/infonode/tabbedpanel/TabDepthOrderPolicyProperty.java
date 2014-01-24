@@ -54,7 +54,7 @@ public class TabDepthOrderPolicyProperty extends EnumProperty {
           TabDepthOrderPolicy.class,
           description,
           valueStorage,
-          TabDepthOrderPolicy.getDepthOrderPolicies());
+          TabDepthOrderPolicy.values());
   }
 
   /**

@@ -23,8 +23,6 @@
 // $Id: TabLayoutPolicy.java,v 1.9 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.tabbedpanel;
 
-import net.infonode.util.Enum;
-
 /**
  * TabLayoutPolicy defines how the tabs in a tabbed panel's tab area can be laid out.
  *
@@ -33,39 +31,19 @@ import net.infonode.util.Enum;
  * @see TabbedPanel
  * @see TabbedPanelProperties
  */
-public final class TabLayoutPolicy extends Enum {
-  private static final long serialVersionUID = -1345037155950998515L;
+public enum TabLayoutPolicy {
 
   /**
    * Scrolling layout policy. This means that the tabs are laid out in a line. The
    * line of tabs will be scrollable if not all tabs can fit into the visible part
    * of the tabbed panel's tab area at the same time.
    */
-  public static final TabLayoutPolicy SCROLLING = new TabLayoutPolicy(0, "Scrolling");
+  SCROLLING,
 
   /**
    * Compression layout policy. This means that the tabs are laid out in a line. The
    * tabs will be downsized (compressed) so that they fit into the visible part of the
    * tab area.
    */
-  public static final TabLayoutPolicy COMPRESSION = new TabLayoutPolicy(1, "Compression");
-
-  /**
-   * Array with all available layout policies.
-   */
-  public static final TabLayoutPolicy[] LAYOUT_POLICIES = new TabLayoutPolicy[]{SCROLLING, COMPRESSION};
-
-  private TabLayoutPolicy(int value, String name) {
-    super(value, name);
-  }
-
-  /**
-   * Gets the tab layout policies.
-   *
-   * @return the tab layout policies
-   * @since ITP 1.1.0
-   */
-  public static TabLayoutPolicy[] getLayoutPolicies() {
-    return (TabLayoutPolicy[]) LAYOUT_POLICIES.clone();
-  }
+  COMPRESSION;
 }

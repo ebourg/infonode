@@ -54,7 +54,7 @@ public class TabbedPanelHoverPolicyProperty extends EnumProperty {
           TabbedPanelHoverPolicy.class,
           description,
           valueStorage,
-          TabbedPanelHoverPolicy.getHoverPolicies());
+          TabbedPanelHoverPolicy.values());
   }
 
   /**

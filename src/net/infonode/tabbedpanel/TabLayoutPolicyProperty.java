@@ -47,7 +47,7 @@ public class TabLayoutPolicyProperty extends EnumProperty {
                                  String name,
                                  String description,
                                  PropertyValueHandler valueStorage) {
-    super(group, name, TabLayoutPolicy.class, description, valueStorage, TabLayoutPolicy.getLayoutPolicies());
+    super(group, name, TabLayoutPolicy.class, description, valueStorage, TabLayoutPolicy.values());
   }
 
   /**

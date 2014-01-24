@@ -53,7 +53,7 @@ public class TabAreaVisiblePolicyProperty extends EnumProperty {
           TabAreaVisiblePolicy.class,
           description,
           valueStorage,
-          TabAreaVisiblePolicy.getVisiblePolicies());
+          TabAreaVisiblePolicy.values());
   }
 
   /**

@@ -52,7 +52,7 @@ public class TitledTabBorderSizePolicyProperty extends EnumProperty {
           TitledTabBorderSizePolicy.class,
           description,
           valueStorage,
-          TitledTabBorderSizePolicy.getSizePolicies());
+          TitledTabBorderSizePolicy.values());
   }
 
   /**

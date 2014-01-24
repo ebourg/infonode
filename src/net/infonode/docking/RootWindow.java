@@ -87,12 +87,12 @@ public class RootWindow extends DockingWindow implements ReadWritable {
       Insets insets = parent.getInsets();
       mainPanel.setBounds(insets.left, insets.top, size.width, size.height);
 
-      int w1 = windowBars[Direction.LEFT.getValue()].getPreferredSize().width;
-      int w2 = windowBars[Direction.RIGHT.getValue()].getPreferredSize().width;
-      int h1 = windowBars[Direction.UP.getValue()].getPreferredSize().height;
-      int h2 = windowBars[Direction.DOWN.getValue()].getPreferredSize().height;
+      int w1 = windowBars[Direction.LEFT.ordinal()].getPreferredSize().width;
+      int w2 = windowBars[Direction.RIGHT.ordinal()].getPreferredSize().width;
+      int h1 = windowBars[Direction.UP.ordinal()].getPreferredSize().height;
+      int h2 = windowBars[Direction.DOWN.ordinal()].getPreferredSize().height;
 
-      final Direction[] directions = Direction.getDirections();
+      final Direction[] directions = Direction.values();
 
       for (int i = 0; i < windowBars.length; i++) {
         Component panel = windowBars[i].getEdgePanel();
@@ -103,27 +103,27 @@ public class RootWindow extends DockingWindow implements ReadWritable {
           int maxHeight = size.height - h1 - h2;
 
           if (dir == Direction.RIGHT) {
-            int rightX = parent.getWidth() - insets.right - w2 + windowBars[dir.getValue()].getInsets().left;
+            int rightX = parent.getWidth() - insets.right - w2 + windowBars[dir.ordinal()].getInsets().left;
             int width = Math.min(panel.getPreferredSize().width,
-                maxWidth + windowBars[dir.getValue()].getInsets().left);
+                maxWidth + windowBars[dir.ordinal()].getInsets().left);
             panel.setBounds(rightX - width, insets.top + h1, width, maxHeight);
           }
           else if (dir == Direction.LEFT) {
-            int x = insets.left + w1 - windowBars[dir.getValue()].getInsets().right;
+            int x = insets.left + w1 - windowBars[dir.ordinal()].getInsets().right;
             int width = Math.min(panel.getPreferredSize().width,
-                maxWidth + windowBars[dir.getValue()].getInsets().right);
+                maxWidth + windowBars[dir.ordinal()].getInsets().right);
             panel.setBounds(x, insets.top + h1, width, maxHeight);
           }
           else if (dir == Direction.DOWN) {
-            int bottomY = parent.getHeight() - insets.bottom - h2 + windowBars[dir.getValue()].getInsets().top;
+            int bottomY = parent.getHeight() - insets.bottom - h2 + windowBars[dir.ordinal()].getInsets().top;
             int height = Math.min(panel.getPreferredSize().height,
-                maxHeight + windowBars[dir.getValue()].getInsets().top);
+                maxHeight + windowBars[dir.ordinal()].getInsets().top);
             panel.setBounds(insets.left + w1, bottomY - height, maxWidth, height);
           }
           else {
-            int y = insets.top + h1 - windowBars[dir.getValue()].getInsets().bottom;
+            int y = insets.top + h1 - windowBars[dir.ordinal()].getInsets().bottom;
             int height = Math.min(panel.getPreferredSize().height,
-                maxHeight + windowBars[dir.getValue()].getInsets().bottom);
+                maxHeight + windowBars[dir.ordinal()].getInsets().bottom);
             panel.setBounds(insets.left + w1, y, maxWidth, height);
           }
         }
@@ -158,7 +158,7 @@ public class RootWindow extends DockingWindow implements ReadWritable {
   private final ViewSerializer viewSerializer;
   private DockingWindow window;
   //  private View lastFocusedView;
-  private final WindowBar[] windowBars = new WindowBar[Direction.getDirections().length];
+  private final WindowBar[] windowBars = new WindowBar[Direction.values().length];
   private final ArrayList floatingWindows = new ArrayList();
   private DockingWindow maximizedWindow;
   private View focusedView;
@@ -409,7 +409,7 @@ public class RootWindow extends DockingWindow implements ReadWritable {
    * @return the window bar in the direction
    */
   public WindowBar getWindowBar(Direction direction) {
-    return windowBars[direction.getValue()];
+    return windowBars[direction.ordinal()];
   }
 
   /**
@@ -931,7 +931,7 @@ public class RootWindow extends DockingWindow implements ReadWritable {
   }
 
   private void createWindowBars() {
-    final Direction[] directions = Direction.getDirections();
+    final Direction[] directions = Direction.values();
 
     for (int i = 0; i < directions.length; i++) {
       windowBars[i] = new WindowBar(this, directions[i]);

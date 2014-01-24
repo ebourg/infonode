@@ -23,8 +23,6 @@
 // $Id: TabDepthOrderPolicy.java,v 1.4 2004/11/11 14:10:33 jesper Exp $
 package net.infonode.tabbedpanel;
 
-import net.infonode.util.Enum;
-
 /**
  * TabDepthOrderPolicy defines the depth order for the tabs in a tabbed panel's
  * tab area when tab spacing is negative i.e. the tabs are overlapping.
@@ -35,33 +33,19 @@ import net.infonode.util.Enum;
  * @see TabbedPanelProperties
  * @since ITP 1.2.0
  */
-public class TabDepthOrderPolicy extends Enum {
-  private static final long serialVersionUID = 1;
+public enum TabDepthOrderPolicy {
 
   /**
    * Descending depth order policy. This means that the first tab will be the
    * top most and the last tab will be the bottom most. Note that if a tab is
    * highlighted, it will always be on top of the other tabs.
    */
-  public static final TabDepthOrderPolicy DESCENDING = new TabDepthOrderPolicy(0, "Descending");
+  DESCENDING,
 
   /**
    * Ascending depth order policy. This means that the first tab will be the
    * bottom most and the last tab will be the top most. Note that if a tab is
    * highlighted, it will always be on top of the other tabs.
    */
-  public static final TabDepthOrderPolicy ASCENDING = new TabDepthOrderPolicy(1, "Ascending");
-
-  private TabDepthOrderPolicy(int value, String name) {
-    super(value, name);
-  }
-
-  /**
-   * Gets the available tab depth order policies.
-   *
-   * @return the tab depth order policies
-   */
-  public static TabDepthOrderPolicy[] getDepthOrderPolicies() {
-    return new TabDepthOrderPolicy[]{DESCENDING, ASCENDING};
-  }
+  ASCENDING
 }

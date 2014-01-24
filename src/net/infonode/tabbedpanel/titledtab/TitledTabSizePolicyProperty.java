@@ -47,7 +47,7 @@ public class TitledTabSizePolicyProperty extends EnumProperty {
                                      String name,
                                      String description,
                                      PropertyValueHandler valueStorage) {
-    super(group, name, TitledTabSizePolicy.class, description, valueStorage, TitledTabSizePolicy.getSizePolicies());
+    super(group, name, TitledTabSizePolicy.class, description, valueStorage, TitledTabSizePolicy.values());
   }
 
   /**

@@ -62,7 +62,7 @@ public class PaneHandler {
 
     DynamicUIManager.getInstance().addPrioritizedListener(uiListener);
 
-    Direction[] directions = Direction.getDirections();
+    Direction[] directions = Direction.values();
     panePainters = new PanePainter[directions.length];
 
     JPanel panel = new JPanel(null);

@@ -23,8 +23,6 @@
 // $Id: TitledTabSizePolicy.java,v 1.6 2004/09/28 15:07:29 jesper Exp $
 package net.infonode.tabbedpanel.titledtab;
 
-import net.infonode.util.Enum;
-
 /**
  * TitledTabSizePolicy defines how TitledTab should calculate its size.
  * If the different tab states results in different tab sizes, then TitledTab
@@ -34,38 +32,18 @@ import net.infonode.util.Enum;
  * @author $Author: jesper $
  * @version $Revision: 1.6 $
  */
-public final class TitledTabSizePolicy extends Enum {
-  private static final long serialVersionUID = -7834501681762485226L;
+public enum TitledTabSizePolicy {
 
   /**
    * Equal size policy. This menas that if the different tab states results in
    * different tab sizes, then titled tab will calculate the maximum size for the
    * states and use that size for all the states.
    */
-  public static final TitledTabSizePolicy EQUAL_SIZE = new TitledTabSizePolicy(0, "Equal Size");
+  EQUAL_SIZE,
 
   /**
    * Individual size policy. This means that if the different tab states have
    * different sizes then titled tab will have different size for the states.
    */
-  public static final TitledTabSizePolicy INDIVIDUAL_SIZE = new TitledTabSizePolicy(1, "Individual Size");
-
-  /**
-   * An array with all size policies.
-   */
-  public static final TitledTabSizePolicy[] SIZE_POLICIES = new TitledTabSizePolicy[]{EQUAL_SIZE, INDIVIDUAL_SIZE};
-
-  private TitledTabSizePolicy(int value, String name) {
-    super(value, name);
-  }
-
-  /**
-   * Gets the size policies.
-   *
-   * @return the size policies
-   * @since ITP 1.1.0
-   */
-  public static TitledTabSizePolicy[] getSizePolicies() {
-    return (TitledTabSizePolicy[]) SIZE_POLICIES.clone();
-  }
+  INDIVIDUAL_SIZE
 }

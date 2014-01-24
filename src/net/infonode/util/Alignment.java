@@ -32,38 +32,22 @@ import java.io.ObjectInputStream;
  * @author $Author: jesper $
  * @version $Revision: 1.5 $
  */
-public final class Alignment extends Enum {
-  private static final long serialVersionUID = 4945539895437047593L;
+public enum Alignment {
 
-  /**
-   * Left alignment.
-   */
-  public static final Alignment LEFT = new Alignment(0, "Left");
+  /** Left alignment. */
+  LEFT, 
 
-  /**
-   * Center alignment.
-   */
-  public static final Alignment CENTER = new Alignment(1, "Center");
+  /** Center alignment. */
+  CENTER,
 
-  /**
-   * Right alignment.
-   */
-  public static final Alignment RIGHT = new Alignment(2, "Right");
+  /** Right alignment. */
+  RIGHT,
 
-  /**
-   * Top alignment.
-   */
-  public static final Alignment TOP = new Alignment(3, "Top");
+  /** Top alignment. */
+  TOP,
 
-  /**
-   * Bottom alignment.
-   */
-  public static final Alignment BOTTOM = new Alignment(4, "Bottom");
-
-  /**
-   * Array containing all alignments..
-   */
-  public static final Alignment[] ALIGNMENTS = {LEFT, CENTER, RIGHT, TOP, BOTTOM};
+  /** Bottom alignment. */
+  BOTTOM;
 
   /**
    * Array containing all horizontal alignments..
@@ -75,20 +59,6 @@ public final class Alignment extends Enum {
    */
   public static final Alignment[] VERTICAL_ALIGNMENTS = {TOP, CENTER, BOTTOM};
 
-  private Alignment(int value, String name) {
-    super(value, name);
-  }
-
-  /**
-   * Gets the alignments.
-   *
-   * @return the alignments
-   * @since 1.1.0
-   */
-  public static Alignment[] getAlignments() {
-    return (Alignment[]) ALIGNMENTS.clone();
-  }
-
   /**
    * Gets the horizontal alignments.
    *
@@ -96,7 +66,7 @@ public final class Alignment extends Enum {
    * @since 1.1.0
    */
   public static Alignment[] getHorizontalAlignments() {
-    return (Alignment[]) HORIZONTAL_ALIGNMENTS.clone();
+    return HORIZONTAL_ALIGNMENTS.clone();
   }
 
   /**
@@ -106,17 +76,6 @@ public final class Alignment extends Enum {
    * @since 1.1.0
    */
   public static Alignment[] getVerticalAlignments() {
-    return (Alignment[]) VERTICAL_ALIGNMENTS.clone();
-  }
-
-  /**
-   * Decodes an alignment from a stream.
-   *
-   * @param in the stream containing the alignment
-   * @return the alignment
-   * @throws IOException if there is a stream error
-   */
-  public static Alignment decode(ObjectInputStream in) throws IOException {
-    return (Alignment) decode(Alignment.class, in);
+    return VERTICAL_ALIGNMENTS.clone();
   }
 }

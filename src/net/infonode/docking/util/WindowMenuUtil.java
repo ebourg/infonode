@@ -49,7 +49,7 @@ public final class WindowMenuUtil {
   private static final Icon[] ARROW_ICONS = new Icon[4];
 
   static {
-    final Direction[] directions = Direction.getDirections();
+    final Direction[] directions = Direction.values();
 
     for (int i = 0; i < directions.length; i++)
       ARROW_ICONS[i] = new ArrowIcon(InternalDockingUtil.DEFAULT_BUTTON_ICON_SIZE + 1, directions[i]);
@@ -68,13 +68,13 @@ public final class WindowMenuUtil {
 
     if (window.isMinimizable()) {
       final RootWindow root = window.getRootWindow();
-      final Direction[] directions = Direction.getDirections();
+      final Direction[] directions = Direction.values();
 
       for (int i = 0; i < 4; i++) {
         final Direction dir = directions[i];
 
         if (!DockingUtil.isAncestor(root.getWindowBar(dir), window) && root.getWindowBar(dir).isEnabled()) {
-          moveToMenu.add(new JMenuItem(dir.getName(), ARROW_ICONS[i])).addActionListener(new ActionListener() {
+          moveToMenu.add(new JMenuItem(dir.name(), ARROW_ICONS[i])).addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
               root.getWindowBar(dir).addTab(window);
             }
@@ -153,11 +153,11 @@ public final class WindowMenuUtil {
 
     JMenu orientationMenu = new JMenu("Tab Orientation");
     TabbedPanelProperties properties = tabWindow.getTabWindowProperties().getTabbedPanelProperties();
-    final Direction[] directions = Direction.getDirections();
+    final Direction[] directions = Direction.values();
 
     for (int i = 0; i < directions.length; i++) {
       final Direction dir = directions[i];
-      JMenuItem item = orientationMenu.add(new JMenuItem(dir.getName(), ARROW_ICONS[i]));
+      JMenuItem item = orientationMenu.add(new JMenuItem(dir.name(), ARROW_ICONS[i]));
       item.setEnabled(dir != properties.getTabAreaOrientation());
       item.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
@@ -178,13 +178,13 @@ public final class WindowMenuUtil {
     JMenu directionMenu = new JMenu("Tab Direction");
     TitledTabProperties properties = TitledTabProperties.getDefaultProperties();
     properties.addSuperObject(tabWindow.getTabWindowProperties().getTabProperties().getTitledTabProperties());
-    final Direction[] directions = Direction.getDirections();
+    final Direction[] directions = Direction.values();
 
     for (int i = 0; i < directions.length; i++) {
       final Direction dir = directions[i];
 
       if (dir != Direction.LEFT) {
-        JMenuItem item = directionMenu.add(new JMenuItem(dir.getName(), ARROW_ICONS[i]));
+        JMenuItem item = directionMenu.add(new JMenuItem(dir.name(), ARROW_ICONS[i]));
         item.setEnabled(dir != properties.getNormalProperties().getDirection());
         item.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e) {

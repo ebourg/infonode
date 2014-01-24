@@ -25,6 +25,7 @@ package net.infonode.util;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 /**
  * An enum class for directions, up, down, left, right.
@@ -32,33 +33,19 @@ import java.io.ObjectInputStream;
  * @author $Author: jesper $
  * @version $Revision: 1.6 $
  */
-final public class Direction extends Enum {
-  private static final long serialVersionUID = 1;
+public enum Direction implements Writable {
 
-  /**
-   * Up direction.
-   */
-  public static final Direction UP = new Direction(0, "Up", false);
+  /** Up direction. */
+  UP(false),
 
-  /**
-   * Right direction.
-   */
-  public static final Direction RIGHT = new Direction(1, "Right", true);
+  /** Right direction. */
+  RIGHT(true),
 
-  /**
-   * Down direction.
-   */
-  public static final Direction DOWN = new Direction(2, "Down", false);
+  /** Down direction. */
+  DOWN(false),
 
-  /**
-   * Left direction.
-   */
-  public static final Direction LEFT = new Direction(3, "Left", true);
-
-  /**
-   * Array containing all directions.
-   */
-  public static final Direction[] DIRECTIONS = {UP, RIGHT, DOWN, LEFT};
+  /** Left direction. */
+  LEFT(true);
 
   static {
     UP.rotateCW = RIGHT;
@@ -70,8 +57,7 @@ final public class Direction extends Enum {
   private transient Direction rotateCW;
   private transient boolean isHorizontal;
 
-  private Direction(int value, String name, boolean isHorizontal) {
-    super(value, name);
+  private Direction(boolean isHorizontal) {
     this.isHorizontal = isHorizontal;
   }
 
@@ -112,16 +98,6 @@ final public class Direction extends Enum {
   }
 
   /**
-   * Gets all directions.
-   *
-   * @return all directions
-   * @since 1.1.0
-   */
-  public static Direction[] getDirections() {
-    return (Direction[]) DIRECTIONS.clone();
-  }
-
-  /**
    * Decodes a direction from a stream.
    *
    * @param in the stream containing the direction
@@ -129,7 +105,11 @@ final public class Direction extends Enum {
    * @throws IOException if there is a stream error
    */
   public static Direction decode(ObjectInputStream in) throws IOException {
-    return (Direction) decode(Direction.class, in);
+    int ordinal = in.readShort();
+    return values()[ordinal];
   }
 
+  public void write(ObjectOutputStream out) throws IOException {
+    out.writeShort(ordinal());
+  }
 }

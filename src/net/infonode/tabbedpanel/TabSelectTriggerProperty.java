@@ -50,7 +50,7 @@ public class TabSelectTriggerProperty extends EnumProperty {
                                   String name,
                                   String description,
                                   PropertyValueHandler valueStorage) {
-    super(group, name, TabSelectTrigger.class, description, valueStorage, TabSelectTrigger.getSelectTriggers());
+    super(group, name, TabSelectTrigger.class, description, valueStorage, TabSelectTrigger.values());
   }
 
   /**
