@@ -28,7 +28,7 @@ import java.awt.*;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 
-public class ComponentCache {
+class ComponentCache {
   private ArrayList cache = new ArrayList(10);
 
   private int index = 0;
@@ -52,9 +52,8 @@ public class ComponentCache {
     else {
       c = (JComponent) ((SoftReference) cache.get(index)).get();
       if (c == null) {
-        cache.remove(index);
         c = createComponent();
-        cache.add(new SoftReference(c));
+        cache.set(index, new SoftReference(c));
       }
     }
 
