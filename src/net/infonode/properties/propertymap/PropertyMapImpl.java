@@ -379,9 +379,12 @@ public class PropertyMapImpl implements PropertyMap {
   public void addSuperMap(PropertyMap superMap) {
     PropertyMapImpl superMapImpl = (PropertyMapImpl) superMap;
 
-/*    if (!propertyObjectImpl.propertyGroup.isA(propertyGroup))
-      throw new RuntimeException("Property group '" + propertyObjectImpl.propertyGroup + "¨' can't be assigned to group '" + propertyGroup + "'!");
-      */
+    /*if (!propertyObjectImpl.propertyGroup.isA(propertyGroup)) {
+      throw new RuntimeException(String.format("Property group '%s' can't be"
+          + "assigned to group '%s'!", 
+          propertyObjectImpl.propertyGroup,
+          propertyGroup));
+    }*/
     PropertyMapManager.getInstance().beginBatch();
 
     try {
