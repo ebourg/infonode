@@ -380,7 +380,7 @@ public class PropertyMapImpl implements PropertyMap {
     PropertyMapImpl superMapImpl = (PropertyMapImpl) superMap;
 
 /*    if (!propertyObjectImpl.propertyGroup.isA(propertyGroup))
-      throw new RuntimeException("Property group '" + propertyObjectImpl.propertyGroup + "¨' can't be assigned to group '" + propertyGroup + "'!");
+      throw new RuntimeException("Property group '" + propertyObjectImpl.propertyGroup + "' can't be assigned to group '" + propertyGroup + "'!");
       */
     PropertyMapManager.getInstance().beginBatch();
 
