@@ -28,7 +28,6 @@ import net.infonode.gui.componentpainter.ComponentPainter;
 import net.infonode.util.Direction;
 
 import javax.swing.*;
-import java.applet.Applet;
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -160,7 +159,7 @@ public class ComponentUtil {
 
   public static Component getTopLevelAncestor(Component c) {
     while (c != null) {
-      if (c instanceof Window || c instanceof Applet)
+      if (c instanceof Window)
         break;
       c = c.getParent();
     }
