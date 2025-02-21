@@ -108,11 +108,9 @@ public class TitledTabDelayedMouseExitHoverAction implements HoverListener {
 
     delayedAction.mouseExited(event);
 
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        if (tab.getTabbedPanel() != tp) {
-          delayedAction.forceExit(tab);
-        }
+    SwingUtilities.invokeLater(() -> {
+      if (tab.getTabbedPanel() != tp) {
+        delayedAction.forceExit(tab);
       }
     });
   }

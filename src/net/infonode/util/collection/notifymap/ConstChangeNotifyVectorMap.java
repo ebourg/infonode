@@ -28,7 +28,6 @@ import net.infonode.util.collection.map.ConstVectorMap;
 import net.infonode.util.collection.map.MapAdapter;
 import net.infonode.util.collection.map.base.ConstMap;
 import net.infonode.util.collection.map.base.ConstMapIterator;
-import net.infonode.util.signal.Signal;
 import net.infonode.util.signal.SignalListener;
 
 import java.util.ArrayList;
@@ -99,29 +98,27 @@ public class ConstChangeNotifyVectorMap extends AbstractConstChangeNotifyMap {
 
     final ConstChangeNotifyMap map = getMap(index);
 
-    SignalListener mapListener = new SignalListener() {
-      public void signalEmitted(Signal signal, Object object) {
-        ConstMap changes = (ConstMap) object;
-        MapAdapter changes2 = new MapAdapter();
-        int index = getMapIndex(map);
+    SignalListener mapListener = (signal, object) -> {
+      ConstMap changes = (ConstMap) object;
+      MapAdapter changes2 = new MapAdapter();
+      int index1 = getMapIndex(map);
 
-        for (ConstMapIterator iterator = changes.constIterator(); iterator.atEntry(); iterator.next()) {
-          Object value = getValue(iterator.getKey(), 0, index);
+      for (ConstMapIterator iterator = changes.constIterator(); iterator.atEntry(); iterator.next()) {
+        Object value = getValue(iterator.getKey(), 0, index1);
 
-          if (value == null) {
-            ValueChange vc = (ValueChange) iterator.getValue();
-            changes2.put(iterator.getKey(), vc.getOldValue() == null ? new ValueChange(
-                getValue(iterator.getKey(), index + 1, getMapCount()), vc.getNewValue()) :
-                                            vc.getNewValue() == null ? new ValueChange(vc.getOldValue(),
-                                                                                       getValue(iterator.getKey(),
-                                                                                                index + 1,
-                                                                                                getMapCount())) :
-                                            vc);
-          }
+        if (value == null) {
+          ValueChange vc = (ValueChange) iterator.getValue();
+          changes2.put(iterator.getKey(), vc.getOldValue() == null ? new ValueChange(
+              getValue(iterator.getKey(), index1 + 1, getMapCount()), vc.getNewValue()) :
+                                          vc.getNewValue() == null ? new ValueChange(vc.getOldValue(),
+                                                                                     getValue(iterator.getKey(),
+                                                                                              index1 + 1,
+                                                                                              getMapCount())) :
+                                          vc);
         }
-
-        fireEntriesChanged(changes2);
       }
+
+      fireEntriesChanged(changes2);
     };
 
     mapListeners.add(index, mapListener);

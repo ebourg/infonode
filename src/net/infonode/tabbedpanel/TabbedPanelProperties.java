@@ -436,22 +436,20 @@ public class TabbedPanelProperties extends PropertyMapContainer {
   }
 
   private static void updateVisualProperties() {
-    PropertyMapManager.runBatch(new Runnable() {
-      public void run() {
-        DEFAULT_PROPERTIES.getContentPanelProperties().getComponentProperties().setBorder(
-            new OpenContentBorder(TabbedUIDefaults.getDarkShadow(), TabbedUIDefaults.getHighlight()))
-            .setInsets(TabbedUIDefaults.getContentAreaInsets())
-            .setBackgroundColor(TabbedUIDefaults.getContentAreaBackground());
-        DEFAULT_PROPERTIES.getContentPanelProperties().getShapedPanelProperties().setOpaque(true);
+    PropertyMapManager.runBatch(() -> {
+      DEFAULT_PROPERTIES.getContentPanelProperties().getComponentProperties().setBorder(
+          new OpenContentBorder(TabbedUIDefaults.getDarkShadow(), TabbedUIDefaults.getHighlight()))
+          .setInsets(TabbedUIDefaults.getContentAreaInsets())
+          .setBackgroundColor(TabbedUIDefaults.getContentAreaBackground());
+      DEFAULT_PROPERTIES.getContentPanelProperties().getShapedPanelProperties().setOpaque(true);
 
-        DEFAULT_PROPERTIES.getTabAreaComponentsProperties().setStretchEnabled(false).getComponentProperties()
-            .setBorder(new CompoundBorder(new TabAreaLineBorder(TabbedUIDefaults.getDarkShadow()),
-                                          new HighlightBorder(false, TabbedUIDefaults.getHighlight())))
-            .setBackgroundColor(TabbedUIDefaults.getContentAreaBackground());
-        DEFAULT_PROPERTIES.getTabAreaComponentsProperties().getShapedPanelProperties().setOpaque(true);
+      DEFAULT_PROPERTIES.getTabAreaComponentsProperties().setStretchEnabled(false).getComponentProperties()
+          .setBorder(new CompoundBorder(new TabAreaLineBorder(TabbedUIDefaults.getDarkShadow()),
+                                        new HighlightBorder(false, TabbedUIDefaults.getHighlight())))
+          .setBackgroundColor(TabbedUIDefaults.getContentAreaBackground());
+      DEFAULT_PROPERTIES.getTabAreaComponentsProperties().getShapedPanelProperties().setOpaque(true);
 
-        DEFAULT_PROPERTIES.getTabAreaProperties().getShapedPanelProperties().setOpaque(false);
-      }
+      DEFAULT_PROPERTIES.getTabAreaProperties().getShapedPanelProperties().setOpaque(false);
     });
   }
 

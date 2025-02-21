@@ -157,134 +157,126 @@ public class LookAndFeelTheme extends TabbedPanelTitledTabTheme {
       if (themeCounter == 0) {
         ui.dispose();
 
-        PropertyMapManager.runBatch(new Runnable() {
-          public void run() {
-            tpProps.getMap().clear(true);
-            tabProps.getMap().clear(true);
-          }
+        PropertyMapManager.runBatch(() -> {
+          tpProps.getMap().clear(true);
+          tabProps.getMap().clear(true);
         });
       }
     }
   }
 
   private void initTheme() {
-    PropertyMapManager.runBatch(new Runnable() {
-      public void run() {
-        tpProps.getMap().clear(true);
-        tabProps.getMap().clear(true);
+    PropertyMapManager.runBatch(() -> {
+      tpProps.getMap().clear(true);
+      tabProps.getMap().clear(true);
 
-        {
-          tpProps.setShadowEnabled(false).setTabSpacing(ui.getTabSpacing()).setTabScrollingOffset(ui.getScrollOffset())
-              .setEnsureSelectedTabVisible(true);
-          tpProps.getTabAreaComponentsProperties().getComponentProperties().setBorder(null).setInsets(
-              InsetsUtil.EMPTY_INSETS);
+      {
+        tpProps.setShadowEnabled(false).setTabSpacing(ui.getTabSpacing()).setTabScrollingOffset(ui.getScrollOffset())
+            .setEnsureSelectedTabVisible(true);
+        tpProps.getTabAreaComponentsProperties().getComponentProperties().setBorder(null).setInsets(
+            InsetsUtil.EMPTY_INSETS);
 
-          tpProps.getTabAreaProperties().getComponentProperties().setInsets(InsetsUtil.EMPTY_INSETS).setBorder(new Border() {
-            public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-            }
+        tpProps.getTabAreaProperties().getComponentProperties().setInsets(InsetsUtil.EMPTY_INSETS).setBorder(new Border() {
+          public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+          }
 
-            public Insets getBorderInsets(Component c) {
-              TabbedPanel tp = TabbedUtils.getParentTabbedPanel(c);
-              return tp.isTabAreaVisible() ?
-                     ui.getTabAreaInsets(tp.getProperties().getTabAreaOrientation()) : InsetsUtil.EMPTY_INSETS;
-            }
+          public Insets getBorderInsets(Component c) {
+            TabbedPanel tp = TabbedUtils.getParentTabbedPanel(c);
+            return tp.isTabAreaVisible() ?
+                   ui.getTabAreaInsets(tp.getProperties().getTabAreaOrientation()) : InsetsUtil.EMPTY_INSETS;
+          }
 
-            public boolean isBorderOpaque() {
-              return false;
-            }
+          public boolean isBorderOpaque() {
+            return false;
+          }
 
-          });
+        });
 
-          tpProps.getTabAreaComponentsProperties().getShapedPanelProperties().setOpaque(ui.isTabAreaComponentsOpaque());
+        tpProps.getTabAreaComponentsProperties().getShapedPanelProperties().setOpaque(ui.isTabAreaComponentsOpaque());
 
-          tpProps.getTabAreaProperties().getShapedPanelProperties().setOpaque(ui.isTabAreaOpaque())
-              .setComponentPainter(new ComponentPainter() {
+        tpProps.getTabAreaProperties().getShapedPanelProperties().setOpaque(ui.isTabAreaOpaque())
+            .setComponentPainter(new ComponentPainter() {
 
-                public void paint(Component component, Graphics g, int x, int y, int width, int height) {
-                }
+              public void paint(Component component, Graphics g, int x, int y, int width, int height) {
+              }
 
-                public void paint(Component component, Graphics g, int x, int y, int width, int height, Direction direction,
-                                  boolean horizontalFlip, boolean verticalFlip) {
-                  ui.paintTabArea(TabbedUtils.getParentTabbedPanel(component), g, x, y, width, height);
-                }
+              public void paint(Component component, Graphics g, int x, int y, int width, int height, Direction direction,
+                                boolean horizontalFlip, boolean verticalFlip) {
+                ui.paintTabArea(TabbedUtils.getParentTabbedPanel(component), g, x, y, width, height);
+              }
 
-                public boolean isOpaque(Component component) {
-                  return false;
-                }
+              public boolean isOpaque(Component component) {
+                return false;
+              }
 
-                public Color getColor(Component component) {
-                  return null;
-                }
-              });
+              public Color getColor(Component component) {
+                return null;
+              }
+            });
 
-          tpProps.getContentPanelProperties().getShapedPanelProperties().setOpaque(ui.isContentOpaque())
-              .setComponentPainter(new ComponentPainter() {
-                public void paint(Component component, Graphics g, int x, int y, int width, int height) {
-                }
+        tpProps.getContentPanelProperties().getShapedPanelProperties().setOpaque(ui.isContentOpaque())
+            .setComponentPainter(new ComponentPainter() {
+              public void paint(Component component, Graphics g, int x, int y, int width, int height) {
+              }
 
-                public void paint(Component component, Graphics g, int x, int y, int width, int height, Direction direction,
-                                  boolean horizontalFlip, boolean verticalFlip) {
-                  TabbedPanelContentPanel p = TabbedUtils.getParentTabbedPanelContentPanel(component);
-                  ui.paintContentArea(p, g, x, y, width, height);
-                }
+              public void paint(Component component, Graphics g, int x, int y, int width, int height, Direction direction,
+                                boolean horizontalFlip, boolean verticalFlip) {
+                TabbedPanelContentPanel p = TabbedUtils.getParentTabbedPanelContentPanel(component);
+                ui.paintContentArea(p, g, x, y, width, height);
+              }
 
-                public boolean isOpaque(Component component) {
-                  return false;
-                }
+              public boolean isOpaque(Component component) {
+                return false;
+              }
 
-                public Color getColor(Component component) {
-                  return null;
-                }
-              });
+              public Color getColor(Component component) {
+                return null;
+              }
+            });
 
-          tpProps.getContentPanelProperties().getComponentProperties().setInsets(InsetsUtil.EMPTY_INSETS).setBorder(new Border() {
-            public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-            }
+        tpProps.getContentPanelProperties().getComponentProperties().setInsets(InsetsUtil.EMPTY_INSETS).setBorder(new Border() {
+          public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+          }
 
-            public Insets getBorderInsets(Component c) {
-              TabbedPanel tp = TabbedUtils.getParentTabbedPanelContentPanel(c).getTabbedPanel();
-              return ui.getContentInsets(tp.getProperties().getTabAreaOrientation(), tp.isTabAreaVisible());
-            }
+          public Insets getBorderInsets(Component c) {
+            TabbedPanel tp = TabbedUtils.getParentTabbedPanelContentPanel(c).getTabbedPanel();
+            return ui.getContentInsets(tp.getProperties().getTabAreaOrientation(), tp.isTabAreaVisible());
+          }
 
-            public boolean isBorderOpaque() {
-              return false;
-            }
-          });
-        }
+          public boolean isBorderOpaque() {
+            return false;
+          }
+        });
+      }
 
-        {
-          tabProps.setSizePolicy(TitledTabSizePolicy.INDIVIDUAL_SIZE).setBorderSizePolicy(
-              TitledTabBorderSizePolicy.EQUAL_SIZE)
-              .setHighlightedRaised(ui.getSelectedRaised(Direction.UP)).setFocusMarkerEnabled(false);
+      {
+        tabProps.setSizePolicy(TitledTabSizePolicy.INDIVIDUAL_SIZE).setBorderSizePolicy(
+            TitledTabBorderSizePolicy.EQUAL_SIZE)
+            .setHighlightedRaised(ui.getSelectedRaised(Direction.UP)).setFocusMarkerEnabled(false);
 
-          tabProps.getNormalProperties().setIconTextGap(ui.getTextIconGap()).setTextTitleComponentGap(
-              ui.getTextIconGap());
+        tabProps.getNormalProperties().setIconTextGap(ui.getTextIconGap()).setTextTitleComponentGap(
+            ui.getTextIconGap());
 
-          tabProps.getNormalProperties().getComponentProperties().setInsets(InsetsUtil.EMPTY_INSETS)
-              .setBorder(createTabInsetsBorder(false)).setFont(ui.getFont());
-          tabProps.getHighlightedProperties().getComponentProperties().setBorder(createTabInsetsBorder(true));
+        tabProps.getNormalProperties().getComponentProperties().setInsets(InsetsUtil.EMPTY_INSETS)
+            .setBorder(createTabInsetsBorder(false)).setFont(ui.getFont());
+        tabProps.getHighlightedProperties().getComponentProperties().setBorder(createTabInsetsBorder(true));
 
-          tabProps.getDisabledProperties().getComponentProperties().setBorder(createTabInsetsBorder(false));
+        tabProps.getDisabledProperties().getComponentProperties().setBorder(createTabInsetsBorder(false));
 
-          tabProps.getNormalProperties().getShapedPanelProperties().setOpaque(false).setComponentPainter(null);
+        tabProps.getNormalProperties().getShapedPanelProperties().setOpaque(false).setComponentPainter(null);
 
-          tabProps.setMinimumSizeProvider(new DimensionProvider() {
-            public Dimension getDimension(Component c) {
-              return ui.getTabExternalMinSize(
-                  TabbedUtils.getParentTab(c).getTabbedPanel().getProperties().getTabAreaOrientation());
-            }
-          });
+        tabProps.setMinimumSizeProvider(c -> ui.getTabExternalMinSize(
+            TabbedUtils.getParentTab(c).getTabbedPanel().getProperties().getTabAreaOrientation()));
 
-          tabProps.setHoverListener(new HoverListener() {
-            public void mouseEntered(HoverEvent event) {
-              ui.setHoveredTab((Tab) event.getSource());
-            }
+        tabProps.setHoverListener(new HoverListener() {
+          public void mouseEntered(HoverEvent event) {
+            ui.setHoveredTab((Tab) event.getSource());
+          }
 
-            public void mouseExited(HoverEvent event) {
-              ui.setHoveredTab(null);
-            }
-          });
-        }
+          public void mouseExited(HoverEvent event) {
+            ui.setHoveredTab(null);
+          }
+        });
       }
     });
   }

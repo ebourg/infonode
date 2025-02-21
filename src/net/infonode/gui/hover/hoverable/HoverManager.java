@@ -44,21 +44,15 @@ import net.infonode.util.ArrayUtil;
 public class HoverManager {
   private static HoverManager INSTANCE = new HoverManager();
 
-  private final HierarchyListener hierarchyListener = new HierarchyListener() {
-    public void hierarchyChanged(final HierarchyEvent e) {
-      SwingUtilities.invokeLater(new Runnable() {
-        public void run() {
-          if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) {
-            if (((Component) e.getSource()).isShowing()) {
-              addHoverListeners((Hoverable) e.getSource());
-            } else {
-              removeHoverListeners((Hoverable) e.getSource());
-            }
-          }
-        }
-      });
+  private final HierarchyListener hierarchyListener = e -> SwingUtilities.invokeLater(() -> {
+    if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) {
+      if (((Component) e.getSource()).isShowing()) {
+        addHoverListeners((Hoverable) e.getSource());
+      } else {
+        removeHoverListeners((Hoverable) e.getSource());
+      }
     }
-  };
+  });
 
   private final MouseInputAdapter mouseAdapter = new MouseInputAdapter() {
   };
@@ -77,11 +71,9 @@ public class HoverManager {
 
   private boolean isDrag = false;
 
-  private final AWTEventListener eventListener = new AWTEventListener() {
-    public void eventDispatched(final AWTEvent e) {
-      if (active) {
-        HoverManager.this.eventDispatched(e);
-      }
+  private final AWTEventListener eventListener = e -> {
+    if (active) {
+      HoverManager.this.eventDispatched(e);
     }
   };
 
@@ -117,20 +109,14 @@ public class HoverManager {
           if (!top.contains(p.x, p.y)) {
             exitAll();
           } else if (top instanceof Container) {
-            SwingUtilities.invokeLater(new Runnable() {
-              public void run() {
-                SwingUtilities.invokeLater(new Runnable() {
-                  public void run() {
-                    Component c = ComponentUtil.findComponentUnderGlassPaneAt(p, top);
+            SwingUtilities.invokeLater(() -> SwingUtilities.invokeLater(() -> {
+              Component c = ComponentUtil.findComponentUnderGlassPaneAt(p, top);
 
-                    if (c != null) {
-                      Point p2 = SwingUtilities.convertPoint(top, p, c);
-                      eventDispatched(new MouseEvent(c, MouseEvent.MOUSE_ENTERED, 0, 0, p2.x, p2.y, 0, false));
-                    }
-                  }
-                });
+              if (c != null) {
+                Point p2 = SwingUtilities.convertPoint(top, p, c);
+                eventDispatched(new MouseEvent(c, MouseEvent.MOUSE_ENTERED, 0, 0, p2.x, p2.y, 0, false));
               }
-            });
+            }));
           }
         }
       }
@@ -177,11 +163,9 @@ public class HoverManager {
   private void handleExitEvent(MouseEvent event) {
     gotEnterAfterExit = false;
 
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        if (!gotEnterAfterExit)
-          exitAll();
-      }
+    SwingUtilities.invokeLater(() -> {
+      if (!gotEnterAfterExit)
+        exitAll();
     });
   }
 

@@ -33,7 +33,6 @@ import net.infonode.gui.hover.hoverable.HoverManager;
 import net.infonode.properties.gui.InternalPropertiesUtil;
 import net.infonode.properties.gui.util.ComponentProperties;
 import net.infonode.properties.gui.util.ShapedPanelProperties;
-import net.infonode.properties.propertymap.PropertyMap;
 import net.infonode.properties.propertymap.PropertyMapListener;
 import net.infonode.properties.propertymap.PropertyMapTreeListener;
 import net.infonode.properties.propertymap.PropertyMapWeakListenerManager;
@@ -61,17 +60,9 @@ public class ViewTitleBar extends ContentTitleBar {
   private AbstractButton[] buttons = new AbstractButton[buttonInfos.length];
   private List customBarComponents;
 
-  private PropertyMapTreeListener propertiesListener = new PropertyMapTreeListener() {
-    public void propertyValuesChanged(Map changes) {
-      updateTitleBar(changes);
-    }
-  };
+  private PropertyMapTreeListener propertiesListener = this::updateTitleBar;
 
-  private PropertyMapListener buttonsListener = new PropertyMapListener() {
-    public void propertyValuesChanged(PropertyMap propertyMap, Map changes) {
-      updateViewButtons(null);
-    }
-  };
+  private PropertyMapListener buttonsListener = (propertyMap, changes) -> updateViewButtons(null);
 
   public ViewTitleBar(View view) {
     super(view);

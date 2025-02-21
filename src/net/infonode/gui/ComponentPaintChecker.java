@@ -26,7 +26,6 @@ package net.infonode.gui;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.HierarchyEvent;
-import java.awt.event.HierarchyListener;
 
 /**
  * @author johan
@@ -35,18 +34,12 @@ public class ComponentPaintChecker {
   private boolean okToPaint = false;
 
   public ComponentPaintChecker(final Component c) {
-    c.addHierarchyListener(new HierarchyListener() {
-      public void hierarchyChanged(HierarchyEvent e) {
-        if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) == HierarchyEvent.SHOWING_CHANGED) {
-          if (c.isDisplayable())
-            SwingUtilities.invokeLater(new Runnable() {
-              public void run() {
-                okToPaint = true;
-              }
-            });
-          else
-            okToPaint = false;
-        }
+    c.addHierarchyListener(e -> {
+      if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) == HierarchyEvent.SHOWING_CHANGED) {
+        if (c.isDisplayable())
+          SwingUtilities.invokeLater(() -> okToPaint = true);
+        else
+          okToPaint = false;
       }
     });
   }

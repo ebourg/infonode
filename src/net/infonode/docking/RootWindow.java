@@ -25,8 +25,6 @@ package net.infonode.docking;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -53,7 +51,6 @@ import net.infonode.gui.componentpainter.RectangleComponentPainter;
 import net.infonode.gui.layout.BorderLayout2;
 import net.infonode.gui.layout.LayoutUtil;
 import net.infonode.gui.layout.StretchLayout;
-import net.infonode.gui.mouse.MouseButtonListener;
 import net.infonode.gui.panel.SimplePanel;
 import net.infonode.gui.shaped.panel.ShapedPanel;
 import net.infonode.properties.gui.InternalPropertiesUtil;
@@ -233,29 +230,27 @@ public class RootWindow extends DockingWindow implements Readable, Writable {
     init();
     FocusManager.getInstance();
 
-    addTabMouseButtonListener(new MouseButtonListener() {
-      public void mouseButtonEvent(MouseEvent event) {
-        if (event.isConsumed())
-          return;
+    addTabMouseButtonListener(event -> {
+      if (event.isConsumed())
+        return;
 
-        DockingWindow window = (DockingWindow) event.getSource();
+      DockingWindow window = (DockingWindow) event.getSource();
 
-        if (event.getID() == MouseEvent.MOUSE_PRESSED &&
-            event.getButton() == MouseEvent.BUTTON1 &&
-            !event.isShiftDown() &&
-            window.isShowing()) {
-          RestoreFocusWindowAction.INSTANCE.perform(window);
-        }
-        else if (event.getID() == MouseEvent.MOUSE_CLICKED && event.getButton() == MouseEvent.BUTTON1) {
-          if (event.getClickCount() == 2) {
-            if ((window.getWindowParent() instanceof WindowBar) && getRootWindowProperties()
-                .getDoubleClickRestoresWindow())
-              RestoreWithAbortWindowAction.INSTANCE.perform(window);
-            else {
-              new StateDependentWindowAction(MaximizeWithAbortWindowAction.INSTANCE,
-                  NullWindowAction.INSTANCE,
-                  RestoreParentWithAbortWindowAction.INSTANCE).perform(window);
-            }
+      if (event.getID() == MouseEvent.MOUSE_PRESSED &&
+          event.getButton() == MouseEvent.BUTTON1 &&
+          !event.isShiftDown() &&
+          window.isShowing()) {
+        RestoreFocusWindowAction.INSTANCE.perform(window);
+      }
+      else if (event.getID() == MouseEvent.MOUSE_CLICKED && event.getButton() == MouseEvent.BUTTON1) {
+        if (event.getClickCount() == 2) {
+          if ((window.getWindowParent() instanceof WindowBar) && getRootWindowProperties()
+              .getDoubleClickRestoresWindow())
+            RestoreWithAbortWindowAction.INSTANCE.perform(window);
+          else {
+            new StateDependentWindowAction(MaximizeWithAbortWindowAction.INSTANCE,
+                NullWindowAction.INSTANCE,
+                RestoreParentWithAbortWindowAction.INSTANCE).perform(window);
           }
         }
       }
@@ -782,11 +777,7 @@ public class RootWindow extends DockingWindow implements Readable, Writable {
     }
     finally {
       PropertyMapManager.getInstance().endBatch();
-      SwingUtilities.invokeLater(new Runnable() {
-        public void run() {
-          FocusManager.getInstance().stopIgnoreFocusChanges();
-        }
-      });
+      SwingUtilities.invokeLater(() -> FocusManager.getInstance().stopIgnoreFocusChanges());
     }
   }
 
@@ -948,11 +939,7 @@ public class RootWindow extends DockingWindow implements Readable, Writable {
                                                                                                                        0 :
                                                                                                                          directions[i] == Direction.DOWN ? 2 : 1));
 
-      windowBars[i].addPropertyChangeListener("enabled", new PropertyChangeListener() {
-        public void propertyChange(PropertyChangeEvent evt) {
-          updateButtonVisibility();
-        }
-      });
+      windowBars[i].addPropertyChangeListener("enabled", evt -> updateButtonVisibility());
     }
   }
 

@@ -112,15 +112,7 @@ class FocusManager {
       if (--ignoreFocusChanges == 0 && c != null) {
         c.requestFocusInWindow();
 
-        SwingUtilities.invokeLater(new Runnable() {
-          public void run() {
-            SwingUtilities.invokeLater(new Runnable() {
-              public void run() {
-                c.requestFocusInWindow();
-              }
-            });
-          }
-        });
+        SwingUtilities.invokeLater(() -> SwingUtilities.invokeLater(c::requestFocusInWindow));
       }
     }
   }
@@ -141,15 +133,7 @@ class FocusManager {
 
     window.restoreFocus();
 
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        SwingUtilities.invokeLater(new Runnable() {
-          public void run() {
-            window.restoreFocus();
-          }
-        });
-      }
-    });
+    SwingUtilities.invokeLater(() -> SwingUtilities.invokeLater(window::restoreFocus));
   }
 
   private static View getViewContaining(Component component) {

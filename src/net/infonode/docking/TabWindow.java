@@ -24,14 +24,11 @@
 package net.infonode.docking;
 
 import net.infonode.docking.drag.DockingWindowDragSource;
-import net.infonode.docking.drag.DockingWindowDragger;
-import net.infonode.docking.drag.DockingWindowDraggerProvider;
 import net.infonode.docking.internal.WriteContext;
 import net.infonode.docking.internalutil.*;
 import net.infonode.docking.model.TabWindowItem;
 import net.infonode.docking.model.ViewWriter;
 import net.infonode.docking.properties.TabWindowProperties;
-import net.infonode.properties.base.Property;
 import net.infonode.properties.propertymap.PropertyMap;
 import net.infonode.properties.propertymap.PropertyMapTreeListener;
 import net.infonode.properties.propertymap.PropertyMapWeakListenerManager;
@@ -44,7 +41,6 @@ import net.infonode.util.Direction;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.Map;
@@ -67,16 +63,8 @@ public class TabWindow extends AbstractTabWindow {
 
   private AbstractButton[] buttons = new AbstractButton[buttonInfos.length];
 
-  private PropertyChangeListener minimumSizePropertiesListener = new PropertyChangeListener() {
-    public void propertyChanged(Property property, Object valueContainer, Object oldValue, Object newValue) {
-      revalidate();
-    }
-  };
-  private PropertyMapTreeListener buttonFactoryListener = new PropertyMapTreeListener() {
-    public void propertyValuesChanged(Map changes) {
-      doUpdateButtonVisibility(changes);
-    }
-  };
+  private PropertyChangeListener minimumSizePropertiesListener = (property, valueContainer, oldValue, newValue) -> revalidate();
+  private PropertyMapTreeListener buttonFactoryListener = this::doUpdateButtonVisibility;
 
   /**
    * Creates an empty tab window.
@@ -113,19 +101,17 @@ public class TabWindow extends AbstractTabWindow {
                                                                  minimumSizePropertiesListener);
 
 
-    new DockingWindowDragSource(getTabbedPanel(), new DockingWindowDraggerProvider() {
-      public DockingWindowDragger getDragger(MouseEvent mouseEvent) {
-        if (!getWindowProperties().getDragEnabled())
-          return null;
+    new DockingWindowDragSource(getTabbedPanel(), mouseEvent -> {
+      if (!getWindowProperties().getDragEnabled())
+        return null;
 
-        Point p = SwingUtilities.convertPoint((Component) mouseEvent.getSource(),
-                                              mouseEvent.getPoint(),
-                                              getTabbedPanel());
+      Point p = SwingUtilities.convertPoint((Component) mouseEvent.getSource(),
+                                            mouseEvent.getPoint(),
+                                            getTabbedPanel());
 
-        return getTabbedPanel().tabAreaContainsPoint(p) ?
-               (getChildWindowCount() == 1 ? getChildWindow(0) : TabWindow.this).startDrag(getRootWindow()) :
-               null;
-      }
+      return getTabbedPanel().tabAreaContainsPoint(p) ?
+             (getChildWindowCount() == 1 ? getChildWindow(0) : TabWindow.this).startDrag(getRootWindow()) :
+             null;
     });
 
     initMouseListener();

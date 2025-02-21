@@ -76,15 +76,13 @@ public class Signal {
   private static ReferenceQueue refQueue = new ReferenceQueue();
 
   static {
-    Thread thread = new Thread(new Runnable() {
-      public void run() {
-        try {
-          while (true) {
-            ((WeakListener) refQueue.remove()).remove();
-          }
+    Thread thread = new Thread(() -> {
+      try {
+        while (true) {
+          ((WeakListener) refQueue.remove()).remove();
         }
-        catch (InterruptedException e) {
-        }
+      }
+      catch (InterruptedException e) {
       }
     });
     thread.setDaemon(true);

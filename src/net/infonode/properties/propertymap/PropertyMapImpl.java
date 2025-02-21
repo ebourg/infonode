@@ -287,11 +287,7 @@ public class PropertyMapImpl implements PropertyMap {
   private void updateListener() {
     if (hasListener()) {
       if (mapListener == null) {
-        mapListener = new SignalListener() {
-          public void signalEmitted(Signal signal, Object object) {
-            PropertyMapManager.getInstance().addMapChanges(PropertyMapImpl.this, (ConstMap) object);
-          }
-        };
+        mapListener = (signal, object) -> PropertyMapManager.getInstance().addMapChanges(PropertyMapImpl.this, (ConstMap) object);
 
         map.getChangeSignal().add(mapListener);
       }

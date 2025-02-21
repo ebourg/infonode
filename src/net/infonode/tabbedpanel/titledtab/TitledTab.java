@@ -51,7 +51,6 @@ import net.infonode.gui.icon.IconProvider;
 import net.infonode.gui.layout.StackableLayout;
 import net.infonode.gui.panel.SimplePanel;
 import net.infonode.gui.shaped.panel.ShapedPanel;
-import net.infonode.properties.base.Property;
 import net.infonode.properties.gui.InternalPropertiesUtil;
 import net.infonode.properties.gui.util.ComponentProperties;
 import net.infonode.properties.gui.util.ShapedPanelProperties;
@@ -498,17 +497,9 @@ public class TitledTab extends Tab implements IconProvider {
 
   private Direction lastTabAreaOrientation = Direction.UP;
 
-  private final PropertyMapTreeListener propertiesListener = new PropertyMapTreeListener() {
-    public void propertyValuesChanged(Map changes) {
-      doUpdateTab(changes);
-    }
-  };
+  private final PropertyMapTreeListener propertiesListener = this::doUpdateTab;
 
-  private final PropertyChangeListener tabbedPanelPropertiesListener = new PropertyChangeListener() {
-    public void propertyChanged(Property property, Object valueContainer, Object oldValue, Object newValue) {
-      updateTabAreaOrientation((Direction) newValue);
-    }
-  };
+  private final PropertyChangeListener tabbedPanelPropertiesListener = (property, valueContainer, oldValue, newValue) -> updateTabAreaOrientation((Direction) newValue);
 
   /*  private FocusListener focusListener = new FocusListener() {
     public void focusGained(FocusEvent e) {

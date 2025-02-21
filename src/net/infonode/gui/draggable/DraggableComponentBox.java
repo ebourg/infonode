@@ -431,11 +431,9 @@ public class DraggableComponentBox extends SimplePanel {
   }
 
   public void scrollToVisible(final DraggableComponent c) {
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        if (scrollEnabled) {
-          ((ScrollableBox) componentContainer).ensureVisible(layoutOrderList.indexOf(c.getComponent()));
-        }
+    SwingUtilities.invokeLater(() -> {
+      if (scrollEnabled) {
+        ((ScrollableBox) componentContainer).ensureVisible(layoutOrderList.indexOf(c.getComponent()));
       }
     });
   }
@@ -636,12 +634,10 @@ public class DraggableComponentBox extends SimplePanel {
   }
 
   private void ensureSelectedVisible() {
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        if (scrollEnabled && ensureSelectedVisible && selectedComponent != null) {
-          //componentContainer.validate();
-          ((ScrollableBox) componentContainer).ensureVisible(layoutOrderList.indexOf(selectedComponent.getComponent()));
-        }
+    SwingUtilities.invokeLater(() -> {
+      if (scrollEnabled && ensureSelectedVisible && selectedComponent != null) {
+        //componentContainer.validate();
+        ((ScrollableBox) componentContainer).ensureVisible(layoutOrderList.indexOf(selectedComponent.getComponent()));
       }
     });
   }

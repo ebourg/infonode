@@ -29,10 +29,7 @@ import net.infonode.gui.panel.SimplePanel;
 import net.infonode.util.Direction;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 
 public class ScrollButtonBox extends SimplePanel {
@@ -48,17 +45,9 @@ public class ScrollButtonBox extends SimplePanel {
 
   private ArrayList listeners;
 
-  private ActionListener button1Listener = new ActionListener() {
-    public void actionPerformed(ActionEvent e) {
-      fireButton1();
-    }
-  };
+  private ActionListener button1Listener = e -> fireButton1();
 
-  private ActionListener button2Listener = new ActionListener() {
-    public void actionPerformed(ActionEvent e) {
-      fireButton2();
-    }
-  };
+  private ActionListener button2Listener = e -> fireButton2();
 
   public ScrollButtonBox(boolean vertical, int iconSize) {
     this(vertical,
@@ -76,13 +65,11 @@ public class ScrollButtonBox extends SimplePanel {
     this.vertical = vertical;
     setLayout(new DirectionLayout(vertical ? Direction.DOWN : Direction.RIGHT));
 
-    addMouseWheelListener(new MouseWheelListener() {
-      public void mouseWheelMoved(MouseWheelEvent e) {
-        if (e.getWheelRotation() < 0)
-          fireButton1();
-        else
-          fireButton2();
-      }
+    addMouseWheelListener(e -> {
+      if (e.getWheelRotation() < 0)
+        fireButton1();
+      else
+        fireButton2();
     });
 
     setButtons(upButton, downButton, leftButton, rightButton);

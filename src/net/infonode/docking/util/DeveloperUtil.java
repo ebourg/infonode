@@ -27,8 +27,6 @@ import net.infonode.docking.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * <p>
@@ -105,11 +103,7 @@ public class DeveloperUtil {
 
     final JTextArea layoutArea = new JTextArea(getWindowLayoutAsString(window));
     JButton getLayoutButton = new JButton("Get Current Layout");
-    getLayoutButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        layoutArea.setText(getWindowLayoutAsString(window));
-      }
-    });
+    getLayoutButton.addActionListener(e -> layoutArea.setText(getWindowLayoutAsString(window)));
 
     Box box = new Box(BoxLayout.X_AXIS);
     box.add(getLayoutButton);

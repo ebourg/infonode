@@ -24,8 +24,6 @@
 package net.infonode.docking.internalutil;
 
 import java.awt.Container;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -89,11 +87,7 @@ public class InternalDockingUtil {
   }
 
   public static void addDebugMenuItems(JPopupMenu menu, final DockingWindow window) {
-    menu.add("Dump Tree").addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        dump(window, new Printer());
-      }
-    });
+    menu.add("Dump Tree").addActionListener(e -> dump(window, new Printer()));
   }
 
   public static void dump(DockingWindow window, Printer printer) {

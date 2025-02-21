@@ -38,7 +38,6 @@ import net.infonode.docking.properties.WindowTabStateProperties;
 import net.infonode.gui.ContainerList;
 import net.infonode.gui.panel.DirectionPanel;
 import net.infonode.gui.panel.SimplePanel;
-import net.infonode.properties.propertymap.PropertyMap;
 import net.infonode.properties.propertymap.PropertyMapListener;
 import net.infonode.properties.propertymap.PropertyMapTreeListener;
 import net.infonode.properties.propertymap.PropertyMapWeakListenerManager;
@@ -74,17 +73,9 @@ class WindowTab extends TitledTab {
   private ContainerList tabComponentsList;
   private boolean isFocused;
 
-  private final PropertyMapListener windowPropertiesListener = new PropertyMapListener() {
-    public void propertyValuesChanged(PropertyMap propertyObject, Map changes) {
-      updateTabButtons(null);
-    }
-  };
+  private final PropertyMapListener windowPropertiesListener = (propertyObject, changes) -> updateTabButtons(null);
 
-  private final PropertyMapTreeListener windowTabPropertiesListener = new PropertyMapTreeListener() {
-    public void propertyValuesChanged(Map changes) {
-      updateTabButtons(changes);
-    }
-  };
+  private final PropertyMapTreeListener windowTabPropertiesListener = this::updateTabButtons;
 
   WindowTab(DockingWindow window, boolean emptyContent) {
     super(window.getTitle(), window.getIcon(), emptyContent ? null : new SimplePanel(window), null);

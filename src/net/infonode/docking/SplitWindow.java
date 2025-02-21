@@ -35,7 +35,6 @@ import net.infonode.docking.model.ViewWriter;
 import net.infonode.docking.properties.SplitWindowProperties;
 import net.infonode.gui.ComponentUtil;
 import net.infonode.gui.SimpleSplitPane;
-import net.infonode.gui.SimpleSplitPaneListener;
 import net.infonode.gui.panel.BaseContainerUtil;
 import net.infonode.properties.propertymap.PropertyMap;
 import net.infonode.util.Direction;
@@ -98,11 +97,7 @@ public class SplitWindow extends DockingWindow {
     splitPane = new SimpleSplitPane(horizontal);
     BaseContainerUtil.setForcedOpaque(splitPane, false);
     //splitPane.setForcedOpaque(false);
-    splitPane.addListener(new SimpleSplitPaneListener() {
-      public void dividerLocationChanged(SimpleSplitPane simpleSplitPane) {
-        ((SplitWindowItem) getWindowItem()).setDividerLocation(simpleSplitPane.getDividerLocation());
-      }
-    });
+    splitPane.addListener(simpleSplitPane -> ((SplitWindowItem) getWindowItem()).setDividerLocation(simpleSplitPane.getDividerLocation()));
     setComponent(splitPane);
     setWindows(leftWindow, rightWindow);
     setHorizontal(horizontal);
@@ -176,37 +171,35 @@ public class SplitWindow extends DockingWindow {
     if (leftWindow == getLeftWindow() && rightWindow == getRightWindow())
       return;
 
-    optimizeAfter(null, new Runnable() {
-      public void run() {
-        WindowAncestors leftAncestors = leftWindow.storeAncestors();
-        WindowAncestors rightAncestors = rightWindow.storeAncestors();
+    optimizeAfter(null, () -> {
+      WindowAncestors leftAncestors = leftWindow.storeAncestors();
+      WindowAncestors rightAncestors = rightWindow.storeAncestors();
 
-        DockingWindow lw = leftWindow.getContentWindow(SplitWindow.this);
-        DockingWindow rw = rightWindow.getContentWindow(SplitWindow.this);
-        lw.detach();
-        rw.detach();
+      DockingWindow lw = leftWindow.getContentWindow(SplitWindow.this);
+      DockingWindow rw = rightWindow.getContentWindow(SplitWindow.this);
+      lw.detach();
+      rw.detach();
 
-        if (getLeftWindow() != null)
-          removeWindow(getLeftWindow());
+      if (getLeftWindow() != null)
+        removeWindow(getLeftWindow());
 
-        if (getRightWindow() != null)
-          removeWindow(getRightWindow());
+      if (getRightWindow() != null)
+        removeWindow(getRightWindow());
 
-        SplitWindow.this.leftWindow = lw;
-        SplitWindow.this.rightWindow = rw;
-        splitPane.setComponents(lw, rw);
-        addWindow(lw);
-        addWindow(rw);
+      SplitWindow.this.leftWindow = lw;
+      SplitWindow.this.rightWindow = rw;
+      splitPane.setComponents(lw, rw);
+      addWindow(lw);
+      addWindow(rw);
 
-        if (getUpdateModel()) {
-          addWindowItem(getLeftWindow(), -1);
-          addWindowItem(getRightWindow(), -1);
-          cleanUpModel();
-        }
-
-        leftWindow.notifyListeners(leftAncestors);
-        rightWindow.notifyListeners(rightAncestors);
+      if (getUpdateModel()) {
+        addWindowItem(getLeftWindow(), -1);
+        addWindowItem(getRightWindow(), -1);
+        cleanUpModel();
       }
+
+      leftWindow.notifyListeners(leftAncestors);
+      rightWindow.notifyListeners(rightAncestors);
     });
   }
 

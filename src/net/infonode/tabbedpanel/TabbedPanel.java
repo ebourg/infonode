@@ -391,16 +391,14 @@ public class TabbedPanel extends JPanel {
     }
   };
 
-  private PropertyMapTreeListener propertyChangedListener = new PropertyMapTreeListener() {
-    public void propertyValuesChanged(Map changes) {
-      updateProperties(changes);
-      updatePropertiesForTabArea(changes);
-      updatePropertiesForTabAreaComponentsArea(changes);
-      updatePropertiesForTabAreaComponentsButtons(changes);
+  private PropertyMapTreeListener propertyChangedListener = changes -> {
+    updateProperties(changes);
+    updatePropertiesForTabArea(changes);
+    updatePropertiesForTabAreaComponentsArea(changes);
+    updatePropertiesForTabAreaComponentsButtons(changes);
 
-      updateScrollButtons();
-      checkIfOnlyOneTab(true);
-    }
+    updateScrollButtons();
+    checkIfOnlyOneTab(true);
   };
 
   private void updatePropertiesForTabAreaComponentsButtons(Map changes) {

@@ -25,7 +25,6 @@ package net.infonode.gui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 
@@ -67,26 +66,18 @@ public class DynamicUIManager {
   }
 
   private DynamicUIManager() {
-    final PropertyChangeListener l = new PropertyChangeListener() {
-      public void propertyChange(PropertyChangeEvent event) {
-        handlePropertyChanges();
-      }
-    };
+    final PropertyChangeListener l = event -> handlePropertyChanges();
 
-    UIManager.addPropertyChangeListener(new PropertyChangeListener() {
-      public void propertyChange(PropertyChangeEvent event) {
-        if (event.getPropertyName().equals("lookAndFeel")) {
-          setupPropertyListener(l);
-          fireLookAndFeelChanging();
-          fireLookAndFeelChanged();
-        }
+    UIManager.addPropertyChangeListener(event -> {
+      if (event.getPropertyName().equals("lookAndFeel")) {
+        setupPropertyListener(l);
+        fireLookAndFeelChanging();
+        fireLookAndFeelChanged();
       }
     });
-    UIManager.getDefaults().addPropertyChangeListener(new PropertyChangeListener() {
-      public void propertyChange(PropertyChangeEvent event) {
-        if (!(event.getNewValue() instanceof Class))
-          handlePropertyChanges();
-      }
+    UIManager.getDefaults().addPropertyChangeListener(event -> {
+      if (!(event.getNewValue() instanceof Class))
+        handlePropertyChanges();
     });
 
     setupPropertyListener(l);
@@ -145,12 +136,10 @@ public class DynamicUIManager {
     if (!propertyChangePending) {
       propertyChangePending = true;
 
-      SwingUtilities.invokeLater(new Runnable() {
-        public void run() {
-          propertyChangePending = false;
+      SwingUtilities.invokeLater(() -> {
+        propertyChangePending = false;
 
-          firePropertyChanged();
-        }
+        firePropertyChanged();
       });
 
       firePropertyChanging();

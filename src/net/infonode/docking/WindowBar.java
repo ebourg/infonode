@@ -35,7 +35,6 @@ import net.infonode.docking.properties.WindowBarProperties;
 import net.infonode.docking.util.DockingUtil;
 import net.infonode.gui.panel.BaseContainerUtil;
 import net.infonode.gui.panel.ResizablePanel;
-import net.infonode.properties.base.Property;
 import net.infonode.properties.gui.util.ShapedPanelProperties;
 import net.infonode.properties.propertymap.PropertyMap;
 import net.infonode.properties.propertymap.PropertyMapWeakListenerManager;
@@ -66,11 +65,7 @@ public class WindowBar extends AbstractTabWindow {
   private ResizablePanel edgePanel;
   private HeavyWeightContainer heavyWeightEdgePanel;
 
-  private PropertyChangeListener opaqueListener = new PropertyChangeListener() {
-    public void propertyChanged(Property property, Object valueContainer, Object oldValue, Object newValue) {
-      updateEdgePanelOpaque();
-    }
-  };
+  private PropertyChangeListener opaqueListener = (property, valueContainer, oldValue, newValue) -> updateEdgePanelOpaque();
 
   WindowBar(RootWindow rootWindow, Direction direction) {
     super(false, new WindowBarItem());

@@ -152,14 +152,12 @@ public class LookAndFeelDockingTheme extends DockingWindowsTheme {
       if (themeCounter == 0) {
         titleBarUI.dispose();
 
-        PropertyMapManager.runBatch(new Runnable() {
-          public void run() {
-            rootProps.getTabWindowProperties().getTabbedPanelProperties().removeSuperObject(
-                tpTheme.getTabbedPanelProperties());
-            rootProps.getTabWindowProperties().getTabProperties().getTitledTabProperties().removeSuperObject(
-                tpTheme.getTitledTabProperties());
-            rootProps.getMap().clear(true);
-          }
+        PropertyMapManager.runBatch(() -> {
+          rootProps.getTabWindowProperties().getTabbedPanelProperties().removeSuperObject(
+              tpTheme.getTabbedPanelProperties());
+          rootProps.getTabWindowProperties().getTabProperties().getTitledTabProperties().removeSuperObject(
+              tpTheme.getTitledTabProperties());
+          rootProps.getMap().clear(true);
         });
 
         tpTheme.dispose();
@@ -168,165 +166,163 @@ public class LookAndFeelDockingTheme extends DockingWindowsTheme {
   }
 
   private void initTheme(final boolean initial) {
-    PropertyMapManager.runBatch(new Runnable() {
-      public void run() {
-        if (initial) {
-          rootProps.getTabWindowProperties().getTabbedPanelProperties().addSuperObject(
-              tpTheme.getTabbedPanelProperties());
-          rootProps.getTabWindowProperties().getTabProperties().getTitledTabProperties().addSuperObject(
-              tpTheme.getTitledTabProperties());
-        }
+    PropertyMapManager.runBatch(() -> {
+      if (initial) {
+        rootProps.getTabWindowProperties().getTabbedPanelProperties().addSuperObject(
+            tpTheme.getTabbedPanelProperties());
+        rootProps.getTabWindowProperties().getTabProperties().getTitledTabProperties().addSuperObject(
+            tpTheme.getTitledTabProperties());
+      }
 
-        rootProps.getMap().clear(true);
+      rootProps.getMap().clear(true);
 
-        {
-          // Window bar
-          WindowBarProperties barProps = rootProps.getWindowBarProperties();
-          // barProps.setContinuousLayoutEnabled(false);
-          barProps.getTabWindowProperties().getTabProperties().getTitledTabProperties().setSizePolicy(
-              TitledTabSizePolicy.EQUAL_SIZE);
-          barProps.getComponentProperties().setBorder(null);
+      {
+        // Window bar
+        WindowBarProperties barProps = rootProps.getWindowBarProperties();
+        // barProps.setContinuousLayoutEnabled(false);
+        barProps.getTabWindowProperties().getTabProperties().getTitledTabProperties().setSizePolicy(
+            TitledTabSizePolicy.EQUAL_SIZE);
+        barProps.getComponentProperties().setBorder(null);
 
-          final Border contentBorder = tpTheme.getTabbedPanelProperties().getContentPanelProperties()
-              .getComponentProperties()
-              .getBorder();
+        final Border contentBorder = tpTheme.getTabbedPanelProperties().getContentPanelProperties()
+            .getComponentProperties()
+            .getBorder();
 
-          ComponentPainter barContentPainter = tpTheme.getTabbedPanelProperties().getContentPanelProperties()
-              .getShapedPanelProperties()
-              .getComponentPainter();
-          barProps.getTabWindowProperties().getTabbedPanelProperties().getContentPanelProperties()
-              .getShapedPanelProperties()
-              .setOpaque(true).setComponentPainter(
-              new CompoundComponentPainter(new SolidColorComponentPainter(BackgroundColorProvider.INSTANCE),
-                                           barContentPainter));
+        ComponentPainter barContentPainter = tpTheme.getTabbedPanelProperties().getContentPanelProperties()
+            .getShapedPanelProperties()
+            .getComponentPainter();
+        barProps.getTabWindowProperties().getTabbedPanelProperties().getContentPanelProperties()
+            .getShapedPanelProperties()
+            .setOpaque(true).setComponentPainter(
+            new CompoundComponentPainter(new SolidColorComponentPainter(BackgroundColorProvider.INSTANCE),
+                                         barContentPainter));
 
-          barProps.getTabWindowProperties().getTabbedPanelProperties().getTabAreaComponentsProperties()
-              .getComponentProperties()
-              .setBorder(null);
-          barProps.getTabWindowProperties().getTabbedPanelProperties().getContentPanelProperties()
-              .getComponentProperties()
-              .setBorder(new Border() {
-                public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-                }
-
-                public Insets getBorderInsets(Component c) {
-                  Insets insets = (Insets) contentBorder.getBorderInsets(c).clone();
-
-                  Direction areaOrientation = TabbedUtils.getParentTabbedPanelContentPanel(c).getTabbedPanel()
-                      .getProperties()
-                      .getTabAreaOrientation();
-                  int minResizeEdgeInset = InsetsUtil.maxInset(insets);
-
-                  if (areaOrientation == Direction.UP)
-                    insets.bottom = Math.max(minResizeEdgeInset, insets.bottom);
-                  else if (areaOrientation == Direction.DOWN)
-                    insets.top = Math.max(minResizeEdgeInset, insets.top);
-                  else if (areaOrientation == Direction.LEFT)
-                    insets.right = Math.max(minResizeEdgeInset, insets.right);
-                  else
-                    insets.left = Math.max(minResizeEdgeInset, insets.left);
-
-                  return insets;
-                }
-
-                public boolean isBorderOpaque() {
-                  return false;
-                }
-              }).setInsets(new Insets(0, 0, 0, 0)).setBackgroundColor(null);
-        }
-
-        {
-          // Window area
-          final Color top = tpTheme.getBorderColor(Direction.UP);
-          final Color left = tpTheme.getBorderColor(Direction.LEFT);
-          final Color bottom = tpTheme.getBorderColor(Direction.DOWN);
-          final Color right = tpTheme.getBorderColor(Direction.RIGHT);
-
-          final Insets borderInsets = new Insets(top == null ? 0 : 1,
-                                                 left == null ? 0 : 1,
-                                                 bottom == null ? 0 : 1,
-                                                 right == null ? 0 : 1);
-          final boolean borderOpaque =
-              (top != null && top.getAlpha() == 255) || (left != null && left.getAlpha() == 255)
-              || (bottom != null && bottom.getAlpha() == 255) || (right != null && right.getAlpha() == 255);
-
-          final Border windowAreaBorder = new Border() {
-            public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-              if (top != null) {
-                g.setColor(top);
-                g.drawLine(x, y, x + width - (right == null ? 1 : 2), y);
+        barProps.getTabWindowProperties().getTabbedPanelProperties().getTabAreaComponentsProperties()
+            .getComponentProperties()
+            .setBorder(null);
+        barProps.getTabWindowProperties().getTabbedPanelProperties().getContentPanelProperties()
+            .getComponentProperties()
+            .setBorder(new Border() {
+              public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
               }
 
-              if (right != null) {
-                g.setColor(right);
-                g.drawLine(x + width - 1, y, x + width - 1, y + height - (bottom == null ? 1 : 2));
+              public Insets getBorderInsets(Component c) {
+                Insets insets = (Insets) contentBorder.getBorderInsets(c).clone();
+
+                Direction areaOrientation = TabbedUtils.getParentTabbedPanelContentPanel(c).getTabbedPanel()
+                    .getProperties()
+                    .getTabAreaOrientation();
+                int minResizeEdgeInset = InsetsUtil.maxInset(insets);
+
+                if (areaOrientation == Direction.UP)
+                  insets.bottom = Math.max(minResizeEdgeInset, insets.bottom);
+                else if (areaOrientation == Direction.DOWN)
+                  insets.top = Math.max(minResizeEdgeInset, insets.top);
+                else if (areaOrientation == Direction.LEFT)
+                  insets.right = Math.max(minResizeEdgeInset, insets.right);
+                else
+                  insets.left = Math.max(minResizeEdgeInset, insets.left);
+
+                return insets;
               }
 
-              if (bottom != null) {
-                g.setColor(bottom);
-                g.drawLine(left == null ? x : x + 1, y + height - 1, x + width - 1, y + height - 1);
+              public boolean isBorderOpaque() {
+                return false;
               }
+            }).setInsets(new Insets(0, 0, 0, 0)).setBackgroundColor(null);
+      }
 
-              if (left != null) {
-                g.setColor(left);
-                g.drawLine(x, top == null ? y : y + 1, x, y + height - 1);
-              }
+      {
+        // Window area
+        final Color top = tpTheme.getBorderColor(Direction.UP);
+        final Color left = tpTheme.getBorderColor(Direction.LEFT);
+        final Color bottom = tpTheme.getBorderColor(Direction.DOWN);
+        final Color right = tpTheme.getBorderColor(Direction.RIGHT);
+
+        final Insets borderInsets = new Insets(top == null ? 0 : 1,
+                                               left == null ? 0 : 1,
+                                               bottom == null ? 0 : 1,
+                                               right == null ? 0 : 1);
+        final boolean borderOpaque =
+            (top != null && top.getAlpha() == 255) || (left != null && left.getAlpha() == 255)
+            || (bottom != null && bottom.getAlpha() == 255) || (right != null && right.getAlpha() == 255);
+
+        final Border windowAreaBorder = new Border() {
+          public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+            if (top != null) {
+              g.setColor(top);
+              g.drawLine(x, y, x + width - (right == null ? 1 : 2), y);
             }
 
-            public Insets getBorderInsets(Component c) {
-              return borderInsets;
+            if (right != null) {
+              g.setColor(right);
+              g.drawLine(x + width - 1, y, x + width - 1, y + height - (bottom == null ? 1 : 2));
             }
 
-            public boolean isBorderOpaque() {
-              return borderOpaque;
+            if (bottom != null) {
+              g.setColor(bottom);
+              g.drawLine(left == null ? x : x + 1, y + height - 1, x + width - 1, y + height - 1);
             }
-          };
 
-          rootProps.getWindowAreaProperties().setInsets(new Insets(2, 2, 2, 2)).setBorder(windowAreaBorder)
-              .setBackgroundColor(null);
-          rootProps.getWindowAreaShapedPanelProperties().setComponentPainter(
-              new SolidColorComponentPainter(BackgroundColorProvider.INSTANCE)).setOpaque(true);
-        }
+            if (left != null) {
+              g.setColor(left);
+              g.drawLine(x, top == null ? y : y + 1, x, y + height - 1);
+            }
+          }
 
-        {
-          // View title bar
-          ViewTitleBarProperties titleBarProps = rootProps.getViewProperties().getViewTitleBarProperties();
-          titleBarProps.getNormalProperties().getShapedPanelProperties().setDirection(
-              titleBarUI.getRenderingDirection());
+          public Insets getBorderInsets(Component c) {
+            return borderInsets;
+          }
 
-          // Normal painter
-          ComponentPainter normalPainter = titleBarUI.getInactiveComponentPainter();
-          if (normalPainter == null)
-            titleBarProps.getNormalProperties().getShapedPanelProperties().getMap().removeValue(
-                ShapedPanelProperties.COMPONENT_PAINTER);
-          else
-            titleBarProps.getNormalProperties().getShapedPanelProperties().setComponentPainter(normalPainter);
+          public boolean isBorderOpaque() {
+            return borderOpaque;
+          }
+        };
 
-          // Focused painter
-          ComponentPainter focusedPainter = titleBarUI.getActiveComponentPainter();
-          if (focusedPainter == null)
-            titleBarProps.getFocusedProperties().getShapedPanelProperties().getMap().removeValue(
-                ShapedPanelProperties.COMPONENT_PAINTER);
-          else
-            titleBarProps.getFocusedProperties().getShapedPanelProperties().setComponentPainter(focusedPainter);
+        rootProps.getWindowAreaProperties().setInsets(new Insets(2, 2, 2, 2)).setBorder(windowAreaBorder)
+            .setBackgroundColor(null);
+        rootProps.getWindowAreaShapedPanelProperties().setComponentPainter(
+            new SolidColorComponentPainter(BackgroundColorProvider.INSTANCE)).setOpaque(true);
+      }
 
-          titleBarProps.setMinimumSizeProvider(titleBarUI.getSizeDimensionProvider()).getNormalProperties()
-              .setTitleVisible(!titleBarUI.isRenderingTitle()).setIconVisible(!titleBarUI.isRenderingIcon());
+      {
+        // View title bar
+        ViewTitleBarProperties titleBarProps = rootProps.getViewProperties().getViewTitleBarProperties();
+        titleBarProps.getNormalProperties().getShapedPanelProperties().setDirection(
+            titleBarUI.getRenderingDirection());
 
-          titleBarProps.getFocusedProperties().getComponentProperties().setInsets(titleBarUI.getInsets());
-          titleBarProps.getNormalProperties().getComponentProperties().setInsets(titleBarUI.getInsets());
+        // Normal painter
+        ComponentPainter normalPainter = titleBarUI.getInactiveComponentPainter();
+        if (normalPainter == null)
+          titleBarProps.getNormalProperties().getShapedPanelProperties().getMap().removeValue(
+              ShapedPanelProperties.COMPONENT_PAINTER);
+        else
+          titleBarProps.getNormalProperties().getShapedPanelProperties().setComponentPainter(normalPainter);
 
-          // Background colors
-          updateBackgroundColor(titleBarProps.getNormalProperties().getComponentProperties(),
-                                titleBarUI.getInactiveBackgroundColor());
-          updateBackgroundColor(titleBarProps.getFocusedProperties().getComponentProperties(),
-                                titleBarUI.getActiveBackgroundColor());
-        }
+        // Focused painter
+        ComponentPainter focusedPainter = titleBarUI.getActiveComponentPainter();
+        if (focusedPainter == null)
+          titleBarProps.getFocusedProperties().getShapedPanelProperties().getMap().removeValue(
+              ShapedPanelProperties.COMPONENT_PAINTER);
+        else
+          titleBarProps.getFocusedProperties().getShapedPanelProperties().setComponentPainter(focusedPainter);
 
-        {
-          // General
-          rootProps.setDragRectangleBorderWidth(3);
-        }
+        titleBarProps.setMinimumSizeProvider(titleBarUI.getSizeDimensionProvider()).getNormalProperties()
+            .setTitleVisible(!titleBarUI.isRenderingTitle()).setIconVisible(!titleBarUI.isRenderingIcon());
+
+        titleBarProps.getFocusedProperties().getComponentProperties().setInsets(titleBarUI.getInsets());
+        titleBarProps.getNormalProperties().getComponentProperties().setInsets(titleBarUI.getInsets());
+
+        // Background colors
+        updateBackgroundColor(titleBarProps.getNormalProperties().getComponentProperties(),
+                              titleBarUI.getInactiveBackgroundColor());
+        updateBackgroundColor(titleBarProps.getFocusedProperties().getComponentProperties(),
+                              titleBarUI.getActiveBackgroundColor());
+      }
+
+      {
+        // General
+        rootProps.setDragRectangleBorderWidth(3);
       }
     });
   }

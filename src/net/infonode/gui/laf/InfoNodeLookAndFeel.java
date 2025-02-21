@@ -349,11 +349,7 @@ public class InfoNodeLookAndFeel extends MetalLookAndFeel {
       "ComboBox.selectionBackground", theme.getSelectedMenuBackgroundColor(),
       "ComboBox.selectionForeground", theme.getSelectedMenuForegroundColor(),
 
-      "List.cellRenderer", new UIDefaults.ActiveValue() {
-        public Object createValue(UIDefaults table) {
-          return new MyListCellRenderer.UIResource(theme.getListItemBorder(), theme.getListFocusedItemBorder());
-        }
-      },
+      "List.cellRenderer", (UIDefaults.ActiveValue) t -> new MyListCellRenderer.UIResource(theme.getListItemBorder(), theme.getListFocusedItemBorder()),
 
       "ToolTip.foreground", theme.getTooltipForegroundColor(),
       "ToolTip.background", theme.getTooltipBackgroundColor(),

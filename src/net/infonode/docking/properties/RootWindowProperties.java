@@ -611,28 +611,20 @@ public class RootWindowProperties extends PropertyMapContainer {
     updateFont();
 
     TitledTabProperties.getDefaultProperties().getHighlightedProperties().getComponentProperties().getMap().
-        addListener(new PropertyMapListener() {
-          public void propertyValuesChanged(PropertyMap propertyObject, Map changes) {
-            updateFont();
-          }
-        });
+        addListener((propertyObject, changes) -> updateFont());
 
     DynamicUIManager.getInstance().addListener(new DynamicUIManagerListener() {
       public void lookAndFeelChanged() {
-        PropertyMapManager.runBatch(new Runnable() {
-          public void run() {
-            updateVisualProperties();
-            updateViewTitleBarProperties();
-          }
+        PropertyMapManager.runBatch(() -> {
+          updateVisualProperties();
+          updateViewTitleBarProperties();
         });
       }
 
       public void propertiesChanged() {
-        PropertyMapManager.runBatch(new Runnable() {
-          public void run() {
-            updateVisualProperties();
-            updateViewTitleBarProperties();
-          }
+        PropertyMapManager.runBatch(() -> {
+          updateVisualProperties();
+          updateViewTitleBarProperties();
         });
       }
 

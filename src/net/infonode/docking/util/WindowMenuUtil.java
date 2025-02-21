@@ -33,8 +33,6 @@ import net.infonode.tabbedpanel.titledtab.TitledTabProperties;
 import net.infonode.util.Direction;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * Class containing utility methods for creating window popup menues.
@@ -74,11 +72,7 @@ public final class WindowMenuUtil {
         final Direction dir = directions[i];
 
         if (!DockingUtil.isAncestor(root.getWindowBar(dir), window) && root.getWindowBar(dir).isEnabled()) {
-          moveToMenu.add(new JMenuItem(dir.name(), ARROW_ICONS[i])).addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-              root.getWindowBar(dir).addTab(window);
-            }
-          });
+          moveToMenu.add(new JMenuItem(dir.name(), ARROW_ICONS[i])).addActionListener(e -> root.getWindowBar(dir).addTab(window));
         }
       }
     }
@@ -118,26 +112,24 @@ public final class WindowMenuUtil {
     for (int i = 0; i < viewFactories.length; i++) {
       final ViewFactory vf = viewFactories[i];
 
-      viewsPopup.add(new JMenuItem(vf.getTitle(), vf.getIcon())).addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-          View view = vf.createView();
+      viewsPopup.add(new JMenuItem(vf.getTitle(), vf.getIcon())).addActionListener(e -> {
+        View view = vf.createView();
 
-          if (view.getRootWindow() == window.getRootWindow())
-            return;
+        if (view.getRootWindow() == window.getRootWindow())
+          return;
 
-          view.restore();
+        view.restore();
 
-          if (view.getRootWindow() == window.getRootWindow())
-            return;
+        if (view.getRootWindow() == window.getRootWindow())
+          return;
 
-          if (window instanceof RootWindow)
-            ((RootWindow) window).setWindow(view);
-          else {
-            AbstractTabWindow tabWindow = getTabWindowFor(window);
+        if (window instanceof RootWindow)
+          ((RootWindow) window).setWindow(view);
+        else {
+          AbstractTabWindow tabWindow = getTabWindowFor(window);
 
-            if (tabWindow != null)
-              tabWindow.addTab(view);
-          }
+          if (tabWindow != null)
+            tabWindow.addTab(view);
         }
       });
     }
@@ -159,11 +151,7 @@ public final class WindowMenuUtil {
       final Direction dir = directions[i];
       JMenuItem item = orientationMenu.add(new JMenuItem(dir.name(), ARROW_ICONS[i]));
       item.setEnabled(dir != properties.getTabAreaOrientation());
-      item.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-          tabWindow.getTabWindowProperties().getTabbedPanelProperties().setTabAreaOrientation(dir);
-        }
-      });
+      item.addActionListener(e -> tabWindow.getTabWindowProperties().getTabbedPanelProperties().setTabAreaOrientation(dir));
     }
 
     menu.add(orientationMenu);
@@ -186,12 +174,8 @@ public final class WindowMenuUtil {
       if (dir != Direction.LEFT) {
         JMenuItem item = directionMenu.add(new JMenuItem(dir.name(), ARROW_ICONS[i]));
         item.setEnabled(dir != properties.getNormalProperties().getDirection());
-        item.addActionListener(new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            tabWindow.getTabWindowProperties().getTabProperties().getTitledTabProperties().getNormalProperties()
-                .setDirection(dir);
-          }
-        });
+        item.addActionListener(e -> tabWindow.getTabWindowProperties().getTabProperties().getTitledTabProperties().getNormalProperties()
+            .setDirection(dir));
       }
     }
 
@@ -202,38 +186,20 @@ public final class WindowMenuUtil {
     if (window instanceof SplitWindow) {
       JMenu splitMenu = new JMenu("Split Window");
 
-      splitMenu.add("25%").addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-          ((SplitWindow) window).setDividerLocation(0.25f);
-        }
-      });
+      splitMenu.add("25%").addActionListener(e -> ((SplitWindow) window).setDividerLocation(0.25f));
 
-      splitMenu.add("50%").addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-          ((SplitWindow) window).setDividerLocation(0.5f);
-        }
-      });
+      splitMenu.add("50%").addActionListener(e -> ((SplitWindow) window).setDividerLocation(0.5f));
 
-      splitMenu.add("75%").addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-          ((SplitWindow) window).setDividerLocation(0.75f);
-        }
-      });
+      splitMenu.add("75%").addActionListener(e -> ((SplitWindow) window).setDividerLocation(0.75f));
 
       splitMenu.addSeparator();
 
-      splitMenu.add("Flip Orientation").addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-          ((SplitWindow) window).setHorizontal(!((SplitWindow) window).isHorizontal());
-        }
-      });
+      splitMenu.add("Flip Orientation").addActionListener(e -> ((SplitWindow) window).setHorizontal(!((SplitWindow) window).isHorizontal()));
 
-      splitMenu.add("Mirror").addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-          SplitWindow sw = (SplitWindow) window;
-          sw.setWindows(window.getChildWindow(1), window.getChildWindow(0));
-          sw.setDividerLocation(1 - sw.getDividerLocation());
-        }
+      splitMenu.add("Mirror").addActionListener(e -> {
+        SplitWindow sw = (SplitWindow) window;
+        sw.setWindows(window.getChildWindow(1), window.getChildWindow(0));
+        sw.setDividerLocation(1 - sw.getDividerLocation());
       });
 
       menu.add(splitMenu);
@@ -264,33 +230,31 @@ public final class WindowMenuUtil {
   public static WindowPopupMenuFactory createWindowMenuFactory(final ViewFactoryManager viewFactoryManager,
                                                                final boolean addTabItems,
                                                                final boolean addSplitWindowItems) {
-    return new WindowPopupMenuFactory() {
-      public JPopupMenu createPopupMenu(DockingWindow window) {
-        JPopupMenu menu = new JPopupMenu(window.getTitle());
+    return window -> {
+      JPopupMenu menu = new JPopupMenu(window.getTitle());
 
-        if (!(window instanceof RootWindow)) {
-          if (!(window instanceof WindowBar)) {
-            addWindowMenuItems(menu, window);
-            menu.addSeparator();
-          }
-
-          if (addTabItems) {
-            addTabOrientationMenuItems(menu, window);
-            addTabDirectionMenuItems(menu, window);
-            menu.addSeparator();
-          }
-
-          if (addSplitWindowItems) {
-            addSplitWindowMenuItems(menu, window);
-            menu.addSeparator();
-          }
+      if (!(window instanceof RootWindow)) {
+        if (!(window instanceof WindowBar)) {
+          addWindowMenuItems(menu, window);
+          menu.addSeparator();
         }
 
-        addNewViewMenuItems(menu, window, viewFactoryManager);
-        MenuUtil.optimizeSeparators(menu);
-        MenuUtil.align(menu);
-        return menu;
+        if (addTabItems) {
+          addTabOrientationMenuItems(menu, window);
+          addTabDirectionMenuItems(menu, window);
+          menu.addSeparator();
+        }
+
+        if (addSplitWindowItems) {
+          addSplitWindowMenuItems(menu, window);
+          menu.addSeparator();
+        }
       }
+
+      addNewViewMenuItems(menu, window, viewFactoryManager);
+      MenuUtil.optimizeSeparators(menu);
+      MenuUtil.align(menu);
+      return menu;
     };
   }
 

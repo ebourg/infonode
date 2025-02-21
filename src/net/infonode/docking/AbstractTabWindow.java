@@ -161,19 +161,11 @@ abstract public class AbstractTabWindow extends DockingWindow {
 
     getTabbedPanel().addTabListener(new TabAdapter() {
       public void tabAdded(final TabEvent event) {
-        SwingUtilities.invokeLater(new Runnable() {
-          public void run() {
-            updateButtonVisibility();
-          }
-        });
+        SwingUtilities.invokeLater(() -> updateButtonVisibility());
       }
 
       public void tabRemoved(final TabRemovedEvent event) {
-        SwingUtilities.invokeLater(new Runnable() {
-          public void run() {
-            updateButtonVisibility();
-          }
-        });
+        SwingUtilities.invokeLater(() -> updateButtonVisibility());
       }
 
       public void tabSelected(TabStateChangedEvent event) {

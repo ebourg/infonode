@@ -113,11 +113,7 @@ public class FloatingWindow extends DockingWindow {
 
   private AWTEventListener awtMouseEventListener;
 
-  private PropertyMapTreeListener propertiesListener = new PropertyMapTreeListener() {
-    public void propertyValuesChanged(Map changes) {
-      updateFloatingWindow(changes);
-    }
-  };
+  private PropertyMapTreeListener propertiesListener = this::updateFloatingWindow;
 
   FloatingWindow(RootWindow rootWindow) {
     super(new FloatingWindowItem());
@@ -168,13 +164,11 @@ public class FloatingWindow extends DockingWindow {
 
     if (rootWindow.isHeavyweightSupported()) {
       try {
-        awtMouseEventListener = new AWTEventListener() {
-          public void eventDispatched(AWTEvent event) {
-            if (event.getID() == MouseEvent.MOUSE_ENTERED) {
-              Component c = (Component) event.getSource();
-              if (ComponentUtil.getTopLevelAncestor(c) == dialog) {
-                getRootWindow().setCurrentDragRootPane(getRootPane());
-              }
+        awtMouseEventListener = event -> {
+          if (event.getID() == MouseEvent.MOUSE_ENTERED) {
+            Component c1 = (Component) event.getSource();
+            if (ComponentUtil.getTopLevelAncestor(c1) == dialog) {
+              getRootWindow().setCurrentDragRootPane(getRootPane());
             }
           }
         };
@@ -461,17 +455,15 @@ public class FloatingWindow extends DockingWindow {
 
   private void doUpdateTitle() {
     if (titleUpdater == null) {
-      titleUpdater = new Runnable() {
-        public void run() {
-          if (dialog != null) {
-            if (dialog instanceof Dialog)
-              ((Dialog) dialog).setTitle(window == null ? "" : window.getTitle());
-            else
-              ((Frame) dialog).setTitle(window == null ? "" : window.getTitle());
-          }
-
-          titleUpdater = null;
+      titleUpdater = () -> {
+        if (dialog != null) {
+          if (dialog instanceof Dialog)
+            ((Dialog) dialog).setTitle(window == null ? "" : window.getTitle());
+          else
+            ((Frame) dialog).setTitle(window == null ? "" : window.getTitle());
         }
+
+        titleUpdater = null;
       };
 
       SwingUtilities.invokeLater(titleUpdater);

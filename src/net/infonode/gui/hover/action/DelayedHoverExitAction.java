@@ -29,8 +29,6 @@ import net.infonode.gui.hover.HoverListener;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.HashMap;
 
 /**
@@ -77,11 +75,7 @@ public class DelayedHoverExitAction implements HoverListener {
     if (timers.containsKey(c))
       ((Timer) timers.get(c)).stop();
     else {
-      Timer t = new Timer(delay, new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-          forceExit(c);
-        }
-      });
+      Timer t = new Timer(delay, e -> forceExit(c));
       t.setRepeats(false);
       timers.put(c, t);
 

@@ -31,8 +31,6 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.plaf.ButtonUI;
 import java.awt.*;
 import java.awt.event.*;
@@ -63,15 +61,13 @@ public class ButtonFactory {
       button.setContentAreaFilled(false);
       setNormalState();
 
-      button.addChangeListener(new ChangeListener() {
-        public void stateChanged(ChangeEvent e) {
-          rollover = (System.currentTimeMillis() - rolloverStart) > 20 &&
-                     ButtonHighlighter.this.button.getModel().isRollover();
-          update();
+      button.addChangeListener(e -> {
+        rollover = (System.currentTimeMillis() - rolloverStart) > 20 &&
+                   ButtonHighlighter.this.button.getModel().isRollover();
+        update();
 
-          if (ButtonHighlighter.this.button.getModel().isRollover())
-            rolloverStart = 0;
-        }
+        if (ButtonHighlighter.this.button.getModel().isRollover())
+          rolloverStart = 0;
       });
 
       button.addHierarchyListener(this);

@@ -25,13 +25,10 @@
 package net.infonode.tabbedpanel.internal;
 
 import net.infonode.gui.PopupList;
-import net.infonode.gui.PopupListListener;
 import net.infonode.gui.TextIconListCellRenderer;
 import net.infonode.tabbedpanel.*;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 /**
  * @author Bjorn Lind
@@ -58,24 +55,20 @@ public class TabDropDownList extends PopupList {
     super(button);
     this.tabbedPanel = tabbedPanel;
 
-    addPopupListListener(new PopupListListener() {
-      public void willBecomeVisible(PopupList l) {
-        int numTabs = tabbedPanel.getTabCount();
-        Tab[] tabs = new Tab[numTabs];
-        for (int i = 0; i < numTabs; i++) {
-          tabs[i] = tabbedPanel.getTabAt(i);
-        }
-        cellRenderer.calculateMaximumIconWidth(tabs);
-        getList().setListData(tabs);
-        getList().setSelectedValue(tabbedPanel.getSelectedTab(), true);
+    addPopupListListener(l -> {
+      int numTabs = tabbedPanel.getTabCount();
+      Tab[] tabs = new Tab[numTabs];
+      for (int i = 0; i < numTabs; i++) {
+        tabs[i] = tabbedPanel.getTabAt(i);
       }
+      cellRenderer.calculateMaximumIconWidth(tabs);
+      getList().setListData(tabs);
+      getList().setSelectedValue(tabbedPanel.getSelectedTab(), true);
     });
 
-    addListSelectionListener(new ListSelectionListener() {
-      public void valueChanged(ListSelectionEvent e) {
-        if (!e.getValueIsAdjusting())
-          tabbedPanel.setSelectedTab((Tab) getList().getSelectedValue());
-      }
+    addListSelectionListener(e -> {
+      if (!e.getValueIsAdjusting())
+        tabbedPanel.setSelectedTab((Tab) getList().getSelectedValue());
     });
 
     if (tabbedPanel.getProperties().getTabDropDownListVisiblePolicy() ==

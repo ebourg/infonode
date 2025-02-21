@@ -214,47 +214,43 @@ public class TitleBarUI {
   }
 
   private void update() {
-    SwingUtilities.invokeLater(new Runnable() {
+    SwingUtilities.invokeLater(() -> {
+      iFrame.setClosable(false);
+      iFrame.setMaximizable(false);
+      iFrame.setIconifiable(false);
+      iFrame.setBounds(0, 0, 50, 50);
+      iFrame.setResizable(false);
 
-      public void run() {
-        iFrame.setClosable(false);
-        iFrame.setMaximizable(false);
-        iFrame.setIconifiable(false);
-        iFrame.setBounds(0, 0, 50, 50);
-        iFrame.setResizable(false);
+      iFrame.setVisible(true);
+      iFrame.setTitle(" ");
 
-        iFrame.setVisible(true);
-        iFrame.setTitle(" ");
+      iFrame.setFrameIcon(SizeIcon.EMPTY);
 
-        iFrame.setFrameIcon(SizeIcon.EMPTY);
-
-        {
-          // Insets
-          iFrameInsets = (Insets) iFrame.getInsets().clone();
-          if (UIManager.getLookAndFeel().getClass().getName().indexOf(".MotifLookAndFeel") != -1) {
-            iFrameInsets.left += 19;
-          }
+      {
+        // Insets
+        iFrameInsets = (Insets) iFrame.getInsets().clone();
+        if (UIManager.getLookAndFeel().getClass().getName().indexOf(".MotifLookAndFeel") != -1) {
+          iFrameInsets.left += 19;
         }
-
-        {
-          // Size
-          reportedMinimumSize = iFrame.getPreferredSize();
-          minimumSize = new Dimension(Math.max(0, reportedMinimumSize.width - iFrameInsets.left - iFrameInsets.right),
-              reportedMinimumSize.height - iFrameInsets.top - iFrameInsets.bottom);
-        }
-
-        String lafName = UIManager.getLookAndFeel().getClass().getName();
-        skipIFrame = lafName.indexOf("GTKLookAndFeel") != -1
-        || (lafName.indexOf(".WindowsLookAndFeel") != -1 || UIManager.getLookAndFeel().getClass().getName()
-            .indexOf(".Office2003LookAndFeel") != -1) && Toolkit.getDefaultToolkit().getDesktopProperty(
-            "win.xpstyle.themeActive") != null;
-
-        estimateBackgroundColors();
-
-        setEnabled(true);
-        listener.updated();
       }
 
+      {
+        // Size
+        reportedMinimumSize = iFrame.getPreferredSize();
+        minimumSize = new Dimension(Math.max(0, reportedMinimumSize.width - iFrameInsets.left - iFrameInsets.right),
+            reportedMinimumSize.height - iFrameInsets.top - iFrameInsets.bottom);
+      }
+
+      String lafName = UIManager.getLookAndFeel().getClass().getName();
+      skipIFrame = lafName.indexOf("GTKLookAndFeel") != -1
+      || (lafName.indexOf(".WindowsLookAndFeel") != -1 || UIManager.getLookAndFeel().getClass().getName()
+          .indexOf(".Office2003LookAndFeel") != -1) && Toolkit.getDefaultToolkit().getDesktopProperty(
+          "win.xpstyle.themeActive") != null;
+
+      estimateBackgroundColors();
+
+      setEnabled(true);
+      listener.updated();
     });
   }
 
@@ -314,11 +310,7 @@ public class TitleBarUI {
   }
 
   public DimensionProvider getSizeDimensionProvider() {
-    return skipIFrame ? null : new DimensionProvider() {
-      public Dimension getDimension(Component c) {
-        return minimumSize;
-      }
-    };
+    return skipIFrame ? null : c -> minimumSize;
   }
 
   public void paintTitleBar(Component c, Graphics g, boolean selected, int width, int height, Direction d) {

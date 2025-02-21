@@ -581,29 +581,27 @@ public class TitledTabProperties extends PropertyMapContainer {
   }
 
   private static void updateVisualProperties() {
-    PropertyMapManager.runBatch(new Runnable() {
-      public void run() {
-        int gap = TabbedUIDefaults.getIconTextGap();
+    PropertyMapManager.runBatch(() -> {
+      int gap = TabbedUIDefaults.getIconTextGap();
 
-        DEFAULT_VALUES.getNormalProperties().getShapedPanelProperties().setOpaque(true);
+      DEFAULT_VALUES.getNormalProperties().getShapedPanelProperties().setOpaque(true);
 
-        DEFAULT_VALUES.getNormalProperties().setIconTextGap(gap).setTextTitleComponentGap(gap)
-            .setIconVisible(true).setTextVisible(true).setTitleComponentVisible(true).getComponentProperties()
-            .setFont(TabbedUIDefaults.getFont())
-            .setForegroundColor(TabbedUIDefaults.getNormalStateForeground())
-            .setBackgroundColor(TabbedUIDefaults.getNormalStateBackground())
-            .setBorder(new TabAreaLineBorder())
-            .setInsets(TabbedUIDefaults.getTabInsets());
+      DEFAULT_VALUES.getNormalProperties().setIconTextGap(gap).setTextTitleComponentGap(gap)
+          .setIconVisible(true).setTextVisible(true).setTitleComponentVisible(true).getComponentProperties()
+          .setFont(TabbedUIDefaults.getFont())
+          .setForegroundColor(TabbedUIDefaults.getNormalStateForeground())
+          .setBackgroundColor(TabbedUIDefaults.getNormalStateBackground())
+          .setBorder(new TabAreaLineBorder())
+          .setInsets(TabbedUIDefaults.getTabInsets());
 
-        DEFAULT_VALUES.getHighlightedProperties().getComponentProperties()
-            .setBackgroundColor(TabbedUIDefaults.getHighlightedStateBackground())
-            .setBorder(new CompoundBorder(new TabAreaLineBorder(),
-                                          new TabHighlightBorder(TabbedUIDefaults.getHighlight(), true)));
+      DEFAULT_VALUES.getHighlightedProperties().getComponentProperties()
+          .setBackgroundColor(TabbedUIDefaults.getHighlightedStateBackground())
+          .setBorder(new CompoundBorder(new TabAreaLineBorder(),
+                                        new TabHighlightBorder(TabbedUIDefaults.getHighlight(), true)));
 
-        DEFAULT_VALUES.getDisabledProperties().getComponentProperties()
-            .setForegroundColor(TabbedUIDefaults.getDisabledForeground()).setBackgroundColor(
-                TabbedUIDefaults.getDisabledBackground());
-      }
+      DEFAULT_VALUES.getDisabledProperties().getComponentProperties()
+          .setForegroundColor(TabbedUIDefaults.getDisabledForeground()).setBackgroundColor(
+              TabbedUIDefaults.getDisabledBackground());
     });
   }
 

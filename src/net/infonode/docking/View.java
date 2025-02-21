@@ -24,8 +24,6 @@
 package net.infonode.docking;
 
 import net.infonode.docking.drag.DockingWindowDragSource;
-import net.infonode.docking.drag.DockingWindowDragger;
-import net.infonode.docking.drag.DockingWindowDraggerProvider;
 import net.infonode.docking.drop.InteriorDropInfo;
 import net.infonode.docking.internal.ReadContext;
 import net.infonode.docking.internal.ViewTitleBar;
@@ -49,7 +47,6 @@ import net.infonode.util.StreamUtil;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -77,25 +74,13 @@ import java.util.List;
  */
 public class View extends DockingWindow {
   private Component lastFocusedComponent;
-  private HierarchyListener focusComponentListener = new HierarchyListener() {
-    public void hierarchyChanged(HierarchyEvent e) {
-      checkLastFocusedComponent();
-    }
-  };
+  private HierarchyListener focusComponentListener = e -> checkLastFocusedComponent();
   private SimplePanel contentPanel = new SimplePanel();
   private ViewProperties rootProperties = new ViewProperties();
   private WeakReference lastRootWindow;
-  private PropertyChangeListener listener = new PropertyChangeListener() {
-    public void propertyChanged(Property property, Object valueContainer, Object oldValue, Object newValue) {
-      fireTitleChanged();
-    }
-  };
+  private PropertyChangeListener listener = (property, valueContainer, oldValue, newValue) -> fireTitleChanged();
 
-  private PropertyChangeListener titleBarPropertiesListener = new PropertyChangeListener() {
-    public void propertyChanged(Property property, Object valueContainer, Object oldValue, Object newValue) {
-      updateTitleBar(property, valueContainer);
-    }
-  };
+  private PropertyChangeListener titleBarPropertiesListener = (property, valueContainer, oldValue, newValue) -> updateTitleBar(property, valueContainer);
 
   private ViewTitleBar titleBar;
   private boolean isfocused = false;
@@ -468,11 +453,7 @@ public class View extends DockingWindow {
       if (titleBarProperties.getVisible()) {
         if (titleBar == null) {
           titleBar = new ViewTitleBar(this);
-          new DockingWindowDragSource(titleBar, new DockingWindowDraggerProvider() {
-            public DockingWindowDragger getDragger(MouseEvent mouseEvent) {
-              return getWindowProperties().getDragEnabled() ? startDrag(getRootWindow()) : null;
-            }
-          });
+          new DockingWindowDragSource(titleBar, mouseEvent -> getWindowProperties().getDragEnabled() ? startDrag(getRootWindow()) : null);
           titleBar.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
               fireTabWindowMouseButtonEvent(e);

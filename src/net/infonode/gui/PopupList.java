@@ -27,7 +27,6 @@ import net.infonode.gui.panel.SimplePanel;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
-import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
@@ -68,11 +67,9 @@ public class PopupList extends SimplePanel {
 
       add(scrollPane);
       scrollPane.getViewport().setOpaque(false);
-      list.addListSelectionListener(new ListSelectionListener() {
-        public void valueChanged(ListSelectionEvent e) {
-          if (!e.getValueIsAdjusting())
-            setVisible(false);
-        }
+      list.addListSelectionListener(e -> {
+        if (!e.getValueIsAdjusting())
+          setVisible(false);
       });
 
       update();
